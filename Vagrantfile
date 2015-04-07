@@ -91,7 +91,7 @@ Vagrant.configure(2) do |config|
   cd rospkg
   sudo python3 setup.py install
   cd ..
-  git clone git://github.com/ros-infrastructure/catkin_pkg.git -b 0.1.9
+  git clone git://github.com/ros-infrastructure/catkin_pkg.git
   cd catkin_pkg
   sudo python3 setup.py install
   cd ..
