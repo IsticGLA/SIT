@@ -1,12 +1,14 @@
-*.class
+android/.gradle/
+android/local.properties
+android/.idea/*
+android/.idea/misc.xml
+android/.idea/modules.xml
+android/android.iml
+android/app/app.iml
+android/coordsender/coordsender.iml
+android/.DS_Store
+android/build/
+android/*.iml
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.ear
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+.vagrant/*
+.fuse*

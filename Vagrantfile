@@ -40,7 +40,7 @@ Vagrant.configure(2) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "../simulation", "/simulation"
+  config.vm.synced_folder "/home/jeremy/Workspace/Java/SIT/SITISTIC/simulation", "/simulation"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -68,39 +68,38 @@ Vagrant.configure(2) do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
-	sudo apt-get update
+  sudo apt-get update
 
-	sudo apt-get install -y python3
-	sudo apt-get install -y python3-pip
-	sudo apt-get install python3-dev
+  sudo apt-get install -y python3
+  sudo apt-get install -y python3-pip
+  sudo apt-get install python3-dev
 
-	sudo pip3 install flask-restful
-	
-	cd ~
-	mkdir install
-	cd install
-	wget http://pyyaml.org/download/pyyaml/PyYAML-3.10.tar.gz
-	tar xvf PyYAML-3.10.tar.gz
-	cd PyYAML-3.10
-	sudo python3 setup.py install
-	cd ..
-	wget http://python-distribute.org/distribute_setup.py
-	sudo python3 distribute_setup.py
-	cd ..
-	git clone git://github.com/ros/rospkg.git
-	cd rospkg
-	sudo python3 setup.py install
-	cd ..
-	git clone git://github.com/ros-infrastructure/catkin_pkg.git -b 0.1.9
-	cd catkin_pkg
-	sudo python3 setup.py install
-	cd ..
-	git clone git://github.com/ros/catkin.git
-	cd catkin
-	sudo python3 setup.py install
-	echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
-	echo "export ROS_IP=192.168.33.10" >> ~/.bashrc
-	source ~/.bashrc
-	SHELL
+  sudo pip3 install flask-restful
+  
+  cd
+  mkdir install
+  cd install
+  wget http://pyyaml.org/download/pyyaml/PyYAML-3.10.tar.gz
+  tar xvf PyYAML-3.10.tar.gz
+  cd PyYAML-3.10
+  sudo python3 setup.py install
+  cd ..
+  wget http://python-distribute.org/distribute_setup.py
+  sudo python3 distribute_setup.py
+  cd ..
+  git clone git://github.com/ros/rospkg.git
+  cd rospkg
+  sudo python3 setup.py install
+  cd ..
+  git clone git://github.com/ros-infrastructure/catkin_pkg.git -b 0.1.9
+  cd catkin_pkg
+  sudo python3 setup.py install
+  cd ..
+  git clone git://github.com/ros/catkin.git
+  cd catkin
+  sudo python3 setup.py install
+  echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
+  echo "export ROS_IP=192.168.33.10" >> ~/.bashrc
+  source ~/.bashrc
+  SHELL
 end
-
