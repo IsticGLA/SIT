@@ -5,7 +5,7 @@ Système d'Information Tactique pour les pompier avec gestion de flotte de drone
 **Vagrant et ROS**
 Installer vagrant :
 
-    sudo apt-get install -y vagrant
+    sudo apt-get install -y vagrant virtualbox
 initialiser la machine vagrant :
 
     vagrant up
