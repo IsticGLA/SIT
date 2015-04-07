@@ -100,5 +100,7 @@ Vagrant.configure(2) do |config|
 	sudo python3 setup.py install
 	echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
 	echo "export ROS_IP=192.168.33.10" >> ~/.bashrc
-	source ~/.bashrc  SHELL
+	source ~/.bashrc
+	SHELL
 end
+
