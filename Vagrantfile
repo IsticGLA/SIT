@@ -23,7 +23,6 @@ Vagrant.configure(2) do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   config.vm.network "forwarded_port", guest: 11311, host: 11311
-  config.vm.network "forwarded_port", guest: 5000, host: 5000
   #config.vm.network "forwarded_port", guest: 80, host: 80
   #config.vm.network "forwarded_port", guest: 80, host: 80, protocol: "udp"
 
@@ -40,7 +39,7 @@ Vagrant.configure(2) do |config|
   # the path on the host to the actual folder. The second argument is
   # the path on the guest to mount the folder. And the optional third
   # argument is a set of non-required options.
-  config.vm.synced_folder "../simulation", "/simulation"
+  # config.vm.synced_folder "../data", "/vagrant_data"
 
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
@@ -68,37 +67,20 @@ Vagrant.configure(2) do |config|
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
+    echo "export ROS_IP=192.168.33.10" >> ~/.bashrc
+    sudo apt-get update
+    sudo apt-get install -y python3
+    sudo apt-get install -y python3-pip
+    sudo pip3 install flask-restful
+    sudo apt-get install -y python-rosinstall
+    sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
+	wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | sudo apt-key add -
 	sudo apt-get update
-
-	sudo apt-get install -y python3
-	sudo apt-get install -y python3-pip
-	sudo apt-get install python3-dev
-
-	sudo pip3 install flask-restful
-	
-	cd ~
-	mkdir install
-	cd install
-	wget http://pyyaml.org/download/pyyaml/PyYAML-3.10.tar.gz
-	tar xvf PyYAML-3.10.tar.gz
-	cd PyYAML-3.10
-	sudo python3 setup.py install
-	cd ..
-	wget http://python-distribute.org/distribute_setup.py
-	sudo python3 distribute_setup.py
-	cd ..
-	git clone git://github.com/ros/rospkg.git
-	cd rospkg
-	sudo python3 setup.py install
-	cd ..
-	git clone git://github.com/ros-infrastructure/catkin_pkg.git -b 0.1.9
-	cd catkin_pkg
-	sudo python3 setup.py install
-	cd ..
-	git clone git://github.com/ros/catkin.git
-	cd catkin
-	sudo python3 setup.py install
+	sudo apt-get install xserver-xorg-dev-lts-utopic mesa-common-dev-lts-utopic libxatracker-dev-lts-utopic libopenvg1-mesa-dev-lts-utopic libgles2-mesa-dev-lts-utopic libgles1-mesa-dev-lts-utopic libgl1-mesa-dev-lts-utopic libgbm-dev-lts-utopic libegl1-mesa-dev-lts-utopic
+	sudo apt-get install ros-indigo-ros-base
+	sudo rosdep init
+	rosdep update
 	echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
-	echo "export ROS_IP=192.168.33.10" >> ~/.bashrc
-	source ~/.bashrc  SHELL
+    source ~/.bashrc
+  SHELL
 end
