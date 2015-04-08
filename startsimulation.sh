@@ -1,2 +1,2 @@
 #!/bin/sh
-morse run simulation.simulation-rennes.py
+morse run simulation/morse-rennes.py
