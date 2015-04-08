@@ -1,0 +1,22 @@
+<html>
+    <header>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <title>Nivimoju</title>
+    </header>
+    <body>
+        <table>
+            <tr><td>Méthode</td><td>URL</td><td>action/retour</td></tr>
+            <tr><td>GET</td><td><a href="rest/authentication/connected/test/test">/authentication/connected/{id}/{password}</a></td><td>OK</td></tr>
+            <tr><td>GET</td><td><a href="rest/authentication/disconnected/test">/authentication/disconnected/{id}</a></td><td>OK</td></tr>
+            <tr><td>GET</td><td><a href="rest/intervention">/intervention</a></td><td>liste des interventions</td></tr>
+            <tr><td>POST</td><td>/intervention/{lat}/{lng}/{code}</td><td>id inter</td></tr>
+            <tr><td>PUT</td><td>/intervention/{inter}/stopped</td><td>OK</td></tr>
+            <tr><td>PUT</td><td>/intervention/{inter}/agents/{agent}</td><td>OK</td></tr>
+            <tr><td>GET</td><td><a href="rest/intervention/test/user">/intervention/{inter}/agents</a></td><td>liste des intervenants</td></tr>
+            <tr><td>GET</td><td><a href="rest/intervention/inter/resources">/intervention/{inter}/resources</a></td><td>liste des moyens</td></tr>
+            <tr><td>PUT</td><td>/intervention/{inter}/resources/{res}/{state}</td><td>change état (requested, refused, allocated, running)</td></tr>
+            <tr><td>PUT</td><td>/intervention/{inter}/resources/{vehicle}</td><td>demande une véhicule</td></tr>
+            <tr><td>PUT</td><td>/intervention/{inter}/resources/{res}/{lat}/{lng}/{role}</td><td>place vehicule sur la map avec couleur</td></tr>
+        </table>
+    </body>
+</html>
