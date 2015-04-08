@@ -8,18 +8,31 @@ import javax.ws.rs.core.Response;
 /**
  * Created by jules on 08/04/15.
  */
-@Path("/authentication")
+@Path("authentication")
 public class Authentication {
 
+    /**
+     * Request connection validation from the server
+     * @param user The id of the user
+     * @param password The password of the user
+     * @return OK if authenticated
+     */
     @GET
-    @Path("/connected/{id}/{password}")
-    public Response connect(@PathParam("id") String id, @PathParam("password") String password) {
+    @Path("/connected/{user}/{password}")
+    public Response connect(
+            @PathParam("user") String user,
+            @PathParam("password") String password) {
         return Response.ok().build();
     }
 
+    /**
+     * Disconnect the user from the server
+     * @param user The id of the user
+     * @return
+     */
     @GET
-    @Path("/disconnected/{id}")
-    public Response disconnect(@PathParam("id") String id) {
+    @Path("/disconnected/{user}")
+    public Response disconnect(@PathParam("user") String user) {
         return Response.ok().build();
     }
 }
