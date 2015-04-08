@@ -6,7 +6,7 @@ from geometry_msgs.msg import Point
 
 class Command:
     def __init__(self):
-        self.cmd = rospy.Publisher("/waypoint", Pose, queue_size=10, latch=True)
+        self.cmd = rospy.Publisher("/waypoint", Pose, queue_size=10, latch=False)
 
     def setWaypoint(self, x, y, z):
         pose = Pose(position=Point(x,y,z))
