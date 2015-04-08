@@ -4,7 +4,7 @@ from math import pi
 
 # create a quadrobot
 drone_1 = Quadrotor()
-drone_1.translate(x=-7.0, z=3.0)
+drone_1.translate(x=9.5, y=-200, z=0.5)
 drone_1.rotate(z=pi/3)
 
 # add camera to the drone_1
@@ -26,8 +26,8 @@ catPose.add_stream('ros', topic="/catposition")
 drone_1.add_default_interface('ros')
 
 env = Environment('simulation/map/rennes1.blend')
-env.set_camera_location([10.0, -10.0, 10.0])
-env.set_camera_rotation([1.0470, 0, 0.7854])
+env.set_camera_location([6.98498, -213.07755, 9.82467])
+env.set_camera_rotation([70.874 / 180 * 3.14, 0.021/180 * 3.14, 17.463/180 * 3.14])
 env.set_camera_clip(clip_start=1, clip_end=500)
 
 env.select_display_camera(camera)
