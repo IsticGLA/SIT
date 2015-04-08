@@ -29,7 +29,9 @@ android:paddingTop="@dimen/activity_vertical_margin" tools:context="istic.gla.gr
 
             <TextView android:id="@+id/CodeSinistreLabel" android:layout_width="155dp"
                 android:layout_height="match_parent" android:hint="lat"
-                android:text="Code sinistre : " android:singleLine="true" />
+                android:text="Code sinistre : " android:singleLine="true"
+                android:layout_weight="0.5"
+                android:layout_gravity="" />
 
             <Spinner
                 android:hint="code sinistre"
@@ -37,6 +39,7 @@ android:paddingTop="@dimen/activity_vertical_margin" tools:context="istic.gla.gr
                 android:layout_height="match_parent"
                 android:id="@+id/CodeSinistreSpinner"
                 android:entries="@array/code"
+                android:layout_weight="0.5"
                 android:spinnerMode="dialog"/>
         </LinearLayout>
 
@@ -48,10 +51,12 @@ android:paddingTop="@dimen/activity_vertical_margin" tools:context="istic.gla.gr
 
             <EditText android:id="@+id/lat" android:layout_width="155dp"
                 android:layout_height="match_parent" android:hint="lat"
+                android:layout_weight="0.5"
                 android:maxLines="1" android:singleLine="true" />
 
             <EditText android:id="@+id/lng" android:layout_width="155dp"
                 android:layout_height="match_parent" android:hint="lng"
+                android:layout_weight="0.5"
                 android:maxLines="1" android:singleLine="true" />
         </LinearLayout>
         <Button android:id="@+id/intervention_button" style="?android:textAppearanceSmall"
