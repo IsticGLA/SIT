@@ -25,7 +25,7 @@ cat.append(catPose)
 catPose.add_stream('ros', topic="/catposition")
 cat.add_default_interface('ros')
 
-env = Environment('test-paris.blend')
+env = Environment('simulation/map/test-paris.blend')
 env.set_camera_location([10.0, -10.0, 10.0])
 env.set_camera_rotation([1.0470, 0, 0.7854])
 env.set_camera_clip(clip_start=1, clip_end=500)
