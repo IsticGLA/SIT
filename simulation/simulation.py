@@ -6,7 +6,7 @@ from geometry_msgs.msg import Point
 
 class Command:
     def __init__(self):
-        self.cmd = rospy.Publisher("/mav/waypoint", Pose, queue_size=10, latch=True)
+        self.cmd = rospy.Publisher("/waypoint", Pose, queue_size=10, latch=True)
 
     def setWaypoint(self, x, y, z):
         pose = Pose(position=Point(x,y,z))
@@ -34,7 +34,6 @@ def waypoint():
     y = request.json['y']
     z = request.json['z']
     command.setWaypoint(x, y, z)
-    
     return jsonify({"x": x, "y": y, "z": z}), 201
 
 if __name__ == '__main__' :
