@@ -19,7 +19,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>nivimoju-servlet</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>
