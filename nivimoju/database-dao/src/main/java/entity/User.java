@@ -2,10 +2,12 @@ package entity;
 
 import util.Constant;
 
+import java.io.Serializable;
+
 /**
  * Created by vivien on 08/04/15.
  */
-public class User extends AbstractEntity {
+public class User extends AbstractEntity implements Serializable {
 
     private String login;
     private String password;
@@ -28,5 +30,40 @@ public class User extends AbstractEntity {
         this.type = Constant.TYPE_USER;
         this.login = login;
         this.password = password;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) return false;
+
+        User user = (User) o;
+
+        if (!login.equals(user.login)) return false;
+        return password.equals(user.password);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = login.hashCode();
+        result = 31 * result + password.hashCode();
+        return result;
     }
 }

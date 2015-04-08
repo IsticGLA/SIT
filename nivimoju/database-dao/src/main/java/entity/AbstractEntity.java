@@ -34,7 +34,7 @@ public abstract class AbstractEntity {
         this.id=id;
     }
 
-    public String getDataType() {
+    public String getType() {
         return type;
     }
 }
