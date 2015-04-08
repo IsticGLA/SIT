@@ -95,7 +95,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         List<T> res = new ArrayList<T>();
         DesignDocument designDoc = currentBucket.bucketManager().getDesignDocument("designDoc");
         createViewAll();
-        ViewResult result = currentBucket.query(ViewQuery.from("designDoc", "by_datatype_" + datatype));
+        ViewResult result = currentBucket.query(ViewQuery.from("designDoc", "by_type_" + datatype));
                 // Iterate through the returned ViewRows
         for (ViewRow row : result) {
             System.out.println(row);
@@ -108,9 +108,10 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * GetById
      * @return
      */
-    public final T getById(long id)
+    public final T getById(String id)
     {
-        JsonDocument res = currentBucket.get(""+id);
+        System.out.println(id);
+        JsonDocument res = currentBucket.get(id);
         return jsonDocumentToEntity(res);
     }
 

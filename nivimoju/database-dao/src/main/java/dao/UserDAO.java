@@ -20,8 +20,8 @@ public class UserDAO extends AbstractDAO<User> {
         User user = new User();
 
         try {
-            ObjectReader or = new ObjectMapper().reader();
-            user = or.readValue(jsonDocument.toString());
+            ObjectMapper om = new ObjectMapper();
+            user = om.readValue(jsonDocument.content().toString(), User.class);
         } catch (IOException e) {
             e.printStackTrace();
         }
