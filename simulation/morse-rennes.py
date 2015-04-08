@@ -9,7 +9,7 @@ drone_1.rotate(z=pi/3)
 
 # add camera to the drone_1
 camera = VideoCamera()
-camera.translate(x=0.3, z=-0.05)
+camera.translate(z=-0.05)
 camera.rotate(x=+0.2)
 drone_1.append(camera)
 camera.add_interface("ros")
