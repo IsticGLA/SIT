@@ -50,7 +50,6 @@
                     android:layout_width="155dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
-                    android:entries="@array/code"
                     android:hint="code sinistre"
                     android:spinnerMode="dialog" />
             </LinearLayout>

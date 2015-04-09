@@ -1,13 +1,11 @@
 package entity;
 
-import util.Constant;
-
 import java.io.Serializable;
 
 /**
  * Created by jeremy on 08/04/15.
  */
-public class Marker extends AbstractEntity implements Serializable {
+public class Marker implements Serializable {
 
     private MarkerType markerType;
     private double latitude;
@@ -18,7 +16,6 @@ public class Marker extends AbstractEntity implements Serializable {
      */
     public Marker() {
         super();
-        this.type = Constant.TYPE_MARKER;
     }
 
     /**
@@ -29,7 +26,6 @@ public class Marker extends AbstractEntity implements Serializable {
      */
     public Marker(MarkerType markerType, double latitude, double longitude) {
         super();
-        this.type = Constant.TYPE_MARKER;
         this.markerType = markerType;
         this.latitude = latitude;
         this.longitude = longitude;
