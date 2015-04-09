@@ -74,6 +74,7 @@ public class StaticDataDAOTest {
         StaticData st3 = stDAO.create(stData);
         StaticData st4 = stDAO.create(stData);
 
+        Thread.sleep(60000);
         int counter = 0;
         List<StaticData> list = stDAO.getAll();
 

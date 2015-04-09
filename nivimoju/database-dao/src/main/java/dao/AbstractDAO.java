@@ -6,6 +6,8 @@ import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectWriter;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.JsonLongDocument;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.error.DocumentAlreadyExistsException;
+import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.error.FlushDisabledException;
 import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
@@ -48,16 +50,20 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e entity to create
      */
     public final T create(T e) {
-        JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
-        Long newId = globalId.content();
+        try {
+            JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
+            Long newId = globalId.content();
 
-        long begin = System.currentTimeMillis();
-        JsonDocument res = DAOManager.getCurrentBucket().insert(JsonDocument.create(Long.toString(newId), entityToJsonDocument(e)));
-        long end = System.currentTimeMillis();
-        float time = ((float) (end-begin)) / 1000f;
-        System.out.println("CREATE : " + time);
+            long begin = System.currentTimeMillis();
+            JsonDocument res = DAOManager.getCurrentBucket().insert(JsonDocument.create(Long.toString(newId), entityToJsonDocument(e)));
+            long end = System.currentTimeMillis();
+            float time = ((float) (end - begin)) / 1000f;
+            System.out.println("CREATE : " + time);
 
-        return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+            return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+        } catch (DocumentAlreadyExistsException ex){
+            return null;
+        }
     }
 
     /**
@@ -65,8 +71,12 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e
      */
     public final long delete(T e) {
-        JsonDocument res = DAOManager.getCurrentBucket().remove("" + e.getId());
-        return Long.valueOf(res.id());
+        try {
+            JsonDocument res = DAOManager.getCurrentBucket().remove("" + e.getId());
+            return Long.valueOf(res.id());
+        } catch (DocumentDoesNotExistException ex){
+            return -1;
+        }
     }
 
     /**
@@ -75,8 +85,12 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e
      */
     public final T update(T e) {
-        JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
-        return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+        try {
+            JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
+            return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+        } catch (DocumentDoesNotExistException ex){
+            return null;
+        }
     }
 
     /**
@@ -85,7 +99,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final List<T> getAll()
     {
-
         long begin = System.currentTimeMillis();
         List<T> res = new ArrayList<T>();
         createViewAll();
@@ -109,17 +122,21 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final T getById(Long id)
     {
-        long begin = System.currentTimeMillis();
+        try {
+            long begin = System.currentTimeMillis();
 
-        String idString = Long.toString(id);
-        JsonDocument res = DAOManager.getCurrentBucket().get(idString);
-        if (null == res){
+            String idString = Long.toString(id);
+            JsonDocument res = DAOManager.getCurrentBucket().get(idString);
+            if (null == res) {
+                return null;
+            } else {
+                long end = System.currentTimeMillis();
+                float time = ((float) (end - begin)) / 1000f;
+                System.out.println("GetById " + time);
+                return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+            }
+        } catch (DocumentDoesNotExistException ex){
             return null;
-        } else {
-            long end = System.currentTimeMillis();
-            float time = ((float) (end-begin)) / 1000f;
-            System.out.println("GetById "+time);
-            return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
         }
     }
 
