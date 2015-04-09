@@ -17,8 +17,31 @@ package istic.gla.groupeb.flerjeco;
 
 public class Constants {
 
-    static String[] Headlines = {
-        "Map 1",
-        "Map 2"
+    static String[] Resources = {
+            "Resource1",
+            "Resource2",
+            "Resource3",
+            "Resource4",
+            "Resource5",
+            "Resource6",
+            "Resource7",
+            "Resource8",
+            "Resource9",
+            "Resource10",
+            "Resource11"
+    };
+
+    static String[] Requests = {
+            "Request1",
+            "Request2",
+            "Request3",
+            "Request4",
+            "Request5",
+            "Request6",
+            "Request7",
+            "Request8",
+            "Request9",
+            "Request10",
+            "Request11"
     };
 }
