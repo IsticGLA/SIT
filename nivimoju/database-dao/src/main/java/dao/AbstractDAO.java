@@ -7,7 +7,6 @@ import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.error.FlushDisabledException;
 import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import util.Configuration;
 
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     /**
      * type of T
      */
-    protected String datatype;
+    protected String type;
 
     /**
      * Connect to BDD and
@@ -64,7 +63,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e entity to create
      */
     public final T create(T e) {
+        currentBucket.get("globalId");
+        Long newId = currentBucket.counter("globalId", 1).content();
+        e.setId(newId);
         JsonDocument res = currentBucket.insert(entityToJsonDocument(e));
+
         return jsonDocumentToEntity(res);
     }
 
@@ -73,16 +76,17 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e
      */
     public final T delete(T e) {
-        JsonDocument res = currentBucket.remove(""+e.getId());
+        JsonDocument res = currentBucket.remove("" + e.getId());
         return jsonDocumentToEntity(res);
     }
 
     /**
      * Update entity
+     * fails with a DocumentDoesNotExistException if the object does not exist
      * @param e
      */
     public final T update(T e) {
-        JsonDocument res = currentBucket.upsert(entityToJsonDocument(e));
+        JsonDocument res = currentBucket.replace(entityToJsonDocument(e));
         return jsonDocumentToEntity(res);
     }
 
@@ -93,10 +97,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     public final List<T> getAll()
     {
         List<T> res = new ArrayList<T>();
-        DesignDocument designDoc = currentBucket.bucketManager().getDesignDocument("designDoc");
         createViewAll();
-        ViewResult result = currentBucket.query(ViewQuery.from("designDoc", "by_type_" + datatype));
-                // Iterate through the returned ViewRows
+        ViewResult result = currentBucket.query(ViewQuery.from("designDoc", "by_type_" + type));
+        // Iterate through the returned ViewRows
         for (ViewRow row : result) {
             System.out.println(row);
             res.add(jsonDocumentToEntity(row.document()));
@@ -153,21 +156,25 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     private void createViewAll()
     {
         DesignDocument designDoc = currentBucket.bucketManager().getDesignDocument("designDoc");
+        if (null == designDoc){
+            designDoc = createDesignDocument();
+        }
 
-            String viewName = "by_datatype_"+datatype;
-            String mapFunction =
-                    "function (doc, meta) {\n" +
-                            " if(doc.properties.type && doc.properties.type == '"+ datatype + "') \n" +
-                            "   { emit(doc.firstname);}\n" +
-                            "}";
-            designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
-            currentBucket.bucketManager().upsertDesignDocument(designDoc);
+        String viewName = "by_type_"+type;
+        String mapFunction =
+                "function (doc, meta) {\n" +
+                        " if(doc.type && doc.type == '"+ type + "') \n" +
+                        "   { emit(doc);}\n" +
+                        "}";
+        designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
+        currentBucket.bucketManager().upsertDesignDocument(designDoc);
     }
 
-    public void createDesignDocument()
+    public DesignDocument createDesignDocument()
     {
-            List<View> views = new ArrayList<View>();
-            DesignDocument designDoc = DesignDocument.create("designDoc", views);
-            currentBucket.bucketManager().insertDesignDocument(designDoc);
+        List<View> views = new ArrayList<View>();
+        DesignDocument designDoc = DesignDocument.create("designDoc", views);
+        currentBucket.bucketManager().insertDesignDocument(designDoc);
+        return designDoc;
     }
 }

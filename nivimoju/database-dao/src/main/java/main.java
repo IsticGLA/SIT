@@ -9,18 +9,18 @@ import java.util.List;
 public class main {
     public static void main(String[] args) {
         UserDAO userDAO = new UserDAO();
-        /*
+        userDAO.connect();
         List<User> userList = userDAO.getAll();
-
+        userDAO.disconnect();
         for(User user: userList) {
             System.out.println(user.getLogin());
             System.out.println(user.getPassword());
         }
-        */
-        User createUser = new User("login", "password");
+
+        User createUser = new User("login2", "password2");
 
         userDAO.connect();
-        User user = userDAO.getById("1520530511913919500");
+        User user = userDAO.getById("2");
         userDAO.create(createUser);
         userDAO.disconnect();
 
