@@ -2,6 +2,8 @@ package dao;
 
 import entity.IncidentCode;
 import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -9,8 +11,15 @@ import org.junit.Test;
  */
 public class IncidentCodeDAOTest {
 
+    private static IncidentCode incidentCode;
+
+    @BeforeClass
+    public static void init() {
+        incidentCode = new IncidentCode();
+    }
+
     @Test
     public void createTest() {
-        IncidentCode incidentCode = new IncidentCode();
+
     }
 }

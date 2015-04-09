@@ -179,6 +179,10 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         return JsonDocument.create(Long.toString(entity.getId()), JsonObject.fromJson(json));
     }
 
+    public T cloneEntity(T entity) {
+        return jsonDocumentToEntity(entityToJsonDocument(entity));
+    }
+
     private void createViewAll()
     {
         DesignDocument designDoc = currentBucket.bucketManager().getDesignDocument("designDoc");
