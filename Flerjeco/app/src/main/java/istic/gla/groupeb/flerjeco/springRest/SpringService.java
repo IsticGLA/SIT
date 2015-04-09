@@ -64,4 +64,14 @@ public class SpringService {
         return httpResult;
     }
 
+    public ResourceType[] resourceTypes() {
+        final String url = URL + "resource";
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<ResourceType[]> resourceTypes = restTemplate.getForEntity(url, ResourceType[].class);
+        ResourceType[] resources = resourceTypes.getBody();
+        return resources;
+    }
 }
