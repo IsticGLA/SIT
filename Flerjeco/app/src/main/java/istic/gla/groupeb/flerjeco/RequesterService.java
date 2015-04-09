@@ -79,26 +79,26 @@ public class RequesterService extends Service {
                     break;
                 case MSG_IMG:
                     //ask server for images
-                    request = new HttpGet("images");
+                    request = new HttpGet(URL +"images");
                     break;
                 case MSG_AGENTS:
                     //ask server for agents
-                    request = new HttpGet("agents");
+                    request = new HttpGet(URL +"agents");
                     break;
                 case MSG_DRONES:
                     //ask server for the list of drones
-                    request = new HttpGet("drones");
+                    request = new HttpGet(URL +"drones");
                     break;
                 case MSG_DRONE:
                     //ask server for one special drone
                     int drone = (Integer)msg.obj;
-                    request = new HttpGet("drone/" + drone);
+                    request = new HttpGet(URL +"drone/" + drone);
                     break;
                 case MSG_LOGIN:
                     //ask server for log in
                     String login = msg.getData().getString("login");
                     String password = msg.getData().getString("password");
-                    request = new HttpGet("login/"+login+"password/"+password);
+                    request = new HttpGet(URL + "login/"+login+"/password/"+password);
                     break;
                 default:
                     super.handleMessage(msg);

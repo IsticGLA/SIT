@@ -25,6 +25,10 @@
             android:name=".InterventionActivity"
             android:label="@string/title_activity_intervention" >
         </activity>
+        <service android:name="istic.gla.groupeb.flerjeco.RequesterService">
+        </service>
     </application>
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 </manifest>
