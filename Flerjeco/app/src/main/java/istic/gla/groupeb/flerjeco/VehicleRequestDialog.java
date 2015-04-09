@@ -17,7 +17,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.HashMap;
 
-import istic.gla.groupeb.flerjeco.springRest.ResourceType;
+import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 /**

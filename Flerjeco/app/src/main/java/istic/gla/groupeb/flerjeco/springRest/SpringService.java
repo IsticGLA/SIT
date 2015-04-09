@@ -11,6 +11,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Random;
 
+import entity.IncidentCode;
+import entity.ResourceType;
+
 /**
  * Created by amhachi on 08/04/15.
  */
@@ -33,17 +36,6 @@ public class SpringService {
             return codes;
 
 
-    }
-
-    public IncidentCode[]  codeSinistreClientTest() throws HttpStatusCodeException{
-
-        IncidentCode[] codes = new IncidentCode[3];
-
-        codes[0] = new IncidentCode(new Long(new Random().nextInt(100)), "SAP");
-        codes[1] = new IncidentCode(new Long(new Random().nextInt(100)), "AVP");
-        codes[2] = new IncidentCode(new Long(new Random().nextInt(100)), "FHA");
-
-        return  codes;
     }
 
     public Boolean  postInterventionTest(Intervention intervention) throws HttpStatusCodeException{
