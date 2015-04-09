@@ -63,7 +63,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e entity to create
      */
     public final T create(T e) {
+        currentBucket.get("globalId");
+        Long newId = currentBucket.counter("globalId", 1).content();
+        e.setId(newId);
         JsonDocument res = currentBucket.insert(entityToJsonDocument(e));
+
         return jsonDocumentToEntity(res);
     }
 
@@ -78,10 +82,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
 
     /**
      * Update entity
+     * fails with a DocumentDoesNotExistException if the object does not exist
      * @param e
      */
     public final T update(T e) {
-        JsonDocument res = currentBucket.upsert(entityToJsonDocument(e));
+        JsonDocument res = currentBucket.replace(entityToJsonDocument(e));
         return jsonDocumentToEntity(res);
     }
 
