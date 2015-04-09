@@ -4,6 +4,8 @@ import android.util.Log;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.util.ExceptionUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -95,7 +97,7 @@ public class SpringService {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
-        ResponseEntity<Long> requestId = restTemplate.getForEntity(url, Long.class);
+        ResponseEntity<Long> requestId = restTemplate.exchange(url, HttpMethod.PUT, null, );
         return requestId.getBody();
     }
 }
