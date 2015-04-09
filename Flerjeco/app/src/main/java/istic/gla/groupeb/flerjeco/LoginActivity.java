@@ -203,12 +203,20 @@ public class LoginActivity extends Activity {
             mAuthTask = null;
             showProgress(false);
 
+            MyApp myApp = MyApp.getInstance();
+            boolean isCodis = findViewById(R.id.checkBox_codis).isActivated();
+            myApp.setCodisUser(isCodis);
+
             if (success) {
-                Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(LoginActivity.this, SecondActivity.class);
+                Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
+                Intent intent;
+                if(isCodis)
+                    intent = new Intent(LoginActivity.this, SecondActivity.class);
+                else
+                    intent = new Intent(LoginActivity.this, SecondActivity.class);
                 startActivity(intent);
             } else {
-                Toast.makeText(LoginActivity.this, "Code failed", Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }
