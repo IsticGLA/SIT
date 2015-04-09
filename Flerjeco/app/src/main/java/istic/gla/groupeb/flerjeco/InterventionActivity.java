@@ -27,7 +27,7 @@ import android.widget.Toast;
 
 import org.springframework.web.client.HttpStatusCodeException;
 
-import istic.gla.groupeb.flerjeco.springRest.IncidentCode;
+import entity.IncidentCode;
 import istic.gla.groupeb.flerjeco.springRest.Intervention;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
@@ -136,7 +136,7 @@ public class InterventionActivity extends ActionBarActivity {
         @Override
         protected IncidentCode[] doInBackground(Void... params) {
             try {
-                IncidentCode[] codes = springService.codeSinistreClientTest();
+                IncidentCode[] codes = springService.codeSinistreClient();
                 return  codes;
 
             } catch (HttpStatusCodeException e) {
@@ -170,12 +170,12 @@ public class InterventionActivity extends ActionBarActivity {
 
 
     // Backgroud task to post intervention
-    private class InterventionPostTask extends AsyncTask<Void, Void, Boolean> {
+    private class InterventionPostTask extends AsyncTask<entity.Intervention, Void, Boolean> {
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground(entity.Intervention... params) {
             try {
-                return  springService.postInterventionTest(intervention);
+                return  springService.postInterventionTest(params[0]);
 
             } catch (HttpStatusCodeException e) {
                 Log.e("InterventionActivity", e.getMessage(), e);
