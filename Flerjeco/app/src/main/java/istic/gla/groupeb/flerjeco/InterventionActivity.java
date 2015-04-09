@@ -27,8 +27,11 @@ import android.widget.Toast;
 
 import org.springframework.web.client.HttpStatusCodeException;
 
-import istic.gla.groupeb.flerjeco.springRest.IncidentCode;
-import istic.gla.groupeb.flerjeco.springRest.Intervention;
+import java.util.HashMap;
+
+import entity.IncidentCode;
+import entity.Intervention;
+
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 
@@ -39,6 +42,8 @@ public class InterventionActivity extends ActionBarActivity {
 
     //Button of intervention creation
     Button intervention_creation_button;
+
+    HashMap<String, Long> spinnerMap ;
 
     //Text fields
     EditText nameIntervetionEditText;
@@ -51,7 +56,7 @@ public class InterventionActivity extends ActionBarActivity {
 
     //Intervetion
     Intervention intervention;
-    boolean data_local = false;
+    boolean data_local = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,9 +103,9 @@ public class InterventionActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 //String idIncidentCode, double latitude, double longitude, String name
-                intervention = new Intervention(codeSinistreSpinner.getSelectedItem().toString(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()), nameIntervetionEditText.getText().toString());
+                intervention = new Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()).intValue(), Double.valueOf(longitudeEditText.getText().toString()),null,null,null,null,null);
                 Log.i("MAMH", intervention.toString());
-                //new InterventionPostTask().execute();
+                new InterventionPostTask().execute(intervention);
             }
         });
 
@@ -152,6 +157,7 @@ public class InterventionActivity extends ActionBarActivity {
                 for (IncidentCode code : codes) {
                     if (code != null) {
                         spinnerArray[i] = code.getCode();
+                        spinnerMap.put(code.getCode(), code.getId());
                         i++;
                     }
                 }
@@ -173,12 +179,12 @@ public class InterventionActivity extends ActionBarActivity {
 
 
     // Backgroud task to post intervention
-    private class InterventionPostTask extends AsyncTask<Void, Void, Boolean> {
+    private class InterventionPostTask extends AsyncTask<Intervention, Void, Boolean> {
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected Boolean doInBackground(Intervention... params) {
             try {
-                return springService.postInterventionTest(intervention);
+                return springService.postInterventionTest(params[0]);
 
             } catch (HttpStatusCodeException e) {
                 Log.e("InterventionActivity", e.getMessage(), e);
