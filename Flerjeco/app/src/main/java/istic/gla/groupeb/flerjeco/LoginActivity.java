@@ -4,32 +4,20 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.List;
 
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
@@ -46,7 +34,7 @@ public class LoginActivity extends Activity {
     private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private EditText mEmailView;
+    private EditText mLoginView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -57,7 +45,7 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.activity_login);
 
         // Set up the login form.
-        mEmailView = (EditText) findViewById(R.id.editText_login);
+        mLoginView = (EditText) findViewById(R.id.editText_login);
 
         mPasswordView = (EditText) findViewById(R.id.editText_password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -71,8 +59,8 @@ public class LoginActivity extends Activity {
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.button_connexion);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button mLoginButton = (Button) findViewById(R.id.button_connexion);
+        mLoginButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
@@ -91,11 +79,11 @@ public class LoginActivity extends Activity {
     public void attemptLogin() {
 
         // Reset errors.
-        mEmailView.setError(null);
+        mLoginView.setError(null);
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
+        String login = mLoginView.getText().toString();
         String password = mPasswordView.getText().toString();
 
         boolean cancel = false;
@@ -110,9 +98,9 @@ public class LoginActivity extends Activity {
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
+        if (TextUtils.isEmpty(login)) {
+            mLoginView.setError(getString(R.string.error_field_required));
+            focusView = mLoginView;
             cancel = true;
         }
 
@@ -124,7 +112,7 @@ public class LoginActivity extends Activity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(login, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -171,12 +159,12 @@ public class LoginActivity extends Activity {
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
+        private final String mLogin;
         private final String mPassword;
         private String statusCode;
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
+        UserLoginTask(String login, String password) {
+            mLogin = login;
             mPassword = password;
             statusCode = "Init";
         }
@@ -187,7 +175,7 @@ public class LoginActivity extends Activity {
             // TODO: attempt authentication against a network service.
 
             SpringService service = new SpringService();
-            statusCode = service.login(mEmail, mPassword);
+            statusCode = service.login(mLogin, mPassword);
 
             Log.i(TAG, "doInBackground end");
             if(statusCode.equals("200")) {
@@ -203,12 +191,22 @@ public class LoginActivity extends Activity {
             mAuthTask = null;
             showProgress(false);
 
+            MyApp myApp = MyApp.getInstance();
+            boolean isCodis = findViewById(R.id.checkBox_codis).isActivated();
+            myApp.setCodisUser(isCodis);
+            myApp.setLogin(mLogin);
+            myApp.setPassword(mPassword);
+
             if (success) {
-                Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(LoginActivity.this, SecondActivity.class);
+                Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
+                Intent intent;
+                if(isCodis)
+                    intent = new Intent(LoginActivity.this, SecondActivity.class);
+                else
+                    intent = new Intent(LoginActivity.this, SecondActivity.class);
                 startActivity(intent);
             } else {
-                Toast.makeText(LoginActivity.this, "Code failed", Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             }

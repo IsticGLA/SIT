@@ -36,6 +36,17 @@ public class Resource implements Serializable {
         this.longitude = longitude;
     }
 
+    /**
+     * Build a Resource
+     * @param label
+     * @param state
+     */
+    public Resource(String label, State state) {
+        super();
+        this.label = label;
+        this.state = state;
+    }
+
     public String getLabel() {
         return label;
     }

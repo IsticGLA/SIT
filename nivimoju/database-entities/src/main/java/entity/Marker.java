@@ -1,5 +1,7 @@
 package entity;
 
+import util.MarkerType;
+
 import java.io.Serializable;
 
 /**
