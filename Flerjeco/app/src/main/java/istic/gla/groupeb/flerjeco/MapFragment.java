@@ -15,6 +15,10 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import entity.Intervention;
+import entity.Resource;
+import util.State;
+
 /**
  * A fragment that launches other parts of the demo application.
  */
@@ -25,6 +29,8 @@ public class MapFragment extends Fragment {
     MapView mMapView;
     private GoogleMap googleMap;
     int mCurrentPosition = -1;
+
+    private Intervention intervention;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,34 +50,10 @@ public class MapFragment extends Fragment {
         }
 
         googleMap = mMapView.getMap();
-        // latitude and longitude
 
-        double latitude = 17.385044;
-        double longitude = 78.486671;
+        SecondActivity secondActivity = (SecondActivity) getActivity();
+        initMap(secondActivity.intervention);
 
-        // create marker
-        MarkerOptions marker = new MarkerOptions().position(
-                new LatLng(latitude, longitude)).title("Hello Maps");
-
-        MarkerOptions marker2 = new MarkerOptions().position(
-                new LatLng(latitude+2, longitude+2)).title("Hello Maps");
-
-        // Changing marker icon
-        marker.icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-
-        marker2.icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-
-        // adding marker
-        googleMap.addMarker(marker);
-        googleMap.addMarker(marker2);
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(latitude, longitude)).zoom(12).build();
-        googleMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
-
-        // Perform any camera updates here
         return v;
     }
 
@@ -94,13 +76,39 @@ public class MapFragment extends Fragment {
     }
 
     public void updateMapView(int position) {
-        initMap(position);
+        Resource resource = intervention.getResources().get(position);
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(resource.getLatitude(), resource.getLongitude())).zoom(16).build();
+        googleMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition));
         mCurrentPosition = position;
     }
 
-    private void initMap(int position){
+    public void initMap(Intervention intervention){
+        this.intervention = intervention;
+
+        if (intervention.getResources().size()>0){
+
+            for (Resource resource : intervention.getResources()){
+                State resourceState = resource.getState();
+                if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+                    // create marker
+                    MarkerOptions marker = new MarkerOptions().position(
+                            new LatLng(resource.getLatitude(), resource.getLongitude())).title("Hello Maps");
+                    // Changing marker icon
+                    marker.icon(BitmapDescriptorFactory
+                            .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                    // adding marker
+                    googleMap.addMarker(marker);
+                }
+
+            }
+
+        }
+
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(17.385044+position*2, 78.486671+position*2)).zoom(12).build();
+                .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
+
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
     }

@@ -26,6 +26,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import entity.Resource;
+import util.State;
+
 public class ResourcesFragment extends Fragment {
     OnResourceSelectedListener mCallback;
 
@@ -53,8 +59,22 @@ public class ResourcesFragment extends Fragment {
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
-        listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, Constants.Resources));
-        listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, Constants.Requests));
+
+        List<String> labelsResources = new ArrayList<>();
+        List<String> labelsRequests = new ArrayList<>();
+
+        SecondActivity secondActivity = (SecondActivity) getActivity();
+        for (Resource resource : secondActivity.intervention.getResources()){
+            State resourceState = resource.getState();
+            if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+                labelsResources.add(resource.getLabel());
+            }else{
+                labelsRequests.add(resource.getLabel());
+            }
+        }
+
+        listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
+        listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
 
         listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -91,13 +111,4 @@ public class ResourcesFragment extends Fragment {
                     + " must implement OnHeadlineSelectedListener");
         }
     }
-
-    /*@Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        // Notify the parent activity of selected item
-        mCallback.onResourceSelected(position);
-        
-        // Set the item as checked to be highlighted when in two-pane layout
-        getListView().setItemChecked(position, true);
-    }*/
 }
