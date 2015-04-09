@@ -24,7 +24,7 @@ public class main {
         InterventionDAO interventionDAO = new InterventionDAO();
 
         userDAO.connect();
-        User user = userDAO.getById("2");
+        User user = userDAO.getById(2L);
         userDAO.create(createUser);
         userDAO.disconnect();
 
