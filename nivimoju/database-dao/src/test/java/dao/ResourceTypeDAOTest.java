@@ -1,8 +1,10 @@
 package dao;
 
-import com.couchbase.client.java.document.JsonDocument;
 import entity.ResourceType;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Created by vivien on 09/04/15.
