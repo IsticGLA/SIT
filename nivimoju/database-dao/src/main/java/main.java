@@ -1,8 +1,11 @@
 import dao.InterventionDAO;
 import dao.UserDAO;
 import entity.Intervention;
+import entity.Resource;
 import entity.User;
+import util.State;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,7 +31,13 @@ public class main {
         userDAO.create(createUser);
         userDAO.disconnect();
 
+
+        List<Resource> ressources = new ArrayList<>();
+        ressources.add(new Resource("VSAV", State.planned));
+        ressources.add(new Resource("VLCG", State.planned));
+        Intervention inter = new Intervention(4, 48.11, -1.61, ressources, null, null, null, null);
         interventionDAO.connect();
+        interventionDAO.create(inter);
         List<Intervention> intervention = interventionDAO.getAll();
         interventionDAO.disconnect();
 
