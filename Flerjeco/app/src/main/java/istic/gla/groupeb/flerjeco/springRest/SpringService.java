@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Random;
 
 import entity.IncidentCode;
+import entity.Intervention;
 import entity.ResourceType;
 
 /**
@@ -46,7 +47,7 @@ public class SpringService {
     public Boolean  postIntervention(Intervention intervention){
        try {
 
-           final String url = URL + "utl/to/code/sinistre/";
+           final String url = URL + intervention.getLatitude()+"/"+intervention.getLongitude()+"/"+intervention.getIncidentCode();
 
            RestTemplate restTemplate = new RestTemplate();
            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
