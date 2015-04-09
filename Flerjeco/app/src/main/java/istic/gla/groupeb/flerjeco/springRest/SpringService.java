@@ -46,6 +46,30 @@ public class SpringService {
         return  codes;
     }
 
+    public Boolean  postInterventionTest(Intervention intervention) throws HttpStatusCodeException{
+
+        return  true;
+    }
+
+    public Boolean  postIntervention(Intervention intervention){
+       try {
+
+           final String url = URL + "utl/to/code/sinistre/";
+
+           RestTemplate restTemplate = new RestTemplate();
+           restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+           restTemplate.postForObject(url, intervention, Intervention.class);
+
+           ResponseEntity<IncidentCode[]> incidentCode = restTemplate.getForEntity(url, IncidentCode[].class);
+           IncidentCode[] codes = incidentCode.getBody();
+
+           return true;
+       }catch (HttpStatusCodeException e){
+           return  false;
+       }
+    }
+
     public String login(String id, String password) {
         Log.i(TAG, "login start");
         final String url = URL + "authentication/connected/"+id+"/"+password;
