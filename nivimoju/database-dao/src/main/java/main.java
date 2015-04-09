@@ -1,3 +1,4 @@
+import dao.IncidentCodeDAO;
 import dao.InterventionDAO;
 import dao.UserDAO;
 import entity.Intervention;
@@ -31,6 +32,8 @@ public class main {
         interventionDAO.connect();
         List<Intervention> intervention = interventionDAO.getAll();
         interventionDAO.disconnect();
+
+        IncidentCodeDAO incidentCodeDAO = new IncidentCodeDAO();
 
         System.out.println(intervention.get(0).getLatitude());
         System.out.println(intervention.get(0).getResources().get(1));
