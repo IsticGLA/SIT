@@ -45,6 +45,7 @@ public class MapFragment extends Fragment {
 
         googleMap = mMapView.getMap();
         // latitude and longitude
+
         double latitude = 17.385044;
         double longitude = 78.486671;
 
