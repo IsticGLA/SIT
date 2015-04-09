@@ -20,7 +20,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
 public class SecondActivity extends FragmentActivity
-        implements HeadlinesFragment.OnHeadlineSelectedListener {
+        implements ResourcesFragment.OnResourceSelectedListener {
 
     /** Called when the activity is first created. */
     @Override
@@ -40,7 +40,7 @@ public class SecondActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            HeadlinesFragment firstFragment = new HeadlinesFragment();
+            ResourcesFragment firstFragment = new ResourcesFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -52,7 +52,7 @@ public class SecondActivity extends FragmentActivity
         }
     }
 
-    public void onArticleSelected(int position) {
+    public void onResourceSelected(int position) {
 
 
         MapFragment mapFragment = (MapFragment)

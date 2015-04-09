@@ -83,9 +83,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * Delete an entity
      * @param e
      */
-    public final T delete(T e) {
+    public final long delete(T e) {
         JsonDocument res = currentBucket.remove("" + e.getId());
-        return jsonDocumentToEntity(res);
+        return Long.valueOf(res.id());
     }
 
     /**
@@ -119,11 +119,15 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * GetById
      * @return
      */
-    public final T getById(String id)
+    public final T getById(Long id)
     {
-        System.out.println(id);
-        JsonDocument res = currentBucket.get(id);
-        return jsonDocumentToEntity(res);
+        String idString = Long.toString(id);
+        JsonDocument res = currentBucket.get(idString);
+        if (null == res){
+            return null;
+        } else {
+            return jsonDocumentToEntity(res);
+        }
     }
 
     /**
@@ -177,6 +181,10 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             e.printStackTrace();
         }
         return JsonDocument.create(Long.toString(entity.getId()), JsonObject.fromJson(json));
+    }
+
+    public T cloneEntity(T entity) {
+        return jsonDocumentToEntity(entityToJsonDocument(entity));
     }
 
     private void createViewAll()

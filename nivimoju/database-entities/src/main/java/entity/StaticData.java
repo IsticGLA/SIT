@@ -1,6 +1,7 @@
 package entity;
 
 import util.Constant;
+import util.MarkerType;
 
 /**
  * Created by jeremy on 08/04/15.
@@ -9,7 +10,7 @@ public class StaticData extends AbstractEntity {
 
     private double latitude;
     private double longitude;
-    private String markerType;
+    private MarkerType markerType;
 
     /**
      * Build a StaticData
@@ -25,7 +26,7 @@ public class StaticData extends AbstractEntity {
      * @param longitude
      * @param markerType
      */
-    public StaticData(double latitude, double longitude, String markerType) {
+    public StaticData(double latitude, double longitude, MarkerType markerType) {
         super();
         this.type = Constant.TYPE_STATIC_DATA;
         this.latitude = latitude;
@@ -49,11 +50,11 @@ public class StaticData extends AbstractEntity {
         this.longitude = longitude;
     }
 
-    public String getMarkerType() {
+    public MarkerType getMarkerType() {
         return markerType;
     }
 
-    public void setMarkerType(String markerType) {
+    public void setMarkerType(MarkerType markerType) {
         this.markerType = markerType;
     }
 
@@ -63,7 +64,8 @@ public class StaticData extends AbstractEntity {
         if (!(o instanceof StaticData)) return false;
 
         StaticData that = (StaticData) o;
-
+        if (that.id != id) return false;
+        if (!that.type.equals(type)) return false;
         if (Double.compare(that.latitude, latitude) != 0) return false;
         if (Double.compare(that.longitude, longitude) != 0) return false;
         return markerType.equals(that.markerType);

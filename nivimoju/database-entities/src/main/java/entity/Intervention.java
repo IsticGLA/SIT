@@ -41,7 +41,7 @@ public class Intervention extends AbstractEntity implements Serializable {
      */
     public Intervention(int incidentCode, double latitude, double longitude,
                         List<Resource> resources, List<List<Position>> exclusionArea,
-                        List<List<Position>> watchArea,List<List<Position>> watchPath,
+                        List<List<Position>> watchArea, List<List<Position>> watchPath,
                         List<Marker> markers) {
         super();
         this.type = Constant.TYPE_INTERVENTION;

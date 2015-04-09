@@ -6,11 +6,15 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.view.View;
 
+import istic.gla.groupeb.flerjeco.icons.Danger;
+import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 
 public class IconView extends View{
 
     private Vehicle mVehicle;
+    private Danger mDanger;
+    private Sensitive mSensitive;
 
     /**
      * Default constructor, instantiate a default vehicle
@@ -19,6 +23,8 @@ public class IconView extends View{
     public IconView(Context context) {
         super(context);
         mVehicle = new Vehicle("VSAP SG2");
+        mDanger = new Danger();
+        mSensitive = new Sensitive();
     }
 
     /**
@@ -50,6 +56,8 @@ public class IconView extends View{
         mCanvas.drawText(mVehicle.getName(), mVehicle.getRect().centerX()-100, mVehicle.getRect().centerY(), mVehicle.getPaint());
         //Reapplying the PathEffect
         mVehicle.getPaint().setPathEffect(temp);
+        mCanvas.drawPath(mDanger.getTriangle(), mDanger.getPaint());
+        mCanvas.drawPath(mSensitive.getTriangle(), mSensitive.getPaint());
     }
 
     /**
