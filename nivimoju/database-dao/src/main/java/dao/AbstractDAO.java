@@ -72,7 +72,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e
      */
     public final T delete(T e) {
-        JsonDocument res = currentBucket.remove(""+e.getId());
+        JsonDocument res = currentBucket.remove("" + e.getId());
         return jsonDocumentToEntity(res);
     }
 
@@ -92,10 +92,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     public final List<T> getAll()
     {
         List<T> res = new ArrayList<T>();
-        //DesignDocument designDoc = currentBucket.bucketManager().getDesignDocument("designDoc");
         createViewAll();
         ViewResult result = currentBucket.query(ViewQuery.from("designDoc", "by_type_" + type));
-                // Iterate through the returned ViewRows
+        // Iterate through the returned ViewRows
         for (ViewRow row : result) {
             System.out.println(row);
             res.add(jsonDocumentToEntity(row.document()));
@@ -152,21 +151,25 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     private void createViewAll()
     {
         DesignDocument designDoc = currentBucket.bucketManager().getDesignDocument("designDoc");
+        if (null == designDoc){
+            designDoc = createDesignDocument();
+        }
 
         String viewName = "by_type_"+type;
         String mapFunction =
                 "function (doc, meta) {\n" +
-                        " if(doc.properties.type && doc.properties.type == '"+ type + "') \n" +
-                        "   { emit(doc.firstname);}\n" +
+                        " if(doc.type && doc.type == '"+ type + "') \n" +
+                        "   { emit(doc);}\n" +
                         "}";
         designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
         currentBucket.bucketManager().upsertDesignDocument(designDoc);
     }
 
-    public void createDesignDocument()
+    public DesignDocument createDesignDocument()
     {
-            List<View> views = new ArrayList<View>();
-            DesignDocument designDoc = DesignDocument.create("designDoc", views);
-            currentBucket.bucketManager().insertDesignDocument(designDoc);
+        List<View> views = new ArrayList<View>();
+        DesignDocument designDoc = DesignDocument.create("designDoc", views);
+        currentBucket.bucketManager().insertDesignDocument(designDoc);
+        return designDoc;
     }
 }
