@@ -17,14 +17,14 @@ public class main {
             System.out.println(user.getPassword());
         }
 
-        /*User createUser = new User("login", "password");
+        User createUser = new User("login2", "password2");
 
         userDAO.connect();
-        User user = userDAO.getById("1520530511913919500");
+        User user = userDAO.getById("2");
         userDAO.create(createUser);
         userDAO.disconnect();
 
         System.out.println(user.getLogin());
-        System.out.println(user.getPassword());*/
+        System.out.println(user.getPassword());
     }
 }

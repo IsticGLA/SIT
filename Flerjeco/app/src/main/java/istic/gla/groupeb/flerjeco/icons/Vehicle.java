@@ -18,6 +18,10 @@ public class Vehicle extends Canvas {
     private Rect rect2;
     private String name;
 
+    /**
+     * Default constructor of a vehicle
+     * @param name the name of the vehicle
+     */
     public Vehicle(String name){
         this.name = name;
         paint = new Paint();
@@ -34,6 +38,10 @@ public class Vehicle extends Canvas {
 
     public enum Function {Water, Fire, People, Risks, Commands, Default}
 
+    /**
+     * Method that changes the function of the vehicle
+     * @param function the new function of the vehicle
+     */
     public void changeFunction(Function function){
         paint.setStyle(Paint.Style.STROKE);
         switch (function){
@@ -58,6 +66,10 @@ public class Vehicle extends Canvas {
         }
     }
 
+    /**
+     * Method that changes the state of the vehicle
+     * @param state the new state of the vehicle
+     */
     public void changeState(State state){
         paint.setStyle(Paint.Style.STROKE);
         switch (state){
@@ -73,22 +85,42 @@ public class Vehicle extends Canvas {
         }
     }
 
+    /**
+     * Getter for the vehicle's name
+     * @return the name of the vehicle
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Setter for the vehicle's name
+     * @param name the new name of the vehicle
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Getter for the paint graphics of the vehicle
+     * @return the paint graphics
+     */
     public Paint getPaint() {
         return paint;
     }
 
+    /**
+     * Getter for the first big rectangle
+     * @return the first big rectangle
+     */
     public Rect getRect() {
         return rect;
     }
 
+    /**
+     * Getter for the second little rectangle
+     * @return the second little rectangle
+     */
     public Rect getRect2() {
         return rect2;
     }
