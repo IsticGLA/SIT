@@ -42,6 +42,8 @@ public class ResourceType extends AbstractEntity {
 
         ResourceType that = (ResourceType) o;
 
+        if (id != that.id) return false;
+        if (!type.equals(that.type)) return false;
         return label.equals(that.label);
 
     }
