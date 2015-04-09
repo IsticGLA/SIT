@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
@@ -26,24 +28,43 @@ import android.widget.Toast;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import istic.gla.groupeb.flerjeco.springRest.IncidentCode;
+import istic.gla.groupeb.flerjeco.springRest.Intervention;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 
 public class InterventionActivity extends ActionBarActivity {
 
+
     Spinner codeSinistreSpinner;
+
+    //Button of intervention creation
+    Button intervention_creation_button;
+
+    //Text fields
+    EditText nameIntervetionEditText ;
+    EditText latitudeEditText ;
+    EditText longitudeEditText ;
+
     SpringService springService = new SpringService();
     String[] spinnerArray;
     ArrayAdapter<String> spinnerAdapter;
 
+    //Intervetion
+    Intervention intervention;
     boolean data_local = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intervention);
 
+        //Set up code sinistre list
         codeSinistreSpinner = (Spinner) findViewById(R.id.CodeSinistreSpinner);
+        nameIntervetionEditText = (EditText) findViewById(R.id.nameInterventionEditText);
+        latitudeEditText = (EditText) findViewById(R.id.lat);
+        longitudeEditText = (EditText) findViewById(R.id.lng);
 
+        // Set up Button of intervention creation
+        intervention_creation_button =  ( Button ) findViewById(R.id.intervention_button);
 
         if(data_local) {
             spinnerArray = new String[]{"SAP", "AVP", "FHA", "MEEEEE"};
@@ -55,6 +76,7 @@ public class InterventionActivity extends ActionBarActivity {
 
 
 
+        // add listener to spinner list
          codeSinistreSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
@@ -71,6 +93,16 @@ public class InterventionActivity extends ActionBarActivity {
                 // your code here
             }
 
+        });
+        // add button listener
+        intervention_creation_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //String idIncidentCode, double latitude, double longitude, String name
+                intervention = new Intervention(codeSinistreSpinner.getSelectedItem().toString(),Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()) , nameIntervetionEditText.getText().toString());
+                Log.i("MAMH", intervention.toString());
+                //new InterventionPostTask().execute();
+            }
         });
 
     }
@@ -98,6 +130,7 @@ public class InterventionActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    // Backgroud task to get sistre codes
     private class HttpRequestTask extends AsyncTask<Void, Void, IncidentCode[]> {
 
         @Override
@@ -130,6 +163,30 @@ public class InterventionActivity extends ActionBarActivity {
             spinnerAdapter = new ArrayAdapter<String>(InterventionActivity.this, android.R.layout.simple_spinner_item,spinnerArray);
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             codeSinistreSpinner.setAdapter(spinnerAdapter);
+
+        }
+
+    }
+
+
+    // Backgroud task to post intervention
+    private class InterventionPostTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            try {
+                return  springService.postInterventionTest(intervention);
+
+            } catch (HttpStatusCodeException e) {
+                Log.e("InterventionActivity", e.getMessage(), e);
+                return false;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean resultPost) {
+            if(resultPost) Toast.makeText(InterventionActivity.this, "Intervention ajoutée", Toast.LENGTH_LONG).show();
 
         }
 

@@ -23,7 +23,14 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class RequestsFragment extends ListFragment {
+public class InterventionsNamesFragment extends ListFragment {
+    OnHeadlineSelectedListener mCallback;
+
+    // The container Activity must implement this interface so the frag can deliver messages
+    public interface OnHeadlineSelectedListener {
+        /** Called by HeadlinesFragment when a list item is selected */
+        public void onArticleSelected(int position);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,7 +41,7 @@ public class RequestsFragment extends ListFragment {
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
         // Create an array adapter for the list view, using the Ipsum headlines array
-        setListAdapter(new ArrayAdapter<String>(getActivity(), layout, Constants.Requests));
+        setListAdapter(new ArrayAdapter<String>(getActivity(), layout, Constants.Resources));
     }
 
     @Override
@@ -51,10 +58,21 @@ public class RequestsFragment extends ListFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception.
+        try {
+            mCallback = (OnHeadlineSelectedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
+        // Notify the parent activity of selected item
+        mCallback.onArticleSelected(position);
         
         // Set the item as checked to be highlighted when in two-pane layout
         getListView().setItemChecked(position, true);
