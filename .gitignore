@@ -12,3 +12,6 @@ android/*.iml
 .idea
 .vagrant/*
 .fuse*
+*.iml
+target/
+*.class

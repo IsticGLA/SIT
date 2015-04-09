@@ -5,12 +5,12 @@ from math import pi
 # create a quadrobot
 drone_1 = Quadrotor()
 drone_1.translate(x=9.5, y=-200, z=0.5)
-drone_1.rotate(z=pi/3)
+#drone_1.rotate(z=pi/3)
 
 # add camera to the drone_1
 camera = VideoCamera()
-camera.translate(z=-0.05)
-camera.rotate(x=+0.2)
+camera.translate(z=-0.1)
+camera.rotate(y= -90 / 180 * pi)
 drone_1.append(camera)
 camera.add_interface("ros")
 
