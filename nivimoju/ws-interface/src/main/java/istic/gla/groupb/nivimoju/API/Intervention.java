@@ -1,5 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
+import dao.InterventionDAO;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
@@ -8,6 +10,8 @@ import javax.ws.rs.core.Response;
  */
 @Path("intervention")
 public class Intervention {
+
+    InterventionDAO interventionDAO;
 
     /**
      * Gets all the interventions running
@@ -31,6 +35,12 @@ public class Intervention {
             @PathParam("lat") long lat,
             @PathParam("lng") long lng,
             @PathParam("code") String code) {
+
+
+        interventionDAO.connect();
+        entity.Intervention intervention = new entity.Intervention();
+        interventionDAO.disconnect();
+
         return Response.ok().build();
     }
 

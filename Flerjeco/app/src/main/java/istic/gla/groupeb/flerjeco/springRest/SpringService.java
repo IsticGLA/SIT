@@ -27,7 +27,7 @@ public class SpringService {
     public IncidentCode[]  codeSinistreClient() throws HttpStatusCodeException{
 
 
-        final String url = URL + "utl/to/code/sinistre/";
+        final String url = URL + "incidentcode";
 
 
             RestTemplate restTemplate = new RestTemplate();
@@ -97,7 +97,7 @@ public class SpringService {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
-        ResponseEntity<Long> requestId = restTemplate.exchange(url, HttpMethod.PUT, null, );
+        ResponseEntity<Long> requestId = restTemplate.exchange(url, HttpMethod.PUT, null, Long.class);
         return requestId.getBody();
     }
 }
