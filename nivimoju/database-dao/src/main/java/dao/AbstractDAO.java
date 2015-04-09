@@ -4,6 +4,7 @@ import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.JsonLongDocument;
 import com.couchbase.client.java.error.FlushDisabledException;
 import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
@@ -63,8 +64,8 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e entity to create
      */
     public final T create(T e) {
-        currentBucket.get("globalId");
-        Long newId = currentBucket.counter("globalId", 1).content();
+        JsonLongDocument globalId = currentBucket.counter("globalId", 1);
+        Long newId = globalId.content();
         e.setId(newId);
         JsonDocument res = currentBucket.insert(entityToJsonDocument(e));
 
