@@ -12,3 +12,4 @@ android/*.iml
 .idea
 .vagrant/*
 .fuse*
+.iml

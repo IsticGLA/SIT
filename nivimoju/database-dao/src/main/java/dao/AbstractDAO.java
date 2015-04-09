@@ -7,7 +7,6 @@ import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.error.FlushDisabledException;
 import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import util.Configuration;
 
 import java.util.ArrayList;
@@ -32,7 +31,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     /**
      * type of T
      */
-    protected String datatype;
+    protected String type;
 
     /**
      * Connect to BDD and
@@ -93,9 +92,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     public final List<T> getAll()
     {
         List<T> res = new ArrayList<T>();
-        DesignDocument designDoc = currentBucket.bucketManager().getDesignDocument("designDoc");
+        //DesignDocument designDoc = currentBucket.bucketManager().getDesignDocument("designDoc");
         createViewAll();
-        ViewResult result = currentBucket.query(ViewQuery.from("designDoc", "by_type_" + datatype));
+        ViewResult result = currentBucket.query(ViewQuery.from("designDoc", "by_type_" + type));
                 // Iterate through the returned ViewRows
         for (ViewRow row : result) {
             System.out.println(row);
@@ -154,14 +153,14 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     {
         DesignDocument designDoc = currentBucket.bucketManager().getDesignDocument("designDoc");
 
-            String viewName = "by_datatype_"+datatype;
-            String mapFunction =
-                    "function (doc, meta) {\n" +
-                            " if(doc.properties.type && doc.properties.type == '"+ datatype + "') \n" +
-                            "   { emit(doc.firstname);}\n" +
-                            "}";
-            designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
-            currentBucket.bucketManager().upsertDesignDocument(designDoc);
+        String viewName = "by_type_"+type;
+        String mapFunction =
+                "function (doc, meta) {\n" +
+                        " if(doc.properties.type && doc.properties.type == '"+ type + "') \n" +
+                        "   { emit(doc.firstname);}\n" +
+                        "}";
+        designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
+        currentBucket.bucketManager().upsertDesignDocument(designDoc);
     }
 
     public void createDesignDocument()
