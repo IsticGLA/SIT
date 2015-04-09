@@ -27,7 +27,7 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
  *
  * //An instance of this fragment can be created and shown as a dialog:
  *
- * void showDialog() {
+ * void showDialogRequest() {
  *     // Create the fragment and show it as a dialog.
  *     DialogFragment vehicleDialog = new VehicleRequestDialog();
  *     vehicleDialog.show(getSupportFragmentManager(), "vehicle_dialog");
@@ -129,7 +129,7 @@ public class VehicleRequestDialog extends DialogFragment {
 
         @Override
         protected void onPostExecute(Long id) {
-            ((JulesActivity)getActivity()).addRequestToView(id, resourceType);
+            Log.i("VehicleRequestDialog","Request posted");
         }
 
     }
