@@ -1,14 +1,19 @@
 package dao;
 
+import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonProcessingException;
+import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectMapper;
+import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectWriter;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonDocument;
+import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.FlushDisabledException;
 import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
 import util.Configuration;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +37,8 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * type of T
      */
     protected String type;
+
+    protected Class<T> typeClass;
 
     /**
      * Connect to BDD and
@@ -144,14 +151,32 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param jsonDocument document to transform
      * @return entity of JsonDocument
      */
-    protected abstract T jsonDocumentToEntity(JsonDocument jsonDocument);
+    protected T jsonDocumentToEntity(JsonDocument jsonDocument){
+        T entity = null;
+        try {
+            ObjectMapper om = new ObjectMapper();
+            entity = om.readValue(jsonDocument.content().toString(), typeClass);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return entity;
+    }
 
     /**
      * Transform an entity to JsonDocument
      * @param entity to transform
      * @return jsonDoc of entity
      */
-    protected abstract JsonDocument entityToJsonDocument(T entity);
+    protected JsonDocument entityToJsonDocument(T entity){
+        String json = "";
+        try {
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            json = ow.writeValueAsString(entity);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return JsonDocument.create(Long.toString(entity.getId()), JsonObject.fromJson(json));
+    }
 
     private void createViewAll()
     {
