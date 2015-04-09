@@ -31,6 +31,8 @@ import android.widget.Toast;
 
 import java.util.List;
 
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
+
 
 /**
  * A login screen that offers login via email/password.
@@ -38,17 +40,16 @@ import java.util.List;
 public class LoginActivity extends Activity {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
+    /**
+     * Keep track of the login task to ensure we can cancel it if requested.
+     */
+    private UserLoginTask mAuthTask = null;
+
     // UI references.
     private EditText mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-
-    /** Messenger for communicating with service. */
-    Messenger mService = null;
-
-    /** Flag indicating whether we have called bind on the service. */
-    boolean mIsBound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,24 +81,6 @@ public class LoginActivity extends Activity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        doBindService();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        doUnbindService();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        doUnbindService();
     }
 
     /**
@@ -141,21 +124,8 @@ public class LoginActivity extends Activity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            //mAuthTask = new UserLoginTask(email, password);
-            //mAuthTask.execute((Void) null);
-
-            Message msg = Message.obtain(null,
-                    RequesterService.MSG_LOGIN);
-            msg.replyTo = mMessenger;
-            Bundle bundle = new Bundle();
-            bundle.putString("login", email);
-            bundle.putString("password", password);
-            msg.setData(bundle);
-            try {
-                mService.send(msg);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
+            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask.execute((Void) null);
         }
     }
 
@@ -196,73 +166,58 @@ public class LoginActivity extends Activity {
     }
 
     /**
-     * Handler of incoming messages from service.
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
      */
-    class IncomingHandler extends Handler {
+    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+
+        private final String mEmail;
+        private final String mPassword;
+        private String statusCode;
+
+        UserLoginTask(String email, String password) {
+            mEmail = email;
+            mPassword = password;
+            statusCode = "Init";
+        }
+
         @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case RequesterService.MSG_LOGIN:
-                    showProgress(false);
-                    break;
-                default:
-                    super.handleMessage(msg);
+        protected Boolean doInBackground(Void... params) {
+            Log.i(TAG, "doInBackground start");
+            // TODO: attempt authentication against a network service.
+
+            SpringService service = new SpringService();
+            statusCode = service.login(mEmail, mPassword);
+
+            Log.i(TAG, "doInBackground end");
+            if(statusCode.equals("200")) {
+                return true;
+            }
+            else {
+                return false;
             }
         }
-    }
 
-    /**
-     * Target we publish for clients to send messages to IncomingHandler.
-     */
-    final Messenger mMessenger = new Messenger(new IncomingHandler());
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mAuthTask = null;
+            showProgress(false);
 
-    /**
-     * Class for interacting with the main interface of the service.
-     */
-    private ServiceConnection mConnection = new ServiceConnection() {
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            Log.i(TAG, "onServiceConnected");
-            // This is called when the connection with the service has been
-            // established, giving us the service object we can use to
-            // interact with the service.  We are communicating with our
-            // service through an IDL interface, so get a client-side
-            // representation of that from the raw service object.
-            mService = new Messenger(service);
-
-            // As part of the sample, tell the user what happened.
-            Toast.makeText(LoginActivity.this, "Service connected",
-                    Toast.LENGTH_SHORT).show();
+            if (success) {
+                Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(LoginActivity.this, SecondActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(LoginActivity.this, "Code failed", Toast.LENGTH_LONG).show();
+                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.requestFocus();
+            }
         }
 
-        public void onServiceDisconnected(ComponentName className) {
-            Log.i(TAG, "onServiceDisconnected");
-            // This is called when the connection with the service has been
-            // unexpectedly disconnected -- that is, its process crashed.
-            mService = null;
-
-            // As part of the sample, tell the user what happened.
-            Toast.makeText(LoginActivity.this, "Service disconnected",
-                    Toast.LENGTH_SHORT).show();
-        }
-    };
-
-    void doBindService() {
-        Log.i(TAG, "doBindService");
-        // Establish a connection with the service.  We use an explicit
-        // class name because there is no reason to be able to let other
-        // applications replace our component.
-        bindService(new Intent(LoginActivity.this,
-                RequesterService.class), mConnection, Context.BIND_AUTO_CREATE);
-        mIsBound = true;
-    }
-
-    void doUnbindService() {
-        Log.i(TAG, "doUnbindService");
-        if (mIsBound) {
-            // Detach our existing connection.
-            unbindService(mConnection);
-            mIsBound = false;
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+            showProgress(false);
         }
     }
 }
