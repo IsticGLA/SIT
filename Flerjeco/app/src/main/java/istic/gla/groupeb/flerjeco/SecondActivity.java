@@ -19,13 +19,35 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import entity.Intervention;
+import entity.Resource;
+import util.State;
+
 public class SecondActivity extends FragmentActivity
         implements ResourcesFragment.OnResourceSelectedListener {
+
+    protected Intervention intervention;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        intervention = new Intervention();
+        intervention.setLatitude(48.117749);
+        intervention.setLongitude(-1.677297);
+        List<Resource> resourceList = new ArrayList<>();
+        resourceList.add(new Resource("Resource1", State.active, 48.117749, -1.677297));
+        resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
+        resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
+        resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
+        resourceList.add(new Resource("Resource5", State.waiting, 48.147749, -1.677297));
+
+        intervention.setResources(resourceList);
+
         setContentView(R.layout.activity_second);
 
         // Check whether the activity is using the layout version with
@@ -53,7 +75,6 @@ public class SecondActivity extends FragmentActivity
     }
 
     public void onResourceSelected(int position) {
-
 
         MapFragment mapFragment = (MapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);

@@ -11,6 +11,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Random;
 
+import entity.IncidentCode;
+import entity.ResourceType;
+
 /**
  * Created by amhachi on 08/04/15.
  */
@@ -33,17 +36,6 @@ public class SpringService {
             return codes;
 
 
-    }
-
-    public IncidentCode[]  codeSinistreClientTest() throws HttpStatusCodeException{
-
-        IncidentCode[] codes = new IncidentCode[3];
-
-        codes[0] = new IncidentCode("SAP");
-        codes[1] = new IncidentCode( "AVP");
-        codes[2] = new IncidentCode( "FHA");
-
-        return  codes;
     }
 
     public Boolean  postInterventionTest(Intervention intervention) throws HttpStatusCodeException{
@@ -95,7 +87,15 @@ public class SpringService {
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
         ResponseEntity<ResourceType[]> resourceTypes = restTemplate.getForEntity(url, ResourceType[].class);
-        ResourceType[] resources = resourceTypes.getBody();
-        return resources;
+        return resourceTypes.getBody();
+    }
+
+    public Long requestVehicle(Long[] params) {
+        final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<Long> requestId = restTemplate.getForEntity(url, Long.class);
+        return requestId.getBody();
     }
 }
