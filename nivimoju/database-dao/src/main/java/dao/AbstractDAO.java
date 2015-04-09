@@ -83,9 +83,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * Delete an entity
      * @param e
      */
-    public final T delete(T e) {
+    public final long delete(T e) {
         JsonDocument res = currentBucket.remove("" + e.getId());
-        return jsonDocumentToEntity(res);
+        return Long.valueOf(res.id());
     }
 
     /**
@@ -123,7 +123,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     {
         String idString = Long.toString(id);
         JsonDocument res = currentBucket.get(idString);
-        return jsonDocumentToEntity(res);
+        if (null == res){
+            return null;
+        } else {
+            return jsonDocumentToEntity(res);
+        }
     }
 
     /**
