@@ -41,9 +41,9 @@ public class InterventionActivity extends ActionBarActivity {
     Button intervention_creation_button;
 
     //Text fields
-    EditText nameIntervetionEditText ;
-    EditText latitudeEditText ;
-    EditText longitudeEditText ;
+    EditText nameIntervetionEditText;
+    EditText latitudeEditText;
+    EditText longitudeEditText;
 
     SpringService springService = new SpringService();
     String[] spinnerArray;
@@ -52,6 +52,7 @@ public class InterventionActivity extends ActionBarActivity {
     //Intervetion
     Intervention intervention;
     boolean data_local = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,20 +65,18 @@ public class InterventionActivity extends ActionBarActivity {
         longitudeEditText = (EditText) findViewById(R.id.lng);
 
         // Set up Button of intervention creation
-        intervention_creation_button =  ( Button ) findViewById(R.id.intervention_button);
+        intervention_creation_button = (Button) findViewById(R.id.intervention_button);
 
-        if(data_local) {
+        if (data_local) {
             spinnerArray = new String[]{"SAP", "AVP", "FHA", "MEEEEE"};
-            spinnerAdapter = new ArrayAdapter<String>(InterventionActivity.this, android.R.layout.simple_spinner_item,spinnerArray);
+            spinnerAdapter = new ArrayAdapter<String>(InterventionActivity.this, android.R.layout.simple_spinner_item, spinnerArray);
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             codeSinistreSpinner.setAdapter(spinnerAdapter);
-        }
-        else new HttpRequestTask().execute();
-
+        } else new HttpRequestTask().execute();
 
 
         // add listener to spinner list
-         codeSinistreSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        codeSinistreSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
 
@@ -99,7 +98,7 @@ public class InterventionActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 //String idIncidentCode, double latitude, double longitude, String name
-                intervention = new Intervention(codeSinistreSpinner.getSelectedItem().toString(),Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()) , nameIntervetionEditText.getText().toString());
+                intervention = new Intervention(codeSinistreSpinner.getSelectedItem().toString(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()), nameIntervetionEditText.getText().toString());
                 Log.i("MAMH", intervention.toString());
                 //new InterventionPostTask().execute();
             }
@@ -136,10 +135,9 @@ public class InterventionActivity extends ActionBarActivity {
         @Override
         protected IncidentCode[] doInBackground(Void... params) {
             try {
-                IncidentCode[] codes = springService.codeSinistreClientTest();
-                return  codes;
-
-            } catch (HttpStatusCodeException e) {
+                IncidentCode[] codes = springService.codeSinistreClient();
+                return codes;
+           } catch (HttpStatusCodeException e) {
                 Log.e("InterventionActivity", e.getMessage(), e);
             }
 
@@ -148,19 +146,24 @@ public class InterventionActivity extends ActionBarActivity {
 
         @Override
         protected void onPostExecute(IncidentCode[] codes) {
-            if(codes != null && codes.length > 0 ) {
+            if (codes != null && codes.length > 0) {
                 int i = 0;
                 spinnerArray = new String[codes.length];
                 for (IncidentCode code : codes) {
-                    if(code != null) {
+                    if (code != null) {
                         spinnerArray[i] = code.getCode();
                         i++;
                     }
-                    }
+                }
 
             }
+            for (String code : spinnerArray){
+                if(code != null){
+                    Log.i("MAMH", code);
+                }else  Log.i("MAMH", "Code is null");
+            }
 
-            spinnerAdapter = new ArrayAdapter<String>(InterventionActivity.this, android.R.layout.simple_spinner_item,spinnerArray);
+            spinnerAdapter = new ArrayAdapter<String>(InterventionActivity.this, android.R.layout.simple_spinner_item, spinnerArray);
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             codeSinistreSpinner.setAdapter(spinnerAdapter);
 
@@ -175,7 +178,7 @@ public class InterventionActivity extends ActionBarActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                return  springService.postInterventionTest(intervention);
+                return springService.postInterventionTest(intervention);
 
             } catch (HttpStatusCodeException e) {
                 Log.e("InterventionActivity", e.getMessage(), e);
@@ -186,7 +189,8 @@ public class InterventionActivity extends ActionBarActivity {
 
         @Override
         protected void onPostExecute(Boolean resultPost) {
-            if(resultPost) Toast.makeText(InterventionActivity.this, "Intervention ajoutée", Toast.LENGTH_LONG).show();
+            if (resultPost)
+                Toast.makeText(InterventionActivity.this, "Intervention ajoutée", Toast.LENGTH_LONG).show();
 
         }
 

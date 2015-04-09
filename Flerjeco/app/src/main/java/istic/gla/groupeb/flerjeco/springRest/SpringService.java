@@ -22,7 +22,7 @@ public class SpringService {
     public IncidentCode[]  codeSinistreClient() throws HttpStatusCodeException{
 
 
-        final String url = URL + "utl/to/code/sinistre/";
+        final String url = URL + "incidentcode";
 
 
             RestTemplate restTemplate = new RestTemplate();
@@ -39,9 +39,9 @@ public class SpringService {
 
         IncidentCode[] codes = new IncidentCode[3];
 
-        codes[0] = new IncidentCode(new Long(new Random().nextInt(100)), "SAP");
-        codes[1] = new IncidentCode(new Long(new Random().nextInt(100)), "AVP");
-        codes[2] = new IncidentCode(new Long(new Random().nextInt(100)), "FHA");
+        codes[0] = new IncidentCode("SAP");
+        codes[1] = new IncidentCode( "AVP");
+        codes[2] = new IncidentCode( "FHA");
 
         return  codes;
     }
