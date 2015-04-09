@@ -6,4 +6,5 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="vehicle_fragment_text">Sélectionnez le type de véhicule dont vous avez besoin :</string>
 </resources>
