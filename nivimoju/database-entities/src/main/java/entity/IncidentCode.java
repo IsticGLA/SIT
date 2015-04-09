@@ -10,7 +10,7 @@ import java.util.List;
 public class IncidentCode extends AbstractEntity {
 
     private String code;
-    private List<ResourceType> resourceTypeList;
+    private List<Long> resourceType;
 
     /**
      * Build a IncidentCode
@@ -23,13 +23,13 @@ public class IncidentCode extends AbstractEntity {
     /**
      * Build a IncidentCode
      * @param code
-     * @param resourceTypeList
+     * @param resourceType
      */
-    public IncidentCode(String code, List<ResourceType> resourceTypeList) {
+    public IncidentCode(String code, List<Long> resourceType) {
         super();
         this.type = Constant.TYPE_INCIDENT_CODE;
         this.code = code;
-        this.resourceTypeList = resourceTypeList;
+        this.resourceType = resourceType;
     }
 
     public String getCode() {
@@ -40,12 +40,12 @@ public class IncidentCode extends AbstractEntity {
         this.code = code;
     }
 
-    public List<ResourceType> getResourceTypeList() {
-        return resourceTypeList;
+    public List<Long> getresourceType() {
+        return resourceType;
     }
 
-    public void setResourceTypeList(List<ResourceType> resourceTypeList) {
-        this.resourceTypeList = resourceTypeList;
+    public void setresourceType(List<Long> resourceType) {
+        this.resourceType = resourceType;
     }
 
     @Override
@@ -56,14 +56,14 @@ public class IncidentCode extends AbstractEntity {
         IncidentCode that = (IncidentCode) o;
 
         if (!code.equals(that.code)) return false;
-        return resourceTypeList.equals(that.resourceTypeList);
+        return resourceType.equals(that.resourceType);
 
     }
 
     @Override
     public int hashCode() {
         int result = code.hashCode();
-        result = 31 * result + resourceTypeList.hashCode();
+        result = 31 * result + resourceType.hashCode();
         return result;
     }
 }

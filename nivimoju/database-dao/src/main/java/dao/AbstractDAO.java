@@ -3,16 +3,12 @@ package dao;
 import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonProcessingException;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectMapper;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectWriter;
-import com.couchbase.client.java.Bucket;
-import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.JsonLongDocument;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.FlushDisabledException;
 import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
-import util.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,15 +20,6 @@ import java.util.List;
  * Also use for connect and disconnect
  */
 public abstract class AbstractDAO<T extends AbstractEntity> {
-    /**
-     * Current Connection
-     */
-    protected Cluster currentCluster;
-
-    /**
-     * Current Bucket
-     */
-    protected Bucket currentBucket;
 
     /**
      * type of T
@@ -46,24 +33,14 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @return Bucket to communicate with couchbase
      */
     public final void connect() {
-        if(currentCluster == null || currentBucket==null) {
-            // Connect to a cluster
-            currentCluster = CouchbaseCluster.create(Configuration.COUCHBASE_HOSTNAME);
-
-            // Open a bucket
-            currentBucket = currentCluster.openBucket(Configuration.BUCKET_NAME);
-        }
+        DAOManager.connect();
     }
 
     /**
      * Disconnect BDD
      */
     public final void disconnect() {
-        if(currentCluster != null)
-        {
-            currentCluster.disconnect();
-            currentBucket =null;
-        }
+        DAOManager.disconnect();
     }
 
     /**
@@ -71,10 +48,10 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e entity to create
      */
     public final T create(T e) {
-        JsonLongDocument globalId = currentBucket.counter("globalId", 1);
+        JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
         Long newId = globalId.content();
         e.setId(newId);
-        JsonDocument res = currentBucket.insert(entityToJsonDocument(e));
+        JsonDocument res = DAOManager.getCurrentBucket().insert(entityToJsonDocument(e));
 
         return jsonDocumentToEntity(res);
     }
@@ -84,7 +61,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e
      */
     public final long delete(T e) {
-        JsonDocument res = currentBucket.remove("" + e.getId());
+        JsonDocument res = DAOManager.getCurrentBucket().remove("" + e.getId());
         return Long.valueOf(res.id());
     }
 
@@ -94,7 +71,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e
      */
     public final T update(T e) {
-        JsonDocument res = currentBucket.replace(entityToJsonDocument(e));
+        JsonDocument res = DAOManager.getCurrentBucket().replace(entityToJsonDocument(e));
         return jsonDocumentToEntity(res);
     }
 
@@ -104,12 +81,17 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final List<T> getAll()
     {
+
+        long begin = System.currentTimeMillis();
         List<T> res = new ArrayList<T>();
         createViewAll();
-        ViewResult result = currentBucket.query(ViewQuery.from("designDoc", "by_type_" + type));
+        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_type_" + type)).allRows();
+
+        long end = System.currentTimeMillis();
+        float time = ((float) (end-begin)) / 1000f;
+        System.out.println(time);
         // Iterate through the returned ViewRows
         for (ViewRow row : result) {
-            System.out.println(row);
             res.add(jsonDocumentToEntity(row.document()));
         }
         return res;
@@ -121,11 +103,16 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final T getById(Long id)
     {
+        long begin = System.currentTimeMillis();
+
         String idString = Long.toString(id);
-        JsonDocument res = currentBucket.get(idString);
+        JsonDocument res = DAOManager.getCurrentBucket().get(idString);
         if (null == res){
             return null;
         } else {
+            long end = System.currentTimeMillis();
+            float time = ((float) (end-begin)) / 1000f;
+            System.out.println("GetById "+time);
             return jsonDocumentToEntity(res);
         }
     }
@@ -136,11 +123,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public boolean flush()
     {
-        if(currentBucket!=null && currentCluster!=null)
+        if(DAOManager.getCurrentBucket()!=null && DAOManager.currentCluster!=null)
         {
             try
             {
-                return currentBucket.bucketManager().flush();
+                return DAOManager.getCurrentBucket().bucketManager().flush();
             }
             catch (FlushDisabledException e)
             {
@@ -189,7 +176,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
 
     private void createViewAll()
     {
-        DesignDocument designDoc = currentBucket.bucketManager().getDesignDocument("designDoc");
+        DesignDocument designDoc = DAOManager.getCurrentBucket().bucketManager().getDesignDocument("designDoc");
         if (null == designDoc){
             designDoc = createDesignDocument();
         }
@@ -201,14 +188,14 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
                         "   { emit(doc);}\n" +
                         "}";
         designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
-        currentBucket.bucketManager().upsertDesignDocument(designDoc);
+        DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
     }
 
     public DesignDocument createDesignDocument()
     {
         List<View> views = new ArrayList<View>();
         DesignDocument designDoc = DesignDocument.create("designDoc", views);
-        currentBucket.bucketManager().insertDesignDocument(designDoc);
+        DAOManager.getCurrentBucket().bucketManager().insertDesignDocument(designDoc);
         return designDoc;
     }
 }
