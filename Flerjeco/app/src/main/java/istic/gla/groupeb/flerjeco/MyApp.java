@@ -8,6 +8,7 @@ import android.app.Application;
 public class MyApp extends Application {
 
     private boolean isCodisUser; //make getter and setter
+    private String login, password;
     private static MyApp singleInstance = null;
 
     public static MyApp getInstance()
@@ -27,5 +28,21 @@ public class MyApp extends Application {
 
     public void setCodisUser(boolean isCodisUser) {
         this.isCodisUser = isCodisUser;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 }
