@@ -75,10 +75,10 @@ public class StaticDataDAOTest {
         StaticData st4 = stDAO.create(stData);
 
         int counter = 0;
-        Thread.sleep(2000);
         List<StaticData> list = stDAO.getAll();
 
         for (StaticData st : list){
+            System.out.println(st.getId() + "  " + st1.getId());
             if ((st.getId() == st1.getId()) ||
                     (st.getId() == st2.getId()) ||
                     (st.getId() == st3.getId()) ||

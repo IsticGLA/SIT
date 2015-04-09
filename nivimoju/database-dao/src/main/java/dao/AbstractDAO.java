@@ -51,9 +51,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
         Long newId = globalId.content();
         e.setId(newId);
-        JsonDocument res = DAOManager.getCurrentBucket().insert(entityToJsonDocument(e));
+        JsonDocument res = DAOManager.getCurrentBucket().insert(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
 
-        return jsonDocumentToEntity(res);
+        return jsonDocumentToEntity(res.content());
     }
 
     /**
@@ -71,8 +71,8 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e
      */
     public final T update(T e) {
-        JsonDocument res = DAOManager.getCurrentBucket().replace(entityToJsonDocument(e));
-        return jsonDocumentToEntity(res);
+        JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
+        return jsonDocumentToEntity(res.content());
     }
 
     /**
@@ -85,15 +85,17 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         long begin = System.currentTimeMillis();
         List<T> res = new ArrayList<T>();
         createViewAll();
+
         List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_type_" + type)).allRows();
 
+        // Iterate through the returned ViewRows
+        for (ViewRow row : result) {
+            //System.out.println(row.toString());
+            res.add(jsonDocumentToEntity((JsonObject) row.key()));
+        }
         long end = System.currentTimeMillis();
         float time = ((float) (end-begin)) / 1000f;
         System.out.println(time);
-        // Iterate through the returned ViewRows
-        for (ViewRow row : result) {
-            res.add(jsonDocumentToEntity(row.document()));
-        }
         return res;
     }
 
@@ -113,7 +115,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             long end = System.currentTimeMillis();
             float time = ((float) (end-begin)) / 1000f;
             System.out.println("GetById "+time);
-            return jsonDocumentToEntity(res);
+            return jsonDocumentToEntity(res.content());
         }
     }
 
@@ -143,11 +145,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param jsonDocument document to transform
      * @return entity of JsonDocument
      */
-    protected T jsonDocumentToEntity(JsonDocument jsonDocument){
+    protected T jsonDocumentToEntity(JsonObject jsonDocument){
         T entity = null;
         try {
             ObjectMapper om = new ObjectMapper();
-            entity = om.readValue(jsonDocument.content().toString(), typeClass);
+            entity = om.readValue(jsonDocument.toString(), typeClass);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -159,7 +161,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param entity to transform
      * @return jsonDoc of entity
      */
-    protected JsonDocument entityToJsonDocument(T entity){
+    protected JsonObject entityToJsonDocument(T entity){
         String json = "";
         try {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -167,10 +169,12 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        return JsonDocument.create(Long.toString(entity.getId()), JsonObject.fromJson(json));
+        return JsonObject.fromJson(json);
     }
 
     public T cloneEntity(T entity) {
+        JsonObject json = entityToJsonDocument(entity);
+        json.put("id", entity.getId());
         return jsonDocumentToEntity(entityToJsonDocument(entity));
     }
 
