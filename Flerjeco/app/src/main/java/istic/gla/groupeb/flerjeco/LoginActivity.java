@@ -204,11 +204,16 @@ public class LoginActivity extends Activity {
             showProgress(false);
 
             MyApp myApp = MyApp.getInstance();
-            myApp.setCodisUser(findViewById(R.id.checkBox_codis).isActivated());
+            boolean isCodis = findViewById(R.id.checkBox_codis).isActivated();
+            myApp.setCodisUser(isCodis);
 
             if (success) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(LoginActivity.this, SecondActivity.class);
+                Intent intent;
+                if(isCodis)
+                    intent = new Intent(LoginActivity.this, SecondActivity.class);
+                else
+                    intent = new Intent(LoginActivity.this, SecondActivity.class);
                 startActivity(intent);
             } else {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
