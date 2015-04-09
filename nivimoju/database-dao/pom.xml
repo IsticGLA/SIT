@@ -68,6 +68,11 @@
             <artifactId>jersey-servlet</artifactId>
             <version>1.18.3</version>
         </dependency>
+        <dependency>
+            <groupId>groupeb.gla.istic</groupId>
+            <artifactId>database-entities</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>sitserver</finalName>

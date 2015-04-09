@@ -20,11 +20,35 @@ limitations under the License.
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <fragment android:name="istic.gla.groupeb.flerjeco.HeadlinesFragment"
-              android:id="@+id/headlines_fragment"
-              android:layout_weight="1"
-              android:layout_width="0dp"
-              android:layout_height="match_parent" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <fragment android:name="istic.gla.groupeb.flerjeco.ResourcesFragment"
+                  android:id="@+id/resources_fragment"
+                  android:layout_weight="1"
+                  android:layout_width="match_parent"
+                  android:layout_height="0dp" />
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"/>
+
+        <fragment android:name="istic.gla.groupeb.flerjeco.RequestsFragment"
+                  android:id="@+id/requests_fragment"
+                  android:layout_weight="1"
+                  android:layout_width="match_parent"
+                  android:layout_height="0dp" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Demander un moyen"
+            android:id="@+id/button"
+            android:layout_gravity="center_horizontal" />
+    </LinearLayout>
 
     <fragment android:name="istic.gla.groupeb.flerjeco.MapFragment"
               android:id="@+id/map_fragment"

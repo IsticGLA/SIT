@@ -9,7 +9,5 @@ public class Constant {
     public static final String TYPE_INCIDENT_CODE = "IncidentCode";
     public static final String TYPE_RESOURCE_TYPE = "ResourceType";
     public static final String TYPE_STATIC_DATA = "StaticData";
-    public static final String TYPE_MARKER = "Marker";
-    public static final String TYPE_RESOURCE = "Resource";
 
 }
