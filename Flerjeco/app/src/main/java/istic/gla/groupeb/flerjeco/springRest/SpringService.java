@@ -71,7 +71,15 @@ public class SpringService {
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
         ResponseEntity<ResourceType[]> resourceTypes = restTemplate.getForEntity(url, ResourceType[].class);
-        ResourceType[] resources = resourceTypes.getBody();
-        return resources;
+        return resourceTypes.getBody();
+    }
+
+    public Long requestVehicle(Long[] params) {
+        final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<Long> requestId = restTemplate.getForEntity(url, Long.class);
+        return requestId.getBody();
     }
 }
