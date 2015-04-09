@@ -16,13 +16,8 @@ public class main {
             System.out.println(user.getLogin());
             System.out.println(user.getPassword());
         }
-<<<<<<< Updated upstream
 
-        /*User createUser = new User("login", "password");
-=======
-        */
         User createUser = new User("login2", "password2");
->>>>>>> Stashed changes
 
         userDAO.connect();
         User user = userDAO.getById("2");
@@ -30,6 +25,6 @@ public class main {
         userDAO.disconnect();
 
         System.out.println(user.getLogin());
-        System.out.println(user.getPassword());*/
+        System.out.println(user.getPassword());
     }
 }
