@@ -18,13 +18,25 @@ package istic.gla.groupeb.flerjeco;
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class ResourcesFragment extends ListFragment {
+import java.util.ArrayList;
+import java.util.List;
+
+import entity.Resource;
+import util.State;
+
+public class ResourcesFragment extends Fragment {
     OnResourceSelectedListener mCallback;
+
+    private ListView listViewResources;
+    private ListView listViewRequests;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -33,15 +45,46 @@ public class ResourcesFragment extends ListFragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+
+        View v = inflater.inflate(R.layout.resource_view, container,
+                false);
+
+        listViewResources = (ListView) v.findViewById(R.id.listViewResources);
+        listViewRequests = (ListView) v.findViewById(R.id.listViewRequests);
 
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
-        // Create an array adapter for the list view, using the Ipsum headlines array
-        setListAdapter(new ArrayAdapter<String>(getActivity(), layout, Constants.Resources));
+
+        List<String> labelsResources = new ArrayList<>();
+        List<String> labelsRequests = new ArrayList<>();
+
+        SecondActivity secondActivity = (SecondActivity) getActivity();
+        for (Resource resource : secondActivity.intervention.getResources()){
+            State resourceState = resource.getState();
+            if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+                labelsResources.add(resource.getLabel());
+            }else{
+                labelsRequests.add(resource.getLabel());
+            }
+        }
+
+        listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
+        listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
+
+        listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                mCallback.onResourceSelected(position);
+                listViewResources.setItemChecked(position,true);
+            }
+        });
+
+        return v;
     }
 
     @Override
@@ -51,7 +94,7 @@ public class ResourcesFragment extends ListFragment {
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
         if (getFragmentManager().findFragmentById(R.id.map_fragment) != null) {
-            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            listViewResources.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         }
     }
 
@@ -67,14 +110,5 @@ public class ResourcesFragment extends ListFragment {
             throw new ClassCastException(activity.toString()
                     + " must implement OnHeadlineSelectedListener");
         }
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        // Notify the parent activity of selected item
-        mCallback.onResourceSelected(position);
-        
-        // Set the item as checked to be highlighted when in two-pane layout
-        getListView().setItemChecked(position, true);
     }
 }
