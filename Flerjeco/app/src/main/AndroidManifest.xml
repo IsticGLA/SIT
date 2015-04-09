@@ -35,6 +35,10 @@
             android:name=".InterventionActivity"
             android:label="@string/title_activity_intervention" >
         </activity>
+        <activity
+            android:name=".ListInterventionsActivity"
+            android:label="@string/title_activity_list_interventions" >
+        </activity>
     </application>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
     <uses-permission android:name="android.permission.INTERNET"/>
