@@ -119,10 +119,10 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * GetById
      * @return
      */
-    public final T getById(String id)
+    public final T getById(Long id)
     {
-        System.out.println(id);
-        JsonDocument res = currentBucket.get(id);
+        String idString = Long.toString(id);
+        JsonDocument res = currentBucket.get(idString);
         return jsonDocumentToEntity(res);
     }
 

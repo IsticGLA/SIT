@@ -1,3 +1,4 @@
+import dao.IncidentCodeDAO;
 import dao.InterventionDAO;
 import dao.UserDAO;
 import entity.Intervention;
@@ -27,7 +28,7 @@ public class main {
         InterventionDAO interventionDAO = new InterventionDAO();
 
         userDAO.connect();
-        User user = userDAO.getById("2");
+        User user = userDAO.getById(2L);
         userDAO.create(createUser);
         userDAO.disconnect();
 
@@ -40,6 +41,8 @@ public class main {
         interventionDAO.create(inter);
         List<Intervention> intervention = interventionDAO.getAll();
         interventionDAO.disconnect();
+
+        IncidentCodeDAO incidentCodeDAO = new IncidentCodeDAO();
 
         System.out.println(intervention.get(0).getLatitude());
         System.out.println(intervention.get(0).getResources().get(1));
