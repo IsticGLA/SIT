@@ -1,6 +1,5 @@
 package entity;
 
-import util.Constant;
 import util.State;
 
 import java.io.Serializable;
@@ -8,7 +7,7 @@ import java.io.Serializable;
 /**
  * Created by jeremy on 08/04/15.
  */
-public class Resource extends AbstractEntity implements Serializable {
+public class Resource implements Serializable {
 
     private String label;
     private State state;
@@ -20,7 +19,6 @@ public class Resource extends AbstractEntity implements Serializable {
      */
     public Resource() {
         super();
-        this.type = Constant.TYPE_RESOURCE;
     }
 
     /**
@@ -32,7 +30,6 @@ public class Resource extends AbstractEntity implements Serializable {
      */
     public Resource(String label, State state, double latitude, double longitude) {
         super();
-        this.type = Constant.TYPE_RESOURCE;
         this.label = label;
         this.state = state;
         this.latitude = latitude;
