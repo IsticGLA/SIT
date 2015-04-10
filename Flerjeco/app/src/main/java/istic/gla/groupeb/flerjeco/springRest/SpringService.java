@@ -32,7 +32,10 @@ public class SpringService {
 
 
             RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+            MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter =new MappingJackson2HttpMessageConverter();
+
+            restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
 
             ResponseEntity<IncidentCode[]> incidentCode = restTemplate.getForEntity(url, IncidentCode[].class);
 
@@ -50,9 +53,11 @@ public class SpringService {
 
            RestTemplate restTemplate = new RestTemplate();
            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-           Intervention intervetionResult = restTemplate.postForObject(url, intervention, Intervention.class);
 
-           return intervention.getId();
+           ResponseEntity<Intervention>  intervetionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
+            if(intervetionResult == null)
+           Log.i("MAMH","intervetionResult = null");
+           return intervetionResult.getBody().getId();
        }catch (HttpStatusCodeException e){
            Log.i("MAMH","Problème de la création de l'intervention : "+e.getMessage());
        }
