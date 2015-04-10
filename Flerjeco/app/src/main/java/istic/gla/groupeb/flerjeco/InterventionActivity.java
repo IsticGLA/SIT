@@ -42,8 +42,7 @@ public class InterventionActivity extends ActionBarActivity {
 
     private HashMap<String, Long> spinnerMap;
 
-    //Intervetion
-    entity.Intervention intervention;
+
     boolean data_local = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +60,14 @@ public class InterventionActivity extends ActionBarActivity {
 
         if(data_local) {
             spinnerArray = new String[]{"SAP", "AVP", "FHA", "MEEEEE"};
+            spinnerMap = new HashMap<>();
+            int i=0;
+            for (String code : spinnerArray)
+            {
+                spinnerMap.put(code, Long.valueOf(i));
+                i++;
+            }
+            i=0;
             spinnerAdapter = new ArrayAdapter<String>(InterventionActivity.this, android.R.layout.simple_spinner_item,spinnerArray);
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             codeSinistreSpinner.setAdapter(spinnerAdapter);
@@ -68,32 +75,40 @@ public class InterventionActivity extends ActionBarActivity {
         else new HttpRequestTask().execute();
 
 
-
-        // add listener to spinner list
-         codeSinistreSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-
-                if (spinnerArray != null) {
-                    Toast.makeText(InterventionActivity.this, "Code selected = " + spinnerArray[(int) id], Toast.LENGTH_LONG).show();
-                }
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                // your code here
-            }
-
-        });
         // add button listener
         intervention_creation_button.setOnClickListener(new View.OnClickListener() {
+
+            public boolean validate(){
+
+                if( latitudeEditText.getText().toString().length() == 0 ) {
+                    latitudeEditText.setError("latitude est obligatoire!");
+                    return  false;
+                }
+
+                if( longitudeEditText.getText().toString().length() == 0 )
+                {
+                    longitudeEditText.setError( "longitude est obligatoire!");
+                    return  false;
+                }
+                return  true;
+            }
+
+
             @Override
             public void onClick(View v) {
-                //String idIncidentCode, double latitude, double longitude, String name
-                intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()) , null,null,null,null,null);
-                Log.i("MAMH", intervention.toString());
-                new InterventionPostTask().execute(intervention);
+                if( validate()){
+                    //String idIncidentCode, double latitude, double longitude, String name
+                    Log.i("MAMH", spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()) + "");
+
+
+                    //Intervetion
+                    entity.Intervention intervention;
+                    intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()), null, null, null, null, null);
+                    Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
+                    //intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()) , null,null,null,null,null);
+                    // Log.i("MAMH", intervention.toString());
+                    new InterventionPostTask().execute(intervention);
+                }
             }
         });
 
@@ -164,23 +179,23 @@ public class InterventionActivity extends ActionBarActivity {
 
 
     // Backgroud task to post intervention
-    private class InterventionPostTask extends AsyncTask<entity.Intervention, Void, Boolean> {
+    private class InterventionPostTask extends AsyncTask<entity.Intervention, Void, Long> {
 
         @Override
-        protected Boolean doInBackground(entity.Intervention... params) {
+        protected Long doInBackground(entity.Intervention... params) {
             try {
-                return  springService.postInterventionTest(params[0]);
+                return  springService.postIntervention(params[0]);
 
             } catch (HttpStatusCodeException e) {
                 Log.e("InterventionActivity", e.getMessage(), e);
-                return false;
+                return 0L;
             }
 
         }
 
         @Override
-        protected void onPostExecute(Boolean resultPost) {
-            if(resultPost) Toast.makeText(InterventionActivity.this, "Intervention ajoutée", Toast.LENGTH_LONG).show();
+        protected void onPostExecute(Long resultPost) {
+            Toast.makeText(InterventionActivity.this, "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
 
         }
 

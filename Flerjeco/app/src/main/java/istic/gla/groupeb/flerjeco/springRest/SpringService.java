@@ -41,28 +41,21 @@ public class SpringService {
 
     }
 
-    public Boolean  postInterventionTest(Intervention intervention) throws HttpStatusCodeException{
 
-        return  true;
-    }
-
-    public Boolean  postIntervention(Intervention intervention){
+    public long  postIntervention(Intervention intervention){
        try {
 
-           final String url = URL + intervention.getLatitude()+"/"+intervention.getLongitude()+"/"+intervention.getIncidentCode();
+           final String url = URL + "intervention/create";
 
            RestTemplate restTemplate = new RestTemplate();
            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+           Intervention intervetionResult = restTemplate.postForObject(url, intervention, Intervention.class);
 
-           restTemplate.postForObject(url, intervention, Intervention.class);
-
-           ResponseEntity<IncidentCode[]> incidentCode = restTemplate.getForEntity(url, IncidentCode[].class);
-           IncidentCode[] codes = incidentCode.getBody();
-
-           return true;
+           return intervention.getId();
        }catch (HttpStatusCodeException e){
-           return  false;
+           Log.i("MAMH","Problème de la création de l'intervention : "+e.getMessage());
        }
+        return  0;
     }
 
     public String login(String id, String password) {

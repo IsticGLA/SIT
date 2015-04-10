@@ -47,6 +47,10 @@
             android:name=".ListInterventionsActivity"
             android:label="@string/title_activity_list_interventions" >
         </activity>
+        <activity
+            android:name=".mohssineTest.DisplayIntervention"
+            android:label="@string/title_activity_display_intervention" >
+        </activity>
     </application>
 
 </manifest>

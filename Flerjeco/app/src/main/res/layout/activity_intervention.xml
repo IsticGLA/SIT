@@ -84,6 +84,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
                     android:hint="lat"
+
                     android:inputType="numberDecimal"
                     android:maxLines="1"
                     android:singleLine="true" />
