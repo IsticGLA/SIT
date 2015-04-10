@@ -16,6 +16,7 @@
 package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -30,6 +31,7 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import util.State;
 
 public class ListInterventionsActivity extends FragmentActivity
@@ -106,31 +108,6 @@ public class ListInterventionsActivity extends FragmentActivity
     }
 
     public List<Intervention> getInterventions() {
-        interventionList = new ArrayList<Intervention>();
-
-        intervention = new Intervention();
-        intervention.setId(1);
-        intervention.setLatitude(48.117749);
-        intervention.setLongitude(-1.677297);
-        List<Resource> resourceList = new ArrayList<>();
-        resourceList.add(new Resource("Resource1", State.active, 48.117749, -1.677297));
-        resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
-        resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
-        resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
-        resourceList.add(new Resource("Resource5", State.waiting, 48.147749, -1.677297));
-
-        intervention.setResources(resourceList);
-
-        interventionList.add(intervention);
-
-        intervention = new Intervention();
-        intervention.setId(2);
-        intervention.setLatitude(66.117749);
-        intervention.setLongitude(-22.677297);
-        intervention.setResources(resourceList);
-
-        interventionList.add(intervention);
-
         return interventionList;
     }
 
@@ -142,5 +119,23 @@ public class ListInterventionsActivity extends FragmentActivity
 
         intent.putExtras(bundle);
         startActivity(intent);
+    }
+
+    /**
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
+     */
+    public class getAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            SpringService service = new SpringService();
+            Intervention[] tabInter = service.getAllInterventions();
+
+            for(Intervention inter : tabInter) {
+                System.out.println(inter.get);
+            }
+            return true;
+        }
     }
 }

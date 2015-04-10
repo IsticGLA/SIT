@@ -8,6 +8,8 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 import entity.IncidentCode;
 import entity.Intervention;
 import entity.ResourceType;
@@ -89,5 +91,16 @@ public class SpringService {
 
         ResponseEntity<Long> requestId = restTemplate.exchange(url, HttpMethod.PUT, null, Long.class);
         return requestId.getBody();
+    }
+
+    public Intervention[] getAllInterventions() {
+        Log.i(TAG, "getAllInterventions start");
+        final String url = URL + "intervention";
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<Intervention[]> entity = restTemplate.getForEntity(url, Intervention[].class);
+        Log.i(TAG, "getAllInterventions : "+ entity.getBody().toString());
+        return entity.getBody();
     }
 }
