@@ -11,14 +11,19 @@ import org.apache.log4j.Logger;
 public class LatLongConverter {
     Logger logger = Logger.getLogger(LatLongConverter.class);
 
-    private final float latitudeTop;
-    private final float latitudeBottom;
-    private final float longitudeLeft;
-    private final float longitudeRight;
-    private final float width;
-    private final float height;
-    private final float offsetX;
-    private final float offsetY;
+    private final double latitudeTop;
+    private final double latitudeBottom;
+    private final double longitudeLeft;
+    private final double longitudeRight;
+    private final double width;
+    private final double height;
+    private final double offsetX;
+    private final double offsetY;
+
+    //utilisé pour annuler la déviation suivant l'écart par rapport au centre (delta/coordonnéecaluléesansfacteur)
+    private final static double deltaXFactor = -0.0602682894;
+    private final static double deltaYFactor = -0.045858885;
+
 
     /**
      * Initialise un convertisseur latlong vers coordonnées locales dans un périmètre donné
@@ -31,7 +36,7 @@ public class LatLongConverter {
      * @param width la dimension du bord gauche à droite en unités du repère local
      * @param height la dimension du bord inférieur à supérieur en unités du repère local
      */
-    public LatLongConverter(float latitudeTop, float longitudeLeft, float latitudeBottom, float longitudeRight, float width, float height){
+    public LatLongConverter(double latitudeTop, double longitudeLeft, double latitudeBottom, double longitudeRight, double width, double height){
         this.latitudeTop = latitudeTop;
         this.longitudeLeft = longitudeLeft;
         this.latitudeBottom = latitudeBottom;
@@ -39,7 +44,7 @@ public class LatLongConverter {
         this.width = width;
         this.height = height;
         this.offsetX = width / 2;
-        this.offsetY = width / 2;
+        this.offsetY = height / 2;
     }
 
     /**
@@ -51,7 +56,7 @@ public class LatLongConverter {
      * @param width la dimension du bord gauche à droite en unités du repère local
      * @param height la dimension du bord inférieur à supérieur en unités du repère local
      */
-    public LatLongConverter(LatLong topLeft, LatLong bottomRight, float width, float height){
+    public LatLongConverter(LatLong topLeft, LatLong bottomRight, double width, double height){
         this(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude(), width, height);
     }
 
@@ -68,10 +73,21 @@ public class LatLongConverter {
             throw  new IllegalArgumentException("Impossible de convertir une position hors du périmètre de travail défini");
         }
         //interpolation linéaire sur x puis y
-        float x = width * (latlong.getLongitude() - longitudeLeft) / (longitudeRight - longitudeLeft) - offsetX;
-        float y = height * (latlong.getLatitude() - latitudeBottom) / (latitudeTop - latitudeBottom) - offsetY;
-        return new LocalCoordinate(x, y);
+        double ratioX = (latlong.getLongitude() - longitudeLeft) / (longitudeRight - longitudeLeft);
+        double x = width * ratioX - offsetX;
+        double ratioY = (latlong.getLatitude() - latitudeBottom) / (latitudeTop - latitudeBottom);
+        double y = height * ratioY - offsetY;
+
+        //prise en compte de la déviation
+        x = x*(1+deltaXFactor);
+        y = y*(1+deltaYFactor);
+
+        logger.debug(String.format("width:%s, ratioX:%s, offsetX:%s, x=>%s", width, ratioX, offsetX, x));
+        logger.debug(String.format("height:%s, ratioY:%s, offsetY:%s, y=>%s", height, ratioY, offsetY, y));
+
+        return new LocalCoordinate(x, y, 0);
     }
+
 
     /**
      * Retourne les coordonnées latlong correspondantes à une coordonnée locale
@@ -80,10 +96,12 @@ public class LatLongConverter {
      */
     public LatLong getLatLong(LocalCoordinate local){
         //interpolation linéaire sur x puis y
-        float maxX = width - offsetX;
-        float maxY = height - offsetY;
-        float longitude = (longitudeRight - longitudeLeft) * (local.getX() - maxX) / (maxX - offsetX) + longitudeLeft;
-        float latitude = (latitudeTop - latitudeBottom) * (local.getY() - maxY) / (maxY - offsetY) + latitudeBottom;
+        double maxX = width - offsetX;
+        double maxY = height - offsetY;
+        double longitude = (longitudeRight - longitudeLeft) * (local.getX() - maxX) / (maxX - offsetX) + longitudeLeft;
+        double latitude = (latitudeTop - latitudeBottom) * (local.getY() - maxY) / (maxY - offsetY) + latitudeBottom;
+
+
         return new LatLong(longitude,  latitude);
     }
 
