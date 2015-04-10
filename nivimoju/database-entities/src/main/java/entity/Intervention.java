@@ -4,6 +4,7 @@ package entity;
 import util.Constant;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,26 +34,18 @@ public class Intervention extends AbstractEntity implements Serializable {
      * @param incidentCode
      * @param latitude
      * @param longitude
-     * @param resources
-     * @param exclusionArea
-     * @param watchArea
-     * @param watchPath
-     * @param markers
      */
-    public Intervention(int incidentCode, double latitude, double longitude,
-                        List<Resource> resources, List<List<Position>> exclusionArea,
-                        List<List<Position>> watchArea, List<List<Position>> watchPath,
-                        List<Marker> markers) {
+    public Intervention(int incidentCode, double latitude, double longitude) {
         super();
         this.type = Constant.TYPE_INTERVENTION;
         this.incidentCode = incidentCode;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.resources = resources;
-        this.exclusionArea = exclusionArea;
-        this.watchArea = watchArea;
-        this.watchPath = watchPath;
-        this.markers = markers;
+        this.resources = new ArrayList<>();
+        this.exclusionArea = new ArrayList<>();
+        this.watchArea = new ArrayList<>();
+        this.watchPath = new ArrayList<>();
+        this.markers = new ArrayList<>();
     }
 
     public int getIncidentCode() {
