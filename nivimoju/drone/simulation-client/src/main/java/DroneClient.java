@@ -1,38 +1,81 @@
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import istic.gla.groupb.nivimoju.drone.latlong.LatLong;
+import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
+import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
+import org.apache.log4j.Logger;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
 
-/**
- * Created by sacapuces on 08/04/15.
- */
 public class DroneClient {
-    // HTTP GET request
-    private void send() throws Exception {
+    private static Logger logger = Logger.getLogger(DroneClient.class);
 
-        String url = "http://37.59.58.42:5000/";
+    private String server = "http://37.59.58.42:5000/";
+    private RestTemplate rest;
+    private HttpHeaders headers;
+    private HttpStatus status;
 
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+    public DroneClient() {
+        this.rest = new RestTemplate();
+        this.headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        headers.add("Accept", "*/*");
+    }
 
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", "application/json");
+    public String get(String uri) {
+        HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
+        this.setStatus(responseEntity.getStatusCode());
+        return responseEntity.getBody();
+    }
 
-        int responseCode = con.getResponseCode();
-        System.out.println("\nSending 'GET' request to URL : " + url);
-        System.out.println("Response Code : " + responseCode);
+    public String post(String uri, String json) {
+        logger.info("sending post request on " + server+uri + " with body \n" + json);
+        HttpEntity<String> requestEntity = new HttpEntity<>(json, headers);
+        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.POST, requestEntity, String.class);
+        this.setStatus(responseEntity.getStatusCode());
+        return responseEntity.getBody();
+    }
 
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        String inputLine;
-        StringBuffer response = new StringBuffer();
+    public void put(String uri, String json) {
+        HttpEntity<String> requestEntity = new HttpEntity<>(json, headers);
+        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.PUT, requestEntity, null);
+        this.setStatus(responseEntity.getStatusCode());
+    }
 
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
+    public void delete(String uri) {
+        HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
+        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.DELETE, requestEntity, null);
+        this.setStatus(responseEntity.getStatusCode());
+    }
 
-        //print result
-        System.out.println(response.toString());
+    public HttpStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(HttpStatus status) {
+        this.status = status;
+    }
+
+    private void postWaypoint(LocalCoordinate local) throws Exception {
+        local.setZ(5);
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String json = ow.writeValueAsString(local);
+        String res = post("robot/waypoint", json);
+        logger.info(res);
+    }
+
+    public static void main(String[] args) throws Exception{
+        DroneClient client = new DroneClient();
+        LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
+        LatLong center = new LatLong((48.1222+48.1119)/2, (-1.6428+-1.6337)/2);
+        logger.info("center : "+ center );
+        LatLong piscine = new LatLong(48.115367,-1.63781);
+        logger.info("piscine : "+ piscine );
+        LatLong croisement = new LatLong(48.11498, -1.63795);
+
+        LocalCoordinate local = converter.getLocal(croisement);
+        logger.info("local" + local);
+        client.postWaypoint(local);
     }
 }

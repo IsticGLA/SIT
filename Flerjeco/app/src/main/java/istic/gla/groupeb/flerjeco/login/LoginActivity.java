@@ -177,7 +177,6 @@ public class LoginActivity extends Activity {
         @Override
         protected Boolean doInBackground(Void... params) {
             Log.i(TAG, "doInBackground start");
-            // TODO: attempt authentication against a network service.
 
             SpringService service = new SpringService();
             statusCode = service.login(mLogin, mPassword);

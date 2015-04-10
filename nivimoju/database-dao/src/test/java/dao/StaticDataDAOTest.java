@@ -60,8 +60,6 @@ public class StaticDataDAOTest {
         StaticData nullStaticData = stDAO.getById(stData.getId());
         Assert.assertNull(nullStaticData);
 
-        UserDAO uDAO = new UserDAO();
-
         StaticData insertStaticData = stDAO.create(stData);
         StaticData getByIdStaticData = stDAO.getById(insertStaticData.getId());
         Assert.assertEquals(getByIdStaticData, insertStaticData);
