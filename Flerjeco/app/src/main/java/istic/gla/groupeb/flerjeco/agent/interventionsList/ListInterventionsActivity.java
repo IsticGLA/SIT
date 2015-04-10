@@ -13,19 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import entity.Intervention;
+import istic.gla.groupeb.flerjeco.R;
+
 public class ListInterventionsActivity extends FragmentActivity
-        implements InterventionsNamesFragment.OnHeadlineSelectedListener {
+        implements InterventionsNamesFragment.OnResourceSelectedListener {
+
+    protected Intervention intervention;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_list_interventions);
 
         // Check whether the activity is using the layout version with
@@ -52,17 +61,16 @@ public class ListInterventionsActivity extends FragmentActivity
         }
     }
 
-    public void onArticleSelected(int position) {
+    public void onResourceSelected(int position) {
 
+        MapListInterventionsFragment mapFragment = (MapListInterventionsFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
-        MapListInterventionsFragment MapListInterventionsFragment = (MapListInterventionsFragment)
-                getSupportFragmentManager().findFragmentById(R.id.map_list_interventions_fragment);
-
-        if (MapListInterventionsFragment != null) {
+        if (mapFragment != null) {
             // If article frag is available, we're in two-pane layout...
 
             // Call a method in the ArticleFragment to update its content
-            MapListInterventionsFragment.updateMapView(position);
+            mapFragment.updateMapView(position);
 
         } else {
             // If the frag is not available, we're in the one-pane layout and must swap frags...
@@ -82,5 +90,25 @@ public class ListInterventionsActivity extends FragmentActivity
             // Commit the transaction
             transaction.commit();
         }
+    }
+
+    public List<Intervention> getInterventions() {
+        List<Intervention> interventionList = new ArrayList<Intervention>();
+
+        intervention = new Intervention();
+        intervention.setId(1);
+        intervention.setLatitude(48.117749);
+        intervention.setLongitude(-1.677297);
+
+        interventionList.add(intervention);
+
+        intervention = new Intervention();
+        intervention.setId(2);
+        intervention.setLatitude(66.117749);
+        intervention.setLongitude(-22.677297);
+
+        interventionList.add(intervention);
+
+        return interventionList;
     }
 }

@@ -1,7 +1,6 @@
 package dao;
 
 import entity.StaticData;
-import entity.User;
 import org.junit.*;
 import util.MarkerType;
 
@@ -50,9 +49,9 @@ public class StaticDataDAOTest {
     @Test
     public void deleteTest(){
         StaticData insertStaticData = stDAO.create(stData);
-        long id = stDAO.delete(stData);
+        long id = stDAO.delete(insertStaticData);
         Assert.assertEquals(id, insertStaticData.getId());
-        StaticData nullStaticData = stDAO.getById(stData.getId());
+        StaticData nullStaticData = stDAO.getById(insertStaticData.getId());
         Assert.assertNull(nullStaticData);
     }
 
@@ -70,16 +69,12 @@ public class StaticDataDAOTest {
 
     @Test
     public void getAllTest() throws InterruptedException {
-        UserDAO uDAO = new UserDAO();
-        List<User> liste = uDAO.getBy("login", "admin");
-        System.out.println(liste.get(0).toString());
 
         StaticData st1 = stDAO.create(stData);
         StaticData st2 = stDAO.create(stData);
         StaticData st3 = stDAO.create(stData);
         StaticData st4 = stDAO.create(stData);
 
-        //Thread.sleep(60000);
         int counter = 0;
         List<StaticData> list = stDAO.getAll();
 

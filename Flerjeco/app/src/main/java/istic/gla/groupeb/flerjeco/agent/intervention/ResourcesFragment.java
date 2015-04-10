@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.app.Activity;
 import android.os.Build;
@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import entity.Resource;
+import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
 import util.State;
 
 public class ResourcesFragment extends Fragment {

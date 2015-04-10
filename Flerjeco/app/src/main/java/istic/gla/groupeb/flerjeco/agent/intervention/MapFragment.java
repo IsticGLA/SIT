@@ -1,4 +1,4 @@
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,6 +17,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import entity.Intervention;
 import entity.Resource;
+import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
 import util.State;
 
 /**

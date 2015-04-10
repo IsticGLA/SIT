@@ -54,11 +54,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
             Long newId = globalId.content();
 
-            long begin = System.currentTimeMillis();
             JsonDocument res = DAOManager.getCurrentBucket().insert(JsonDocument.create(Long.toString(newId), entityToJsonDocument(e)));
-            long end = System.currentTimeMillis();
-            float time = ((float) (end - begin)) / 1000f;
-            System.out.println("CREATE : " + time);
 
             return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
         } catch (DocumentAlreadyExistsException ex){

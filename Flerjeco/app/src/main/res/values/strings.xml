@@ -9,4 +9,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="vehicle_fragment_text">Sélectionnez le type de véhicule dont vous avez besoin :</string>
     <string name="title_activity_jules">JulesActivity</string>
+    <string name="title_activity_display_intervention">DisplayIntervention</string>
 </resources>
