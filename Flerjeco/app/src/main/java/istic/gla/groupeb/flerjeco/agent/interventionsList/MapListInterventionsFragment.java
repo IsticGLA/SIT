@@ -86,7 +86,7 @@ public class MapListInterventionsFragment extends Fragment {
         mCurrentPosition = position;
     }
 
-    public void initMap(List<Intervention> interventionList){
+    public void initMap(Intervention interventionList){
         this.interventionList = interventionList;
 
         if (interventionList.size()>0){

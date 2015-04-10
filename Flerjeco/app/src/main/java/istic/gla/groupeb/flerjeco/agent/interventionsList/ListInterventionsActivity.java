@@ -15,8 +15,12 @@
  */
 package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -38,7 +42,7 @@ public class ListInterventionsActivity extends FragmentActivity
         implements InterventionsNamesFragment.OnResourceSelectedListener {
 
     protected Intervention intervention;
-    private List<Intervention> interventionList;
+    protected Intervention[] interventionTab;
     private MapListInterventionsFragment mapFragment;
     private int position=0;
 
@@ -46,6 +50,15 @@ public class ListInterventionsActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        GetAllInterventionTask mGetAllTask = new GetAllInterventionTask();
+        mGetAllTask.execute((Void) null);
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         setContentView(R.layout.activity_list_interventions);
 
@@ -107,34 +120,37 @@ public class ListInterventionsActivity extends FragmentActivity
         }
     }
 
-    public List<Intervention> getInterventions() {
-        return interventionList;
+    public Intervention[] getInterventions() {
+        return interventionTab;
     }
 
     public void selectIntervention(View view) {
         Intent intent = new Intent(ListInterventionsActivity.this, SecondActivity.class);
         Bundle bundle = new Bundle();
 
-        bundle.putSerializable("intervention", getInterventions().get(position));
+        bundle.putSerializable("intervention", getInterventions()[position]);
 
         intent.putExtras(bundle);
         startActivity(intent);
     }
 
+
+
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class getAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
+    public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
         @Override
         protected Boolean doInBackground(Void... params) {
             SpringService service = new SpringService();
-            Intervention[] tabInter = service.getAllInterventions();
+            interventionTab = service.getAllInterventions();
 
-            for(Intervention inter : tabInter) {
-                System.out.println(inter.get);
+            for(Intervention inter : interventionTab) {
+                System.out.println(inter.getName());
             }
+
             return true;
         }
     }

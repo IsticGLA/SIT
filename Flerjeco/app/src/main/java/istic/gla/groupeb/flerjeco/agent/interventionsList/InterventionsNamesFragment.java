@@ -29,6 +29,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 
 public class InterventionsNamesFragment extends Fragment {
@@ -60,8 +61,11 @@ public class InterventionsNamesFragment extends Fragment {
         List<String> labelsInterventions = new ArrayList<>();
 
         ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
-        labelsInterventions.add("Intervention");
-        labelsInterventions.add("Intervention2");
+        Intervention[] interventions = listInterventionsActivity.getInterventions();
+
+        for(Intervention inter : interventions) {
+            labelsInterventions.add(inter.getName());
+        }
 
         listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
 

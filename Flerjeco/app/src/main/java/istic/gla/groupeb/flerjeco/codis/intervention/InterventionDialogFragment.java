@@ -98,14 +98,14 @@ public class InterventionDialogFragment extends DialogFragment {
                     //String idIncidentCode, double latitude, double longitude, String name
                     Log.i("MAMH", spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()) + "");
 
-
+                    /*
                     //Intervetion
                     entity.Intervention intervention;
                     intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()), null, null, null, null, null);
                     Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
                     //intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()) , null,null,null,null,null);
                     // Log.i("MAMH", intervention.toString());
-                    new InterventionPostTask().execute(intervention);
+                    new InterventionPostTask().execute(intervention);*/
                 }
             }
         });
