@@ -2,16 +2,11 @@ package istic.gla.groupeb.flerjeco.springRest;
 
 import android.util.Log;
 
-import org.apache.http.HttpStatus;
-import org.apache.http.util.ExceptionUtils;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Random;
 
 import entity.IncidentCode;
 import entity.Intervention;

@@ -25,8 +25,14 @@ limitations under the License.
         android:layout_height="match_parent"
         android:background="@android:color/transparent"/>
 
-    <fragment android:name="istic.gla.groupeb.flerjeco.agent.intervention.ResourcesFragment"
+    <!-- <fragment android:name="istic.gla.groupeb.flerjeco.agent.intervention.ResourcesFragment"
         android:id="@+id/resources_fragment"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent" />-->
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/fragment_container"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="match_parent" />

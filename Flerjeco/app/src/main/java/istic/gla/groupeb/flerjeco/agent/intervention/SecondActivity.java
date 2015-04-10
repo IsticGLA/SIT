@@ -65,7 +65,7 @@ public class SecondActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            ResourcesFragment firstFragment = new ResourcesFragment();
+            /*ResourcesFragment firstFragment = new ResourcesFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -73,7 +73,7 @@ public class SecondActivity extends FragmentActivity
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, firstFragment).commit();
+                    .add(R.id.fragment_container, firstFragment).commit();*/
         }
     }
 

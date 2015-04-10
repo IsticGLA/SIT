@@ -14,5 +14,5 @@ android/*.iml
 .fuse*
 *.iml
 target/
-*.class
 log/
+*.orig
