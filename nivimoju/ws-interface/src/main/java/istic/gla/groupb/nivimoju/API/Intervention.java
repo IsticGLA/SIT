@@ -154,7 +154,7 @@ public class Intervention {
     public Response requestVehicle(
             @PathParam("inter") Long inter,
             @PathParam("vehicle") String vehicle) {
-        interventionDAO = new InterventionDAO();
+        InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
         entity.Intervention intervention = interventionDAO.getById(inter);
         intervention.getResources().add(new Resource(vehicle, State.waiting));

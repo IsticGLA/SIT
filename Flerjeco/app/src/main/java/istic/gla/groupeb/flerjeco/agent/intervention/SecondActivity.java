@@ -27,7 +27,6 @@ import java.util.List;
 import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.VehicleRequestDialog;
 import util.State;
 
 public class SecondActivity extends FragmentActivity
