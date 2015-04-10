@@ -1,4 +1,4 @@
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.login;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -15,10 +15,15 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
+import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
+import istic.gla.groupeb.flerjeco.MyApp;
+import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 
@@ -192,18 +197,19 @@ public class LoginActivity extends Activity {
             showProgress(false);
 
             MyApp myApp = MyApp.getInstance();
-            boolean isCodis = findViewById(R.id.checkBox_codis).isActivated();
+            boolean isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
             myApp.setCodisUser(isCodis);
             myApp.setLogin(mLogin);
             myApp.setPassword(mPassword);
+            Log.i(TAG, "isCodis "+isCodis);
 
             if (success) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
                 Intent intent;
                 if(isCodis)
-                    intent = new Intent(LoginActivity.this, SecondActivity.class);
+                    intent = new Intent(LoginActivity.this, InterventionDialogFragment.class);
                 else
-                    intent = new Intent(LoginActivity.this, SecondActivity.class);
+                    intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
                 startActivity(intent);
             } else {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();

@@ -4,12 +4,18 @@ import android.util.Log;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.util.ExceptionUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Random;
+
+import entity.IncidentCode;
+import entity.Intervention;
+import entity.ResourceType;
 
 /**
  * Created by amhachi on 08/04/15.
@@ -22,7 +28,7 @@ public class SpringService {
     public IncidentCode[]  codeSinistreClient() throws HttpStatusCodeException{
 
 
-        final String url = URL + "utl/to/code/sinistre/";
+        final String url = URL + "incidentcode";
 
 
             RestTemplate restTemplate = new RestTemplate();
@@ -35,15 +41,21 @@ public class SpringService {
 
     }
 
-    public IncidentCode[]  codeSinistreClientTest() throws HttpStatusCodeException{
 
-        IncidentCode[] codes = new IncidentCode[3];
+    public long  postIntervention(Intervention intervention){
+       try {
 
-        codes[0] = new IncidentCode(new Long(new Random().nextInt(100)), "SAP");
-        codes[1] = new IncidentCode(new Long(new Random().nextInt(100)), "AVP");
-        codes[2] = new IncidentCode(new Long(new Random().nextInt(100)), "FHA");
+           final String url = URL + "intervention/create";
 
-        return  codes;
+           RestTemplate restTemplate = new RestTemplate();
+           restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+           Intervention intervetionResult = restTemplate.postForObject(url, intervention, Intervention.class);
+
+           return intervention.getId();
+       }catch (HttpStatusCodeException e){
+           Log.i("MAMH","Problème de la création de l'intervention : "+e.getMessage());
+       }
+        return  0;
     }
 
     public String login(String id, String password) {
@@ -60,8 +72,27 @@ public class SpringService {
         } catch (HttpStatusCodeException e) {
             httpResult = "400";
         }
+        Log.i(TAG, "httpResult : "+httpResult);
         Log.i(TAG, "login end");
         return httpResult;
     }
 
+    public ResourceType[] resourceTypes() {
+        final String url = URL + "resource";
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<ResourceType[]> resourceTypes = restTemplate.getForEntity(url, ResourceType[].class);
+        return resourceTypes.getBody();
+    }
+
+    public Long requestVehicle(Long[] params) {
+        final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<Long> requestId = restTemplate.exchange(url, HttpMethod.PUT, null, Long.class);
+        return requestId.getBody();
+    }
 }

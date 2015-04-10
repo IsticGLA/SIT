@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="istic.gla.groupeb.flerjeco.InterventionActivity">
+    tools:context="istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment">
 
     <!-- Login progress -->
     <ProgressBar
@@ -20,9 +20,10 @@
         android:visibility="gone" />
 
     <ScrollView
-        android:id="@+id/login_form"
+        android:id="@+id/intervention_scroll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="false">
 
         <LinearLayout
             android:id="@+id/intervention_form"
@@ -35,13 +36,29 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
+
+                <EditText
+                    android:id="@+id/nameInterventionEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="@string/nameInterventionHint"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:layout_marginBottom="15dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
                 <TextView
                     android:id="@+id/CodeSinistreLabel"
                     android:layout_width="155dp"
                     android:layout_height="match_parent"
                     android:layout_gravity=""
                     android:layout_weight="0.5"
-                    android:hint="lat"
                     android:singleLine="true"
                     android:text="Code sinistre : " />
 
@@ -50,6 +67,7 @@
                     android:layout_width="155dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
+                    android:entries="@array/code"
                     android:hint="code sinistre"
                     android:spinnerMode="dialog" />
             </LinearLayout>
@@ -62,34 +80,24 @@
 
                 <EditText
                     android:id="@+id/lat"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
                     android:hint="lat"
+
+                    android:inputType="numberDecimal"
                     android:maxLines="1"
                     android:singleLine="true" />
 
                 <EditText
                     android:id="@+id/lng"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
                     android:hint="lng"
+                    android:inputType="numberDecimal"
                     android:maxLines="1"
                     android:singleLine="true" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/vehiculeLayout"
-                android:layout_width="match_parent"
-                android:layout_height="fill_parent"
-                android:orientation="vertical">
-
-                <ListView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/vehiculesList"></ListView>
-
             </LinearLayout>
 
             <Button

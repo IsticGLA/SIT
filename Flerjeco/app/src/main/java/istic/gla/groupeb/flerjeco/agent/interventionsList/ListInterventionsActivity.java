@@ -13,20 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
-public class SecondActivity extends FragmentActivity
-        implements ResourcesFragment.OnResourceSelectedListener {
+import java.util.ArrayList;
+import java.util.List;
+
+import entity.Intervention;
+import istic.gla.groupeb.flerjeco.R;
+
+public class ListInterventionsActivity extends FragmentActivity
+        implements InterventionsNamesFragment.OnResourceSelectedListener {
+
+    protected Intervention intervention;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_second);
+
+        setContentView(R.layout.activity_list_interventions);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -40,7 +49,7 @@ public class SecondActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            ResourcesFragment firstFragment = new ResourcesFragment();
+            InterventionsNamesFragment firstFragment = new InterventionsNamesFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -54,8 +63,7 @@ public class SecondActivity extends FragmentActivity
 
     public void onResourceSelected(int position) {
 
-
-        MapFragment mapFragment = (MapFragment)
+        MapListInterventionsFragment mapFragment = (MapListInterventionsFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
         if (mapFragment != null) {
@@ -68,9 +76,9 @@ public class SecondActivity extends FragmentActivity
             // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
-            MapFragment newFragment = new MapFragment();
+            MapListInterventionsFragment newFragment = new MapListInterventionsFragment();
             Bundle args = new Bundle();
-            args.putInt(MapFragment.ARG_POSITION, position);
+            args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -82,5 +90,25 @@ public class SecondActivity extends FragmentActivity
             // Commit the transaction
             transaction.commit();
         }
+    }
+
+    public List<Intervention> getInterventions() {
+        List<Intervention> interventionList = new ArrayList<Intervention>();
+
+        intervention = new Intervention();
+        intervention.setId(1);
+        intervention.setLatitude(48.117749);
+        intervention.setLongitude(-1.677297);
+
+        interventionList.add(intervention);
+
+        intervention = new Intervention();
+        intervention.setId(2);
+        intervention.setLatitude(66.117749);
+        intervention.setLongitude(-22.677297);
+
+        interventionList.add(intervention);
+
+        return interventionList;
     }
 }

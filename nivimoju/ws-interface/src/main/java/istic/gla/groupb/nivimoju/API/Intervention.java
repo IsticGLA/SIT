@@ -1,7 +1,14 @@
 package istic.gla.groupb.nivimoju.API;
 
+import dao.InterventionDAO;
+import entity.Resource;
+import util.State;
+
+import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Created by jules on 08/04/15.
@@ -9,30 +16,69 @@ import javax.ws.rs.core.Response;
 @Path("intervention")
 public class Intervention {
 
+
+
     /**
      * Gets all the interventions running
      * @return A list of interventions
      */
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getInterventions() {
-        return Response.ok().build();
+        InterventionDAO interventionDAO = new InterventionDAO();
+
+        interventionDAO.connect();
+        List<entity.Intervention> inters = interventionDAO.getAll();
+        interventionDAO.disconnect();
+        return  Response.ok(inters).build();
     }
+
+
+    /**
+     * Creates a new intervention with a default list of vehicle in function of the sinister code
+     * @param intervention
+     * @return The id of the created intervention
+     */
+    @Path("/create")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createIntervention(
+            entity.Intervention intervention) {
+        InterventionDAO interventionDAO= new InterventionDAO();
+        interventionDAO.connect();
+        entity.Intervention resultat = interventionDAO.create(intervention);
+        interventionDAO.disconnect();
+        return  Response.ok(resultat).build();
+
+    }
+
+    /*
 
     /**
      * Creates a new intervention with a default list of vehicle in function of the sinister code
      * @param lat The latitude of the intervention
      * @param lng The longitude of the intervention
-     * @param code The sinister code of the intervention
+     * @param code The ID of the sinister code of the intervention
      * @return The id of the created intervention
      */
-    @POST
+    /*
     @Path("{lat}/{lng}/{code}")
+    @POST
     public Response createIntervention(
             @PathParam("lat") long lat,
             @PathParam("lng") long lng,
-            @PathParam("code") String code) {
-        return Response.ok().build();
-    }
+            @PathParam("code") int code) {
+
+
+        interventionDAO.connect();
+        entity.Intervention intervention = new entity.Intervention(code, lat, lng, null,null,null,null,null);
+        entity.Intervention resultat = interventionDAO.create(intervention);
+        System.out.println(resultat.getLatitude()+"/"+resultat.getLongitude());
+        interventionDAO.disconnect();
+
+        return Response.ok(resultat).build();
+    }*/
 
     /**
      * Stops the intervention
@@ -100,14 +146,20 @@ public class Intervention {
     /**
      * Requests a vehicle for the intervention
      * @param inter The id of the intervention
-     * @param vehicle A String representing the type of vehicle requested
+     * @param vehicle the id of the requested vehicle type
      * @return The id of the requested vehicle
      */
     @PUT
     @Path("{inter}/resources/{vehicle}")
     public Response requestVehicle(
-            @PathParam("inter") String inter,
+            @PathParam("inter") Long inter,
             @PathParam("vehicle") String vehicle) {
+        InterventionDAO interventionDAO = new InterventionDAO();
+        interventionDAO.connect();
+        entity.Intervention intervention = interventionDAO.getById(inter);
+        intervention.getResources().add(new Resource(vehicle, State.waiting));
+        interventionDAO.update(intervention);
+        interventionDAO.disconnect();
         return Response.ok().build();
     }
 
