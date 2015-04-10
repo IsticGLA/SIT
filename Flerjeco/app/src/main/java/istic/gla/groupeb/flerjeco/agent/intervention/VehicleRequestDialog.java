@@ -1,4 +1,4 @@
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.agent.intervention;
 
 
 import android.animation.Animator;
@@ -22,6 +22,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import java.util.HashMap;
 
 import entity.ResourceType;
+import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 /**
@@ -48,7 +49,6 @@ public class VehicleRequestDialog extends DialogFragment {
 
     private Spinner spinner;
     private HashMap<String, Long> spinnerMap;
-    private String resourceType;
     private Long intervention;
     public final static String INTERVENTION = "intervention";
     private View mProgressView;
@@ -76,7 +76,7 @@ public class VehicleRequestDialog extends DialogFragment {
         Button button = (Button)v.findViewById(R.id.vehicle_fragment_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                validate(spinnerMap.get(resourceType = spinner1.getSelectedItem().toString()));
+                validate(spinnerMap.get(spinner1.getSelectedItem().toString()));
             }
         });
 
@@ -182,7 +182,7 @@ public class VehicleRequestDialog extends DialogFragment {
 
         @Override
         protected void onPostExecute(Long id) {
-            Log.i("VehicleRequestDialog","Request posted");
+            Log.i("VehicleRequestDialog", "Request posted");
         }
 
     }

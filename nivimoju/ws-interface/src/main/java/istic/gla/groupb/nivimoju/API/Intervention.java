@@ -1,6 +1,8 @@
 package istic.gla.groupb.nivimoju.API;
 
 import dao.InterventionDAO;
+import entity.Resource;
+import util.State;
 
 import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
@@ -144,14 +146,20 @@ public class Intervention {
     /**
      * Requests a vehicle for the intervention
      * @param inter The id of the intervention
-     * @param vehicle A String representing the type of vehicle requested
+     * @param vehicle the id of the requested vehicle type
      * @return The id of the requested vehicle
      */
     @PUT
     @Path("{inter}/resources/{vehicle}")
     public Response requestVehicle(
-            @PathParam("inter") String inter,
+            @PathParam("inter") Long inter,
             @PathParam("vehicle") String vehicle) {
+        InterventionDAO interventionDAO = new InterventionDAO();
+        interventionDAO.connect();
+        entity.Intervention intervention = interventionDAO.getById(inter);
+        intervention.getResources().add(new Resource(vehicle, State.waiting));
+        interventionDAO.update(intervention);
+        interventionDAO.disconnect();
         return Response.ok().build();
     }
 

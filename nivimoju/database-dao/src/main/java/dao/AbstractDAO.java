@@ -95,16 +95,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final List<T> getAll()
     {
-        List<T> res = new ArrayList<T>();
         createViewAll();
-
-        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_type_" + type)).allRows();
-
-        // Iterate through the returned ViewRows
-        for (ViewRow row : result) {
-            res.add(jsonDocumentToEntity(Long.valueOf(row.id()), (JsonObject) row.key()));
-        }
-        return res;
+        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_type_" + type).stale(Stale.FALSE)).allRows();
+        return viewRowsToEntities(result);
     }
 
     /**
@@ -126,11 +119,17 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         }
     }
 
+    public final List<T> getBy(String key, String value){
+        createViewBy(key);
+        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(value).stale(Stale.FALSE)).allRows();
+        return viewRowsToEntities(result);
+    }
+
     /**
      * flush our bucket
      * @return
      */
-    public boolean flush()
+    private boolean flush()
     {
         if(DAOManager.getCurrentBucket()!=null && DAOManager.currentCluster!=null)
         {
@@ -145,6 +144,18 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             }
         }
         return false;
+    }
+
+    private List<T> viewRowsToEntities(List<ViewRow> list){
+        List<T> res = new ArrayList<>();
+        // Iterate through the returned ViewRows
+        for (ViewRow row : list) {
+            res.add(jsonDocumentToEntity(Long.valueOf(row.id()), (JsonObject) row.value()));
+        }
+        if (res.size() == 0){
+            return null;
+        }
+        return res;
     }
 
     /**
@@ -198,7 +209,24 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         String mapFunction =
                 "function (doc, meta) {\n" +
                         " if(doc.type && doc.type == '"+ type + "') \n" +
-                        "   { emit(doc);}\n" +
+                        "   { emit(doc.id, doc);}\n" +
+                        "}";
+        designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
+        DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
+    }
+
+    private void createViewBy(String key)
+    {
+        DesignDocument designDoc = DAOManager.getCurrentBucket().bucketManager().getDesignDocument("designDoc");
+        if (null == designDoc){
+            designDoc = createDesignDocument();
+        }
+
+        String viewName = "by_" + key + "_" + type;
+        String mapFunction =
+                "function (doc, meta) {\n" +
+                        " if(doc.type && doc.type == '"+ type + "') \n" +
+                        "   { emit(doc." + key + ", doc);}\n" +
                         "}";
         designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
         DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
@@ -206,7 +234,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
 
     public DesignDocument createDesignDocument()
     {
-        List<View> views = new ArrayList<View>();
+        List<View> views = new ArrayList<>();
         DesignDocument designDoc = DesignDocument.create("designDoc", views);
         DAOManager.getCurrentBucket().bucketManager().insertDesignDocument(designDoc);
         return designDoc;

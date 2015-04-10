@@ -4,13 +4,14 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.util.AttributeSet;
 import android.view.View;
 
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 
-public class IconView extends View{
+public class IconView extends View {
 
     private Vehicle mVehicle;
     private Danger mDanger;
@@ -37,6 +38,11 @@ public class IconView extends View{
         this.mVehicle = mVehicle;
     }
 
+    public IconView(Context context, AttributeSet attributeSet){
+        super(context);
+        //mVehicle = new Vehicle("VSAP SG2");
+    }
+
     /**
      * Method that draws the vehicle on the view
      * @param mCanvas the canvas that contains elements to draw
@@ -44,20 +50,23 @@ public class IconView extends View{
     @Override
     protected void onDraw(Canvas mCanvas){
         super.onDraw(mCanvas);
-        //Saving the current PathEffect
-        DashPathEffect temp = (DashPathEffect) mVehicle.getPaint().getPathEffect();
-        //Drawing the first rectangle
-        mCanvas.drawRect(mVehicle.getRect(), mVehicle.getPaint());
-        //Drawing the second little rectangle
-        mVehicle.getPaint().setStyle(Paint.Style.FILL);
-        mVehicle.getPaint().setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
-        mCanvas.drawRect(mVehicle.getRect2(), mVehicle.getPaint());
-        //Drawing the name of the vehicle
-        mCanvas.drawText(mVehicle.getName(), mVehicle.getRect().centerX()-100, mVehicle.getRect().centerY(), mVehicle.getPaint());
-        //Reapplying the PathEffect
-        mVehicle.getPaint().setPathEffect(temp);
-        mCanvas.drawPath(mDanger.getTriangle(), mDanger.getPaint());
-        mCanvas.drawPath(mSensitive.getTriangle(), mSensitive.getPaint());
+        if (mVehicle != null) {
+            //Saving the current PathEffect
+            DashPathEffect temp = (DashPathEffect) mVehicle.getPaint().getPathEffect();
+            //Drawing the first rectangle
+            mCanvas.drawRect(mVehicle.getRect(), mVehicle.getPaint());
+            //Drawing the second little rectangle
+            mVehicle.getPaint().setStyle(Paint.Style.FILL);
+            mCanvas.drawRect(mVehicle.getRect2(), mVehicle.getPaint());
+            //Drawing the name of the vehicle
+            mVehicle.getPaint().setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
+            mCanvas.drawText(mVehicle.getName(), mVehicle.getRect().centerX() - 40, mVehicle.getRect().centerY(), mVehicle.getPaint());
+            mVehicle.getPaint().setStyle(Paint.Style.STROKE);
+            //Reapplying the PathEffect
+            mVehicle.getPaint().setPathEffect(temp);
+            //mCanvas.drawPath(mDanger.getTriangle(), mDanger.getPaint());
+            //mCanvas.drawPath(mSensitive.getTriangle(), mSensitive.getPaint());
+        }
     }
 
     /**
@@ -66,5 +75,13 @@ public class IconView extends View{
      */
     public Vehicle getVehicle() {
         return mVehicle;
+    }
+
+    /**
+     * Setter for the vehicle
+     * @param mVehicle the vehicle that will be drawn
+     */
+    public void setmVehicle(Vehicle mVehicle) {
+        this.mVehicle = mVehicle;
     }
 }
