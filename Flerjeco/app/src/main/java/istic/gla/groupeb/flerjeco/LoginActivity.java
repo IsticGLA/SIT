@@ -201,7 +201,7 @@ public class LoginActivity extends Activity {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
                 Intent intent;
                 if(isCodis)
-                    intent = new Intent(LoginActivity.this, InterventionActivity.class);
+                    intent = new Intent(LoginActivity.this, InterventionDialogFragment.class);
                 else
                     intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
                 startActivity(intent);

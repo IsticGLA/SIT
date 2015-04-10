@@ -36,7 +36,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".InterventionActivity"
+            android:name=".InterventionDialogFragment"
             android:label="@string/title_activity_intervention" >
         </activity>
         <activity

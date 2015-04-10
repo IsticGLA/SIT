@@ -1,13 +1,15 @@
 package istic.gla.groupeb.flerjeco;
 
+import android.app.DialogFragment;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,11 +21,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 import java.util.HashMap;
 
 import entity.IncidentCode;
-import istic.gla.groupeb.flerjeco.springRest.Intervention;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 
-public class InterventionActivity extends ActionBarActivity {
+public class InterventionDialogFragment extends DialogFragment {
 
 
     Spinner codeSinistreSpinner;
@@ -32,9 +33,9 @@ public class InterventionActivity extends ActionBarActivity {
     Button intervention_creation_button;
 
     //Text fields
-    EditText nameIntervetionEditText ;
-    EditText latitudeEditText ;
-    EditText longitudeEditText ;
+    EditText nameIntervetionEditText;
+    EditText latitudeEditText;
+    EditText longitudeEditText;
 
     SpringService springService = new SpringService();
     String[] spinnerArray;
@@ -44,59 +45,58 @@ public class InterventionActivity extends ActionBarActivity {
 
 
     boolean data_local = true;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_intervention);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.activity_intervention, container, false);
+
 
         //Set up code sinistre list
-        codeSinistreSpinner = (Spinner) findViewById(R.id.CodeSinistreSpinner);
-        nameIntervetionEditText = (EditText) findViewById(R.id.nameInterventionEditText);
-        latitudeEditText = (EditText) findViewById(R.id.lat);
-        longitudeEditText = (EditText) findViewById(R.id.lng);
+        codeSinistreSpinner = (Spinner) v.findViewById(R.id.CodeSinistreSpinner);
+        nameIntervetionEditText = (EditText) v.findViewById(R.id.nameInterventionEditText);
+        latitudeEditText = (EditText) v.findViewById(R.id.lat);
+        longitudeEditText = (EditText) v.findViewById(R.id.lng);
 
         // Set up Button of intervention creation
-        intervention_creation_button =  ( Button ) findViewById(R.id.intervention_button);
+        intervention_creation_button = (Button) v.findViewById(R.id.intervention_button);
 
-        if(data_local) {
+        if (data_local) {
             spinnerArray = new String[]{"SAP", "AVP", "FHA", "MEEEEE"};
             spinnerMap = new HashMap<>();
-            int i=0;
-            for (String code : spinnerArray)
-            {
+            int i = 0;
+            for (String code : spinnerArray) {
                 spinnerMap.put(code, Long.valueOf(i));
                 i++;
             }
-            i=0;
-            spinnerAdapter = new ArrayAdapter<String>(InterventionActivity.this, android.R.layout.simple_spinner_item,spinnerArray);
+            i = 0;
+            spinnerAdapter = new ArrayAdapter<String>(InterventionDialogFragment.this.getActivity(), android.R.layout.simple_spinner_item, spinnerArray);
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             codeSinistreSpinner.setAdapter(spinnerAdapter);
-        }
-        else new HttpRequestTask().execute();
+        } else new HttpRequestTask().execute();
 
 
         // add button listener
         intervention_creation_button.setOnClickListener(new View.OnClickListener() {
 
-            public boolean validate(){
+            public boolean validate() {
 
-                if( latitudeEditText.getText().toString().length() == 0 ) {
+                if (latitudeEditText.getText().toString().length() == 0) {
                     latitudeEditText.setError("latitude est obligatoire!");
-                    return  false;
+                    return false;
                 }
 
-                if( longitudeEditText.getText().toString().length() == 0 )
-                {
-                    longitudeEditText.setError( "longitude est obligatoire!");
-                    return  false;
+                if (longitudeEditText.getText().toString().length() == 0) {
+                    longitudeEditText.setError("longitude est obligatoire!");
+                    return false;
                 }
-                return  true;
+                return true;
             }
 
 
             @Override
             public void onClick(View v) {
-                if( validate()){
+                if (validate()) {
                     //String idIncidentCode, double latitude, double longitude, String name
                     Log.i("MAMH", spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()) + "");
 
@@ -112,30 +112,9 @@ public class InterventionActivity extends ActionBarActivity {
             }
         });
 
+        return v;
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_intervention, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     // Backgroud task to get sistre codes
     private class HttpRequestTask extends AsyncTask<Void, Void, IncidentCode[]> {
@@ -169,7 +148,7 @@ public class InterventionActivity extends ActionBarActivity {
 
             }
 
-            spinnerAdapter = new ArrayAdapter<String>(InterventionActivity.this, android.R.layout.simple_spinner_item,spinnerArray);
+            spinnerAdapter = new ArrayAdapter<String>(InterventionDialogFragment.this.getActivity(), android.R.layout.simple_spinner_item,spinnerArray);
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             codeSinistreSpinner.setAdapter(spinnerAdapter);
 
@@ -195,7 +174,7 @@ public class InterventionActivity extends ActionBarActivity {
 
         @Override
         protected void onPostExecute(Long resultPost) {
-            Toast.makeText(InterventionActivity.this, "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
+            Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
 
         }
 
