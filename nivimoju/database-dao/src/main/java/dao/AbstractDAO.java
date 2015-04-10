@@ -54,11 +54,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
             Long newId = globalId.content();
 
-            long begin = System.currentTimeMillis();
             JsonDocument res = DAOManager.getCurrentBucket().insert(JsonDocument.create(Long.toString(newId), entityToJsonDocument(e)));
-            long end = System.currentTimeMillis();
-            float time = ((float) (end - begin)) / 1000f;
-            System.out.println("CREATE : " + time);
 
             return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
         } catch (DocumentAlreadyExistsException ex){
@@ -99,7 +95,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final List<T> getAll()
     {
-        long begin = System.currentTimeMillis();
         List<T> res = new ArrayList<T>();
         createViewAll();
 
@@ -107,12 +102,8 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
 
         // Iterate through the returned ViewRows
         for (ViewRow row : result) {
-            //System.out.println(row.toString());
             res.add(jsonDocumentToEntity(Long.valueOf(row.id()), (JsonObject) row.key()));
         }
-        long end = System.currentTimeMillis();
-        float time = ((float) (end-begin)) / 1000f;
-        System.out.println(time);
         return res;
     }
 
@@ -123,16 +114,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     public final T getById(Long id)
     {
         try {
-            long begin = System.currentTimeMillis();
-
             String idString = Long.toString(id);
             JsonDocument res = DAOManager.getCurrentBucket().get(idString);
             if (null == res) {
                 return null;
             } else {
-                long end = System.currentTimeMillis();
-                float time = ((float) (end - begin)) / 1000f;
-                System.out.println("GetById " + time);
                 return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
             }
         } catch (DocumentDoesNotExistException ex){
