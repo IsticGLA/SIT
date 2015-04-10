@@ -23,6 +23,7 @@ import android.widget.Toast;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
@@ -206,7 +207,7 @@ public class LoginActivity extends Activity {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
                 Intent intent;
                 if(isCodis)
-                    intent = new Intent(LoginActivity.this, InterventionDialogFragment.class);
+                    intent = new Intent(LoginActivity.this, InterventionActivity.class);
                 else
                     intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
                 startActivity(intent);

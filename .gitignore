@@ -1,11 +1,9 @@
 android/.gradle/
 android/local.properties
-android/.idea/*
+android/.idea/workspace.xml
+android/.idea/libraries
 android/.idea/misc.xml
 android/.idea/modules.xml
-android/android.iml
-android/app/app.iml
-android/coordsender/coordsender.iml
 android/.DS_Store
 android/build/
 android/*.iml

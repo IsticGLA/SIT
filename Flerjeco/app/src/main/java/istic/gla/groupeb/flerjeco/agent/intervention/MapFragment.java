@@ -15,10 +15,12 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
 import util.State;
 
 /**
@@ -33,6 +35,7 @@ public class MapFragment extends Fragment {
     int mCurrentPosition = -1;
 
     private Intervention intervention;
+    private List<Resource> resources = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,7 +81,7 @@ public class MapFragment extends Fragment {
     }
 
     public void updateMapView(int position) {
-        Resource resource = intervention.getResources().get(position);
+        Resource resource = resources.get(position);
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(new LatLng(resource.getLatitude(), resource.getLongitude())).zoom(16).build();
         googleMap.animateCamera(CameraUpdateFactory
@@ -102,6 +105,8 @@ public class MapFragment extends Fragment {
                             .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
                     // adding marker
                     googleMap.addMarker(marker);
+
+                    resources.add(resource);
                 }
 
             }

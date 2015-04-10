@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
-import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,6 @@ import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
 import util.State;
 
 public class ListInterventionsActivity extends FragmentActivity
@@ -119,6 +117,14 @@ public class ListInterventionsActivity extends FragmentActivity
         resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
         resourceList.add(new Resource("Resource5", State.waiting, 48.147749, -1.677297));
 
+
+        List<Resource> resourceList2 = new ArrayList<>();
+        resourceList2.add(new Resource("Resource1", State.validated, 48.117749, -1.677297));
+        resourceList2.add(new Resource("Resource2", State.validated, 48.127749, -1.657297));
+        resourceList2.add(new Resource("Resource3", State.waiting, 48.107749, -1.687297));
+        resourceList2.add(new Resource("Resource4", State.active, 48.017749, -1.477297));
+        resourceList2.add(new Resource("Resource5", State.active, 48.147749, -1.677297));
+
         intervention.setResources(resourceList);
 
         interventionList.add(intervention);
@@ -127,7 +133,7 @@ public class ListInterventionsActivity extends FragmentActivity
         intervention.setId(2);
         intervention.setLatitude(66.117749);
         intervention.setLongitude(-22.677297);
-        intervention.setResources(resourceList);
+        intervention.setResources(resourceList2);
 
         interventionList.add(intervention);
 

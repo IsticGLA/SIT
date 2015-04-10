@@ -42,7 +42,7 @@ public class InterventionDialogFragment extends DialogFragment {
     private HashMap<String, Long> spinnerMap;
 
 
-    boolean data_local = true;
+    boolean data_local = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -101,7 +101,7 @@ public class InterventionDialogFragment extends DialogFragment {
 
                     //Intervetion
                     entity.Intervention intervention;
-                    intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()), null, null, null, null, null);
+                    intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()));
                     Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
                     //intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()) , null,null,null,null,null);
                     // Log.i("MAMH", intervention.toString());
@@ -143,12 +143,12 @@ public class InterventionDialogFragment extends DialogFragment {
                         i++;
                     }
                     }
-
+                spinnerAdapter = new ArrayAdapter<String>(InterventionDialogFragment.this.getActivity(), android.R.layout.simple_spinner_item,spinnerArray);
+                spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                codeSinistreSpinner.setAdapter(spinnerAdapter);
             }
 
-            spinnerAdapter = new ArrayAdapter<String>(InterventionDialogFragment.this.getActivity(), android.R.layout.simple_spinner_item,spinnerArray);
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            codeSinistreSpinner.setAdapter(spinnerAdapter);
+
 
         }
 

@@ -27,9 +27,13 @@ public class SpringService {
 
 
             RestTemplate restTemplate = new RestTemplate();
-            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+            MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter =new MappingJackson2HttpMessageConverter();
+
+            restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
 
             ResponseEntity<IncidentCode[]> incidentCode = restTemplate.getForEntity(url, IncidentCode[].class);
+
             IncidentCode[] codes = incidentCode.getBody();
             return codes;
 
@@ -44,9 +48,11 @@ public class SpringService {
 
            RestTemplate restTemplate = new RestTemplate();
            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
-           Intervention intervetionResult = restTemplate.postForObject(url, intervention, Intervention.class);
 
-           return intervention.getId();
+           ResponseEntity<Intervention>  intervetionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
+            if(intervetionResult == null)
+           Log.i("MAMH","intervetionResult = null");
+           return intervetionResult.getBody().getId();
        }catch (HttpStatusCodeException e){
            Log.i("MAMH","Problème de la création de l'intervention : "+e.getMessage());
        }
@@ -82,7 +88,7 @@ public class SpringService {
         return resourceTypes.getBody();
     }
 
-    public Long requestVehicle(Long[] params) {
+    public Long requestVehicle(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
