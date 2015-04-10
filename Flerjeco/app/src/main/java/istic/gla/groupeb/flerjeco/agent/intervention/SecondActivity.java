@@ -21,13 +21,8 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import entity.Intervention;
-import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
-import util.State;
 
 public class SecondActivity extends FragmentActivity
         implements ResourcesFragment.OnResourceSelectedListener {
@@ -39,6 +34,13 @@ public class SecondActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            intervention = (Intervention) extras.getSerializable("intervention");
+        }
+
+        /*
+
         intervention = new Intervention();
         intervention.setLatitude(48.117749);
         intervention.setLongitude(-1.677297);
@@ -49,7 +51,7 @@ public class SecondActivity extends FragmentActivity
         resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
         resourceList.add(new Resource("Resource5", State.waiting, 48.147749, -1.677297));
 
-        intervention.setResources(resourceList);
+        intervention.setResources(resourceList);*/
 
         setContentView(R.layout.activity_second);
 

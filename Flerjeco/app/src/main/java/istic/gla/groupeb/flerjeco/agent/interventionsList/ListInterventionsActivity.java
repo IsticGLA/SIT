@@ -15,28 +15,17 @@
  */
 package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
-import android.widget.Button;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import entity.Intervention;
-import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import util.State;
 
 public class ListInterventionsActivity extends FragmentActivity
         implements InterventionsNamesFragment.OnResourceSelectedListener {
