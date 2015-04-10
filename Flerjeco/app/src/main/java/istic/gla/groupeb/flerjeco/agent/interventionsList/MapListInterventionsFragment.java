@@ -1,4 +1,4 @@
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,14 +15,16 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.List;
+
 import entity.Intervention;
-import entity.Resource;
-import util.State;
+import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 
 /**
  * A fragment that launches other parts of the demo application.
  */
-public class MapFragment extends Fragment {
+public class MapListInterventionsFragment extends Fragment {
 
     final static String ARG_POSITION = "position";
 
@@ -30,7 +32,7 @@ public class MapFragment extends Fragment {
     private GoogleMap googleMap;
     int mCurrentPosition = -1;
 
-    private Intervention intervention;
+    private List<Intervention> interventionList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,8 +53,8 @@ public class MapFragment extends Fragment {
 
         googleMap = mMapView.getMap();
 
-        SecondActivity secondActivity = (SecondActivity) getActivity();
-        initMap(secondActivity.intervention);
+        ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
+        initMap(listInterventionsActivity.getInterventions());
 
         return v;
     }
@@ -76,38 +78,34 @@ public class MapFragment extends Fragment {
     }
 
     public void updateMapView(int position) {
-        Resource resource = intervention.getResources().get(position);
+        Intervention intervention = interventionList.get(position);
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(resource.getLatitude(), resource.getLongitude())).zoom(16).build();
+                .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
         mCurrentPosition = position;
     }
 
-    public void initMap(Intervention intervention){
-        this.intervention = intervention;
+    public void initMap(List<Intervention> interventionList){
+        this.interventionList = interventionList;
 
-        if (intervention.getResources().size()>0){
+        if (interventionList.size()>0){
 
-            for (Resource resource : intervention.getResources()){
-                State resourceState = resource.getState();
-                if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
-                    // create marker
-                    MarkerOptions marker = new MarkerOptions().position(
-                            new LatLng(resource.getLatitude(), resource.getLongitude())).title("Hello Maps");
-                    // Changing marker icon
-                    marker.icon(BitmapDescriptorFactory
-                            .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-                    // adding marker
-                    googleMap.addMarker(marker);
-                }
-
+            for (Intervention intervention : interventionList){
+                // create marker
+                MarkerOptions marker = new MarkerOptions().position(
+                        new LatLng(intervention.getLatitude(), intervention.getLongitude())).title("Hello Maps");
+                // Changing marker icon
+                marker.icon(BitmapDescriptorFactory
+                        .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                // adding marker
+                googleMap.addMarker(marker);
             }
 
         }
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
+                .target(new LatLng(interventionList.get(0).getLatitude(), interventionList.get(0).getLongitude())).zoom(12).build();
 
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));

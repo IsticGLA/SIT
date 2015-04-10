@@ -1,4 +1,4 @@
-package login;
+package istic.gla.groupeb.flerjeco.login;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -20,11 +20,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import istic.gla.groupeb.flerjeco.InterventionActivity;
-import istic.gla.groupeb.flerjeco.ListInterventionsActivity;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
+import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.SecondActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 

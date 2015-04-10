@@ -25,7 +25,7 @@ limitations under the License.
         android:layout_height="match_parent"
         android:background="@android:color/transparent"/>
 
-    <fragment android:name="istic.gla.groupeb.flerjeco.ResourcesFragment"
+    <fragment android:name="istic.gla.groupeb.flerjeco.agent.intervention.ResourcesFragment"
         android:id="@+id/resources_fragment"
         android:layout_weight="1"
         android:layout_width="0dp"
@@ -41,7 +41,7 @@ limitations under the License.
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray"/>
 
-    <fragment android:name="istic.gla.groupeb.flerjeco.MapFragment"
+    <fragment android:name="istic.gla.groupeb.flerjeco.agent.intervention.MapFragment"
         android:id="@+id/map_fragment"
         android:layout_weight="2"
         android:layout_width="0dp"

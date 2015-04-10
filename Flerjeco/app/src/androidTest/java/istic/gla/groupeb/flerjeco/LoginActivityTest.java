@@ -7,7 +7,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.Button;
 import android.widget.EditText;
 
-import login.LoginActivity;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
 
 /**
  * Created by corentin on 09/04/15.
