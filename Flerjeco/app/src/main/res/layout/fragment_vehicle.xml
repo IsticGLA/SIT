@@ -6,19 +6,32 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:orientation="vertical">
 
-    <TextView android:text="@string/vehicle_fragment_text" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <!-- Vehicle progress -->
 
-    <Spinner
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/vehicle_fragment_spinner"
-        android:spinnerMode="dropdown" />
+    <ProgressBar android:id="@+id/vehicle_progress" style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp" android:visibility="gone" />
 
-    <Button
-        android:id="@+id/vehicle_fragment_button"
+    <LinearLayout
+        android:id="@+id/vehicle_form"
+        android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:onClick="showDialog"/>
+        android:layout_height="fill_parent">
+
+        <TextView android:text="@string/vehicle_fragment_text" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/vehicle_fragment_spinner"
+            android:spinnerMode="dropdown" />
+
+        <Button
+            android:id="@+id/vehicle_fragment_button"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:onClick="showDialog"/>
+    </LinearLayout>
 
 </LinearLayout>
