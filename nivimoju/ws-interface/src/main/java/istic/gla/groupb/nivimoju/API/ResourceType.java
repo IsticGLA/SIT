@@ -25,7 +25,6 @@ public class ResourceType {
         ResourceTypeDAO resourceTypeDAO = new ResourceTypeDAO();
         resourceTypeDAO.connect();
         List<entity.ResourceType> resourceTypes = resourceTypeDAO.getAll();
-        entity.ResourceType resourceType = resourceTypeDAO.getById(new Long(1));
         resourceTypeDAO.disconnect();
         return Response.ok(resourceTypes).build();
     }

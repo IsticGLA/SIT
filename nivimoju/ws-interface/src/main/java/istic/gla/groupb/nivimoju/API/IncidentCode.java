@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by amhachi on 09/04/15.
  */
-@Path("incidentCode")
+@Path("incidentcode")
 public class IncidentCode {
 
     IncidentCodeDAO incidentCodeDAO ;
@@ -19,12 +19,15 @@ public class IncidentCode {
      * Gets all the incident codes
      * @return A list of incident codes
      */
-    @Path("incidentCodesList")
     @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    public List<entity.IncidentCode> getIncidentCodes() {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getIncidentCodes() {
         incidentCodeDAO = new IncidentCodeDAO();
-        return  incidentCodeDAO.getAll();
+        incidentCodeDAO.connect();
+        List<entity.IncidentCode> listCodes = incidentCodeDAO.getAll();
+
+        incidentCodeDAO.disconnect();
+        return Response.ok(listCodes).build();
     }
 
 

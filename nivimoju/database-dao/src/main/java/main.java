@@ -12,7 +12,7 @@ public class main {
         dao.connect();
         List<IncidentCode> l = dao.getAll();
         for (IncidentCode i : l){
-            System.out.println(i.getCode());
+            System.out.println(i.getCode() + "  " + i.getresourceType());
         }
 
     }

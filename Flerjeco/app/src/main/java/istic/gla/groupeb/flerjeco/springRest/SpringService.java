@@ -4,12 +4,18 @@ import android.util.Log;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.util.ExceptionUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Random;
+
+import entity.IncidentCode;
+import entity.Intervention;
+import entity.ResourceType;
 
 /**
  * Created by amhachi on 08/04/15.
@@ -22,7 +28,7 @@ public class SpringService {
     public IncidentCode[]  codeSinistreClient() throws HttpStatusCodeException{
 
 
-        final String url = URL + "utl/to/code/sinistre/";
+        final String url = URL + "incidentcode";
 
 
             RestTemplate restTemplate = new RestTemplate();
@@ -35,17 +41,6 @@ public class SpringService {
 
     }
 
-    public IncidentCode[]  codeSinistreClientTest() throws HttpStatusCodeException{
-
-        IncidentCode[] codes = new IncidentCode[3];
-
-        codes[0] = new IncidentCode(new Long(new Random().nextInt(100)), "SAP");
-        codes[1] = new IncidentCode(new Long(new Random().nextInt(100)), "AVP");
-        codes[2] = new IncidentCode(new Long(new Random().nextInt(100)), "FHA");
-
-        return  codes;
-    }
-
     public Boolean  postInterventionTest(Intervention intervention) throws HttpStatusCodeException{
 
         return  true;
@@ -54,7 +49,7 @@ public class SpringService {
     public Boolean  postIntervention(Intervention intervention){
        try {
 
-           final String url = URL + "utl/to/code/sinistre/";
+           final String url = URL + intervention.getLatitude()+"/"+intervention.getLongitude()+"/"+intervention.getIncidentCode();
 
            RestTemplate restTemplate = new RestTemplate();
            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -95,7 +90,15 @@ public class SpringService {
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
         ResponseEntity<ResourceType[]> resourceTypes = restTemplate.getForEntity(url, ResourceType[].class);
-        ResourceType[] resources = resourceTypes.getBody();
-        return resources;
+        return resourceTypes.getBody();
+    }
+
+    public Long requestVehicle(Long[] params) {
+        final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<Long> requestId = restTemplate.exchange(url, HttpMethod.PUT, null, Long.class);
+        return requestId.getBody();
     }
 }

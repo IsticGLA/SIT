@@ -27,5 +27,6 @@
         android:layout_height="50dp"
         android:text="Demander un moyen"
         android:id="@+id/buttonAskResource"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:onClick="showDialogRequest"/>
 </LinearLayout>
