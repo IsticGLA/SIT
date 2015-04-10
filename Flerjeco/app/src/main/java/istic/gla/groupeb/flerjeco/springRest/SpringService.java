@@ -82,7 +82,7 @@ public class SpringService {
         return resourceTypes.getBody();
     }
 
-    public Long requestVehicle(Long[] params) {
+    public Long requestVehicle(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
