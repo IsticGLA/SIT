@@ -1,7 +1,11 @@
 package istic.gla.groupeb.flerjeco;
 
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
@@ -47,6 +51,8 @@ public class VehicleRequestDialog extends DialogFragment {
     private String resourceType;
     private Long intervention;
     public final static String INTERVENTION = "intervention";
+    private View mProgressView;
+    private View mVehicleFormView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,6 +60,11 @@ public class VehicleRequestDialog extends DialogFragment {
         View v = inflater.inflate(R.layout.fragment_vehicle, container, false);
         intervention = getArguments().getLong(INTERVENTION);
         spinner = (Spinner)v.findViewById(R.id.vehicle_fragment_spinner);
+
+        mVehicleFormView = v.findViewById(R.id.vehicle_form);
+        mProgressView = v.findViewById(R.id.vehicle_progress);
+
+        showProgress(true);
 
         new ResourceTypesTask().execute();
         //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
@@ -78,6 +89,42 @@ public class VehicleRequestDialog extends DialogFragment {
         Toast.makeText(getActivity(), "" + vehicle, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Shows the progress UI
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mVehicleFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mVehicleFormView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mVehicleFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mVehicleFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
     private class ResourceTypesTask extends AsyncTask<Void, Void, ResourceType[]> {
 
         @Override
@@ -95,6 +142,7 @@ public class VehicleRequestDialog extends DialogFragment {
 
         @Override
         protected void onPostExecute(ResourceType[] resources) {
+            showProgress(false);
             String[] spinnerArray = new String[resources.length];
             spinnerMap = new HashMap();
             if(resources != null && resources.length > 0 ) {
@@ -108,6 +156,11 @@ public class VehicleRequestDialog extends DialogFragment {
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(spinnerAdapter);
 
+        }
+
+        @Override
+        protected void onCancelled() {
+            showProgress(false);
         }
 
     }
