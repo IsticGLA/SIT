@@ -35,6 +35,7 @@ public class SpringService {
             restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
             ResponseEntity<IncidentCode[]> incidentCode = restTemplate.getForEntity(url, IncidentCode[].class);
+
             IncidentCode[] codes = incidentCode.getBody();
             return codes;
 

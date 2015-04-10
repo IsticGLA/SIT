@@ -42,7 +42,7 @@ public class InterventionDialogFragment extends DialogFragment {
     private HashMap<String, Long> spinnerMap;
 
 
-    boolean data_local = true;
+    boolean data_local = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
