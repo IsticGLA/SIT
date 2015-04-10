@@ -20,10 +20,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
-import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 
@@ -177,7 +177,6 @@ public class LoginActivity extends Activity {
         @Override
         protected Boolean doInBackground(Void... params) {
             Log.i(TAG, "doInBackground start");
-            // TODO: attempt authentication against a network service.
 
             SpringService service = new SpringService();
             statusCode = service.login(mLogin, mPassword);

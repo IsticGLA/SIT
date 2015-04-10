@@ -17,7 +17,7 @@ public class ResourceTypeDAOTest {
     public static void init() {
         resourceType = new ResourceType("test_incident");
         resourceTypeDAO = new ResourceTypeDAO();
-        resourceTypeDAO.connect();
+        DAOManager.connectTest();
     }
 
     @AfterClass
@@ -32,6 +32,7 @@ public class ResourceTypeDAOTest {
 
         originalResourceType.setId(res.getId());
         Assert.assertEquals(originalResourceType, res);
+
     }
 
     @Test
@@ -46,7 +47,7 @@ public class ResourceTypeDAOTest {
     public void deleteTest() throws InterruptedException {
         ResourceType insertResourceType = resourceTypeDAO.create(resourceType);
         long id = resourceTypeDAO.delete(insertResourceType);
-        Assert.assertEquals(id, insertResourceType.getId());
+        Assert.assertEquals(insertResourceType.getId(), id);
         ResourceType nullResourceType = resourceTypeDAO.getById(insertResourceType.getId());
         Assert.assertNull(nullResourceType);
     }
@@ -60,6 +61,6 @@ public class ResourceTypeDAOTest {
 
         ResourceType insertResourceType = resourceTypeDAO.create(resourceType);
         ResourceType getByIdResourceType = resourceTypeDAO.getById(insertResourceType.getId());
-        Assert.assertEquals(getByIdResourceType, insertResourceType);
+        Assert.assertEquals(insertResourceType, getByIdResourceType);
     }
 }
