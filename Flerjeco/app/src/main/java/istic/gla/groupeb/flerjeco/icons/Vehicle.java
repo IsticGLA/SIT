@@ -26,12 +26,12 @@ public class Vehicle extends Canvas {
         this.name = name;
         paint = new Paint();
         paint.setAntiAlias(true);
-        paint.setStrokeWidth(10);
-        paint.setTextSize(35);
+        paint.setStrokeWidth(5);
+        paint.setTextSize(15);
         changeFunction(Function.Default);
         changeState(State.Programmed);
-        rect = new Rect(10,100,300,200);
-        rect2 = new Rect(rect.centerX()-10, rect.top-50, rect.centerX()+10, rect.top);
+        rect = new Rect(10, 40, 160, 110);
+        rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
     }
 
     public enum State {Programmed, Validated}
