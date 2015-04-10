@@ -19,14 +19,36 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import entity.Intervention;
+import entity.Resource;
+import util.State;
+
 public class ListInterventionsActivity extends FragmentActivity
-        implements InterventionsNamesFragment.OnHeadlineSelectedListener {
+        implements ResourcesFragment.OnResourceSelectedListener {
+
+    protected Intervention intervention;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_interventions);
+
+        intervention = new Intervention();
+        intervention.setLatitude(48.117749);
+        intervention.setLongitude(-1.677297);
+        List<Resource> resourceList = new ArrayList<>();
+        resourceList.add(new Resource("Resource1", State.active, 48.117749, -1.677297));
+        resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
+        resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
+        resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
+        resourceList.add(new Resource("Resource5", State.waiting, 48.147749, -1.677297));
+
+        intervention.setResources(resourceList);
+
+        setContentView(R.layout.activity_second);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -40,7 +62,7 @@ public class ListInterventionsActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            InterventionsNamesFragment firstFragment = new InterventionsNamesFragment();
+            ResourcesFragment firstFragment = new ResourcesFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -52,25 +74,24 @@ public class ListInterventionsActivity extends FragmentActivity
         }
     }
 
-    public void onArticleSelected(int position) {
+    public void onResourceSelected(int position) {
 
+        MapFragment mapFragment = (MapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
-        MapListInterventionsFragment MapListInterventionsFragment = (MapListInterventionsFragment)
-                getSupportFragmentManager().findFragmentById(R.id.map_list_interventions_fragment);
-
-        if (MapListInterventionsFragment != null) {
+        if (mapFragment != null) {
             // If article frag is available, we're in two-pane layout...
 
             // Call a method in the ArticleFragment to update its content
-            MapListInterventionsFragment.updateMapView(position);
+            mapFragment.updateMapView(position);
 
         } else {
             // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
-            MapListInterventionsFragment newFragment = new MapListInterventionsFragment();
+            MapFragment newFragment = new MapFragment();
             Bundle args = new Bundle();
-            args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
+            args.putInt(MapFragment.ARG_POSITION, position);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 

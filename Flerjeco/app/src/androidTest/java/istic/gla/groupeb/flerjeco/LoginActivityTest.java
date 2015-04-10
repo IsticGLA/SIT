@@ -7,6 +7,8 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.Button;
 import android.widget.EditText;
 
+import login.LoginActivity;
+
 /**
  * Created by corentin on 09/04/15.
  */
