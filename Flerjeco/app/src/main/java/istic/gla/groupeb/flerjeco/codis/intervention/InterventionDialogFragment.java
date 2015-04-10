@@ -143,12 +143,12 @@ public class InterventionDialogFragment extends DialogFragment {
                         i++;
                     }
                     }
-
+                spinnerAdapter = new ArrayAdapter<String>(InterventionDialogFragment.this.getActivity(), android.R.layout.simple_spinner_item,spinnerArray);
+                spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                codeSinistreSpinner.setAdapter(spinnerAdapter);
             }
 
-            spinnerAdapter = new ArrayAdapter<String>(InterventionDialogFragment.this.getActivity(), android.R.layout.simple_spinner_item,spinnerArray);
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            codeSinistreSpinner.setAdapter(spinnerAdapter);
+
 
         }
 
