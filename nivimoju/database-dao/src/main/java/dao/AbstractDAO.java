@@ -125,27 +125,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         return viewRowsToEntities(result);
     }
 
-    /**
-     * flush our bucket
-     * @return
-     */
-    private boolean flush()
-    {
-        if(DAOManager.getCurrentBucket()!=null && DAOManager.currentCluster!=null)
-        {
-            try
-            {
-                return DAOManager.getCurrentBucket().bucketManager().flush();
-            }
-            catch (FlushDisabledException e)
-            {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        return false;
-    }
-
     private List<T> viewRowsToEntities(List<ViewRow> list){
         List<T> res = new ArrayList<>();
         // Iterate through the returned ViewRows
