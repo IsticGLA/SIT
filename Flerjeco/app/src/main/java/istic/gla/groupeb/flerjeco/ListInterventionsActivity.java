@@ -27,7 +27,7 @@ import entity.Resource;
 import util.State;
 
 public class ListInterventionsActivity extends FragmentActivity
-        implements ResourcesFragment.OnResourceSelectedListener {
+        implements InterventionsNamesFragment.OnResourceSelectedListener {
 
     protected Intervention intervention;
 
@@ -36,19 +36,7 @@ public class ListInterventionsActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        intervention = new Intervention();
-        intervention.setLatitude(48.117749);
-        intervention.setLongitude(-1.677297);
-        List<Resource> resourceList = new ArrayList<>();
-        resourceList.add(new Resource("Resource1", State.active, 48.117749, -1.677297));
-        resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
-        resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
-        resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
-        resourceList.add(new Resource("Resource5", State.waiting, 48.147749, -1.677297));
-
-        intervention.setResources(resourceList);
-
-        setContentView(R.layout.activity_second);
+        setContentView(R.layout.activity_list_interventions);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -62,7 +50,7 @@ public class ListInterventionsActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            ResourcesFragment firstFragment = new ResourcesFragment();
+            InterventionsNamesFragment firstFragment = new InterventionsNamesFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -76,7 +64,7 @@ public class ListInterventionsActivity extends FragmentActivity
 
     public void onResourceSelected(int position) {
 
-        MapFragment mapFragment = (MapFragment)
+        MapListInterventionsFragment mapFragment = (MapListInterventionsFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
         if (mapFragment != null) {
@@ -89,9 +77,9 @@ public class ListInterventionsActivity extends FragmentActivity
             // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
-            MapFragment newFragment = new MapFragment();
+            MapListInterventionsFragment newFragment = new MapListInterventionsFragment();
             Bundle args = new Bundle();
-            args.putInt(MapFragment.ARG_POSITION, position);
+            args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -103,5 +91,25 @@ public class ListInterventionsActivity extends FragmentActivity
             // Commit the transaction
             transaction.commit();
         }
+    }
+
+    public List<Intervention> getInterventions() {
+        List<Intervention> interventionList = new ArrayList<Intervention>();
+
+        intervention = new Intervention();
+        intervention.setId(1);
+        intervention.setLatitude(48.117749);
+        intervention.setLongitude(-1.677297);
+
+        interventionList.add(intervention);
+
+        intervention = new Intervention();
+        intervention.setId(2);
+        intervention.setLatitude(66.117749);
+        intervention.setLongitude(-22.677297);
+
+        interventionList.add(intervention);
+
+        return interventionList;
     }
 }
