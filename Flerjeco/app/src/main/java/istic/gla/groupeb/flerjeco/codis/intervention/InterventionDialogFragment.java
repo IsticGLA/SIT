@@ -1,13 +1,10 @@
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.codis.intervention;
 
 import android.app.DialogFragment;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -21,6 +18,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import java.util.HashMap;
 
 import entity.IncidentCode;
+import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 

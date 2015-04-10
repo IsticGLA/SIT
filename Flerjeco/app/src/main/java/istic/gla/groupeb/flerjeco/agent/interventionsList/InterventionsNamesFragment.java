@@ -13,35 +13,67 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class InterventionsNamesFragment extends ListFragment {
-    OnHeadlineSelectedListener mCallback;
+import java.util.ArrayList;
+import java.util.List;
+
+import istic.gla.groupeb.flerjeco.R;
+
+public class InterventionsNamesFragment extends Fragment {
+    OnResourceSelectedListener mCallback;
+
+    private ListView listViewInterventions;
 
     // The container Activity must implement this interface so the frag can deliver messages
-    public interface OnHeadlineSelectedListener {
+    public interface OnResourceSelectedListener {
         /** Called by HeadlinesFragment when a list item is selected */
-        public void onArticleSelected(int position);
+        public void onResourceSelected(int position);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+
+        View v = inflater.inflate(R.layout.fragment_list_interventions, container,
+                false);
+
+        listViewInterventions = (ListView) v.findViewById(R.id.listViewInterventions);
 
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
-        // Create an array adapter for the list view, using the Ipsum headlines array
-        setListAdapter(new ArrayAdapter<String>(getActivity(), layout, Constants.Resources));
+
+        List<String> labelsInterventions = new ArrayList<>();
+
+        ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
+        labelsInterventions.add("Intervention");
+        labelsInterventions.add("Intervention2");
+
+        listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
+
+        listViewInterventions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                mCallback.onResourceSelected(position);
+                listViewInterventions.setItemChecked(position, true);
+            }
+        });
+
+        return v;
     }
 
     @Override
@@ -51,7 +83,7 @@ public class InterventionsNamesFragment extends ListFragment {
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
         if (getFragmentManager().findFragmentById(R.id.map_fragment) != null) {
-            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         }
     }
 
@@ -62,19 +94,10 @@ public class InterventionsNamesFragment extends ListFragment {
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception.
         try {
-            mCallback = (OnHeadlineSelectedListener) activity;
+            mCallback = (OnResourceSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
+                    + " must implement OnResourceSelectedListener");
         }
-    }
-
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        // Notify the parent activity of selected item
-        mCallback.onArticleSelected(position);
-        
-        // Set the item as checked to be highlighted when in two-pane layout
-        getListView().setItemChecked(position, true);
     }
 }

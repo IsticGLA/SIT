@@ -13,23 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import entity.Intervention;
-import entity.Resource;
-import util.State;
+import istic.gla.groupeb.flerjeco.R;
 
-public class SecondActivity extends FragmentActivity
-        implements ResourcesFragment.OnResourceSelectedListener {
+public class ListInterventionsActivity extends FragmentActivity
+        implements InterventionsNamesFragment.OnResourceSelectedListener {
 
     protected Intervention intervention;
 
@@ -38,19 +35,7 @@ public class SecondActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        intervention = new Intervention();
-        intervention.setLatitude(48.117749);
-        intervention.setLongitude(-1.677297);
-        List<Resource> resourceList = new ArrayList<>();
-        resourceList.add(new Resource("Resource1", State.active, 48.117749, -1.677297));
-        resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
-        resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
-        resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
-        resourceList.add(new Resource("Resource5", State.waiting, 48.147749, -1.677297));
-
-        intervention.setResources(resourceList);
-
-        setContentView(R.layout.activity_second);
+        setContentView(R.layout.activity_list_interventions);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -64,7 +49,7 @@ public class SecondActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            ResourcesFragment firstFragment = new ResourcesFragment();
+            InterventionsNamesFragment firstFragment = new InterventionsNamesFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -78,7 +63,7 @@ public class SecondActivity extends FragmentActivity
 
     public void onResourceSelected(int position) {
 
-        MapFragment mapFragment = (MapFragment)
+        MapListInterventionsFragment mapFragment = (MapListInterventionsFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
         if (mapFragment != null) {
@@ -91,9 +76,9 @@ public class SecondActivity extends FragmentActivity
             // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
-            MapFragment newFragment = new MapFragment();
+            MapListInterventionsFragment newFragment = new MapListInterventionsFragment();
             Bundle args = new Bundle();
-            args.putInt(MapFragment.ARG_POSITION, position);
+            args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -107,13 +92,23 @@ public class SecondActivity extends FragmentActivity
         }
     }
 
-    public void showDialogRequest(View view) {
-        // Create the fragment and show it as a dialog.
-        DialogFragment vehicleDialog = new VehicleRequestDialog();
-        Bundle bundle = new Bundle();
-        bundle.putLong(VehicleRequestDialog.INTERVENTION,10);
-        vehicleDialog.setArguments(bundle);
-        vehicleDialog.show(getSupportFragmentManager(), "vehicle_dialog");
-    }
+    public List<Intervention> getInterventions() {
+        List<Intervention> interventionList = new ArrayList<Intervention>();
 
+        intervention = new Intervention();
+        intervention.setId(1);
+        intervention.setLatitude(48.117749);
+        intervention.setLongitude(-1.677297);
+
+        interventionList.add(intervention);
+
+        intervention = new Intervention();
+        intervention.setId(2);
+        intervention.setLatitude(66.117749);
+        intervention.setLongitude(-22.677297);
+
+        interventionList.add(intervention);
+
+        return interventionList;
+    }
 }

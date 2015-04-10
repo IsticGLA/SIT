@@ -72,6 +72,7 @@ public class SpringService {
         } catch (HttpStatusCodeException e) {
             httpResult = "400";
         }
+        Log.i(TAG, "httpResult : "+httpResult);
         Log.i(TAG, "login end");
         return httpResult;
     }
