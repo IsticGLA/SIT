@@ -19,6 +19,7 @@ public class InterventionDAOTest {
     @BeforeClass
     public static void init(){
         interDAO = new InterventionDAO();
+        DAOManager.connectTest();
     }
 
     @AfterClass
