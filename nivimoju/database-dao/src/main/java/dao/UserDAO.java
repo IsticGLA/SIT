@@ -12,4 +12,10 @@ public class UserDAO extends AbstractDAO<User> {
         this.typeClass = User.class;
         this.type = Constant.TYPE_USER;
     }
+
+    /*public final User getByName(String name){
+        ViewResult result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_id_" + type));
+
+    }*/
+
 }

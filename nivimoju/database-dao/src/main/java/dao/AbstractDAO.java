@@ -6,6 +6,8 @@ import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectWriter;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.JsonLongDocument;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.error.DocumentAlreadyExistsException;
+import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.error.FlushDisabledException;
 import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
@@ -48,12 +50,16 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e entity to create
      */
     public final T create(T e) {
-        JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
-        Long newId = globalId.content();
-        e.setId(newId);
-        JsonDocument res = DAOManager.getCurrentBucket().insert(entityToJsonDocument(e));
+        try {
+            JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
+            Long newId = globalId.content();
 
-        return jsonDocumentToEntity(res);
+            JsonDocument res = DAOManager.getCurrentBucket().insert(JsonDocument.create(Long.toString(newId), entityToJsonDocument(e)));
+
+            return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+        } catch (DocumentAlreadyExistsException ex){
+            return null;
+        }
     }
 
     /**
@@ -61,8 +67,12 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e
      */
     public final long delete(T e) {
-        JsonDocument res = DAOManager.getCurrentBucket().remove("" + e.getId());
-        return Long.valueOf(res.id());
+        try {
+            JsonDocument res = DAOManager.getCurrentBucket().remove("" + e.getId());
+            return Long.valueOf(res.id());
+        } catch (DocumentDoesNotExistException ex){
+            return -1;
+        }
     }
 
     /**
@@ -71,8 +81,12 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param e
      */
     public final T update(T e) {
-        JsonDocument res = DAOManager.getCurrentBucket().replace(entityToJsonDocument(e));
-        return jsonDocumentToEntity(res);
+        try {
+            JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
+            return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+        } catch (DocumentDoesNotExistException ex){
+            return null;
+        }
     }
 
     /**
@@ -81,18 +95,14 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final List<T> getAll()
     {
-
-        long begin = System.currentTimeMillis();
         List<T> res = new ArrayList<T>();
         createViewAll();
+
         List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_type_" + type)).allRows();
 
-        long end = System.currentTimeMillis();
-        float time = ((float) (end-begin)) / 1000f;
-        System.out.println(time);
         // Iterate through the returned ViewRows
         for (ViewRow row : result) {
-            res.add(jsonDocumentToEntity(row.document()));
+            res.add(jsonDocumentToEntity(Long.valueOf(row.id()), (JsonObject) row.key()));
         }
         return res;
     }
@@ -103,17 +113,16 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final T getById(Long id)
     {
-        long begin = System.currentTimeMillis();
-
-        String idString = Long.toString(id);
-        JsonDocument res = DAOManager.getCurrentBucket().get(idString);
-        if (null == res){
+        try {
+            String idString = Long.toString(id);
+            JsonDocument res = DAOManager.getCurrentBucket().get(idString);
+            if (null == res) {
+                return null;
+            } else {
+                return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+            }
+        } catch (DocumentDoesNotExistException ex){
             return null;
-        } else {
-            long end = System.currentTimeMillis();
-            float time = ((float) (end-begin)) / 1000f;
-            System.out.println("GetById "+time);
-            return jsonDocumentToEntity(res);
         }
     }
 
@@ -143,11 +152,12 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param jsonDocument document to transform
      * @return entity of JsonDocument
      */
-    protected T jsonDocumentToEntity(JsonDocument jsonDocument){
+    protected T jsonDocumentToEntity(long id, JsonObject jsonDocument){
         T entity = null;
         try {
             ObjectMapper om = new ObjectMapper();
-            entity = om.readValue(jsonDocument.content().toString(), typeClass);
+            entity = om.readValue(jsonDocument.toString(), typeClass);
+            entity.setId(id);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -159,7 +169,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * @param entity to transform
      * @return jsonDoc of entity
      */
-    protected JsonDocument entityToJsonDocument(T entity){
+    protected JsonObject entityToJsonDocument(T entity){
         String json = "";
         try {
             ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -167,11 +177,14 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        return JsonDocument.create(Long.toString(entity.getId()), JsonObject.fromJson(json));
+        JsonObject jsonObject = JsonObject.fromJson(json);
+        jsonObject.removeKey("id");
+        return jsonObject;
     }
 
     public T cloneEntity(T entity) {
-        return jsonDocumentToEntity(entityToJsonDocument(entity));
+        JsonObject json = entityToJsonDocument(entity);
+        return jsonDocumentToEntity(entity.getId(), entityToJsonDocument(entity));
     }
 
     private void createViewAll()
