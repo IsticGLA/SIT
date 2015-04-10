@@ -101,7 +101,7 @@ public class InterventionDialogFragment extends DialogFragment {
 
                     //Intervetion
                     entity.Intervention intervention;
-                    intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()), null, null, null, null, null);
+                    intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()));
                     Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
                     //intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()) , null,null,null,null,null);
                     // Log.i("MAMH", intervention.toString());
