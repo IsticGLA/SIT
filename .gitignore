@@ -15,3 +15,4 @@ android/*.iml
 *.iml
 target/
 *.class
+log/
