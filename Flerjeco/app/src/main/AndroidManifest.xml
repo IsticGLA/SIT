@@ -36,14 +36,6 @@
             android:label="@string/title_activity_second" >
         </activity>
         <activity
-            android:name=".InterventionActivity"
-            android:label="@string/title_activity_intervention" >
-        </activity>
-        <activity
-            android:name=".JulesActivity"
-            android:label="@string/title_activity_jules" >
-        </activity>
-        <activity
             android:name=".ListInterventionsActivity"
             android:label="@string/title_activity_list_interventions" >
         </activity>
