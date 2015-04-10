@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class Intervention extends AbstractEntity implements Serializable {
 
+    private String name;
     private int incidentCode;
     private double latitude;
     private double longitude;
@@ -35,9 +36,10 @@ public class Intervention extends AbstractEntity implements Serializable {
      * @param latitude
      * @param longitude
      */
-    public Intervention(int incidentCode, double latitude, double longitude) {
+    public Intervention(String name, int incidentCode, double latitude, double longitude) {
         super();
         this.type = Constant.TYPE_INTERVENTION;
+        this.name = name;
         this.incidentCode = incidentCode;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -46,6 +48,14 @@ public class Intervention extends AbstractEntity implements Serializable {
         this.watchArea = new ArrayList<>();
         this.watchPath = new ArrayList<>();
         this.markers = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getIncidentCode() {

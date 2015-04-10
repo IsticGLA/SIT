@@ -19,7 +19,7 @@ public class InterventionDAOTest {
     @BeforeClass
     public static void init(){
         interDAO = new InterventionDAO();
-        interDAO.connect();
+        DAOManager.connectTest();
     }
 
     @AfterClass
@@ -32,7 +32,7 @@ public class InterventionDAOTest {
         List<Resource> ressources = new ArrayList<>();
         ressources.add(new Resource("VSAV", State.planned));
         ressources.add(new Resource("VLCG", State.planned));
-        interData = new Intervention(4, 48.11, -1.61);
+        interData = new Intervention("test_insert", 4, 48.11, -1.61);
         interData.setResources(ressources);
     }
 
@@ -41,18 +41,19 @@ public class InterventionDAOTest {
         Intervention originalIntervention = interDAO.cloneEntity(interData);
         Intervention insertIntervention = interDAO.create(interData);
         originalIntervention.setId(insertIntervention.getId());
-        Assert.assertEquals(insertIntervention, originalIntervention);
+        Assert.assertEquals(originalIntervention, insertIntervention);
     }
 
     @Test
     public void updateTest(){
         Intervention res = interDAO.create(interData);
 
-        //Intervention intervention = interDAO.getById(res.getId());
+        res.setName("test_updated");
         res.getResources().add(new Resource("TEST", State.waiting));
 
         Intervention updateIntervention = interDAO.update(res);
-        Assert.assertEquals(updateIntervention.getResources(), res.getResources());
+        Assert.assertEquals(res.getResources(), updateIntervention.getResources());
+        Assert.assertEquals("test_updated", updateIntervention.getName());
     }
 
     @Test
@@ -73,7 +74,7 @@ public class InterventionDAOTest {
 
         Intervention insertIntervention = interDAO.create(interData);
         Intervention getByIdIntervention = interDAO.getById(insertIntervention.getId());
-        Assert.assertEquals(getByIdIntervention, insertIntervention);
+        Assert.assertEquals(insertIntervention, getByIdIntervention);
     }
 
     @Test

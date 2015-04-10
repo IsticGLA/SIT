@@ -8,7 +8,6 @@ import com.couchbase.client.java.document.JsonLongDocument;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DocumentAlreadyExistsException;
 import com.couchbase.client.java.error.DocumentDoesNotExistException;
-import com.couchbase.client.java.error.FlushDisabledException;
 import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
 
@@ -123,27 +122,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         createViewBy(key);
         List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(value).stale(Stale.FALSE)).allRows();
         return viewRowsToEntities(result);
-    }
-
-    /**
-     * flush our bucket
-     * @return
-     */
-    private boolean flush()
-    {
-        if(DAOManager.getCurrentBucket()!=null && DAOManager.currentCluster!=null)
-        {
-            try
-            {
-                return DAOManager.getCurrentBucket().bucketManager().flush();
-            }
-            catch (FlushDisabledException e)
-            {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        return false;
     }
 
     private List<T> viewRowsToEntities(List<ViewRow> list){
