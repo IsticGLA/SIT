@@ -29,6 +29,8 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
 
     protected Class<T> typeClass;
 
+    ObjectMapper om = new ObjectMapper();
+
     /**
      * Connect to BDD and
      * @return Bucket to communicate with couchbase
@@ -94,6 +96,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final List<T> getAll()
     {
+        long begin = System.currentTimeMillis();
         createViewAll();
         List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_type_" + type).stale(Stale.FALSE)).allRows();
         return viewRowsToEntities(result);
@@ -144,7 +147,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     protected T jsonDocumentToEntity(long id, JsonObject jsonDocument){
         T entity = null;
         try {
-            ObjectMapper om = new ObjectMapper();
             entity = om.readValue(jsonDocument.toString(), typeClass);
             entity.setId(id);
         } catch (IOException e) {
@@ -184,13 +186,16 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         }
 
         String viewName = "by_type_"+type;
-        String mapFunction =
-                "function (doc, meta) {\n" +
-                        " if(doc.type && doc.type == '"+ type + "') \n" +
-                        "   { emit(doc.id, doc);}\n" +
-                        "}";
-        designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
-        DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
+        if (!designDoc.toString().contains(viewName)) {
+            String mapFunction =
+                    "function (doc, meta) {\n" +
+                            " if(doc.type && doc.type == '" + type + "') \n" +
+                            "   { emit(doc.id, doc);}\n" +
+                            "}";
+
+            designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
+            DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
+        }
     }
 
     private void createViewBy(String key)
@@ -201,13 +206,15 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         }
 
         String viewName = "by_" + key + "_" + type;
-        String mapFunction =
-                "function (doc, meta) {\n" +
-                        " if(doc.type && doc.type == '"+ type + "') \n" +
-                        "   { emit(doc." + key + ", doc);}\n" +
-                        "}";
-        designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
-        DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
+        if (!designDoc.toString().contains(viewName)) {
+            String mapFunction =
+                    "function (doc, meta) {\n" +
+                            " if(doc.type && doc.type == '" + type + "') \n" +
+                            "   { emit(doc." + key + ", doc);}\n" +
+                            "}";
+            designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
+            DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
+        }
     }
 
     public DesignDocument createDesignDocument()

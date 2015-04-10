@@ -89,7 +89,6 @@ public class InterventionDAOTest {
         List<Intervention> list = interDAO.getAll();
 
         for (Intervention st : list){
-            System.out.println(st.getId() + "  " + st1.getId());
             if ((st.getId() == st1.getId()) ||
                     (st.getId() == st2.getId()) ||
                     (st.getId() == st3.getId()) ||
