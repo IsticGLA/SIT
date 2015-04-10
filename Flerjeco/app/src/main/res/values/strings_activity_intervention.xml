@@ -2,7 +2,7 @@
     <string name="title_activity_intervention">Création de l\'intervention</string>
     <string name="intervention_creation">Créer l\'intervention</string>
     <string name="nameInterventionHint">nom de l\'intervention</string>
-
+    <string name="createInterventionButton">Créer intervention</string>
     <string-array name="code">
         <item>SAP</item>
         <item>AVP</item>
