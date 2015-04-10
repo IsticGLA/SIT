@@ -1,5 +1,7 @@
 import dao.IncidentCodeDAO;
+import dao.InterventionDAO;
 import entity.IncidentCode;
+import entity.Intervention;
 
 import java.util.List;
 
@@ -8,12 +10,14 @@ import java.util.List;
  */
 public class main {
     public static void main(String[] args) {
-        IncidentCodeDAO dao = new IncidentCodeDAO();
+        InterventionDAO dao = new InterventionDAO();
         dao.connect();
-        List<IncidentCode> l = dao.getAll();
-        for (IncidentCode i : l){
-            System.out.println(i.toString());
-        }
+        Intervention intervention = new Intervention(1,23.2,32.2,null,null,null,null,null);
+        Intervention res = dao.create(intervention);
+        System.out.println(res.getLongitude()+"/"+res.getLatitude());
+
+        dao.disconnect();
+
 
     }
 }
