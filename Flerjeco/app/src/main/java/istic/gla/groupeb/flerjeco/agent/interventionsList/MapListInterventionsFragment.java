@@ -32,7 +32,7 @@ public class MapListInterventionsFragment extends Fragment {
     private GoogleMap googleMap;
     int mCurrentPosition = -1;
 
-    private List<Intervention> interventionList;
+    private Intervention[] interventionTab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,7 +78,7 @@ public class MapListInterventionsFragment extends Fragment {
     }
 
     public void updateMapView(int position) {
-        Intervention intervention = interventionList.get(position);
+        Intervention intervention = interventionTab[position];
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
         googleMap.animateCamera(CameraUpdateFactory
@@ -86,12 +86,12 @@ public class MapListInterventionsFragment extends Fragment {
         mCurrentPosition = position;
     }
 
-    public void initMap(Intervention interventionList){
-        this.interventionList = interventionList;
+    public void initMap(Intervention[] interventionTab){
+        this.interventionTab = interventionTab;
 
-        if (interventionList.size()>0){
+        if (interventionTab.length > 0){
 
-            for (Intervention intervention : interventionList){
+            for (Intervention intervention : interventionTab){
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(
                         new LatLng(intervention.getLatitude(), intervention.getLongitude())).title("Hello Maps");
@@ -105,7 +105,7 @@ public class MapListInterventionsFragment extends Fragment {
         }
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(interventionList.get(0).getLatitude(), interventionList.get(0).getLongitude())).zoom(12).build();
+                .target(new LatLng(interventionTab[0].getLatitude(), interventionTab[0].getLongitude())).zoom(12).build();
 
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
