@@ -25,7 +25,6 @@ public class IncidentCode {
         incidentCodeDAO = new IncidentCodeDAO();
         incidentCodeDAO.connect();
         List<entity.IncidentCode> listCodes = incidentCodeDAO.getAll();
-
         incidentCodeDAO.disconnect();
         return Response.ok(listCodes).build();
     }
