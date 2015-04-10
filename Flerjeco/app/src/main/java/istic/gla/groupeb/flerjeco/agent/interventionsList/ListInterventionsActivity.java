@@ -20,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 
 import entity.Intervention;
@@ -29,7 +30,7 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class ListInterventionsActivity extends FragmentActivity
         implements InterventionsNamesFragment.OnResourceSelectedListener {
-
+    private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention intervention;
     protected Intervention[] interventionTab;
     private MapListInterventionsFragment mapFragment;
@@ -135,11 +136,8 @@ public class ListInterventionsActivity extends FragmentActivity
         protected Boolean doInBackground(Void... params) {
             SpringService service = new SpringService();
             interventionTab = service.getAllInterventions();
-
-            for(Intervention inter : interventionTab) {
-                System.out.println(inter.getName());
-            }
-
+            Log.i(TAG, "interventionTab size : "+interventionTab.length);
+            Log.i(TAG, "doInBackground end");
             return true;
         }
     }

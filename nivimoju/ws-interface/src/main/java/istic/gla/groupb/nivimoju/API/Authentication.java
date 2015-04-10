@@ -34,6 +34,7 @@ public class Authentication {
         if(userList != null) {
             for (User u : userList) {
                 if (u.getPassword().equals(password)) {
+                    userDAO.disconnect();
                     return Response.ok().build();
                 }
             }
