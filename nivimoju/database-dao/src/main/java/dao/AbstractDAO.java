@@ -127,7 +127,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         return viewRowsToEntities(result);
     }
 
-    private List<T> viewRowsToEntities(List<ViewRow> list){
+    protected List<T> viewRowsToEntities(List<ViewRow> list){
         List<T> res = new ArrayList<>();
         // Iterate through the returned ViewRows
         for (ViewRow row : list) {
