@@ -14,3 +14,6 @@ android/*.iml
 target/
 log/
 *.orig
+*.log
+*.out
+
