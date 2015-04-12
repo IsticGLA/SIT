@@ -1,3 +1,5 @@
+package istic.gla.groupb.nivimoju.drone.client;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLong;
@@ -58,7 +60,7 @@ public class DroneClient {
     }
 
     private void postWaypoint(LocalCoordinate local) throws Exception {
-        local.setZ(5);
+        local.setZ(20);
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(local);
         String res = post("robot/waypoint", json);
@@ -73,6 +75,7 @@ public class DroneClient {
         LatLong piscine = new LatLong(48.115367,-1.63781);
         logger.info("piscine : "+ piscine );
         LatLong croisement = new LatLong(48.11498, -1.63795);
+        LatLong croisement2 = new LatLong(48.114454, -1.639962);
 
         LocalCoordinate local = converter.getLocal(croisement);
         logger.info("local" + local);
