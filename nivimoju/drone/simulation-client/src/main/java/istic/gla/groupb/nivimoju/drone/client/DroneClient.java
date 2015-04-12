@@ -59,7 +59,7 @@ public class DroneClient {
         this.status = status;
     }
 
-    private void postWaypoint(LocalCoordinate local) throws Exception {
+    public void postWaypoint(LocalCoordinate local) throws Exception {
         local.setZ(20);
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(local);

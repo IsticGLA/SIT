@@ -1,5 +1,6 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -14,7 +15,10 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.springframework.web.client.HttpStatusCodeException;
+
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 /**
  * A fragment that launches other parts of the demo application.
@@ -54,9 +58,11 @@ public class PlanZoneMapFragment extends Fragment {
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                double latitude = latLng.latitude;
-                double longitude = latLng.longitude;
-                Log.i(getActivity().getLocalClassName(), "Click on the Map at "+latitude+", "+longitude);
+            double latitude = latLng.latitude;
+            double longitude = latLng.longitude;
+            Log.i(getActivity().getLocalClassName(), "Click on the Map at "+latitude+", "+longitude);
+            new SendLocationToDrone().execute(latitude, longitude);
+
             }
         });
 
@@ -90,5 +96,31 @@ public class PlanZoneMapFragment extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    /**
+     * Represents an asynchronous call for move drone to location you clicked
+     * the user.
+     */
+    public class SendLocationToDrone extends AsyncTask<Object, Void, Long> {
+
+        @Override
+        protected Long doInBackground(Object... params) {
+            try {
+                Long id = new SpringService().moveDrone(params);
+                return id;
+
+            } catch (HttpStatusCodeException e) {
+                Log.e("Drone don't move", e.getMessage(), e);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long id) {
+            Log.i("SendLocationToDrone", "Request posted");
+        }
+
     }
 }
