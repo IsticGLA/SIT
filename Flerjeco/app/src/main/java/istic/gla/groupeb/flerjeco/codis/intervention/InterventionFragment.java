@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package istic.gla.groupeb.flerjeco.agent.interventionsList;
+package istic.gla.groupeb.flerjeco.codis.intervention;
 
 import android.app.Activity;
 import android.os.Build;
@@ -29,13 +29,16 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Intervention;
+import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
+import util.State;
 
-public class InterventionsNamesFragment extends Fragment {
+public class InterventionFragment extends Fragment {
     OnResourceSelectedListener mCallback;
 
-    private ListView listViewInterventions;
+    private ListView listViewResources;
+    private ListView listViewRequests;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -48,32 +51,38 @@ public class InterventionsNamesFragment extends Fragment {
                              Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        View v = inflater.inflate(R.layout.fragment_list_interventions, container,
+        View v = inflater.inflate(R.layout.intervention_view, container,
                 false);
 
-        listViewInterventions = (ListView) v.findViewById(R.id.listViewInterventions);
+        listViewResources = (ListView) v.findViewById(R.id.listViewResources);
+        listViewRequests = (ListView) v.findViewById(R.id.listViewRequests);
 
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
 
-        List<String> labelsInterventions = new ArrayList<>();
+        List<String> labelsResources = new ArrayList<>();
+        List<String> labelsRequests = new ArrayList<>();
 
-        ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
-        Intervention[] interventions = listInterventionsActivity.getInterventions();
-
-        for(Intervention inter : interventions) {
-            labelsInterventions.add(inter.getName());
+        InterventionActivity secondActivity = (InterventionActivity) getActivity();
+        for (Resource resource : secondActivity.intervention.getResources()){
+            State resourceState = resource.getState();
+            if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+                labelsResources.add(resource.getLabel());
+            }else{
+                labelsRequests.add(resource.getLabel());
+            }
         }
 
-        listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
+        listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
+        listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
 
-        listViewInterventions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
-                listViewInterventions.setItemChecked(position, true);
+                listViewResources.setItemChecked(position,true);
             }
         });
 
@@ -87,7 +96,7 @@ public class InterventionsNamesFragment extends Fragment {
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
         if (getFragmentManager().findFragmentById(R.id.map_fragment) != null) {
-            listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            listViewResources.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         }
     }
 
@@ -101,7 +110,7 @@ public class InterventionsNamesFragment extends Fragment {
             mCallback = (OnResourceSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnResourceSelectedListener");
+                    + " must implement OnHeadlineSelectedListener");
         }
     }
 }

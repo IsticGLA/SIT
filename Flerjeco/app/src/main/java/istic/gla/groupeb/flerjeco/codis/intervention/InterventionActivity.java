@@ -13,44 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package istic.gla.groupeb.flerjeco.agent.interventionsList;
+package istic.gla.groupeb.flerjeco.codis.intervention;
 
-import android.content.Intent;
-import android.os.AsyncTask;
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.View;
 
-import entity.Intervention;
-import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
-import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ListInterventionsActivity extends FragmentActivity
-        implements InterventionsNamesFragment.OnResourceSelectedListener {
-    private static final String TAG = SpringService.class.getSimpleName();
+import entity.Intervention;
+import entity.Resource;
+import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.intervention.MapFragment;
+import util.State;
+
+public class InterventionActivity extends FragmentActivity
+        implements InterventionFragment.OnResourceSelectedListener {
+
     protected Intervention intervention;
-    protected Intervention[] interventionTab;
-    private MapListInterventionsFragment mapFragment;
-    private int position=0;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GetAllInterventionTask mGetAllTask = new GetAllInterventionTask();
-        mGetAllTask.execute((Void) null);
+        intervention = new Intervention();
+        intervention.setLatitude(48.117749);
+        intervention.setLongitude(-1.677297);
+        List<Resource> resourceList = new ArrayList<>();
+        resourceList.add(new Resource("Resource1", State.active, 48.117749, -1.677297));
+        resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
+        resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
+        resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
+        resourceList.add(new Resource("Resource5", State.waiting, 48.147749, -1.677297));
 
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        intervention.setResources(resourceList);
 
-        setContentView(R.layout.activity_list_interventions);
+        setContentView(R.layout.activity_second);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -64,7 +66,7 @@ public class ListInterventionsActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            InterventionsNamesFragment firstFragment = new InterventionsNamesFragment();
+            InterventionFragment firstFragment = new InterventionFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -78,14 +80,11 @@ public class ListInterventionsActivity extends FragmentActivity
 
     public void onResourceSelected(int position) {
 
-        MapListInterventionsFragment mapFragment = (MapListInterventionsFragment)
+        MapFragment mapFragment = (MapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
         if (mapFragment != null) {
             // If article frag is available, we're in two-pane layout...
-
-            //save the current position
-            this.position = position;
 
             // Call a method in the ArticleFragment to update its content
             mapFragment.updateMapView(position);
@@ -94,15 +93,15 @@ public class ListInterventionsActivity extends FragmentActivity
             // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
-            mapFragment = new MapListInterventionsFragment();
+            MapFragment newFragment = new MapFragment();
             Bundle args = new Bundle();
-            args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
-            mapFragment.setArguments(args);
+            args.putInt("position", position);
+            newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             // Replace whatever is in the fragment_container view with this fragment,
             // and add the transaction to the back stack so the user can navigate back
-            transaction.replace(R.id.fragment_container, mapFragment);
+            transaction.replace(R.id.fragment_container, newFragment);
             transaction.addToBackStack(null);
 
             // Commit the transaction
@@ -110,35 +109,10 @@ public class ListInterventionsActivity extends FragmentActivity
         }
     }
 
-    public Intervention[] getInterventions() {
-        return interventionTab;
+    public void showDialogIntervention(View view) {
+        // Create the fragment and show it as a dialog.
+        DialogFragment interventionDialog = new InterventionDialogFragment();
+        interventionDialog.show(getFragmentManager(),"intervention_dialog");
     }
 
-    public void selectIntervention(View view) {
-        Intent intent = new Intent(ListInterventionsActivity.this, SecondActivity.class);
-        Bundle bundle = new Bundle();
-
-        bundle.putSerializable("intervention", getInterventions()[position]);
-
-        intent.putExtras(bundle);
-        startActivity(intent);
-    }
-
-
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            SpringService service = new SpringService();
-            interventionTab = service.getAllInterventions();
-            Log.i(TAG, "interventionTab size : "+interventionTab.length);
-            Log.i(TAG, "doInBackground end");
-            return true;
-        }
-    }
 }
