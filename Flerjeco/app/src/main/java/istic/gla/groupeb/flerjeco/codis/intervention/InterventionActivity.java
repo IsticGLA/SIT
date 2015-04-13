@@ -15,20 +15,20 @@
  */
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
-import android.content.Intent;
+
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
-import istic.gla.groupeb.flerjeco.agent.interventionsList.InterventionsNamesFragment;
+import istic.gla.groupeb.flerjeco.agent.intervention.VehicleRequestDialog;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class InterventionActivity extends FragmentActivity
-        implements InterventionsNamesFragment.OnResourceSelectedListener {
+        implements InterventionFragment.OnResourceSelectedListener {
 
     private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention[] interventionTab;
@@ -41,10 +41,14 @@ public class InterventionActivity extends FragmentActivity
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            interventionTab = (Intervention[]) extras.getSerializable("interventions");
+            Object[] objects = (Object[]) extras.getSerializable("interventions");
+            interventionTab = new Intervention[objects.length];
+            for(int i=0;i<objects.length;i++) {
+                interventionTab[i] = (Intervention) objects[i];
+            }
         }
 
-        setContentView(R.layout.activity_list_interventions);
+        setContentView(R.layout.activity_list_interventions_codis);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -58,7 +62,7 @@ public class InterventionActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            InterventionsNamesFragment firstFragment = new InterventionsNamesFragment();
+            InterventionFragment firstFragment = new InterventionFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -82,10 +86,25 @@ public class InterventionActivity extends FragmentActivity
             this.position = position;
 
             // Call a method in the ArticleFragment to update its content
-            //resourcesFragment.updateMapView(position);
+            resourcesFragment.updateResources(interventionTab[position]);
 
         } else {
-            // TODO : Drag and drop
+            // If the frag is not available, we're in the one-pane layout and must swap frags...
+
+            // Create fragment and give it an argument for the selected article
+            resourcesFragment = new ResourcesFragment();
+            Bundle args = new Bundle();
+            args.putInt("position", position);
+            resourcesFragment.setArguments(args);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            // Replace whatever is in the fragment_container view with this fragment,
+            // and add the transaction to the back stack so the user can navigate back
+            transaction.replace(R.id.fragment_container, resourcesFragment);
+            transaction.addToBackStack(null);
+
+            // Commit the transaction
+            transaction.commit();
         }
     }
 
@@ -93,13 +112,9 @@ public class InterventionActivity extends FragmentActivity
         return interventionTab;
     }
 
-    public void selectIntervention(View view) {
-        Intent intent = new Intent(InterventionActivity.this, SecondActivity.class);
-        Bundle bundle = new Bundle();
-
-        bundle.putSerializable("intervention", getInterventions()[position]);
-
-        intent.putExtras(bundle);
-        startActivity(intent);
+    public void showDialogIntervention(View view) {
+        // Create the fragment and show it as a dialog.
+        DialogFragment newFragment = new InterventionDialogFragment();
+        newFragment.show(getSupportFragmentManager(), "intervention_dialog");
     }
 }

@@ -1,6 +1,6 @@
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
-import android.app.DialogFragment;
+import android.support.v4.app.DialogFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -164,9 +164,6 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
                 spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 codeSinistreSpinner.setAdapter(spinnerAdapter);
             }
-
-
-
         }
 
     }
@@ -190,7 +187,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         @Override
         protected void onPostExecute(Long resultPost) {
             Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
-
+            dismiss();
         }
 
     }

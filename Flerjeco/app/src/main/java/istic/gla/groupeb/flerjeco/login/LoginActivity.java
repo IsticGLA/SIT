@@ -208,16 +208,9 @@ public class LoginActivity extends Activity {
             if (success) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
                 Intent intent;
-                if(isCodis) {
-                    intent = new Intent(LoginActivity.this, InterventionActivity.class);
-                    startActivity(intent);
-                }
-                else {
-                    showProgress(true);
-                    GetAllInterventionTask mGetAllTask = new GetAllInterventionTask();
-                    mGetAllTask.execute((Void) null);
-                }
-
+                showProgress(true);
+                GetAllInterventionTask mGetAllTask = new GetAllInterventionTask(isCodis);
+                mGetAllTask.execute((Void) null);
             } else {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
@@ -239,6 +232,11 @@ public class LoginActivity extends Activity {
     public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
         private Intervention[] interventionTab;
+        private boolean isCodis;
+
+        public GetAllInterventionTask(boolean isCodis) {
+            this.isCodis = isCodis;
+        }
 
         @Override
         protected Boolean doInBackground(Void... params) {
@@ -252,7 +250,14 @@ public class LoginActivity extends Activity {
         @Override
         protected void onPostExecute(final Boolean success) {
             showProgress(false);
-            Intent intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
+            Intent intent;
+            if(isCodis) {
+                intent = new Intent(LoginActivity.this, InterventionActivity.class);
+            }
+            else {
+                intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
+            }
+
             Bundle bundle = new Bundle();
 
             bundle.putSerializable("interventions", interventionTab);
