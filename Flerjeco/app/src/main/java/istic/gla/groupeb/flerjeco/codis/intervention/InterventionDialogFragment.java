@@ -25,7 +25,7 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 
-public class InterventionDialogFragment extends DialogFragment {
+public class InterventionDialogFragment extends DialogFragment implements OnTaskCompleted{
 
 
     Spinner codeSinistreSpinner;
@@ -185,6 +185,46 @@ public class InterventionDialogFragment extends DialogFragment {
             Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
 
         }
+
+    }
+
+    // Backgroud task to post intervention
+    private class ResourceGetTask extends AsyncTask<List<Long>, Void, List<ResourceType>> {
+
+        private OnTaskCompleted listener;
+
+        public ResourceGetTask(OnTaskCompleted listener){
+            this.listener=listener;
+        }
+
+        @Override
+        protected List<ResourceType> doInBackground(List<Long>... params) {
+            try {
+
+                List<Long> idResourcesTypes = params[0];
+                for(int i = 0; i < idResourcesTypes.size(); i++){
+
+                }
+
+            } catch (HttpStatusCodeException e) {
+                Log.e("InterventionActivity", e.getMessage(), e);
+
+            }
+
+            return  null;
+        }
+
+        @Override
+        protected void onPostExecute(List<ResourceType> resultPost) {
+            Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
+
+        }
+
+    }
+
+
+    public void onTaskCompleted(){
+        //TO DO ADD
 
     }
 }
