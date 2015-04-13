@@ -34,6 +34,18 @@ public class Vehicle extends Canvas {
         rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
     }
 
+    public Vehicle(String name, Function function){
+        this.name = name;
+        paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(5);
+        paint.setTextSize(15);
+        changeFunction(function);
+        changeState(State.Programmed);
+        rect = new Rect(10, 40, 160, 110);
+        rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
+    }
+
     public enum State {Programmed, Validated}
 
     public enum Function {Water, Fire, People, Risks, Commands, Default}
