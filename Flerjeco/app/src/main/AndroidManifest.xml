@@ -36,8 +36,17 @@
             android:label="@string/title_activity_second" >
         </activity>
         <activity
+            android:name=".codis.intervention.InterventionActivity"
+            android:label="@string/title_activity_intervention" >
+        </activity>
+        <activity
             android:name=".agent.interventionsList.ListInterventionsActivity"
             android:label="@string/title_activity_list_interventions" >
+        </activity>
+        <activity
+            android:exported="true"
+            android:name=".agent.planZone.PlanZoneActivity"
+            android:label="@string/title_activity_plan_zone" >
         </activity>
     </application>
 

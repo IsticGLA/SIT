@@ -17,7 +17,7 @@ public class StaticDataDAOTest {
     @BeforeClass
     public static void init(){
         stDAO = new StaticDataDAO();
-        stDAO.connect();
+        DAOManager.connectTest();
     }
 
     @AfterClass
@@ -35,7 +35,7 @@ public class StaticDataDAOTest {
         StaticData originalStaticData = stDAO.cloneEntity(stData);
         StaticData insertStaticData = stDAO.create(stData);
         originalStaticData.setId(insertStaticData.getId());
-        Assert.assertEquals(insertStaticData, originalStaticData);
+        Assert.assertEquals(originalStaticData, insertStaticData);
     }
 
     @Test
@@ -43,7 +43,7 @@ public class StaticDataDAOTest {
         StaticData res = stDAO.create(stData);
         res.setLatitude(47.6334);
         StaticData updateStaticData = stDAO.update(res);
-        Assert.assertEquals(updateStaticData.getLatitude(), 47.6334, 0.0000);
+        Assert.assertEquals(47.6334, updateStaticData.getLatitude(), 0.0000);
     }
 
     @Test
@@ -60,11 +60,9 @@ public class StaticDataDAOTest {
         StaticData nullStaticData = stDAO.getById(stData.getId());
         Assert.assertNull(nullStaticData);
 
-        UserDAO uDAO = new UserDAO();
-
         StaticData insertStaticData = stDAO.create(stData);
         StaticData getByIdStaticData = stDAO.getById(insertStaticData.getId());
-        Assert.assertEquals(getByIdStaticData, insertStaticData);
+        Assert.assertEquals(insertStaticData, getByIdStaticData);
     }
 
     @Test
@@ -79,7 +77,6 @@ public class StaticDataDAOTest {
         List<StaticData> list = stDAO.getAll();
 
         for (StaticData st : list){
-            System.out.println(st.getId() + "  " + st1.getId());
             if ((st.getId() == st1.getId()) ||
                     (st.getId() == st2.getId()) ||
                     (st.getId() == st3.getId()) ||

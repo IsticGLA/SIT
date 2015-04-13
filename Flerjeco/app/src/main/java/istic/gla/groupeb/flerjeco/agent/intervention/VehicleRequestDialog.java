@@ -76,14 +76,14 @@ public class VehicleRequestDialog extends DialogFragment {
         Button button = (Button)v.findViewById(R.id.vehicle_fragment_button);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                validate(spinnerMap.get(spinner1.getSelectedItem().toString()));
+                validate(spinner1.getSelectedItem().toString());
             }
         });
 
         return v;
     }
 
-    public void validate(Long vehicle) {
+    public void validate(String vehicle) {
         this.dismiss();
         new ResourceRequestTask().execute(intervention, vehicle);
         Toast.makeText(getActivity(), "" + vehicle, Toast.LENGTH_SHORT).show();
@@ -165,10 +165,10 @@ public class VehicleRequestDialog extends DialogFragment {
 
     }
 
-    private class ResourceRequestTask extends AsyncTask<Long, Void, Long> {
+    private class ResourceRequestTask extends AsyncTask<Object, Void, Long> {
 
         @Override
-        protected Long doInBackground(Long... params) {
+        protected Long doInBackground(Object... params) {
             try {
                 Long id = new SpringService().requestVehicle(params);
                 return id;

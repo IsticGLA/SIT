@@ -16,13 +16,16 @@ import android.widget.Toast;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.HashMap;
+import java.util.List;
 
 import entity.IncidentCode;
+import entity.Resource;
+import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 
-public class InterventionDialogFragment extends DialogFragment {
+public class InterventionDialogFragment extends DialogFragment implements OnTaskCompleted{
 
 
     Spinner codeSinistreSpinner;
@@ -40,9 +43,10 @@ public class InterventionDialogFragment extends DialogFragment {
     ArrayAdapter<String> spinnerAdapter;
 
     private HashMap<String, Long> spinnerMap;
+    private HashMap<String, List<Long>> resourceTypeMap;
 
 
-    boolean data_local = true;
+    boolean data_local = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,6 +69,7 @@ public class InterventionDialogFragment extends DialogFragment {
             int i = 0;
             for (String code : spinnerArray) {
                 spinnerMap.put(code, Long.valueOf(i));
+                resourceTypeMap.put(code,null);
                 i++;
             }
             i = 0;
@@ -101,11 +106,15 @@ public class InterventionDialogFragment extends DialogFragment {
 
                     //Intervetion
                     entity.Intervention intervention;
-                    intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()), null, null, null, null, null);
+
+                    intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()));
+
                     Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
-                    //intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()) , null,null,null,null,null);
-                    // Log.i("MAMH", intervention.toString());
-                    new InterventionPostTask().execute(intervention);
+
+                    List<Resource> resources;
+
+                    AsyncTask at = new InterventionPostTask().execute(intervention);
+
                 }
             }
         });
@@ -140,15 +149,16 @@ public class InterventionDialogFragment extends DialogFragment {
                     if(code != null) {
                         spinnerArray[i] = code.getCode();
                         spinnerMap.put(code.getCode(), code.getId());
+                        resourceTypeMap.put(code.getCode(), code.getresourceType());
                         i++;
                     }
                     }
-
+                spinnerAdapter = new ArrayAdapter<String>(InterventionDialogFragment.this.getActivity(), android.R.layout.simple_spinner_item,spinnerArray);
+                spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                codeSinistreSpinner.setAdapter(spinnerAdapter);
             }
 
-            spinnerAdapter = new ArrayAdapter<String>(InterventionDialogFragment.this.getActivity(), android.R.layout.simple_spinner_item,spinnerArray);
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            codeSinistreSpinner.setAdapter(spinnerAdapter);
+
 
         }
 
@@ -175,6 +185,46 @@ public class InterventionDialogFragment extends DialogFragment {
             Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
 
         }
+
+    }
+
+    // Backgroud task to post intervention
+    private class ResourceGetTask extends AsyncTask<List<Long>, Void, List<ResourceType>> {
+
+        private OnTaskCompleted listener;
+
+        public ResourceGetTask(OnTaskCompleted listener){
+            this.listener=listener;
+        }
+
+        @Override
+        protected List<ResourceType> doInBackground(List<Long>... params) {
+            try {
+
+                List<Long> idResourcesTypes = params[0];
+                for(int i = 0; i < idResourcesTypes.size(); i++){
+
+                }
+
+            } catch (HttpStatusCodeException e) {
+                Log.e("InterventionActivity", e.getMessage(), e);
+
+            }
+
+            return  null;
+        }
+
+        @Override
+        protected void onPostExecute(List<ResourceType> resultPost) {
+            Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
+
+        }
+
+    }
+
+
+    public void onTaskCompleted(){
+        //TO DO ADD
 
     }
 }

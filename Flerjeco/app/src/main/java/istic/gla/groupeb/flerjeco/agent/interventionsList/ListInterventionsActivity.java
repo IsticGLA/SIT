@@ -15,25 +15,33 @@
  */
 package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-
-import java.util.ArrayList;
-import java.util.List;
+import android.view.View;
 
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class ListInterventionsActivity extends FragmentActivity
         implements InterventionsNamesFragment.OnResourceSelectedListener {
 
-    protected Intervention intervention;
+    private static final String TAG = SpringService.class.getSimpleName();
+    protected Intervention[] interventionTab;
+    private int position=0;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            interventionTab = (Intervention[]) extras.getSerializable("interventions");
+        }
 
         setContentView(R.layout.activity_list_interventions);
 
@@ -69,6 +77,9 @@ public class ListInterventionsActivity extends FragmentActivity
         if (mapFragment != null) {
             // If article frag is available, we're in two-pane layout...
 
+            //save the current position
+            this.position = position;
+
             // Call a method in the ArticleFragment to update its content
             mapFragment.updateMapView(position);
 
@@ -76,15 +87,15 @@ public class ListInterventionsActivity extends FragmentActivity
             // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
-            MapListInterventionsFragment newFragment = new MapListInterventionsFragment();
+            mapFragment = new MapListInterventionsFragment();
             Bundle args = new Bundle();
             args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
-            newFragment.setArguments(args);
+            mapFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
             // Replace whatever is in the fragment_container view with this fragment,
             // and add the transaction to the back stack so the user can navigate back
-            transaction.replace(R.id.fragment_container, newFragment);
+            transaction.replace(R.id.fragment_container, mapFragment);
             transaction.addToBackStack(null);
 
             // Commit the transaction
@@ -92,23 +103,17 @@ public class ListInterventionsActivity extends FragmentActivity
         }
     }
 
-    public List<Intervention> getInterventions() {
-        List<Intervention> interventionList = new ArrayList<Intervention>();
+    public Intervention[] getInterventions() {
+        return interventionTab;
+    }
 
-        intervention = new Intervention();
-        intervention.setId(1);
-        intervention.setLatitude(48.117749);
-        intervention.setLongitude(-1.677297);
+    public void selectIntervention(View view) {
+        Intent intent = new Intent(ListInterventionsActivity.this, SecondActivity.class);
+        Bundle bundle = new Bundle();
 
-        interventionList.add(intervention);
+        bundle.putSerializable("intervention", getInterventions()[position]);
 
-        intervention = new Intervention();
-        intervention.setId(2);
-        intervention.setLatitude(66.117749);
-        intervention.setLongitude(-22.677297);
-
-        interventionList.add(intervention);
-
-        return interventionList;
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 }

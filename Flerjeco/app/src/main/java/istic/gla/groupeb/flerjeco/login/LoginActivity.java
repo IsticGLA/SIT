@@ -20,10 +20,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
-import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
+import entity.Intervention;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
+import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 
@@ -177,7 +180,6 @@ public class LoginActivity extends Activity {
         @Override
         protected Boolean doInBackground(Void... params) {
             Log.i(TAG, "doInBackground start");
-            // TODO: attempt authentication against a network service.
 
             SpringService service = new SpringService();
             statusCode = service.login(mLogin, mPassword);
@@ -206,11 +208,16 @@ public class LoginActivity extends Activity {
             if (success) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
                 Intent intent;
-                if(isCodis)
-                    intent = new Intent(LoginActivity.this, InterventionDialogFragment.class);
-                else
-                    intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
-                startActivity(intent);
+                if(isCodis) {
+                    intent = new Intent(LoginActivity.this, InterventionActivity.class);
+                    startActivity(intent);
+                }
+                else {
+                    showProgress(true);
+                    GetAllInterventionTask mGetAllTask = new GetAllInterventionTask();
+                    mGetAllTask.execute((Void) null);
+                }
+
             } else {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
@@ -222,6 +229,36 @@ public class LoginActivity extends Activity {
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
+        }
+    }
+
+    /**
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
+     */
+    public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
+
+        private Intervention[] interventionTab;
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            SpringService service = new SpringService();
+            interventionTab = service.getAllInterventions();
+            Log.i(TAG, "interventionTab size : "+interventionTab.length);
+            Log.i(TAG, "doInBackground end");
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            showProgress(false);
+            Intent intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
+            Bundle bundle = new Bundle();
+
+            bundle.putSerializable("interventions", interventionTab);
+
+            intent.putExtras(bundle);
+            startActivity(intent);
         }
     }
 }
