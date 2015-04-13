@@ -21,27 +21,31 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import entity.Intervention;
-import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
-import util.State;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class ListInterventionsActivity extends FragmentActivity
         implements InterventionsNamesFragment.OnResourceSelectedListener {
 
-    protected Intervention intervention;
-    private List<Intervention> interventionList;
-    private MapListInterventionsFragment mapFragment;
+    private static final String TAG = SpringService.class.getSimpleName();
+    protected Intervention[] interventionTab;
     private int position=0;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            Object[] objects = (Object[]) extras.getSerializable("interventions");
+            interventionTab = new Intervention[objects.length];
+            for(int i=0;i<objects.length;i++) {
+                interventionTab[i] = (Intervention) objects[i];
+            }
+        }
 
         setContentView(R.layout.activity_list_interventions);
 
@@ -103,48 +107,15 @@ public class ListInterventionsActivity extends FragmentActivity
         }
     }
 
-    public List<Intervention> getInterventions() {
-        interventionList = new ArrayList<Intervention>();
-
-        intervention = new Intervention();
-        intervention.setId(1);
-        intervention.setLatitude(48.117749);
-        intervention.setLongitude(-1.677297);
-        List<Resource> resourceList = new ArrayList<>();
-        resourceList.add(new Resource("Resource1", State.active, 48.117749, -1.677297));
-        resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
-        resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
-        resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
-        resourceList.add(new Resource("Resource5", State.waiting, 48.147749, -1.677297));
-
-
-        List<Resource> resourceList2 = new ArrayList<>();
-        resourceList2.add(new Resource("Resource1", State.validated, 48.117749, -1.677297));
-        resourceList2.add(new Resource("Resource2", State.validated, 48.127749, -1.657297));
-        resourceList2.add(new Resource("Resource3", State.waiting, 48.107749, -1.687297));
-        resourceList2.add(new Resource("Resource4", State.active, 48.017749, -1.477297));
-        resourceList2.add(new Resource("Resource5", State.active, 48.147749, -1.677297));
-
-        intervention.setResources(resourceList);
-
-        interventionList.add(intervention);
-
-        intervention = new Intervention();
-        intervention.setId(2);
-        intervention.setLatitude(66.117749);
-        intervention.setLongitude(-22.677297);
-        intervention.setResources(resourceList2);
-
-        interventionList.add(intervention);
-
-        return interventionList;
+    public Intervention[] getInterventions() {
+        return interventionTab;
     }
 
     public void selectIntervention(View view) {
         Intent intent = new Intent(ListInterventionsActivity.this, SecondActivity.class);
         Bundle bundle = new Bundle();
 
-        bundle.putSerializable("intervention", getInterventions().get(position));
+        bundle.putSerializable("intervention", getInterventions()[position]);
 
         intent.putExtras(bundle);
         startActivity(intent);

@@ -4,7 +4,6 @@ import dao.InterventionDAO;
 import entity.Resource;
 import util.State;
 
-import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -161,7 +160,7 @@ public class Intervention {
     /**
      * Requests a vehicle for the intervention
      * @param inter The id of the intervention
-     * @param vehicle the id of the requested vehicle type
+     * @param vehicle the label of the requested vehicle type
      * @return The id of the requested vehicle
      */
     @PUT

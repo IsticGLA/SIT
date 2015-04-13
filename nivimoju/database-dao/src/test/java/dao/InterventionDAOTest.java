@@ -98,4 +98,23 @@ public class InterventionDAOTest {
         }
         Assert.assertEquals(4, counter);
     }
+
+    @Test
+    public void getWaitingResourcesTest(){
+        interData.getResources().add(new Resource("VSAP", State.waiting));
+        interDAO.create(interData);
+        List<Intervention> list = interDAO.getWaitingResources();
+        boolean ok = true;
+        for (Intervention i : list){
+            boolean waiting = false;
+            for (Resource r : i.getResources()){
+                if (r.getState() == State.waiting){
+                    waiting = true;
+                    break;
+                }
+            }
+            ok = ok && waiting;
+        }
+        Assert.assertTrue(ok);
+    }
 }

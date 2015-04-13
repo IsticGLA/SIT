@@ -1,9 +1,13 @@
 package istic.gla.groupb.nivimoju.API;
 
+import dao.UserDAO;
+import entity.User;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Created by jules on 08/04/15.
@@ -22,7 +26,22 @@ public class Authentication {
     public Response connect(
             @PathParam("user") String user,
             @PathParam("password") String password) {
-        return Response.ok().build();
+        UserDAO userDAO = new UserDAO();
+        userDAO.connect();
+
+        List<User> userList = userDAO.getBy("login", user);
+
+        if(userList != null) {
+            for (User u : userList) {
+                if (u.getPassword().equals(password)) {
+                    userDAO.disconnect();
+                    return Response.ok().build();
+                }
+            }
+        }
+
+        userDAO.disconnect();
+        return Response.serverError().build();
     }
 
     /**

@@ -2,9 +2,7 @@ package istic.gla.groupb.nivimoju.API;
 
 import dao.ResourceTypeDAO;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -27,5 +25,21 @@ public class ResourceType {
         List<entity.ResourceType> resourceTypes = resourceTypeDAO.getAll();
         resourceTypeDAO.disconnect();
         return Response.ok(resourceTypes).build();
+    }
+
+    /**
+     * Gets resource types by ID
+     * @return A resource type
+     */
+    @Path("/{idresource}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getResourceTypeById(
+            @PathParam("idresource") long idresource) {
+        ResourceTypeDAO resourceTypeDAO = new ResourceTypeDAO();
+        resourceTypeDAO.connect();
+        entity.ResourceType resourceType = resourceTypeDAO.getById(idresource);
+        resourceTypeDAO.disconnect();
+        return Response.ok(resourceType).build();
     }
 }
