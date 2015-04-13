@@ -21,8 +21,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import entity.Intervention;
+import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import util.State;
 
 public class SecondActivity extends FragmentActivity
         implements ResourcesFragment.OnResourceSelectedListener {
@@ -34,12 +39,12 @@ public class SecondActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Bundle extras = getIntent().getExtras();
+        /*Bundle extras = getIntent().getExtras();
         if (extras != null) {
             intervention = (Intervention) extras.getSerializable("intervention");
-        }
+        }*/
 
-        /*
+
 
         intervention = new Intervention();
         intervention.setLatitude(48.117749);
@@ -49,9 +54,13 @@ public class SecondActivity extends FragmentActivity
         resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
         resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
         resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
-        resourceList.add(new Resource("Resource5", State.waiting, 48.147749, -1.677297));
+        resourceList.add(new Resource("Resource5", State.waiting, 0, 0));
+        resourceList.add(new Resource("Resource6", State.refused, 0, 0));
+        resourceList.add(new Resource("Resource7", State.refused, 0, 0));
+        resourceList.add(new Resource("Resource8", State.waiting, 0, 0));
+        resourceList.add(new Resource("Resource9", State.waiting, 0, 0));
 
-        intervention.setResources(resourceList);*/
+        intervention.setResources(resourceList);
 
         setContentView(R.layout.activity_second);
 

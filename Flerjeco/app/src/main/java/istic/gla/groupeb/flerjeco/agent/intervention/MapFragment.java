@@ -99,7 +99,7 @@ public class MapFragment extends Fragment {
                 if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
                     // create marker
                     MarkerOptions marker = new MarkerOptions().position(
-                            new LatLng(resource.getLatitude(), resource.getLongitude())).title("Hello Maps");
+                            new LatLng(resource.getLatitude(), resource.getLongitude())).title(resource.getLabel());
                     // Changing marker icon
                     marker.icon(BitmapDescriptorFactory
                             .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));

@@ -1,6 +1,10 @@
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
-import android.app.DialogFragment;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
+import android.os.Build;
+import android.support.v4.app.DialogFragment;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,14 +19,20 @@ import android.widget.Toast;
 
 import org.springframework.web.client.HttpStatusCodeException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import entity.IncidentCode;
+import entity.Intervention;
+import entity.Resource;
+import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import util.State;
 
 
-public class InterventionDialogFragment extends DialogFragment {
+public class InterventionDialogFragment extends DialogFragment implements OnTaskCompleted{
 
 
     Spinner codeSinistreSpinner;
@@ -35,20 +45,29 @@ public class InterventionDialogFragment extends DialogFragment {
     EditText latitudeEditText;
     EditText longitudeEditText;
 
+    private View mProgressView;
+    private View mCreateFormView;
+
     SpringService springService = new SpringService();
     String[] spinnerArray;
     ArrayAdapter<String> spinnerAdapter;
 
     private HashMap<String, Long> spinnerMap;
+    private HashMap<String, List<Long>> resourceTypeMap;
 
 
     boolean data_local = false;
+    private HttpRequestTask httpRequestTask;
+    private AsyncTask<Intervention, Void, Long> at;
+    private ResourceGetTask resourceGetTask;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.activity_intervention, container, false);
 
+        mCreateFormView = v.findViewById(R.id.intervention_scroll);
+        mProgressView = v.findViewById(R.id.create_progress);
 
         //Set up code sinistre list
         codeSinistreSpinner = (Spinner) v.findViewById(R.id.CodeSinistreSpinner);
@@ -59,19 +78,8 @@ public class InterventionDialogFragment extends DialogFragment {
         // Set up Button of intervention creation
         intervention_creation_button = (Button) v.findViewById(R.id.intervention_button);
 
-        if (data_local) {
-            spinnerArray = new String[]{"SAP", "AVP", "FHA", "MEEEEE"};
-            spinnerMap = new HashMap<>();
-            int i = 0;
-            for (String code : spinnerArray) {
-                spinnerMap.put(code, Long.valueOf(i));
-                i++;
-            }
-            i = 0;
-            spinnerAdapter = new ArrayAdapter<String>(InterventionDialogFragment.this.getActivity(), android.R.layout.simple_spinner_item, spinnerArray);
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            codeSinistreSpinner.setAdapter(spinnerAdapter);
-        } else new HttpRequestTask().execute();
+        httpRequestTask = new HttpRequestTask();
+        httpRequestTask.execute();
 
 
         // add button listener
@@ -88,6 +96,7 @@ public class InterventionDialogFragment extends DialogFragment {
                     longitudeEditText.setError("longitude est obligatoire!");
                     return false;
                 }
+                showProgress(true);
                 return true;
             }
 
@@ -99,13 +108,20 @@ public class InterventionDialogFragment extends DialogFragment {
                     Log.i("MAMH", spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()) + "");
 
 
-                    //Intervetion
+                   /* //Intervetion
                     entity.Intervention intervention;
+
                     intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()));
+
                     Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
-                    //intervention = new entity.Intervention(spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()) , null,null,null,null,null);
-                    // Log.i("MAMH", intervention.toString());
-                    new InterventionPostTask().execute(intervention);
+
+                    List<Resource> resources;
+
+                    AsyncTask at = new InterventionPostTask().execute(intervention);*/
+
+                    resourceGetTask = new ResourceGetTask(InterventionDialogFragment.this);
+                    resourceGetTask.execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
+
                 }
             }
         });
@@ -113,6 +129,52 @@ public class InterventionDialogFragment extends DialogFragment {
         return v;
     }
 
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    public void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            mCreateFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mCreateFormView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mCreateFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mCreateFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(at != null)
+            at.cancel(true);
+        else if (httpRequestTask != null)
+            httpRequestTask.cancel(true);
+        else if (resourceGetTask != null)
+            resourceGetTask.cancel(true);
+    }
 
     // Backgroud task to get sistre codes
     private class HttpRequestTask extends AsyncTask<Void, Void, IncidentCode[]> {
@@ -132,14 +194,18 @@ public class InterventionDialogFragment extends DialogFragment {
 
         @Override
         protected void onPostExecute(IncidentCode[] codes) {
-            spinnerMap = new HashMap();
+
             if(codes != null && codes.length > 0 ) {
                 int i = 0;
                 spinnerArray = new String[codes.length];
+                resourceTypeMap = new HashMap<>();
+                spinnerMap = new HashMap();
                 for (IncidentCode code : codes) {
                     if(code != null) {
+
                         spinnerArray[i] = code.getCode();
                         spinnerMap.put(code.getCode(), code.getId());
+                        resourceTypeMap.put(code.getCode(), code.getresourceType());
                         i++;
                     }
                     }
@@ -147,9 +213,6 @@ public class InterventionDialogFragment extends DialogFragment {
                 spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 codeSinistreSpinner.setAdapter(spinnerAdapter);
             }
-
-
-
         }
 
     }
@@ -173,8 +236,97 @@ public class InterventionDialogFragment extends DialogFragment {
         @Override
         protected void onPostExecute(Long resultPost) {
             Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
-
+            showProgress(false);
+            dismiss();
         }
 
+    }
+
+    // Backgroud task to post intervention
+    private class ResourceGetTask extends AsyncTask<List<Long>, Void, List<ResourceType>> {
+
+        private OnTaskCompleted listener;
+
+        public ResourceGetTask(OnTaskCompleted listener){
+            this.listener=listener;
+        }
+
+        @Override
+        protected List<ResourceType> doInBackground(List<Long>... params) {
+            try {
+
+                List<ResourceType> resourcesType;
+                resourcesType = new ArrayList<ResourceType>();
+
+                List<Long> idResourcesTypes = params[0];
+                Log.i("MAMH", "Size idResourcesTypes = "+idResourcesTypes.size());
+                for (Long id : idResourcesTypes){
+                    Log.i("MAMH", "ID = "+id);
+                }
+                Log.i("MAMH", "Fin Size idResourcesTypes");
+                Log.i("MAMH", "getResourceTypeById");
+                for(Long idRes : idResourcesTypes){
+
+                    ResourceType rt = springService.getResourceTypeById(idRes);
+                    resourcesType.add(rt);
+                    Log.i("MAMH", "Label :  "+rt.getLabel());
+                }
+                Log.i("MAMH", "Fin getResourceTypeById ");
+                return  resourcesType;
+
+            } catch (HttpStatusCodeException e) {
+                Log.e("InterventionActivity", e.getMessage(), e);
+
+            }
+
+            return  null;
+        }
+
+        @Override
+        protected void onPostExecute(List<ResourceType> resultPost) {
+            Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
+            Log.i("MAMH", "Size resultPost = "+resultPost.size());
+            listener.onTaskCompleted(resultPost);
+        }
+
+    }
+
+
+    public void onTaskCompleted(List<ResourceType> resourcesType){
+        //Intervetion
+        entity.Intervention intervention;
+
+        //Les champs text sont toujours vérifié
+        intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()));
+
+        Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
+
+
+        List<Resource> resources = covertResourcesTypeToResources(resourcesType);
+
+        Log.i("MAMH", "Resource");
+        for (Resource res : resources){
+            Log.i("MAMH", "Resource : "+res.getLabel());
+        }
+        Log.i("MAMH", "Fin Resource");
+        //intervention.set
+        intervention.setResources(resources);
+        at = new InterventionPostTask().execute(intervention);
+    }
+
+    public List<Resource> covertResourcesTypeToResources(List<ResourceType> resourcesType){
+
+        List<Resource> resourcesResult;
+        resourcesResult = new ArrayList<Resource>();
+
+        for(ResourceType rt : resourcesType){
+            if(rt != null) {
+                Resource rs = new Resource();
+                rs.setLabel(rt.getLabel());
+                rs.setState(State.validated);
+                resourcesResult.add(rs);
+            }
+        }
+        return  resourcesResult;
     }
 }

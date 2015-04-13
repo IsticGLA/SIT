@@ -32,6 +32,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:exported="true"
             android:name=".agent.intervention.SecondActivity"
             android:label="@string/title_activity_second" >
         </activity>

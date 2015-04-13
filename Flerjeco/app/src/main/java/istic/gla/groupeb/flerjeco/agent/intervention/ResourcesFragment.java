@@ -23,7 +23,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -31,7 +30,10 @@ import java.util.List;
 
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.adapter.IconViewAdapter;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
+import istic.gla.groupeb.flerjeco.icons.Vehicle;
+import istic.gla.groupeb.flerjeco.view.IconView;
 import util.State;
 
 public class ResourcesFragment extends Fragment {
@@ -65,18 +67,45 @@ public class ResourcesFragment extends Fragment {
         List<String> labelsResources = new ArrayList<>();
         List<String> labelsRequests = new ArrayList<>();
 
+        List<Resource> resourceList = new ArrayList<>();
+        List<Resource> requestList = new ArrayList<>();
+
         SecondActivity secondActivity = (SecondActivity) getActivity();
         for (Resource resource : secondActivity.intervention.getResources()){
             State resourceState = resource.getState();
+
+
             if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
                 labelsResources.add(resource.getLabel());
+                resourceList.add(resource);
             }else{
                 labelsRequests.add(resource.getLabel());
+                requestList.add(resource);
             }
         }
 
-        listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
+        //listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
+        //listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
+
+        listViewResources.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_request, resourceList));
+        listViewRequests.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_request, requestList));
+
+        /*
+        List<IconView> iconViewList = new ArrayList<>();
+        List<Vehicle> mVehicleList = new ArrayList<>();
+        mVehicleList.add(new Vehicle("VSAP"));
+        mVehicleList.add(new Vehicle("VSAP"));
+        mVehicleList.add(new Vehicle("VSAP"));
+        for(Vehicle vehicle : mVehicleList){
+            vehicle.changeFunction(Vehicle.Function.Commands);
+            iconViewList.add(new IconView(this.getActivity(), vehicle));
+        }
+
+        //listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
+        listViewResources.setAdapter(new IconViewAdapter(this.getActivity(), R.layout.list_row, iconViewList));
         listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
+
+        */
 
         listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

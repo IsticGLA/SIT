@@ -29,16 +29,15 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
 import util.State;
 
 public class InterventionFragment extends Fragment {
     OnResourceSelectedListener mCallback;
 
-    private ListView listViewResources;
-    private ListView listViewRequests;
+    private ListView listViewInterventions;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -51,38 +50,30 @@ public class InterventionFragment extends Fragment {
                              Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        View v = inflater.inflate(R.layout.intervention_view, container,
+        View v = inflater.inflate(R.layout.fragment_list_interventions_codis, container,
                 false);
 
-        listViewResources = (ListView) v.findViewById(R.id.listViewResources);
-        listViewRequests = (ListView) v.findViewById(R.id.listViewRequests);
+        listViewInterventions = (ListView) v.findViewById(R.id.listViewInterventions);
 
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
 
-        List<String> labelsResources = new ArrayList<>();
-        List<String> labelsRequests = new ArrayList<>();
+        List<String> labelsInterventions = new ArrayList<>();
 
-        InterventionActivity secondActivity = (InterventionActivity) getActivity();
-        for (Resource resource : secondActivity.intervention.getResources()){
-            State resourceState = resource.getState();
-            if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
-                labelsResources.add(resource.getLabel());
-            }else{
-                labelsRequests.add(resource.getLabel());
-            }
+        InterventionActivity interventionActivity = (InterventionActivity) getActivity();
+        for (Intervention intervention : interventionActivity.getInterventions()){
+            labelsInterventions.add(intervention.getName());
         }
 
-        listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
-        listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
+        listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
 
-        listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listViewInterventions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
-                listViewResources.setItemChecked(position,true);
+                listViewInterventions.setItemChecked(position,true);
             }
         });
 
@@ -96,7 +87,7 @@ public class InterventionFragment extends Fragment {
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
         if (getFragmentManager().findFragmentById(R.id.map_fragment) != null) {
-            listViewResources.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         }
     }
 
@@ -110,7 +101,7 @@ public class InterventionFragment extends Fragment {
             mCallback = (OnResourceSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
+                    + " must implement InterventionFragment.OnResourceSelectedListener");
         }
     }
 }
