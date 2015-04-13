@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
 
 /**
@@ -12,6 +11,16 @@ import android.graphics.Rect;
  * of a Vehicle according to the SIT graphic
  */
 public class Vehicle extends Canvas {
+
+    public static final int RECT_LEFT = 0;
+    public static final int RECT_TOP = 20;
+    public static final int RECT_RIGHT_COEF = 8;
+    public static final int RECT_RIGHT_SUP = 40;
+    public static final int RECT_BOTTOM = 50;
+    public static final int RECT_STROKE = 2;
+    public static final int RECT2_SIZE = 10;
+    public static final int TEXT_SIZE = 15;
+
 
     private Paint paint;
     private Rect rect;
@@ -26,24 +35,24 @@ public class Vehicle extends Canvas {
         this.name = name;
         paint = new Paint();
         paint.setAntiAlias(true);
-        paint.setStrokeWidth(5);
-        paint.setTextSize(15);
+        paint.setStrokeWidth(RECT_STROKE);
+        paint.setTextSize(TEXT_SIZE);
         changeFunction(Function.Default);
         changeState(State.Programmed);
-        rect = new Rect(10, 40, 160, 110);
-        rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
+        rect = new Rect(RECT_LEFT, RECT_TOP, name.length()*RECT_RIGHT_COEF + RECT_RIGHT_SUP, RECT_BOTTOM);
+        rect2 = new Rect(rect.centerX()-(RECT2_SIZE/2), rect.top-RECT2_SIZE, rect.centerX()+(RECT2_SIZE/2), rect.top);
     }
 
     public Vehicle(String name, Function function){
         this.name = name;
         paint = new Paint();
         paint.setAntiAlias(true);
-        paint.setStrokeWidth(5);
-        paint.setTextSize(15);
+        paint.setStrokeWidth(RECT_STROKE);
+        paint.setTextSize(TEXT_SIZE);
         changeFunction(function);
         changeState(State.Programmed);
-        rect = new Rect(10, 40, 160, 110);
-        rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
+        rect = new Rect(RECT_LEFT, RECT_TOP, name.length()*RECT_RIGHT_COEF + RECT_RIGHT_SUP, RECT_BOTTOM);
+        rect2 = new Rect(rect.centerX()-(RECT2_SIZE/2), rect.top-RECT2_SIZE, rect.centerX()+(RECT2_SIZE/2), rect.top);
     }
 
     public enum State {Programmed, Validated}
@@ -86,13 +95,13 @@ public class Vehicle extends Canvas {
         paint.setStyle(Paint.Style.STROKE);
         switch (state){
             case Programmed:
-                paint.setPathEffect(new DashPathEffect(new float[]{20, 10}, 0));
+                paint.setPathEffect(new DashPathEffect(new float[]{10, 5}, 0));
                 break;
             case Validated:
                 paint.setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
                 break;
             default:
-                paint.setPathEffect(new DashPathEffect(new float[]{20, 10}, 0));
+                paint.setPathEffect(new DashPathEffect(new float[]{10, 5}, 0));
                 break;
         }
     }

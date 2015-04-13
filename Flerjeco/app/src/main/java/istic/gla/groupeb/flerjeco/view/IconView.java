@@ -59,7 +59,7 @@ public class IconView extends View {
             mCanvas.drawRect(mVehicle.getRect2(), mVehicle.getPaint());
             //Drawing the name of the vehicle
             mVehicle.getPaint().setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
-            mCanvas.drawText(mVehicle.getName(), mVehicle.getRect().centerX() - 40, mVehicle.getRect().centerY(), mVehicle.getPaint());
+            mCanvas.drawText(mVehicle.getName(), 18, mVehicle.getRect().centerY() + 5, mVehicle.getPaint());
             mVehicle.getPaint().setStyle(Paint.Style.STROKE);
             //Reapplying the PathEffect
             mVehicle.getPaint().setPathEffect(temp);

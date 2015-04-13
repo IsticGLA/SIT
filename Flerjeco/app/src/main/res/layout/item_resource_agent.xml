@@ -4,17 +4,17 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
 
-    <TextView
+    <istic.gla.groupeb.flerjeco.view.IconView
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="55dp"
         android:layout_gravity="center_horizontal"
-        android:id="@+id/textViewLabelResource"
+        android:id="@+id/iconViewResource"
         android:layout_weight="5" />
 
     <ImageView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center_vertical"
         android:id="@+id/imageViewStateResource"
         android:layout_weight="1" />
 
