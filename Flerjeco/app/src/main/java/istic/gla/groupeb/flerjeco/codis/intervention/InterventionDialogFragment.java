@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import org.springframework.web.client.HttpStatusCodeException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import entity.Resource;
 import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import util.State;
 
 
 public class InterventionDialogFragment extends DialogFragment implements OnTaskCompleted{
@@ -104,7 +106,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
                     Log.i("MAMH", spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()) + "");
 
 
-                    //Intervetion
+                   /* //Intervetion
                     entity.Intervention intervention;
 
                     intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()));
@@ -113,7 +115,9 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
                     List<Resource> resources;
 
-                    AsyncTask at = new InterventionPostTask().execute(intervention);
+                    AsyncTask at = new InterventionPostTask().execute(intervention);*/
+
+                    new ResourceGetTask(InterventionDialogFragment.this).execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
 
                 }
             }
@@ -204,10 +208,24 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         protected List<ResourceType> doInBackground(List<Long>... params) {
             try {
 
-                List<Long> idResourcesTypes = params[0];
-                for(int i = 0; i < idResourcesTypes.size(); i++){
+                List<ResourceType> resourcesType;
+                resourcesType = new ArrayList<ResourceType>();
 
+                List<Long> idResourcesTypes = params[0];
+                Log.i("MAMH", "Size idResourcesTypes = "+idResourcesTypes.size());
+                for (Long id : idResourcesTypes){
+                    Log.i("MAMH", "ID = "+id);
                 }
+                Log.i("MAMH", "Fin Size idResourcesTypes");
+                Log.i("MAMH", "getResourceTypeById");
+                for(Long idRes : idResourcesTypes){
+
+                    ResourceType rt = springService.getResourceTypeById(idRes);
+                    resourcesType.add(rt);
+                    Log.i("MAMH", "Label :  "+rt.getLabel());
+                }
+                Log.i("MAMH", "Fin getResourceTypeById ");
+                return  resourcesType;
 
             } catch (HttpStatusCodeException e) {
                 Log.e("InterventionActivity", e.getMessage(), e);
@@ -220,14 +238,49 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         @Override
         protected void onPostExecute(List<ResourceType> resultPost) {
             Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
-
+            Log.i("MAMH", "Size resultPost = "+resultPost.size());
+            listener.onTaskCompleted(resultPost);
         }
 
     }
 
 
-    public void onTaskCompleted(){
-        //TO DO ADD
+    public void onTaskCompleted(List<ResourceType> resourcesType){
+        //Intervetion
+        entity.Intervention intervention;
 
+        //Les champs text sont toujours vérifié
+        intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()));
+
+        Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
+
+
+        List<Resource> resources = covertResourcesTypeToResources(resourcesType);
+
+        Log.i("MAMH", "Resource");
+        for (Resource res : resources){
+            Log.i("MAMH", "Resource : "+res.getLabel());
+        }
+        Log.i("MAMH", "Fin Resource");
+        //intervention.set
+        intervention.setResources(resources);
+        AsyncTask at = new InterventionPostTask().execute(intervention);
+
+    }
+
+    public List<Resource> covertResourcesTypeToResources(List<ResourceType> resourcesType){
+
+        List<Resource> resourcesResult;
+        resourcesResult = new ArrayList<Resource>();
+
+        for(ResourceType rt : resourcesType){
+            if(rt != null) {
+                Resource rs = new Resource();
+                rs.setLabel(rt.getLabel());
+                rs.setState(State.validated);
+                resourcesResult.add(rs);
+            }
+        }
+        return  resourcesResult;
     }
 }
