@@ -2,21 +2,78 @@ package istic.gla.groupeb.flerjeco.agent.planZone;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import istic.gla.groupeb.flerjeco.R;
 
-public class PlanZoneActivity extends FragmentActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+import entity.Intervention;
+import entity.Path;
+import entity.Position;
+import entity.Resource;
+import istic.gla.groupeb.flerjeco.R;
+import util.ResourceCategory;
+import util.ResourceRole;
+import util.State;
+
+public class PlanZoneActivity extends FragmentActivity implements DroneListFragment.OnResourceSelectedListener {
+
+    private static final String TAG = PlanZoneActivity.class.getSimpleName();
+    private Intervention intervention;
+    private int position=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            Object objects = (Object) extras.getSerializable("intervention");
+            intervention = (Intervention) objects;
+
+        }
+
+        intervention = new Intervention("Test", 4, 48.1120404, -1.61111);
+        List<Resource> resources = new ArrayList<>();
+        resources.add(new Resource("Drone1", State.validated, ResourceRole.otherwise, ResourceCategory.drone, 48.117749, -1.677297));
+        intervention.setResources(resources);
+
+        List<Path> paths = new ArrayList<>();
+        Path p = new Path();
+        List<Position> positionList = new ArrayList<>();
+        positionList.add(new Position(48.117749, -1.677297));
+        positionList.add(new Position(48.127749, -1.699297));
+        positionList.add(new Position(48.227749, -1.707297));
+        p.setPositions(positionList);
+        paths.add(p);
+        intervention.setWatchPath(paths);
+
         setContentView(R.layout.activity_plan_zone);
-        if (savedInstanceState == null) {
+
+        // Check whether the activity is using the layout version with
+        // the fragment_container FrameLayout. If so, we must add the first fragment
+        if (findViewById(R.id.fragment_container) != null) {
+
+            // However, if we're being restored from a previous state,
+            // then we don't need to do anything and should return or else
+            // we could end up with overlapping fragments.
+            if (savedInstanceState != null) {
+                return;
+            }
+
+            // Create an instance of ExampleFragment
+            DroneListFragment firstFragment = new DroneListFragment();
+
+            // In case this activity was started with special instructions from an Intent,
+            // pass the Intent's extras to the fragment as arguments
+            firstFragment.setArguments(getIntent().getExtras());
+
+            // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlanZoneMapFragment())
-                    .commit();
+                    .add(R.id.fragment_container, firstFragment).commit();
         }
     }
 
@@ -41,5 +98,47 @@ public class PlanZoneActivity extends FragmentActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResourceSelected(int position) {
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+
+        if (mapFragment != null) {
+            // If article frag is available, we're in two-pane layout...
+
+            //save the current position
+            this.position = position;
+
+            // Call a method in the ArticleFragment to update its content
+            mapFragment.updateMapView(position);
+
+        } else {
+            // If the frag is not available, we're in the one-pane layout and must swap frags...
+
+            // Create fragment and give it an argument for the selected article
+            mapFragment = new PlanZoneMapFragment();
+            Bundle args = new Bundle();
+            args.putInt(PlanZoneMapFragment.ARG_POSITION, position);
+            mapFragment.setArguments(args);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            // Replace whatever is in the fragment_container view with this fragment,
+            // and add the transaction to the back stack so the user can navigate back
+            transaction.replace(R.id.fragment_container, mapFragment);
+            transaction.addToBackStack(null);
+
+            // Commit the transaction
+            transaction.commit();
+        }
+    }
+
+    public List<Resource> getResourceEntities() {
+        return intervention.getResources();
+    }
+
+    public List<Path> getPaths() {
+        return intervention.getWatchPath();
     }
 }

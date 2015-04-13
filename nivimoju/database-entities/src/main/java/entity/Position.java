@@ -14,12 +14,12 @@ public class Position {
     public Position() {
     }
 
-    public Position(double longitude, double latitude) {
+    public Position(double latitude, double longitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
 
-    public Position(double longitude, double latitude, double altitude) {
+    public Position(double latitude, double longitude, double altitude) {
         this.longitude = longitude;
         this.latitude = latitude;
         this.altitude = altitude;

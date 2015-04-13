@@ -82,11 +82,13 @@ public class MapFragment extends Fragment {
 
     public void updateMapView(int position) {
         Resource resource = resources.get(position);
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(resource.getLatitude(), resource.getLongitude())).zoom(16).build();
-        googleMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
-        mCurrentPosition = position;
+        if (resource.getState() == State.planned || resource.getState() == State.active) {
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(resource.getLatitude(), resource.getLongitude())).zoom(16).build();
+            googleMap.animateCamera(CameraUpdateFactory
+                    .newCameraPosition(cameraPosition));
+            mCurrentPosition = position;
+        }
     }
 
     public void initMap(Intervention intervention){
