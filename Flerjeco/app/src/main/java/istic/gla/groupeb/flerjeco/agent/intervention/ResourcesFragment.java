@@ -23,7 +23,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ import java.util.List;
 
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
 import util.State;
 
 public class ResourcesFragment extends Fragment {
@@ -65,18 +63,28 @@ public class ResourcesFragment extends Fragment {
         List<String> labelsResources = new ArrayList<>();
         List<String> labelsRequests = new ArrayList<>();
 
+        List<Resource> resourceList = new ArrayList<>();
+        List<Resource> requestList = new ArrayList<>();
+
         SecondActivity secondActivity = (SecondActivity) getActivity();
         for (Resource resource : secondActivity.intervention.getResources()){
             State resourceState = resource.getState();
+
+
             if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
                 labelsResources.add(resource.getLabel());
+                resourceList.add(resource);
             }else{
                 labelsRequests.add(resource.getLabel());
+                requestList.add(resource);
             }
         }
 
-        listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
-        listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
+        //listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
+        //listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
+
+        listViewResources.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_request, resourceList));
+        listViewRequests.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_request, requestList));
 
         listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
