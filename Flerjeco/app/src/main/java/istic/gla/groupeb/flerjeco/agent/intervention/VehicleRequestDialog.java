@@ -63,6 +63,7 @@ public class VehicleRequestDialog extends DialogFragment {
 
         mVehicleFormView = v.findViewById(R.id.vehicle_form);
         mProgressView = v.findViewById(R.id.vehicle_progress);
+        getDialog().setTitle(R.string.resource_request_dialog_title);
 
         showProgress(true);
 

@@ -6,6 +6,9 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import util.ResourceRole;
+import util.State;
+
 /**
  * This class allows to draw the representation
  * of a Vehicle according to the SIT graphic
@@ -26,59 +29,58 @@ public class Vehicle extends Canvas {
     private Rect rect;
     private Rect rect2;
     private String name;
-
+    private State state;
+    private ResourceRole role;
     /**
      * Default constructor of a vehicle
      * @param name the name of the vehicle
      */
     public Vehicle(String name){
         this.name = name;
-        paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setStrokeWidth(RECT_STROKE);
-        paint.setTextSize(TEXT_SIZE);
-        changeFunction(Function.Default);
-        changeState(State.Programmed);
-        rect = new Rect(RECT_LEFT, RECT_TOP, name.length()*RECT_RIGHT_COEF + RECT_RIGHT_SUP, RECT_BOTTOM);
-        rect2 = new Rect(rect.centerX()-(RECT2_SIZE/2), rect.top-RECT2_SIZE, rect.centerX()+(RECT2_SIZE/2), rect.top);
+        initDrawingVehicle(ResourceRole.otherwise, State.planned);
     }
 
-    public Vehicle(String name, Function function){
+    public Vehicle(String name, ResourceRole role){
         this.name = name;
+        initDrawingVehicle(role, State.planned);
+    }
+
+    public Vehicle(String name, ResourceRole role, State state){
+        this.name = name;
+        initDrawingVehicle(role, state);
+    }
+
+    private void initDrawingVehicle(ResourceRole role, State state){
         paint = new Paint();
         paint.setAntiAlias(true);
         paint.setStrokeWidth(RECT_STROKE);
         paint.setTextSize(TEXT_SIZE);
-        changeFunction(function);
-        changeState(State.Programmed);
         rect = new Rect(RECT_LEFT, RECT_TOP, name.length()*RECT_RIGHT_COEF + RECT_RIGHT_SUP, RECT_BOTTOM);
         rect2 = new Rect(rect.centerX()-(RECT2_SIZE/2), rect.top-RECT2_SIZE, rect.centerX()+(RECT2_SIZE/2), rect.top);
+        this.setRole(role);
+        this.setState(state);
     }
-
-    public enum State {Programmed, Validated}
-
-    public enum Function {Water, Fire, People, Risks, Commands, Default}
 
     /**
      * Method that changes the function of the vehicle
      * @param function the new function of the vehicle
      */
-    public void changeFunction(Function function){
+    public void changeFunction(ResourceRole function){
         paint.setStyle(Paint.Style.STROKE);
         switch (function){
-            case Water:
+            case water:
                 paint.setColor(Color.BLUE);
                 break;
-            case Fire:
+            case fire:
                 paint.setColor(Color.RED);
                 break;
-            case People:
+            case people:
                 paint.setColor(Color.GREEN);
                 break;
-            case Risks:
+            case risks:
                 paint.setColor(Color.argb(255,255,102,0));
                 break;
-            case Commands:
+            case commands:
                 paint.setColor(Color.argb(255,153,0,102));
                 break;
             default:
@@ -94,10 +96,10 @@ public class Vehicle extends Canvas {
     public void changeState(State state){
         paint.setStyle(Paint.Style.STROKE);
         switch (state){
-            case Programmed:
+            case planned:
                 paint.setPathEffect(new DashPathEffect(new float[]{10, 5}, 0));
                 break;
-            case Validated:
+            case active:
                 paint.setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
                 break;
             default:
@@ -144,5 +146,23 @@ public class Vehicle extends Canvas {
      */
     public Rect getRect2() {
         return rect2;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+        changeState(state);
+    }
+
+    public ResourceRole getRole() {
+        return role;
+    }
+
+    public void setRole(ResourceRole role) {
+        this.role = role;
+        changeFunction(role);
     }
 }

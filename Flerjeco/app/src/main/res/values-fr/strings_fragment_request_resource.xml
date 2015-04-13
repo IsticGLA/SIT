@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="resource_request_dialog_title">Demande de moyen</string>
+    <string name="vehicle_fragment_text">Sélectionnez le type de véhicule dont vous avez besoin :</string>
+    <string name="button_request_resource">Demander</string>
+</resources>

@@ -31,6 +31,7 @@ import java.util.List;
 
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 
 public class InterventionsNamesFragment extends Fragment {
     OnResourceSelectedListener mCallback;
