@@ -84,6 +84,7 @@ public class ResourcesFragment extends Fragment {
         mVehicleList.add(new Vehicle("VSAP"));
         mVehicleList.add(new Vehicle("VSAP"));
         for(Vehicle vehicle : mVehicleList){
+            vehicle.changeFunction(Vehicle.Function.Commands);
             iconViewList.add(new IconView(this.getActivity(), vehicle));
         }
 

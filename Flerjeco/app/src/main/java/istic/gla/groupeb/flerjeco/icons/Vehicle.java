@@ -55,10 +55,10 @@ public class Vehicle extends Canvas {
                 paint.setColor(Color.GREEN);
                 break;
             case Risks:
-                paint.setColor(Color.argb(0,255,102,0));
+                paint.setColor(Color.argb(255,255,102,0));
                 break;
             case Commands:
-                paint.setColor(Color.argb(0,153,0,102));
+                paint.setColor(Color.argb(255,153,0,102));
                 break;
             default:
                 paint.setColor(Color.BLACK);
