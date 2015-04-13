@@ -23,6 +23,23 @@ public class SpringService {
 
     boolean test = true;
 
+    public ResourceType getResourceTypeById(Long idRes){
+
+
+        final String url = URL + "resource/"+idRes;
+
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+
+        restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
+
+        ResponseEntity<ResourceType> resourcetype = restTemplate.getForEntity(url, ResourceType.class);
+
+        ResourceType rt = resourcetype.getBody();
+        return rt;
+    }
     public IncidentCode[] codeSinistreClient() throws HttpStatusCodeException {
 
 
