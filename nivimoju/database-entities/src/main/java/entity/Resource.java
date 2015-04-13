@@ -30,11 +30,11 @@ public class Resource implements Serializable {
      * @param latitude
      * @param longitude
      */
-    public Resource(String label, State state, ResourceRole resourceRole, double latitude, double longitude) {
+    public Resource(String label, State state, double latitude, double longitude) {
         super();
         this.label = label;
         this.state = state;
-        this.resourceRole = resourceRole;
+        this.resourceRole = ResourceRole.otherwise;
         this.latitude = latitude;
         this.longitude = longitude;
     }
