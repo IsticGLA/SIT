@@ -1,5 +1,6 @@
 package entity;
 
+import util.ResourceRole;
 import util.State;
 
 import java.io.Serializable;
@@ -11,6 +12,7 @@ public class Resource implements Serializable {
 
     private String label;
     private State state;
+    private ResourceRole resourceRole;
     private double latitude;
     private double longitude;
 
@@ -28,10 +30,11 @@ public class Resource implements Serializable {
      * @param latitude
      * @param longitude
      */
-    public Resource(String label, State state, double latitude, double longitude) {
+    public Resource(String label, State state, ResourceRole resourceRole, double latitude, double longitude) {
         super();
         this.label = label;
         this.state = state;
+        this.resourceRole = resourceRole;
         this.latitude = latitude;
         this.longitude = longitude;
     }
@@ -104,5 +107,13 @@ public class Resource implements Serializable {
         temp = Double.doubleToLongBits(longitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
+    }
+
+    public ResourceRole getResourceRole() {
+        return resourceRole;
+    }
+
+    public void setResourceRole(ResourceRole resourceRole) {
+        this.resourceRole = resourceRole;
     }
 }
