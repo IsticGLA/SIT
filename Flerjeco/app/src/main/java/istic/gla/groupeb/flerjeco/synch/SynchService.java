@@ -10,6 +10,8 @@ import android.os.RemoteException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
+
 /**
  * Created by amhachi on 13/04/15.
  */
@@ -35,9 +37,10 @@ public class SynchService extends IntentService {
             public void run() {
                 // just call the handler every 3 Seconds
 
+                SpringService springService = new SpringService();
                 Message msg=Message.obtain();
                 Bundle data=new Bundle();
-                data.putString("k", "value" + System.currentTimeMillis() );
+                data.putString("k", ""+springService.getNotify() );
                 msg.setData(data);
 
                 try {

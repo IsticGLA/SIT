@@ -100,6 +100,26 @@ public class SpringService {
         return httpResult;
     }
 
+    public String getNotify() {
+        Log.i(TAG, "notify start");
+        final String url = URL + "notify";
+        String httpResult = "";
+
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        try {
+            ResponseEntity<String> entity = restTemplate.getForEntity(url, String.class);
+            httpResult = entity.getBody();
+        } catch (HttpStatusCodeException e) {
+            httpResult = "erreur";
+        }
+        Log.i(TAG, "httpResult : " + httpResult);
+        Log.i(TAG, "notify end");
+        return httpResult;
+    }
+
+
     public ResourceType[] resourceTypes() {
         final String url = URL + "resource";
 

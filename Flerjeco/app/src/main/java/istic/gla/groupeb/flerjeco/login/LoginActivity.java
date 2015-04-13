@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -20,6 +23,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
@@ -28,6 +32,7 @@ import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActiv
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.SynchService;
 
 
 /**
@@ -35,6 +40,7 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
  */
 public class LoginActivity extends Activity {
     private static final String TAG = LoginActivity.class.getSimpleName();
+
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -51,6 +57,11 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        Intent i=new Intent(this, SynchService.class);
+        i.putExtra("handler", new Messenger(this.handler));
+        this.startService(i);
+
 
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);
@@ -78,6 +89,20 @@ public class LoginActivity extends Activity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
+
+
+    Handler handler=new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            //get data from msg
+
+            String result=msg.getData().getString("result");
+            Toast.makeText(LoginActivity.this,""+result, Toast.LENGTH_LONG).show();
+            Log.d("xxxxx", "get data" + result);
+            super.handleMessage(msg);
+        }
+    };
 
     /**
      * Attempts to sign in or register the account specified by the login form.
