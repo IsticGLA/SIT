@@ -141,12 +141,15 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
         @Override
         protected void onPostExecute(IncidentCode[] codes) {
-            spinnerMap = new HashMap();
+
             if(codes != null && codes.length > 0 ) {
                 int i = 0;
                 spinnerArray = new String[codes.length];
+                resourceTypeMap = new HashMap<>();
+                spinnerMap = new HashMap();
                 for (IncidentCode code : codes) {
                     if(code != null) {
+
                         spinnerArray[i] = code.getCode();
                         spinnerMap.put(code.getCode(), code.getId());
                         resourceTypeMap.put(code.getCode(), code.getresourceType());

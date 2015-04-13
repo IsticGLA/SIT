@@ -25,8 +25,8 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="@string/createInterventionButton"
+        android:text="Demander un moyen"
         android:id="@+id/buttonAskResource"
         android:layout_gravity="center_horizontal"
-        android:onClick="showDialogIntervention"/>
+        android:onClick="showDialogRequest"/>
 </LinearLayout>
