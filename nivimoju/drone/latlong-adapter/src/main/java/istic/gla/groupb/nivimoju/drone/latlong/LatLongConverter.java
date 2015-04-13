@@ -1,6 +1,6 @@
 package istic.gla.groupb.nivimoju.drone.latlong;
 
-import org.apache.commons.lang3.StringUtils;
+import entity.Position;
 import org.apache.log4j.Logger;
 
 /**
@@ -56,7 +56,7 @@ public class LatLongConverter {
      * @param width la dimension du bord gauche à droite en unités du repère local
      * @param height la dimension du bord inférieur à supérieur en unités du repère local
      */
-    public LatLongConverter(LatLong topLeft, LatLong bottomRight, double width, double height){
+    public LatLongConverter(Position topLeft, Position bottomRight, double width, double height){
         this(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude(), width, height);
     }
 
@@ -66,7 +66,7 @@ public class LatLongConverter {
      * @return les coordonnées dans le système local
      * @throws java.lang.IllegalArgumentException si les coordonnées demandées sont en dehors du périmètre de travail
      */
-    public LocalCoordinate getLocal(LatLong latlong) throws IllegalArgumentException{
+    public LocalCoordinate getLocal(Position latlong) throws IllegalArgumentException{
         if(latlong.getLatitude() < latitudeBottom || latlong.getLatitude() > latitudeTop
                 || latlong.getLongitude() < longitudeLeft ||latlong.getLongitude() > longitudeRight){
             logger.error("Les coordonnées sont en dehors du périmètre de travail, conversion impossible");
@@ -94,7 +94,7 @@ public class LatLongConverter {
      * @param local les coordonnées à transformer
      * @return les coordonnées dans le système latlong
      */
-    public LatLong getLatLong(LocalCoordinate local){
+    public Position getLatLong(LocalCoordinate local){
         //interpolation linéaire sur x puis y
         double maxX = width - offsetX;
         double maxY = height - offsetY;
@@ -102,7 +102,7 @@ public class LatLongConverter {
         double latitude = (latitudeTop - latitudeBottom) * (local.getY() - maxY) / (maxY - offsetY) + latitudeBottom;
 
 
-        return new LatLong(longitude,  latitude);
+        return new Position(longitude,  latitude);
     }
 
     @Override

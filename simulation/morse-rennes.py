@@ -19,9 +19,9 @@ drone_1.append(waypoint)
 waypoint.add_interface('ros', topic="/waypoint")
 
 # use a pose sensor to know where the drone_1 is
-catPose = Pose()
-drone_1.append(catPose)
-catPose.add_stream('ros', topic="/catposition")
+pose = Pose()
+drone_1.append(pose)
+pose.add_interface('ros', topic="/pose")
 drone_1.add_default_interface('ros')
 
 env = Environment('simulation/map/rennes1.blend')
