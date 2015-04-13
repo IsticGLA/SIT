@@ -48,7 +48,7 @@ public class InterventionsNamesFragment extends Fragment {
                              Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        View v = inflater.inflate(R.layout.fragment_list_interventions, container,
+        View v = inflater.inflate(R.layout.fragment_list_interventions_agent, container,
                 false);
 
         listViewInterventions = (ListView) v.findViewById(R.id.listViewInterventions);

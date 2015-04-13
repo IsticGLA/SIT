@@ -40,7 +40,11 @@ public class ListInterventionsActivity extends FragmentActivity
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            interventionTab = (Intervention[]) extras.getSerializable("interventions");
+            Object[] objects = (Object[]) extras.getSerializable("interventions");
+            interventionTab = new Intervention[objects.length];
+            for(int i=0;i<objects.length;i++) {
+                interventionTab[i] = (Intervention) objects[i];
+            }
         }
 
         setContentView(R.layout.activity_list_interventions);
