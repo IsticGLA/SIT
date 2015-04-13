@@ -8,6 +8,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 
 import entity.IncidentCode;
@@ -19,7 +20,8 @@ import entity.ResourceType;
  */
 public class SpringService {
     private static final String TAG = SpringService.class.getSimpleName();
-    private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
+    private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
+    //private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
 
     boolean test = true;
 
@@ -40,6 +42,7 @@ public class SpringService {
         ResourceType rt = resourcetype.getBody();
         return rt;
     }
+
     public IncidentCode[] codeSinistreClient() throws HttpStatusCodeException {
 
 
@@ -100,23 +103,21 @@ public class SpringService {
         return httpResult;
     }
 
-    public String getNotify() {
+    public Intervention getNotify() {
         Log.i(TAG, "notify start");
         final String url = URL + "notify";
-        String httpResult = "";
+
 
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
-        try {
-            ResponseEntity<String> entity = restTemplate.getForEntity(url, String.class);
-            httpResult = entity.getBody();
-        } catch (HttpStatusCodeException e) {
-            httpResult = "erreur";
-        }
-        Log.i(TAG, "httpResult : " + httpResult);
-        Log.i(TAG, "notify end");
-        return httpResult;
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+
+        restTemplate.getMessageConverters().add(mappingJackson2HttpMessageConverter);
+
+        ResponseEntity<Intervention> interventionTest = restTemplate.getForEntity(url, Intervention.class);
+
+        Intervention rt = interventionTest.getBody();
+        return rt;
     }
 
 

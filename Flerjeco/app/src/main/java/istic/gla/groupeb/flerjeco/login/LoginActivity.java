@@ -24,13 +24,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import org.springframework.web.client.HttpStatusCodeException;
+
 import entity.Intervention;
+import entity.ResourceType;
+import istic.gla.groupeb.flerjeco.ISynchTool;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.SynchService;
 
@@ -38,7 +40,7 @@ import istic.gla.groupeb.flerjeco.synch.SynchService;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity implements ISynchTool{
     private static final String TAG = LoginActivity.class.getSimpleName();
 
 
@@ -60,8 +62,31 @@ public class LoginActivity extends Activity {
 
         Intent i=new Intent(this, SynchService.class);
         i.putExtra("handler", new Messenger(this.handler));
+
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                display();
+            }
+        };
+
+        i.putExtra("displaySynch", displaySynch);
+
+        Log.i("MAMH", i.toString());
         this.startService(i);
 
+        display();
+    }
+
+
+
+    @Override
+    public void display() {
+
+
+        Log.i("MAMH", "LoginActivity display");
+
+        callSynch();
 
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);
@@ -91,15 +116,56 @@ public class LoginActivity extends Activity {
     }
 
 
+
+    public void callSynch(){
+        new ResourceTypeSynch().execute();
+    }
+
+
+
+    // Backgroud task to post intervention
+    private class ResourceTypeSynch extends AsyncTask<entity.Intervention, Void, ResourceType> {
+
+        @Override
+        protected ResourceType doInBackground(entity.Intervention... params) {
+            try {
+
+                SpringService springService = new SpringService();
+
+                return  springService.getResourceTypeById(1L);
+            } catch (HttpStatusCodeException e) {
+                Log.e("InterventionActivity", e.getMessage(), e);
+
+            }
+            return  null;
+
+        }
+
+        @Override
+        protected void onPostExecute(ResourceType resultPost) {
+            test  = (TextView) findViewById(R.id.editText_test);
+            if(resultPost != null)
+                test.setText(resultPost.getLabel());
+            else Toast.makeText(LoginActivity.this, "Label est null", Toast.LENGTH_LONG).show();
+
+        }
+
+    }
+
+
+    TextView test ;
     Handler handler=new Handler()
     {
         @Override
         public void handleMessage(Message msg) {
             //get data from msg
 
+            test  = (TextView) findViewById(R.id.editText_test);
             String result=msg.getData().getString("result");
-            Toast.makeText(LoginActivity.this,""+result, Toast.LENGTH_LONG).show();
-            Log.d("xxxxx", "get data" + result);
+            test.setText(result);
+            Log.d("xxxxx", "get data " + result);
+
+
             super.handleMessage(msg);
         }
     };
