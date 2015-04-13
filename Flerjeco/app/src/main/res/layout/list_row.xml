@@ -4,9 +4,14 @@
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
+
     <istic.gla.groupeb.flerjeco.view.IconView
-        android:id="@+id/icon"
+        android:id="@+id/icon_view"
         android:layout_width="180dp"
         android:layout_height="170dp"
         android:layout_gravity="start" />
+
+
+
+
 </LinearLayout>
