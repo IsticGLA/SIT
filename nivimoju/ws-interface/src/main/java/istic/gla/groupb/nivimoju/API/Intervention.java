@@ -137,10 +137,25 @@ public class Intervention {
     @PUT
     @Path("{inter}/resources/{res}/{state}")
     public Response changeResourceState(
-            @PathParam("inter") String inter,
+            @PathParam("inter") Long inter,
             @PathParam("res") String res,
             @PathParam("state") String state) {
-        return Response.ok().build();
+        InterventionDAO interventionDAO = new InterventionDAO();
+        interventionDAO.connect();
+        entity.Intervention intervention = interventionDAO.getById(inter);
+        try {
+            for (entity.Resource resource : intervention.getResources()) {
+                if (resource.getLabel().equals(res)) {
+                    resource.setState(State.valueOf(state));
+                    break;
+                }
+            }
+            interventionDAO.update(intervention);
+            interventionDAO.disconnect();
+            return Response.ok().build();
+        } catch (Exception ex) {
+            return Response.serverError().build();
+        }
     }
 
     /**
