@@ -7,6 +7,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 
+import util.ResourceRole;
+import util.State;
+
 /**
  * This class allows to draw the representation
  * of a Vehicle according to the SIT graphic
@@ -17,7 +20,8 @@ public class Vehicle extends Canvas {
     private Rect rect;
     private Rect rect2;
     private String name;
-
+    private State state;
+    private ResourceRole role;
     /**
      * Default constructor of a vehicle
      * @param name the name of the vehicle
@@ -28,37 +32,57 @@ public class Vehicle extends Canvas {
         paint.setAntiAlias(true);
         paint.setStrokeWidth(5);
         paint.setTextSize(15);
-        changeFunction(Function.Default);
-        changeState(State.Programmed);
+        this.setState(State.planned);
+        this.setRole(ResourceRole.otherwise);
         rect = new Rect(10, 40, 160, 110);
         rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
     }
 
-    public enum State {Programmed, Validated}
+    public Vehicle(String name, ResourceRole role){
+        this.name = name;
+        this.setState(State.planned);
+        this.setRole(role);
+        paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(5);
+        paint.setTextSize(15);
+        rect = new Rect(10, 40, 160, 110);
+        rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
+    }
 
-    public enum Function {Water, Fire, People, Risks, Commands, Default}
+    public Vehicle(String name, ResourceRole role, State state){
+        this.name = name;
+        this.setRole(role);
+        this.setState(state);
+        paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(5);
+        paint.setTextSize(15);
+        rect = new Rect(10, 40, 160, 110);
+        rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
+    }
 
     /**
      * Method that changes the function of the vehicle
      * @param function the new function of the vehicle
      */
-    public void changeFunction(Function function){
+    public void changeFunction(ResourceRole function){
         paint.setStyle(Paint.Style.STROKE);
         switch (function){
-            case Water:
+            case water:
                 paint.setColor(Color.BLUE);
                 break;
-            case Fire:
+            case fire:
                 paint.setColor(Color.RED);
                 break;
-            case People:
+            case people:
                 paint.setColor(Color.GREEN);
                 break;
-            case Risks:
-                paint.setColor(Color.argb(0,255,102,0));
+            case risks:
+                paint.setColor(Color.argb(255,255,102,0));
                 break;
-            case Commands:
-                paint.setColor(Color.argb(0,153,0,102));
+            case commands:
+                paint.setColor(Color.argb(255,153,0,102));
                 break;
             default:
                 paint.setColor(Color.BLACK);
@@ -73,10 +97,10 @@ public class Vehicle extends Canvas {
     public void changeState(State state){
         paint.setStyle(Paint.Style.STROKE);
         switch (state){
-            case Programmed:
+            case planned:
                 paint.setPathEffect(new DashPathEffect(new float[]{20, 10}, 0));
                 break;
-            case Validated:
+            case active:
                 paint.setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
                 break;
             default:
@@ -123,5 +147,23 @@ public class Vehicle extends Canvas {
      */
     public Rect getRect2() {
         return rect2;
+    }
+
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+        changeState(state);
+    }
+
+    public ResourceRole getRole() {
+        return role;
+    }
+
+    public void setRole(ResourceRole role) {
+        this.role = role;
+        changeFunction(role);
     }
 }
