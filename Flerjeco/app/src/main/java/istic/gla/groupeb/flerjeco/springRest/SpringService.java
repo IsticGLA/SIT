@@ -13,6 +13,7 @@ import java.util.List;
 import entity.IncidentCode;
 import entity.Intervention;
 import entity.ResourceType;
+import entity.StaticData;
 
 /**
  * Created by amhachi on 08/04/15.
@@ -138,5 +139,16 @@ public class SpringService {
 
         ResponseEntity<Long> id = restTemplate.exchange(url, HttpMethod.GET, null, Long.class);
         return id.getBody();
+    }
+
+    public StaticData[] getAllStaticDatas() {
+        Log.i(TAG, "getAllStaticDatas start");
+        final String url = URL + "staticdata";
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<StaticData[]> entity = restTemplate.getForEntity(url, StaticData[].class);
+        Log.i(TAG, "getAllStaticData : " + entity.getBody().toString());
+        return entity.getBody();
     }
 }

@@ -22,8 +22,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import entity.Intervention;
+import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
@@ -33,6 +35,7 @@ public class ListInterventionsActivity extends FragmentActivity
 
     private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention[] interventionTab;
+    protected StaticData[] staticDataTab;
     private int position=0;
 
     /** Called when the activity is first created. */
@@ -47,6 +50,12 @@ public class ListInterventionsActivity extends FragmentActivity
             for(int i=0;i<objects.length;i++) {
                 interventionTab[i] = (Intervention) objects[i];
             }
+            Object[] objects1 = (Object[]) extras.getSerializable("staticdatas");
+            staticDataTab = new StaticData[objects1.length];
+            for (int i=0; i<objects1.length; i++){
+                staticDataTab[i] = (StaticData) objects1[i];
+            }
+
         }
 
         setContentView(R.layout.activity_list_interventions);
@@ -96,6 +105,7 @@ public class ListInterventionsActivity extends FragmentActivity
             mapFragment = new MapListInterventionsFragment();
             Bundle args = new Bundle();
             args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
+            args.putSerializable("staticdata", getStaticDatas());
             mapFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -113,11 +123,16 @@ public class ListInterventionsActivity extends FragmentActivity
         return interventionTab;
     }
 
+    public StaticData[] getStaticDatas(){
+        return staticDataTab;
+    }
+
     public void selectIntervention(View view) {
         Intent intent = new Intent(ListInterventionsActivity.this, SecondActivity.class);
         Bundle bundle = new Bundle();
 
         bundle.putSerializable("intervention", getInterventions()[position]);
+        bundle.putSerializable("staticdata", getStaticDatas());
 
         intent.putExtras(bundle);
         startActivity(intent);
