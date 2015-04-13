@@ -117,7 +117,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
                     AsyncTask at = new InterventionPostTask().execute(intervention);*/
 
-                    new ResourceGetTask(InterventionDialogFragment.this).execute();
+                    new ResourceGetTask(InterventionDialogFragment.this).execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
 
                 }
             }
@@ -212,9 +212,20 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
                 resourcesType = new ArrayList<ResourceType>();
 
                 List<Long> idResourcesTypes = params[0];
-                for(Long idRes : idResourcesTypes){
-                    ResourceType rt = springService.getResourceTypeById(idRes);
+                Log.i("MAMH", "Size idResourcesTypes = "+idResourcesTypes.size());
+                for (Long id : idResourcesTypes){
+                    Log.i("MAMH", "ID = "+id);
                 }
+                Log.i("MAMH", "Fin Size idResourcesTypes");
+                Log.i("MAMH", "getResourceTypeById");
+                for(Long idRes : idResourcesTypes){
+
+                    ResourceType rt = springService.getResourceTypeById(idRes);
+                    resourcesType.add(rt);
+                    Log.i("MAMH", "Label :  "+rt.getLabel());
+                }
+                Log.i("MAMH", "Fin getResourceTypeById ");
+                return  resourcesType;
 
             } catch (HttpStatusCodeException e) {
                 Log.e("InterventionActivity", e.getMessage(), e);
@@ -227,6 +238,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         @Override
         protected void onPostExecute(List<ResourceType> resultPost) {
             Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
+            Log.i("MAMH", "Size resultPost = "+resultPost.size());
             listener.onTaskCompleted(resultPost);
         }
 
@@ -245,7 +257,13 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
         List<Resource> resources = covertResourcesTypeToResources(resourcesType);
 
+        Log.i("MAMH", "Resource");
+        for (Resource res : resources){
+            Log.i("MAMH", "Resource : "+res.getLabel());
+        }
+        Log.i("MAMH", "Fin Resource");
         //intervention.set
+        intervention.setResources(resources);
         AsyncTask at = new InterventionPostTask().execute(intervention);
 
     }
