@@ -2,12 +2,15 @@ package istic.gla.groupb.nivimoju.drone.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import istic.gla.groupb.nivimoju.drone.latlong.LatLong;
+import entity.Position;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
+import istic.gla.groupb.nivimoju.drone.latlong.LocalPath;
 import org.apache.log4j.Logger;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 public class DroneClient {
     private static Logger logger = Logger.getLogger(DroneClient.class);
@@ -64,21 +67,13 @@ public class DroneClient {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(local);
         String res = post("robot/waypoint", json);
-        logger.info(res);
     }
 
-    public static void main(String[] args) throws Exception{
-        DroneClient client = new DroneClient();
-        LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
-        LatLong center = new LatLong((48.1222+48.1119)/2, (-1.6428+-1.6337)/2);
-        logger.info("center : "+ center );
-        LatLong piscine = new LatLong(48.115367,-1.63781);
-        logger.info("piscine : "+ piscine );
-        LatLong croisement = new LatLong(48.11498, -1.63795);
-        LatLong croisement2 = new LatLong(48.114454, -1.639962);
-
-        LocalCoordinate local = converter.getLocal(croisement);
-        logger.info("local" + local);
-        client.postWaypoint(local);
+    public void postPath(LocalPath path) throws Exception {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String json = ow.writeValueAsString(path);
+        String res = post("robot/path", json);
     }
+
+
 }

@@ -14,7 +14,7 @@ app = Flask(__name__)
 class Controler:
     def __init__(self):
         # Souscris pour écouter la position du robot
-        self.pose_sub = rospy.Subscriber("pose", PoseStamped, self.pose_callback)
+        self.pose_sub = rospy.Subscriber("/pose", PoseStamped, self.pose_callback)
         # Publie pour setter le waypoint du robot
         self.waypoint_pub = rospy.Publisher("/waypoint", Pose, queue_size=10, latch=False)
         self.dest_tol=1
@@ -77,7 +77,8 @@ def path():
     app.logger.info("received a new request on /robot/path")
     try:
         # Get the JSON data sent from the form
-        path = request.json['data'] # list<dict<x,y,z>>
+        path = request.json['positions'] # list<dict<x,y,z>>
+        closed = request.json['closed']
         controler.setWaypoint(path[0]["x"], path[0]["y"], path[0]["z"])
     except Exception as e:
         app.logger.error(traceback.format_exc())
@@ -90,8 +91,11 @@ if __name__ == '__main__' :
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     app.logger.addHandler(handler)
-    app.logger.info("starting ros node")
-    rospy.init_node("flask")
-    app.logger.info("ros node started")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    try:
+        app.logger.info("starting ros node")
+        rospy.init_node("flask")
+        app.logger.info("ros node started")
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    except Exception as e:
+        app.logger.error(traceback.format_exc())
 

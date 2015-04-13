@@ -81,5 +81,19 @@ public class Position {
     public String toString() {
         return "LngLatAlt{" + "longitude=" + longitude + ", latitude=" + latitude + ", altitude=" + altitude + '}';
     }
+
+    public double distFrom(Position target) {
+        double earthRadius = 6371000.0; // meters
+        double dLat = Math.toRadians(target.getLatitude()-this.getLatitude());
+        double dLng = Math.toRadians(target.getLongitude()-this.getLongitude());
+        double sindLat = Math.sin(dLat / 2);
+        double sindLng = Math.sin(dLng / 2);
+        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2)
+                * Math.cos(Math.toRadians(this.getLatitude())) * Math.cos(Math.toRadians(target.getLatitude()));
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        double dist = earthRadius * c;
+
+        return dist;
+    }
 }
 
