@@ -101,7 +101,7 @@ public class InterventionFragment extends Fragment {
             mCallback = (OnResourceSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
+                    + " must implement InterventionFragment.OnResourceSelectedListener");
         }
     }
 }

@@ -1,5 +1,10 @@
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -19,8 +24,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import entity.Intervention;
+import entity.Marker;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.icons.Vehicle;
+import util.ResourceRole;
 import util.State;
 
 /**
@@ -103,8 +111,10 @@ public class MapFragment extends Fragment {
                     MarkerOptions marker = new MarkerOptions().position(
                             new LatLng(resource.getLatitude(), resource.getLongitude())).title(resource.getLabel());
                     // Changing marker icon
-                    marker.icon(BitmapDescriptorFactory
-                            .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                    //marker.icon(BitmapDescriptorFactory
+                    //        .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+
+                    drawMarker(marker, resource);
                     // adding marker
                     googleMap.addMarker(marker);
 
@@ -112,7 +122,6 @@ public class MapFragment extends Fragment {
                 }
 
             }
-
         }
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -144,5 +153,16 @@ public class MapFragment extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    public void drawMarker(MarkerOptions markerOptions, Resource resource){
+        //switch (resource.)
+        Vehicle mVehicle = new Vehicle(resource.getLabel(), ResourceRole.people, resource.getState());
+        int width = mVehicle.getRect().width();
+        int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
+        Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas mCanvas = new Canvas(mBitmap);
+        mVehicle.drawVehicle(mCanvas);
+        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mBitmap));
     }
 }

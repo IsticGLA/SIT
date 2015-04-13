@@ -28,6 +28,7 @@
             android:spinnerMode="dropdown" />
 
         <Button
+            android:text="@string/button_request_resource"
             android:id="@+id/vehicle_fragment_button"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

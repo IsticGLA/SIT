@@ -30,10 +30,7 @@ import java.util.List;
 
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.adapter.IconViewAdapter;
-import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
-import istic.gla.groupeb.flerjeco.icons.Vehicle;
-import istic.gla.groupeb.flerjeco.view.IconView;
+import istic.gla.groupeb.flerjeco.adapter.ResourceAdapter;
 import util.State;
 
 public class ResourcesFragment extends Fragment {
@@ -87,8 +84,8 @@ public class ResourcesFragment extends Fragment {
         //listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
         //listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
 
-        listViewResources.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_request, resourceList));
-        listViewRequests.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_request, requestList));
+        listViewResources.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_resource_agent, resourceList));
+        listViewRequests.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_resource_agent, requestList));
 
         /*
         List<IconView> iconViewList = new ArrayList<>();
