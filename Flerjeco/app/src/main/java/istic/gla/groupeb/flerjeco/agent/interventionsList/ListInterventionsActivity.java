@@ -21,6 +21,8 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 
+import java.io.Serializable;
+
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
@@ -40,6 +42,7 @@ public class ListInterventionsActivity extends FragmentActivity
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
+            Serializable ext = extras.getSerializable("interventions");
             interventionTab = (Intervention[]) extras.getSerializable("interventions");
         }
 

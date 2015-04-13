@@ -39,7 +39,7 @@ public class IconView extends View {
     }
 
     public IconView(Context context, AttributeSet attributeSet){
-        super(context);
+        super(context, attributeSet);
         mVehicle = new Vehicle("VSAP SG2");
     }
 
