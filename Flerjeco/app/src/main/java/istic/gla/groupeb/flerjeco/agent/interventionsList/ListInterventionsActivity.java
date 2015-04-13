@@ -16,11 +16,9 @@
 package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.View;
 
 import entity.Intervention;
@@ -30,10 +28,9 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class ListInterventionsActivity extends FragmentActivity
         implements InterventionsNamesFragment.OnResourceSelectedListener {
+
     private static final String TAG = SpringService.class.getSimpleName();
-    protected Intervention intervention;
     protected Intervention[] interventionTab;
-    private MapListInterventionsFragment mapFragment;
     private int position=0;
 
     /** Called when the activity is first created. */
@@ -41,13 +38,9 @@ public class ListInterventionsActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GetAllInterventionTask mGetAllTask = new GetAllInterventionTask();
-        mGetAllTask.execute((Void) null);
-
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            interventionTab = (Intervention[]) extras.getSerializable("interventions");
         }
 
         setContentView(R.layout.activity_list_interventions);
@@ -122,23 +115,5 @@ public class ListInterventionsActivity extends FragmentActivity
 
         intent.putExtras(bundle);
         startActivity(intent);
-    }
-
-
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            SpringService service = new SpringService();
-            interventionTab = service.getAllInterventions();
-            Log.i(TAG, "interventionTab size : "+interventionTab.length);
-            Log.i(TAG, "doInBackground end");
-            return true;
-        }
     }
 }

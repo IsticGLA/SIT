@@ -1,4 +1,4 @@
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -7,6 +7,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
+import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.IconViewAdapter;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.view.IconView;

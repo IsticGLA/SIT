@@ -52,7 +52,7 @@ public class InterventionActivity extends FragmentActivity
 
         intervention.setResources(resourceList);
 
-        setContentView(R.layout.activity_second);
+        setContentView(R.layout.intervention_view);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
