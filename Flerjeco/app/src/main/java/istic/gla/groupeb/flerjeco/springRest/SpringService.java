@@ -112,4 +112,14 @@ public class SpringService {
         Log.i(TAG, "getAllInterventions : " + entity.getBody().toString());
         return entity.getBody();
     }
+
+    public Long moveDrone(Object[] params) {
+        Log.i(TAG, "move drone to : " + params[0] + ", " + params[1]);
+        final String url = URL + "drone/move/" + params[0] + "/" + params[1];
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<Long> id = restTemplate.exchange(url, HttpMethod.GET, null, Long.class);
+        return id.getBody();
+    }
 }

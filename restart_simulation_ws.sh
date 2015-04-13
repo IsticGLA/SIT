@@ -1,4 +1,5 @@
 #!/bin/sh
 pkill python3
-python3 simulation/simulation.py &
+nohup python3 simulation/simulation.py > /sit/log/simulation_ws.log 2>&1 &
+
 
