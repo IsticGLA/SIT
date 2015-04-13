@@ -1,5 +1,4 @@
 from morse.builder import *
-
 from math import pi
 
 # create a quadrobot
@@ -26,8 +25,8 @@ catPose.add_stream('ros', topic="/catposition")
 drone_1.add_default_interface('ros')
 
 env = Environment('simulation/map/rennes1.blend')
-env.set_camera_location([6.98498, -213.07755, 9.82467])
-env.set_camera_rotation([70.874 / 180 * 3.14, 0.021/180 * 3.14, 17.463/180 * 3.14])
+env.set_camera_location([109.6937, -240.998, 60])
+env.set_camera_rotation([70 / 180 * 3.14, 0 / 180 * 3.14, 60 / 180 * 3.14])
 env.set_camera_clip(clip_start=1, clip_end=500)
 
 env.select_display_camera(camera)

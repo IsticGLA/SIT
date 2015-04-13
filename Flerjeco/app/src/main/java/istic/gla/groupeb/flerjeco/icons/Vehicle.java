@@ -34,6 +34,18 @@ public class Vehicle extends Canvas {
         rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
     }
 
+    public Vehicle(String name, Function function){
+        this.name = name;
+        paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(5);
+        paint.setTextSize(15);
+        changeFunction(function);
+        changeState(State.Programmed);
+        rect = new Rect(10, 40, 160, 110);
+        rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
+    }
+
     public enum State {Programmed, Validated}
 
     public enum Function {Water, Fire, People, Risks, Commands, Default}
@@ -55,10 +67,10 @@ public class Vehicle extends Canvas {
                 paint.setColor(Color.GREEN);
                 break;
             case Risks:
-                paint.setColor(Color.argb(0,255,102,0));
+                paint.setColor(Color.argb(255,255,102,0));
                 break;
             case Commands:
-                paint.setColor(Color.argb(0,153,0,102));
+                paint.setColor(Color.argb(255,153,0,102));
                 break;
             default:
                 paint.setColor(Color.BLACK);

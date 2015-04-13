@@ -4,7 +4,6 @@ import dao.InterventionDAO;
 import entity.Resource;
 import util.State;
 
-import javax.print.attribute.standard.Media;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -137,16 +136,31 @@ public class Intervention {
     @PUT
     @Path("{inter}/resources/{res}/{state}")
     public Response changeResourceState(
-            @PathParam("inter") String inter,
+            @PathParam("inter") Long inter,
             @PathParam("res") String res,
             @PathParam("state") String state) {
-        return Response.ok().build();
+        InterventionDAO interventionDAO = new InterventionDAO();
+        interventionDAO.connect();
+        entity.Intervention intervention = interventionDAO.getById(inter);
+        try {
+            for (entity.Resource resource : intervention.getResources()) {
+                if (resource.getLabel().equals(res)) {
+                    resource.setState(State.valueOf(state));
+                    break;
+                }
+            }
+            interventionDAO.update(intervention);
+            interventionDAO.disconnect();
+            return Response.ok().build();
+        } catch (Exception ex) {
+            return Response.serverError().build();
+        }
     }
 
     /**
      * Requests a vehicle for the intervention
      * @param inter The id of the intervention
-     * @param vehicle the id of the requested vehicle type
+     * @param vehicle the label of the requested vehicle type
      * @return The id of the requested vehicle
      */
     @PUT

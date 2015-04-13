@@ -30,6 +30,10 @@ import java.util.List;
 
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.adapter.IconViewAdapter;
+import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
+import istic.gla.groupeb.flerjeco.icons.Vehicle;
+import istic.gla.groupeb.flerjeco.view.IconView;
 import util.State;
 
 public class ResourcesFragment extends Fragment {
@@ -85,6 +89,23 @@ public class ResourcesFragment extends Fragment {
 
         listViewResources.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_request, resourceList));
         listViewRequests.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_request, requestList));
+
+        /*
+        List<IconView> iconViewList = new ArrayList<>();
+        List<Vehicle> mVehicleList = new ArrayList<>();
+        mVehicleList.add(new Vehicle("VSAP"));
+        mVehicleList.add(new Vehicle("VSAP"));
+        mVehicleList.add(new Vehicle("VSAP"));
+        for(Vehicle vehicle : mVehicleList){
+            vehicle.changeFunction(Vehicle.Function.Commands);
+            iconViewList.add(new IconView(this.getActivity(), vehicle));
+        }
+
+        //listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
+        listViewResources.setAdapter(new IconViewAdapter(this.getActivity(), R.layout.list_row, iconViewList));
+        listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
+
+        */
 
         listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

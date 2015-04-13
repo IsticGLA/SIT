@@ -35,10 +35,11 @@ public class IconViewAdapter extends ArrayAdapter<IconView> {
         IconHolder holder = null;
 
         if (row == null) {
-            LayoutInflater layoutInflater = ((Activity)context).getLayoutInflater();
-            row = layoutInflater.inflate(layoutResId, parent, false);
+            LayoutInflater inflater = ((Activity)context).getLayoutInflater();
+            row = inflater.inflate(R.layout.list_row, parent, false);
+            //row = LayoutInflater.from(context).inflate(R.layout.list_row, null);
             holder = new IconHolder();
-            holder.iconView = (IconView)row.findViewById(R.id.icon);
+            holder.iconView = (IconView)row.findViewById(R.id.icon_view);
             row.setTag(holder);
 
         } else {
@@ -46,13 +47,7 @@ public class IconViewAdapter extends ArrayAdapter<IconView> {
         }
 
         IconView iconView = iconViewList.get(position);
-        Vehicle vehicle = iconView.getVehicle();
-        if (holder.iconView == null) {
-            holder.iconView.setmVehicle(iconView.getVehicle());
-        } else {
-            holder.iconView.setmVehicle(new Vehicle("NULL"));
-        }
-
+        holder.iconView.setmVehicle(iconView.getVehicle());
         return row;
     }
 
