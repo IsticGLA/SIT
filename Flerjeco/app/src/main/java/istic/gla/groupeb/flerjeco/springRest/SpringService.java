@@ -78,6 +78,7 @@ public class SpringService {
     public long postIntervention(Intervention intervention) {
         try {
 
+
             final String url = URL + "intervention/create";
 
             RestTemplate restTemplate = new RestTemplate();
