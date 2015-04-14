@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<istic.gla.groupeb.flerjeco.view.IconView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/iconViewResourceR"
+    android:layout_width="0dp"
+    android:layout_height="55dp"
+    android:layout_gravity="center" />

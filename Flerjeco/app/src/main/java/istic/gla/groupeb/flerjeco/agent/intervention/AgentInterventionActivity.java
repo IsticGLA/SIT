@@ -21,10 +21,13 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +59,8 @@ public class AgentInterventionActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
 
         intervention = new Intervention();
+
+
 
         /*Bundle extras = getIntent().getExtras();
 
@@ -103,6 +108,10 @@ public class AgentInterventionActivity extends FragmentActivity
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
+
+
+            findViewById(R.id.fragment_container).setOnDragListener(new MyDragListener());
+            findViewById(R.id.map_fragment).setOnDragListener(new MyDragListener());
         }
     }
 
@@ -110,6 +119,8 @@ public class AgentInterventionActivity extends FragmentActivity
 
         mapFragment = (AgentInterventionMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+
+
 
         if (mapFragment != null) {
             //save the current position
@@ -176,6 +187,46 @@ public class AgentInterventionActivity extends FragmentActivity
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    class MyDragListener implements View.OnDragListener {
+
+        float x, y;
+
+
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+            int action = event.getAction();
+            switch (event.getAction()) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    // do nothing
+                    break;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    break;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    break;
+                case DragEvent.ACTION_DROP:
+                    // Dropped, reassign View to ViewGroup
+                    View view = (View) event.getLocalState();
+                    ViewGroup owner = (ViewGroup) view.getParent();
+                    owner.removeView(view);
+                    LinearLayout container = (LinearLayout) v;
+                    container.addView(view);
+                    view.setVisibility(View.VISIBLE);
+
+                    x = event.getX();
+                    y = event.getY();
+
+                    view.setX(x);
+                    view.setY(y);
+
+                    break;
+                case DragEvent.ACTION_DRAG_ENDED:
+                default:
+                    break;
+            }
+            return true;
         }
     }
 }

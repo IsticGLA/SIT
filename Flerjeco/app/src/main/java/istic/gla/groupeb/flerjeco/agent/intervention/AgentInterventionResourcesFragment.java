@@ -16,9 +16,11 @@
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,7 +32,7 @@ import java.util.List;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
-import istic.gla.groupeb.flerjeco.adapter.ResourceAdapter;
+import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
 import util.State;
 
 public class AgentInterventionResourcesFragment extends Fragment {
@@ -68,16 +70,34 @@ public class AgentInterventionResourcesFragment extends Fragment {
             }
         }
 
-        listViewResources.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_resource_agent, resourceList));
+        listViewResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.item_resource_agent_icon_view, resourceList));
         listViewRequests.setAdapter(new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList));
 
-        listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        /*listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
                 listViewResources.setItemChecked(position,true);
             }
+        });*/
+
+        listViewResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                view.setVisibility(View.INVISIBLE);
+                return true;
+            }
         });
+        //v.findViewById(R.id.listViewAgentResources).setOnTouchListener(new MyTouchListener());
+
+        /*for (int i=0; i < listViewResources.getChildCount(); i++){
+            View iconView = listViewResources.getChildAt(i);
+            Log.i(getClass().getSimpleName(),iconView.toString());
+            iconView.setOnTouchListener(new MyTouchListener());
+        }*/
 
         return v;
     }
@@ -109,6 +129,32 @@ public class AgentInterventionResourcesFragment extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnHeadlineSelectedListener");
+        }
+    }
+
+    private final class MyTouchListener implements View.OnTouchListener {
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                view.setVisibility(View.INVISIBLE);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private final class MyLongClickListener implements View.OnLongClickListener {
+
+        @Override
+        public boolean onLongClick(View view) {
+            ClipData data = ClipData.newPlainText("", "");
+            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+            view.startDrag(data, shadowBuilder, view, 0);
+            view.setVisibility(View.INVISIBLE);
+            return true;
         }
     }
 }
