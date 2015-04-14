@@ -32,11 +32,10 @@ import java.util.Set;
 
 import entity.Intervention;
 import entity.Resource;
-import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import util.ResourceCategory;
 import util.ResourceRole;
-import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
@@ -57,6 +56,14 @@ public class AgentInterventionActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
 
         intervention = new Intervention();
+
+        /*Bundle extras = getIntent().getExtras();
+
+        if (extras != null){
+            intervention = (Intervention) extras.getSerializable("intervention");
+        }*/
+
+
         intervention.setLatitude(48.117749);
         intervention.setLongitude(-1.677297);
         List<Resource> resourceList = new ArrayList<>();
