@@ -120,7 +120,7 @@ public class LoginActivity extends Activity implements ISynchTool{
     }
 
 
-    // Backgroud task to post intervention
+    // Backgroud task to get notify
     private class ResourceTypeSynch extends AsyncTask<entity.Intervention, Void, ResourceType> {
 
         @Override
@@ -358,25 +358,6 @@ public class LoginActivity extends Activity implements ISynchTool{
 
             intent.putExtras(bundle);
             startActivity(intent);
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_logout, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_logout:
-                // Comportement du bouton "A Propos"
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
         }
     }
 }
