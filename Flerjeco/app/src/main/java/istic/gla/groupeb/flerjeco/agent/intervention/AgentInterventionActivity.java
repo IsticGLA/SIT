@@ -15,10 +15,14 @@
  */
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -28,6 +32,7 @@ import entity.Intervention;
 import entity.Resource;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
@@ -139,4 +144,26 @@ public class AgentInterventionActivity extends FragmentActivity
         vehicleDialog.show(getSupportFragmentManager(), "vehicle_dialog");
     }
 
+    // Action Menu for Logout
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_logout, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                Intent intent = new Intent(AgentInterventionActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

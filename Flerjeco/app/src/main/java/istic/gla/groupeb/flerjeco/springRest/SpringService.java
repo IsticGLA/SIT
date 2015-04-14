@@ -4,12 +4,10 @@ import android.util.Log;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Arrays;
-import java.util.List;
 
 import entity.IncidentCode;
 import entity.Intervention;
@@ -129,13 +127,13 @@ public class SpringService {
         String httpResult = "";
 
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
 
         try {
             ResponseEntity<String> entity = restTemplate.getForEntity(url, String.class);
             httpResult = entity.getStatusCode().toString();
         } catch (HttpStatusCodeException e) {
-            httpResult = "400";
+            httpResult = e.getStatusCode().toString();
         }
         Log.i(TAG, "httpResult : " + httpResult);
         Log.i(TAG, "login end");
@@ -186,7 +184,7 @@ public class SpringService {
         Log.i(TAG, "getAllInterventions start");
         final String url = URL + "intervention";
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new );
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
 
         ResponseEntity<Intervention[]> entity = restTemplate.getForEntity(url, Intervention[].class);
         Log.i(TAG, "getAllInterventions : " + entity.getBody().toString());

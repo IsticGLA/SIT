@@ -39,9 +39,8 @@ public class Authentication {
                 }
             }
         }
-
         userDAO.disconnect();
-        return Response.serverError().build();
+        return Response.status(Response.Status.UNAUTHORIZED).build();
     }
 
     /**
