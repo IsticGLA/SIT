@@ -64,7 +64,7 @@ public class LoginActivity extends Activity implements ISynchTool{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Intent i=new Intent(this, SynchService.class);
+       /* Intent i=new Intent(this, SynchService.class);
         i.putExtra("handler", new Messenger(this.handler));
 
         DisplaySynch displaySynch = new DisplaySynch() {
@@ -77,7 +77,7 @@ public class LoginActivity extends Activity implements ISynchTool{
         i.putExtra("displaySynch", displaySynch);
 
         Log.i("MAMH", i.toString());
-        this.startService(i);
+        this.startService(i);*/
 
         display();
     }

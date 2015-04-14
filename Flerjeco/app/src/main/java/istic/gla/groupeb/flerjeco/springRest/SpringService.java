@@ -150,7 +150,6 @@ public class SpringService {
         Log.i(TAG, "notify start");
         final String url = URL + "notify";
 
-
         RestTemplate restTemplate = new RestTemplate();
 
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
