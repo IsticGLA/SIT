@@ -141,9 +141,10 @@ public class LoginActivity extends Activity implements ISynchTool{
         @Override
         protected void onPostExecute(ResourceType resultPost) {
 
-            if(resultPost != null)
+            //TODO
+           /* if(resultPost != null)
                 Toast.makeText(LoginActivity.this, "Label est "+resultPost.getLabel(), Toast.LENGTH_LONG).show();
-            else Toast.makeText(LoginActivity.this, "Label est null", Toast.LENGTH_LONG).show();
+            else Toast.makeText(LoginActivity.this, "Label est null", Toast.LENGTH_LONG).show();*/
 
         }
 
