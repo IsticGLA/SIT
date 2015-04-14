@@ -1,6 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
 import dao.InterventionDAO;
+import entity.ObjectWithDate;
 import entity.Resource;
 import util.State;
 
@@ -206,20 +207,29 @@ public class Intervention {
     /**
      * Places the vehicle at coordinates with a role
      * @param inter The id of the intervention
-     * @param res The id of the resource
-     * @param lat The latitude of the vehicle
-     * @param lng The longitude of the vehicle
-     * @param role A String representing the role of the vehicle
+     * @param objectWithDate resource with date
      * @return OK if the vehicle has been correctly placed
      */
     @PUT
-    @Path("{inter}/resources/{res}/{lat}/{lng}/{role}")
+    @Path("{inter}/resources/update")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response placeVehicle(
-            @PathParam("inter") String inter,
-            @PathParam("res") String res,
-            @PathParam("lat") long lat,
-            @PathParam("lng") long lng,
-            @PathParam("role") String role) {
-        return Response.ok().build();
+            ObjectWithDate objectWithDate,
+            @PathParam("inter") Long inter) {
+        InterventionDAO interventionDAO = new InterventionDAO();
+        interventionDAO.connect();
+        Resource newResource = (Resource) objectWithDate.getObject();
+        entity.Intervention intervention = interventionDAO.getById(inter);
+        for (Resource resource : intervention.getResources()) {
+            if (resource.getIdRes() == newResource.getIdRes()) {
+                resource = newResource;
+            }
+        }
+        intervention.setLastUpdate(objectWithDate.getDate());
+
+        intervention = interventionDAO.update(intervention);
+        interventionDAO.disconnect();
+        return Response.ok(intervention).build();
     }
 }

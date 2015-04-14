@@ -12,8 +12,13 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
+import java.util.Calendar;
+
 import entity.IncidentCode;
 import entity.Intervention;
+import entity.ObjectWithDate;
+import entity.Resource;
 import entity.ResourceType;
 import entity.StaticData;
 
@@ -96,12 +101,30 @@ public class SpringService {
             ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
 
             if (interventionResult == null) {
-                Log.i("MAMH", "intervetionResult = null");
+                Log.i("MAMH", "interventionResult = null");
             } else
                 Log.i(TAG, interventionResult.toString());
                 return interventionResult.getBody();
         } catch (HttpStatusCodeException e) {
             Log.i("MAMH", "Problème de l'update de l'intervention : " + e.getMessage());
+        }
+        return null;
+    }
+
+    public Intervention updateResourceIntervention(long interventionId, Resource resource) {
+        try {
+            final String url = URL + "intervention/"+interventionId+"/resources/update";
+            ObjectWithDate objectWithDate = new ObjectWithDate(resource, new Timestamp(Calendar.getInstance().getTime().getTime()));
+
+            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, objectWithDate, Intervention.class);
+
+            if (interventionResult == null) {
+                Log.i(TAG, "updateResourceIntervention interventionResult = null");
+            } else
+                Log.i(TAG, interventionResult.toString());
+            return interventionResult.getBody();
+        } catch (HttpStatusCodeException e) {
+            Log.i(TAG, "resource can not be update : " + e.getMessage());
         }
         return null;
     }

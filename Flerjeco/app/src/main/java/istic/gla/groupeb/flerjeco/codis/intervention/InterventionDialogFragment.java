@@ -75,7 +75,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_create_intervention, container, false);
-        getDialog().setTitle(R.string.title_activity_intervention);
+        getDialog().setTitle(R.string.title_fragment_create_intervention);
 
         mCreateFormView = v.findViewById(R.id.intervention_scroll);
         mProgressView = v.findViewById(R.id.create_progress);

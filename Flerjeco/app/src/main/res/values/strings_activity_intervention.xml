@@ -1,5 +1,6 @@
 <resources>
-    <string name="title_activity_intervention">Création de l\'intervention</string>
+    <string name="title_activity_intervention">Intervention en cours</string>
+    <string name="title_fragment_create_intervention">Création de l\'intervention</string>
     <string name="intervention_creation">Créer l\'intervention</string>
     <string name="nameInterventionHint">Nom de l\'intervention</string>
     <string name="createInterventionButton">Créer intervention</string>
