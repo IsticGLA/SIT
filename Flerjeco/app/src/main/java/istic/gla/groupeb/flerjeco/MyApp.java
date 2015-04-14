@@ -51,8 +51,10 @@ public class MyApp extends Application {
     }
 
     public StaticData[] getStaticDatas() {
-        SpringService springService = new SpringService();
-        staticDatas = springService.getAllStaticDatas();
         return staticDatas;
+    }
+
+    public void setStaticDatas(StaticData[] staticDatas) {
+        this.staticDatas = staticDatas;
     }
 }

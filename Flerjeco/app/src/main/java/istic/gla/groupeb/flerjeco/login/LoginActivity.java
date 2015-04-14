@@ -34,7 +34,6 @@ import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.ISynchTool;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.MyApp;
-import istic.gla.groupeb.flerjeco.MyStaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
@@ -259,6 +258,7 @@ public class LoginActivity extends Activity implements ISynchTool{
 
         private final String mLogin;
         private final String mPassword;
+        private StaticData[] staticDatas;
 
         UserLoginTask(String login, String password) {
             mLogin = login;
@@ -271,6 +271,7 @@ public class LoginActivity extends Activity implements ISynchTool{
 
             SpringService service = new SpringService();
             String statusCode = service.login(mLogin, mPassword);
+            staticDatas = service.getAllStaticDatas();
 
             Log.i(TAG, "doInBackground end");
             return statusCode;
@@ -285,6 +286,7 @@ public class LoginActivity extends Activity implements ISynchTool{
             myApp.setCodisUser(isCodis);
             myApp.setLogin(mLogin);
             myApp.setPassword(mPassword);
+            if (!isCodis) myApp.setStaticDatas(staticDatas);
             Log.i(TAG, "isCodis "+isCodis);
 
             if (statusCode.equals("200")) {
