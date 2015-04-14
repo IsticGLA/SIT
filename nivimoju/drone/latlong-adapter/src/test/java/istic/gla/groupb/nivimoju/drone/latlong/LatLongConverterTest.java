@@ -1,5 +1,6 @@
 package istic.gla.groupb.nivimoju.drone.latlong;
 
+import entity.Position;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
@@ -13,11 +14,11 @@ public class LatLongConverterTest extends TestCase {
 
     public void testGetLocal() throws Exception {
         LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
-        LatLong topLeft = new LatLong(48.1222, -1.6428);
-        LatLong bottomRight = new LatLong(48.1119, -1.6337);
-        LatLong topRight = new LatLong(48.1222, -1.6337);
-        LatLong bottomLeft = new LatLong(48.1119, -1.6428);
-        LatLong center = new LatLong((48.1222+48.1119)/2, (-1.6428+-1.6337)/2);
+        Position topLeft = new Position(48.1222, -1.6428);
+        Position bottomRight = new Position(48.1119, -1.6337);
+        Position topRight = new Position(48.1222, -1.6337);
+        Position bottomLeft = new Position(48.1119, -1.6428);
+        Position center = new Position((48.1222+48.1119)/2, (-1.6428+-1.6337)/2);
 
         LocalCoordinate expectedTopLeftLocal = new LocalCoordinate(-(720/2), (1200/2), 0);
         LocalCoordinate expectedBottomRightLocal = new LocalCoordinate((720/2), -(1200/2), 0);
@@ -56,7 +57,7 @@ public class LatLongConverterTest extends TestCase {
         Assert.assertEquals(expectedBottomLeftLocal.getY(), bottomLeftLocal.getY(), MAX_DEVIATION);*/
 
         logger.info("converting croisementArche");
-        LatLong croisementArche = new LatLong(48.11721 , -1.63888);
+        Position croisementArche = new Position(48.11721 , -1.63888);
         LocalCoordinate croisementArcheLocal = converter.getLocal(croisementArche);
         logger.info("croisementArcheLocal : " + croisementArcheLocal);
         LocalCoordinate expectedcroisementArcheLocal = new LocalCoordinate(-46.733, 16.8795, 0);
@@ -65,7 +66,7 @@ public class LatLongConverterTest extends TestCase {
         Assert.assertEquals(expectedcroisementArcheLocal.getY(), croisementArcheLocal.getY(), MAX_DEVIATION);
 
         logger.info("converting parking");
-        LatLong parking = new LatLong(48.12211 , -1.64180);
+        Position parking = new Position(48.12211 , -1.64180);
         LocalCoordinate parkingLocal = converter.getLocal(parking);
         logger.info("parkingLocal : " + parkingLocal);
         LocalCoordinate expectedparkingLocal = new LocalCoordinate(-264.1185, 563.0921, 0);
@@ -74,17 +75,13 @@ public class LatLongConverterTest extends TestCase {
         Assert.assertEquals(expectedparkingLocal.getY(), parkingLocal.getY(), MAX_DEVIATION);
 
         logger.info("converting corner BAT D");
-        LatLong corner1 = new LatLong(48.11554 , -1.63920);
+        Position corner1 = new Position(48.11554 , -1.63920);
         LocalCoordinate corner1Local = converter.getLocal(corner1);
         logger.info("corner1Local : " + corner1Local);
         LocalCoordinate expectedcorner1Local = new LocalCoordinate(-70.5016, -168.0714, 0);
         logger.info("delta corner1 : " + expectedcorner1Local.distanceInPlan(corner1Local));
         Assert.assertEquals(expectedcorner1Local.getX(), corner1Local.getX(), MAX_DEVIATION);
         Assert.assertEquals(expectedcorner1Local.getY(), corner1Local.getY(), MAX_DEVIATION);
-
-    }
-
-    public void testGetLatLong() throws Exception {
 
     }
 }

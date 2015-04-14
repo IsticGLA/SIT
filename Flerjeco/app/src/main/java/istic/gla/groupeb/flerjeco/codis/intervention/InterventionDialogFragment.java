@@ -58,7 +58,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
     boolean data_local = false;
     private HttpRequestTask httpRequestTask;
-    private AsyncTask<Intervention, Void, Long> at;
+    private AsyncTask<Intervention, Void, Intervention> at;
     private ResourceGetTask resourceGetTask;
 
     @Override
@@ -219,24 +219,25 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
 
     // Backgroud task to post intervention
-    private class InterventionPostTask extends AsyncTask<entity.Intervention, Void, Long> {
+    private class InterventionPostTask extends AsyncTask<entity.Intervention, Void, entity.Intervention> {
 
         @Override
-        protected Long doInBackground(entity.Intervention... params) {
+        protected entity.Intervention doInBackground(entity.Intervention... params) {
             try {
-                return  springService.postIntervention(params[0]);
-
+                return springService.postIntervention(params[0]);
             } catch (HttpStatusCodeException e) {
                 Log.e("InterventionActivity", e.getMessage(), e);
-                return 0L;
+                return null;
             }
 
         }
 
         @Override
-        protected void onPostExecute(Long resultPost) {
-            Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
+        protected void onPostExecute(entity.Intervention resultPost) {
+            Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost.getId()+" est ajoutée ", Toast.LENGTH_LONG).show();
             showProgress(false);
+            ((InterventionActivity)getActivity()).addIntervention(resultPost);
+            ((InterventionActivity)getActivity()).updateInterventions();
             dismiss();
         }
 

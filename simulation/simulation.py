@@ -1,3 +1,5 @@
+# -*- coding: utf8 -*-
+
 from flask import Flask, jsonify, request
 from flask_restful import abort
 import json
@@ -11,28 +13,46 @@ from geometry_msgs.msg import Point
 
 app = Flask(__name__)
 
-class Controler:
+class Controller:
     def __init__(self):
         # Souscris pour écouter la position du robot
-        self.pose_sub = rospy.Subscriber("pose", PoseStamped, self.pose_callback)
+        self.pose_sub = rospy.Subscriber("/pose", PoseStamped, self.pose_callback)
         # Publie pour setter le waypoint du robot
         self.waypoint_pub = rospy.Publisher("/waypoint", Pose, queue_size=10, latch=False)
-        self.dest_tol=1
+        self.dest_tol=1 #tolérance de 1m
+        self.forward = true
+        self.currentIndex = 0
 
     def setWaypoint(self, x, y, z):
         app.logger.info("setting waypoint to " + str(x) +", "+str(y)+", "+str(z))
         pose = Pose(position=Point(x,y,z))
         self.waypoint_pub.publish(pose)
+        self.dest = Point(x,y,z)
 
     def setPath(self, path):
         self.path = path
         self.currentIndex = 0
         self.setWaypoint(path[0]["x"], path[0]["y"], path[0]["z"])
+        self.forward = true
+
+    def setClose(self, closed):
+        self.closed = closed
 
     def nextWaypointInPath(self):
-        self.currentIndex = self.currentIndex+1
-        if self.currentIndex >= len(self.path):
-            self.currentIndex = 0
+        if self.forward:
+            self.currentIndex = self.currentIndex + 1
+            if self.currentIndex >= len(self.path):
+                if self.closed:
+                    self.currentIndex = 0
+                else:
+                    self.currentIndex = len(self.path) - 1
+                    self.forward = false
+        else:
+            self.currentIndex = self.currentIndex - 1
+            if self.currentIndex < 0:
+                self.currentIndex = 0
+                self.forward = true
+
         point = self.path[self.currentIndex]
         self.setWaypoint(point["x"], point["y"], point["z"])
 
@@ -43,20 +63,23 @@ class Controler:
         pose = pose_stamped.pose
         
         app.logger.info("robot position " + str(pose.position.x) +", "+str(pose.position.y)+", "+str(pose.position.z))
-        ez = self.dest.z - pose.position.z
-        ex = self.dest.x - pose.position.x
-        ey = self.dest.y - pose.position.y
+        if self.dest:
+            ez = self.dest.z - pose.position.z
+            ex = self.dest.x - pose.position.x
+            ey = self.dest.y - pose.position.y
 
-        # verification de l'arrivée
-        distance = sqrt(ex*ex + ey*ey + ez*ez)
-        if distance < self.dest_tol:
-            app.logger.info("robot arrived")
+            # verification de l'arrivée
+            distance = sqrt(ex*ex + ey*ey + ez*ez)
+            if distance < self.dest_tol:
+                app.logger.info("robot arrived to waypoint")
+                self.nextWaypointInPath()
 
-controler = Controler()
+
+controller = Controller()
 
 @app.route('/robot/waypoint', methods=['POST'])
 def waypoint():
-    global command
+    global controller
     app.logger.info("received a new request on /robot/waypoint")
     if not request.json or not 'x' in request.json or not 'y' in request.json or not 'z' in request.json:
         app.logger.error("request is not json")
@@ -68,7 +91,7 @@ def waypoint():
     except Exception as e:
         app.logger.error(traceback.format_exc())
         abort(400)
-    controler.setWaypoint(x, y, z)
+    controller.setWaypoint(x, y, z)
     return jsonify({"x": x, "y": y, "z": z}), 200
 
 @app.route('/robot/path', methods=['POST'])
@@ -77,8 +100,10 @@ def path():
     app.logger.info("received a new request on /robot/path")
     try:
         # Get the JSON data sent from the form
-        path = request.json['data'] # list<dict<x,y,z>>
-        controler.setWaypoint(path[0]["x"], path[0]["y"], path[0]["z"])
+        path = request.json['positions'] # list<dict<x,y,z>>
+        closed = request.json['closed']
+        controller.setPath(path)
+        controller.setClosed(closed)
     except Exception as e:
         app.logger.error(traceback.format_exc())
         abort(400)
@@ -90,8 +115,11 @@ if __name__ == '__main__' :
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     app.logger.addHandler(handler)
-    app.logger.info("starting ros node")
-    rospy.init_node("flask")
-    app.logger.info("ros node started")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    try:
+        app.logger.info("starting ros node")
+        rospy.init_node("flask")
+        app.logger.info("ros node started")
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    except Exception as e:
+        app.logger.error(traceback.format_exc())
 
