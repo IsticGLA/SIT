@@ -255,36 +255,29 @@ public class LoginActivity extends Activity implements ISynchTool{
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    public class UserLoginTask extends AsyncTask<Void, Void, String> {
 
         private final String mLogin;
         private final String mPassword;
-        private String statusCode;
 
         UserLoginTask(String login, String password) {
             mLogin = login;
             mPassword = password;
-            statusCode = "Init";
         }
 
         @Override
-        protected Boolean doInBackground(Void... params) {
+        protected String doInBackground(Void... params) {
             Log.i(TAG, "doInBackground start");
 
             SpringService service = new SpringService();
-            statusCode = service.login(mLogin, mPassword);
+            String statusCode = service.login(mLogin, mPassword);
 
             Log.i(TAG, "doInBackground end");
-            if(statusCode.equals("200")) {
-                return true;
-            }
-            else {
-                return false;
-            }
+            return statusCode;
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(String statusCode) {
             mAuthTask = null;
             showProgress(false);
             MyApp myApp = MyApp.getInstance();
@@ -294,16 +287,18 @@ public class LoginActivity extends Activity implements ISynchTool{
             myApp.setPassword(mPassword);
             Log.i(TAG, "isCodis "+isCodis);
 
-            if (success) {
+            if (statusCode.equals("200")) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
                 Intent intent;
                 showProgress(true);
                 GetAllInterventionTask mGetAllTask = new GetAllInterventionTask(isCodis);
                 mGetAllTask.execute((Void) null);
-            } else {
+            } else if(statusCode.equals("401")) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
+            } else {
+                Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_LONG).show();
             }
         }
 

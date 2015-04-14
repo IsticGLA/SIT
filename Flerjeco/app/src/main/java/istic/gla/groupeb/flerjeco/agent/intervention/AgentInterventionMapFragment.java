@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,8 +23,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import entity.Intervention;
 import entity.Resource;
@@ -43,6 +46,8 @@ public class AgentInterventionMapFragment extends Fragment {
     final static String ARG_POSITION = "position";
 
     MapView mMapView;
+    Button buttonValidateResources;
+    Button buttonCancelResources;
     private GoogleMap googleMap;
 
     int position = -1;
@@ -51,6 +56,7 @@ public class AgentInterventionMapFragment extends Fragment {
     private StaticData[] staticDataTab;
     private List<Resource> resources = new ArrayList<>();
     private List<Resource> resourcesToPutOnMap = new ArrayList<>();
+    private Set<Resource> resourcesPutOnMap = new HashSet<>();
     private Map<String, com.google.android.gms.maps.model.Marker> markers = new HashMap<>();
 
 
@@ -63,13 +69,10 @@ public class AgentInterventionMapFragment extends Fragment {
                 false);
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
-
-        MyStaticData myStaticData = MyStaticData.getSingleInstance();
-        if (myStaticData != null) {
-            staticDataTab = myStaticData.getStaticDatas();
-        }
-
         mMapView.onResume();// needed to get the map to display immediately
+
+        buttonValidateResources = (Button) v.findViewById(R.id.buttonValidateResources);
+        buttonCancelResources = (Button) v.findViewById(R.id.buttonCancelResources);
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -101,11 +104,25 @@ public class AgentInterventionMapFragment extends Fragment {
                 Marker markerAdded = googleMap.addMarker(marker);
                 markers.put(resourcesToPutOnMap.get(position).getLabel(), markerAdded);
 
+                resourcesPutOnMap.add(resourcesToPutOnMap.get(position));
+
+                buttonValidateResources.setVisibility(View.VISIBLE);
+                buttonCancelResources.setVisibility(View.VISIBLE);
             }
         });
         return v;
     }
 
+    public void cancelResources(){
+        for (Resource resource : resourcesPutOnMap){
+            if (markers.get(resource.getLabel()) != null) {
+                markers.get(resource.getLabel()).remove();
+            }
+        }
+        resourcesPutOnMap.clear();
+        buttonValidateResources.setVisibility(View.GONE);
+        buttonCancelResources.setVisibility(View.GONE);
+    }
 
     public void updateMapView(int position) {
         Resource resource = resources.get(position);
@@ -215,7 +232,11 @@ public class AgentInterventionMapFragment extends Fragment {
     public void drawMarker(MarkerOptions markerOptions, Resource resource){
         switch (resource.getResourceCategory()){
             case vehicule:
-                Vehicle mVehicle = new Vehicle(resource.getLabel(), ResourceRole.otherwise, resource.getState());
+                ResourceRole role = ResourceRole.otherwise;
+                if (resource.getResourceRole()!=null) {
+                    role = resource.getResourceRole();
+                }
+                Vehicle mVehicle = new Vehicle(resource.getLabel(), role, resource.getState());
                 int width = mVehicle.getRect().width();
                 int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
                 Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -226,5 +247,9 @@ public class AgentInterventionMapFragment extends Fragment {
             case drone:
                 break;
         }
+    }
+
+    public Set<Resource> getResourcesPutOnMap() {
+        return resourcesPutOnMap;
     }
 }

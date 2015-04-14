@@ -21,11 +21,15 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import entity.Intervention;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class ListInterventionsActivity extends FragmentActivity
@@ -33,9 +37,11 @@ public class ListInterventionsActivity extends FragmentActivity
 
     private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention[] interventionTab;
-    private int position=0;
+    private int position = 0;
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +50,7 @@ public class ListInterventionsActivity extends FragmentActivity
         if (extras != null) {
             Object[] objects = (Object[]) extras.getSerializable("interventions");
             interventionTab = new Intervention[objects.length];
-            for(int i=0;i<objects.length;i++) {
+            for (int i = 0; i < objects.length; i++) {
                 interventionTab[i] = (Intervention) objects[i];
             }
         }
@@ -122,5 +128,27 @@ public class ListInterventionsActivity extends FragmentActivity
 
         intent.putExtras(bundle);
         startActivity(intent);
+    }
+
+    // Action Menu for Logout
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_logout, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                Intent intent = new Intent(ListInterventionsActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

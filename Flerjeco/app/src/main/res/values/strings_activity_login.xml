@@ -12,5 +12,6 @@
     <string name="logout_summary">Log out from the application</string>
 
     <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_server_down">The server is unavailable</string>
     <string name="error_field_required">This field is required</string>
 </resources>
