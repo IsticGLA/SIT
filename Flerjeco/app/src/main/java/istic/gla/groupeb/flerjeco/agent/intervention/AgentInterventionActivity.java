@@ -15,13 +15,10 @@
  */
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -31,18 +28,19 @@ import entity.Intervention;
 import entity.Resource;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
-import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import util.State;
 
-public class SecondActivity extends FragmentActivity
-        implements ResourcesFragment.OnResourceSelectedListener {
+public class AgentInterventionActivity extends FragmentActivity
+        implements AgentInterventionResourcesFragment.OnResourceSelectedListener {
 
-    private static final String TAG = SecondActivity.class.getSimpleName();
+    private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
     protected Intervention intervention;
     private StaticData[] staticDataTab;
+
+    private AgentInterventionResourcesFragment firstFragment;
+
+    int mCurrentPosition = -1;
 
     /** Called when the activity is first created. */
     @Override
@@ -62,10 +60,11 @@ public class SecondActivity extends FragmentActivity
         intervention.setLatitude(48.117749);
         intervention.setLongitude(-1.677297);
         List<Resource> resourceList = new ArrayList<>();
+        resourceList.add(new Resource("Resource0", State.validated, 0, 0));
         resourceList.add(new Resource("Resource1", State.active, 48.117749, -1.677297));
         resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
         resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
-        resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
+        resourceList.add(new Resource("Resource4", State.validated, 0, 0));
         resourceList.add(new Resource("Resource5", State.waiting, 0, 0));
         resourceList.add(new Resource("VSAP", State.refused, 0, 0));
         resourceList.add(new Resource("Resource7", State.refused, 0, 0));
@@ -88,7 +87,7 @@ public class SecondActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            ResourcesFragment firstFragment = new ResourcesFragment();
+            firstFragment = new AgentInterventionResourcesFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -102,22 +101,21 @@ public class SecondActivity extends FragmentActivity
 
     public void onResourceSelected(int position) {
 
-        MapFragment mapFragment = (MapFragment)
+        AgentInterventionMapFragment mapFragment = (AgentInterventionMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
         if (mapFragment != null) {
-            // If article frag is available, we're in two-pane layout...
-
-            // Call a method in the ArticleFragment to update its content
-            mapFragment.updateMapView(position);
+            //save the current position
+            mCurrentPosition = position;
+            mapFragment.setPosition(position);
 
         } else {
             // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
-            MapFragment newFragment = new MapFragment();
+            AgentInterventionMapFragment newFragment = new AgentInterventionMapFragment();
             Bundle args = new Bundle();
-            args.putInt(MapFragment.ARG_POSITION, position);
+            args.putInt(AgentInterventionMapFragment.ARG_POSITION, position);
             args.putSerializable("staticdatas", staticDataTab);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

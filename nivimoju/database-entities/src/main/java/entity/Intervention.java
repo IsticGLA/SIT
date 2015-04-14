@@ -20,7 +20,6 @@ public class Intervention extends AbstractEntity implements Serializable {
     private List<List<Position>> exclusionArea;
     private List<List<Position>> watchArea;
     private List<Path> watchPath;
-    private List<Marker> markers;
 
     /**
      * Build an Intervention
@@ -47,7 +46,6 @@ public class Intervention extends AbstractEntity implements Serializable {
         this.exclusionArea = new ArrayList<>();
         this.watchArea = new ArrayList<>();
         this.watchPath = new ArrayList<>();
-        this.markers = new ArrayList<>();
     }
 
     public String getName() {
@@ -114,14 +112,6 @@ public class Intervention extends AbstractEntity implements Serializable {
         this.watchPath = watchPath;
     }
 
-    public List<Marker> getMarkers() {
-        return markers;
-    }
-
-    public void setMarkers(List<Marker> markers) {
-        this.markers = markers;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -135,8 +125,7 @@ public class Intervention extends AbstractEntity implements Serializable {
         if (!resources.equals(that.resources)) return false;
         if (!exclusionArea.equals(that.exclusionArea)) return false;
         if (!watchArea.equals(that.watchArea)) return false;
-        if (!watchPath.equals(that.watchPath)) return false;
-        return markers.equals(that.markers);
+        return watchPath.equals(that.watchPath);
 
     }
 
@@ -153,7 +142,6 @@ public class Intervention extends AbstractEntity implements Serializable {
         result = 31 * result + exclusionArea.hashCode();
         result = 31 * result + watchArea.hashCode();
         result = 31 * result + watchPath.hashCode();
-        result = 31 * result + markers.hashCode();
         return result;
     }
 }

@@ -22,15 +22,10 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
-
-import java.io.Serializable;
-import java.util.Objects;
-
 import entity.Intervention;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
+import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class ListInterventionsActivity extends FragmentActivity
@@ -120,7 +115,7 @@ public class ListInterventionsActivity extends FragmentActivity
     }
 
     public void selectIntervention(View view) {
-        Intent intent = new Intent(ListInterventionsActivity.this, SecondActivity.class);
+        Intent intent = new Intent(this, AgentInterventionActivity.class);
         Bundle bundle = new Bundle();
 
         bundle.putSerializable("intervention", getInterventions()[position]);

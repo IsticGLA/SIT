@@ -179,7 +179,7 @@ public class Vehicle extends Canvas {
         mCanvas.drawRect(rect2, paint);
         //Drawing the name of the vehicle
         paint.setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
-        mCanvas.drawText(name, rect.centerX() - 40, rect.centerY(), paint);
+        mCanvas.drawText(name, 18, rect.centerY() + 5, paint);
         paint.setStyle(Paint.Style.STROKE);
         //Reapplying the PathEffect
         paint.setPathEffect(temp);
