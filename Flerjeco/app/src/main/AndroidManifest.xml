@@ -42,6 +42,7 @@
             android:label="@string/title_activity_intervention" >
         </activity>
         <activity
+            android:exported="true"
             android:name=".agent.interventionsList.ListInterventionsActivity"
             android:label="@string/title_activity_list_interventions" >
         </activity>

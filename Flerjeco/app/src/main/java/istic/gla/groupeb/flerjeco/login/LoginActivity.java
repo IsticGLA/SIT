@@ -10,13 +10,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Messenger;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -26,19 +22,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import org.springframework.web.client.HttpStatusCodeException;
 
 import entity.Intervention;
 import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.ISynchTool;
-import entity.StaticData;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import istic.gla.groupeb.flerjeco.synch.SynchService;
 
 
 /**

@@ -31,10 +31,10 @@ import java.util.Set;
 import entity.Intervention;
 import entity.Resource;
 import entity.StaticData;
-import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
+import util.ResourceCategory;
 import util.ResourceRole;
 import util.State;
 
@@ -97,20 +97,25 @@ public class AgentInterventionMapFragment extends Fragment {
                 double latitude = latLng.latitude;
                 double longitude = latLng.longitude;
                 Log.i(getActivity().getLocalClassName(), "Click on the Map at " + latitude + ", " + longitude + " for item " + position);
+
+                Resource resourceToPut = resourcesToPutOnMap.get(position);
+
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(
-                        new LatLng(latitude, longitude)).title(resourcesToPutOnMap.get(position).getLabel());
+                        new LatLng(latitude, longitude)).title(resourceToPut.getLabel());
                 // Changing marker icon
-                drawMarker(marker, resourcesToPutOnMap.get(position));
+                drawMarker(marker, resourceToPut);
 
-                if (markers.get(resourcesToPutOnMap.get(position).getLabel()) != null) {
-                    markers.get(resourcesToPutOnMap.get(position).getLabel()).remove();
+                if (markers.get(resourceToPut.getLabel()) != null) {
+                    markers.get(resourceToPut.getLabel()).remove();
                 }
                 // adding marker
                 Marker markerAdded = googleMap.addMarker(marker);
-                markers.put(resourcesToPutOnMap.get(position).getLabel(), markerAdded);
+                markers.put(resourceToPut.getLabel(), markerAdded);
 
-                resourcesPutOnMap.add(resourcesToPutOnMap.get(position));
+                Log.d(getClass().getSimpleName(),"resource : "+resourceToPut.getLabel());
+
+                resourcesPutOnMap.add(resourceToPut);
 
                 buttonValidateResources.setVisibility(View.VISIBLE);
                 buttonCancelResources.setVisibility(View.VISIBLE);
@@ -170,6 +175,7 @@ public class AgentInterventionMapFragment extends Fragment {
                     resources.add(resource);
                 }else if (State.validated.equals(resourceState)){
                     resourcesToPutOnMap.add(resource);
+                    Log.i(getClass().getSimpleName(),"Adding "+resource.getLabel()+" to resourcesToPutOnMap");
                 }
 
             }
@@ -236,22 +242,27 @@ public class AgentInterventionMapFragment extends Fragment {
     }
 
     public void drawMarker(MarkerOptions markerOptions, Resource resource){
-        switch (resource.getResourceCategory()){
-            case vehicule:
-                ResourceRole role = ResourceRole.otherwise;
-                if (resource.getResourceRole()!=null) {
-                    role = resource.getResourceRole();
-                }
-                Vehicle mVehicle = new Vehicle(resource.getLabel(), role, resource.getState());
-                int width = mVehicle.getRect().width();
-                int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
-                Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-                Canvas mCanvas = new Canvas(mBitmap);
-                mVehicle.drawVehicle(mCanvas);
-                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mBitmap));
-                break;
-            case drone:
-                break;
+        ResourceCategory category = resource.getResourceCategory();
+        if (category!=null){
+
+            switch (resource.getResourceCategory()){
+                case vehicule:
+                    ResourceRole role = ResourceRole.otherwise;
+                    if (resource.getResourceRole()!=null) {
+                        role = resource.getResourceRole();
+                    }
+                    Vehicle mVehicle = new Vehicle(resource.getLabel(), role, resource.getState());
+                    int width = mVehicle.getRect().width();
+                    int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
+                    Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                    Canvas mCanvas = new Canvas(mBitmap);
+                    mVehicle.drawVehicle(mCanvas);
+                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mBitmap));
+                    break;
+                case drone:
+                    break;
+            }
+
         }
     }
 
