@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
@@ -207,8 +208,13 @@ public class SpringService {
     public StaticData[] getAllStaticDatas() {
         Log.i(TAG, "getAllStaticDatas start");
         final String url = URL + "staticdata";
-
-        ResponseEntity<StaticData[]> entity = restTemplate.getForEntity(url, StaticData[].class);
+        ResponseEntity<StaticData[]> entity;
+        try {
+            entity = restTemplate.getForEntity(url, StaticData[].class);
+        } catch (HttpServerErrorException e) {
+            Log.i(TAG, e.getMessage());
+            return null;
+        }
         Log.i(TAG, "getAllStaticData : " + entity.getBody().toString());
         return entity.getBody();
     }
