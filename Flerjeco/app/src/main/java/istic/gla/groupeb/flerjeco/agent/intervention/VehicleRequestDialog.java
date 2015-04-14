@@ -57,7 +57,7 @@ public class VehicleRequestDialog extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_vehicle, container, false);
+        View v = inflater.inflate(R.layout.fragment_resource_request, container, false);
         intervention = getArguments().getLong(INTERVENTION);
         spinner = (Spinner)v.findViewById(R.id.vehicle_fragment_spinner);
 
@@ -87,7 +87,7 @@ public class VehicleRequestDialog extends DialogFragment {
     public void validate(String vehicle) {
         this.dismiss();
         new ResourceRequestTask().execute(intervention, vehicle);
-        Toast.makeText(getActivity(), "" + vehicle, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), vehicle, Toast.LENGTH_SHORT).show();
     }
 
     /**

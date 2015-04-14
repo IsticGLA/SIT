@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 
 import entity.Intervention;
@@ -45,6 +46,7 @@ public class InterventionActivity extends FragmentActivity
             interventionTab = new Intervention[objects.length];
             for(int i=0;i<objects.length;i++) {
                 interventionTab[i] = (Intervention) objects[i];
+                Log.d("IntervAct", interventionTab[i].getName() + " - " + interventionTab[i].getId());
             }
         }
 
