@@ -76,15 +76,48 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
+
+                <ToggleButton
+                    android:id="@+id/address_or_coordinate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:textOn="@string/create_by_coordinate"
+                    android:textOff="@string/create_by_address"/>
 
                 <EditText
                     android:id="@+id/address"
-                    android:layout_width="0dp"
+                    android:layout_width="fill_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
                     android:hint="@string/intervention_address"
                     android:inputType="text"/>
+
+                <LinearLayout
+                    android:id="@+id/lat_long"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible"
+                    android:orientation="horizontal">
+
+                    <EditText
+                        android:id="@+id/latitude"
+                        android:layout_width="fill_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.5"
+                        android:hint="@string/latitude"
+                        android:inputType="number"/>
+
+                    <EditText
+                        android:id="@+id/longitude"
+                        android:layout_width="fill_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.5"
+                        android:hint="@string/longitude"
+                        android:inputType="number"/>
+
+                </LinearLayout>
             </LinearLayout>
 
             <Button
