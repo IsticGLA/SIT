@@ -3,6 +3,8 @@ package istic.gla.groupeb.flerjeco.codis.intervention;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Build;
 import android.support.v4.app.DialogFragment;
 import android.os.AsyncTask;
@@ -19,9 +21,11 @@ import android.widget.Toast;
 
 import org.springframework.web.client.HttpStatusCodeException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import entity.IncidentCode;
 import entity.Intervention;
@@ -33,7 +37,7 @@ import util.State;
 
 
 public class InterventionDialogFragment extends DialogFragment implements OnTaskCompleted{
-
+    private static final String TAG = SpringService.class.getSimpleName();
 
     Spinner codeSinistreSpinner;
 
@@ -42,8 +46,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
     //Text fields
     EditText nameIntervetionEditText;
-    EditText latitudeEditText;
-    EditText longitudeEditText;
+    EditText addressEditText;
 
     private View mProgressView;
     private View mCreateFormView;
@@ -64,7 +67,8 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.activity_intervention, container, false);
+        View v = inflater.inflate(R.layout.fragment_create_intervention, container, false);
+        getDialog().setTitle(R.string.title_activity_intervention);
 
         mCreateFormView = v.findViewById(R.id.intervention_scroll);
         mProgressView = v.findViewById(R.id.create_progress);
@@ -72,8 +76,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         //Set up code sinistre list
         codeSinistreSpinner = (Spinner) v.findViewById(R.id.CodeSinistreSpinner);
         nameIntervetionEditText = (EditText) v.findViewById(R.id.nameInterventionEditText);
-        latitudeEditText = (EditText) v.findViewById(R.id.lat);
-        longitudeEditText = (EditText) v.findViewById(R.id.lng);
+        addressEditText = (EditText) v.findViewById(R.id.address);
 
         // Set up Button of intervention creation
         intervention_creation_button = (Button) v.findViewById(R.id.intervention_button);
@@ -87,15 +90,11 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
             public boolean validate() {
 
-                if (latitudeEditText.getText().toString().length() == 0) {
-                    latitudeEditText.setError("latitude est obligatoire!");
+                if (addressEditText.getText().toString().length() == 0) {
+                    addressEditText.setError(getString(R.string.error_field_required));
                     return false;
                 }
 
-                if (longitudeEditText.getText().toString().length() == 0) {
-                    longitudeEditText.setError("longitude est obligatoire!");
-                    return false;
-                }
                 showProgress(true);
                 return true;
             }
@@ -292,13 +291,35 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
     }
 
+    public Address getCoordinates() {
+        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+        List<Address> addressList = new ArrayList<>();
+        try {
+            addressList = geocoder.getFromLocationName(addressEditText.getText().toString(),1);
+            while (addressList.size()==0) {
+                addressList = geocoder.getFromLocationName(addressEditText.getText().toString(), 1);
+            }
+            if (addressList.size()>0) {
+                return addressList.get(0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public void onTaskCompleted(List<ResourceType> resourcesType){
         //Intervetion
         entity.Intervention intervention;
 
+        Address address = getCoordinates();
+
+        Log.i(TAG, "Latitude : "+ String.valueOf(address.getLatitude()));
+        Log.i(TAG, "Longitude : "+ String.valueOf(address.getLongitude()));
+
         //Les champs text sont toujours vérifié
-        intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()));
+        intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), address.getLatitude(), address.getLongitude());
 
         Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
 
