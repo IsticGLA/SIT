@@ -52,6 +52,6 @@
               </configuration>
           </plugin>
       </plugins>
-    <finalName>nivimo</finalName>
+    <finalName>nivimoju</finalName>
   </build>
 </project>
