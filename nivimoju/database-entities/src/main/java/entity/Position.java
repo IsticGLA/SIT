@@ -1,11 +1,13 @@
 package entity;
 
 
+import java.io.Serializable;
+
 /**
  * Created by arno on 09/03/15.
  */
 
-public class Position {
+public class Position implements Serializable {
 
     private double longitude;
     private double latitude;

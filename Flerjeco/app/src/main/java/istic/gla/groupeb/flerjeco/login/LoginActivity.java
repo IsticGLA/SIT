@@ -266,6 +266,7 @@ public class LoginActivity extends Activity {
             bundle.putSerializable("interventions", interventionTab);
             bundle.putSerializable("staticdatas", staticDataTab);
 
+
             intent.putExtras(bundle);
             startActivity(intent);
         }

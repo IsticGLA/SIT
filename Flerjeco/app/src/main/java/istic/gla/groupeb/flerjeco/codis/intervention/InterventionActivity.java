@@ -33,7 +33,6 @@ public class InterventionActivity extends FragmentActivity
 
     private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention[] interventionTab;
-    protected List<Intervention> interventionList;
     private int position=0;
     private InterventionFragment firstFragment;
 
@@ -49,7 +48,6 @@ public class InterventionActivity extends FragmentActivity
             for(int i=0;i<objects.length;i++) {
                 interventionTab[i] = (Intervention) objects[i];
             }
-            interventionList = Arrays.asList(interventionTab);
         }
 
         setContentView(R.layout.activity_list_interventions_codis);
@@ -112,12 +110,18 @@ public class InterventionActivity extends FragmentActivity
         }
     }
 
-    public List<Intervention> getInterventions() {
-        return interventionList;
+    public Intervention[] getInterventions() {
+        return interventionTab;
     }
 
     public void addIntervention(Intervention intervention) {
-        interventionList.add(intervention);
+        int oldLength = interventionTab.length;
+        Intervention[] tmpIntervention = interventionTab;
+        interventionTab = new Intervention[oldLength+1];
+        for(int i=0;i<oldLength;i++) {
+            interventionTab[i] = tmpIntervention[i];
+        }
+        interventionTab[oldLength] = intervention;
     }
 
     public void updateInterventions() {

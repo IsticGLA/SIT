@@ -1,7 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
+import entity.Position;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
-import istic.gla.groupb.nivimoju.drone.latlong.LatLong;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 

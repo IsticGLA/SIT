@@ -1,12 +1,13 @@
 package entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by jeremy on 13/04/15.
  */
-public class Path {
+public class Path implements Serializable {
 
     List<Position> positions;
     boolean closed;
