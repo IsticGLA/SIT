@@ -63,7 +63,7 @@ public class LatLongConverter {
     /**
      * Retourne les coordonnées locales correspondantes à une coordonnée latlong
      * @param latlong les coordonnées à transformer
-     * @return les coordonnées dans le système local
+     * @return les coordonnées dans le système local, à une altitude 0
      * @throws java.lang.IllegalArgumentException si les coordonnées demandées sont en dehors du périmètre de travail
      */
     public LocalCoordinate getLocal(Position latlong) throws IllegalArgumentException{
@@ -85,7 +85,7 @@ public class LatLongConverter {
         logger.debug(String.format("width:%s, ratioX:%s, offsetX:%s, x=>%s", width, ratioX, offsetX, x));
         logger.debug(String.format("height:%s, ratioY:%s, offsetY:%s, y=>%s", height, ratioY, offsetY, y));
 
-        return new LocalCoordinate(x, y, 20);
+        return new LocalCoordinate(x, y, 0);
     }
 
 

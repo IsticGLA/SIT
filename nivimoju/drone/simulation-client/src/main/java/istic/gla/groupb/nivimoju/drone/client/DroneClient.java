@@ -1,5 +1,6 @@
 package istic.gla.groupb.nivimoju.drone.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import entity.Position;
@@ -8,6 +9,7 @@ import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalPath;
 import org.apache.log4j.Logger;
 import org.springframework.http.*;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -35,11 +37,15 @@ public class DroneClient {
     }
 
     public String post(String uri, String json) {
-        logger.info("sending post request on " + server+uri + " with body \n" + json);
         HttpEntity<String> requestEntity = new HttpEntity<>(json, headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.POST, requestEntity, String.class);
-        this.setStatus(responseEntity.getStatusCode());
-        return responseEntity.getBody();
+        try {
+            ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.POST, requestEntity, String.class);
+            this.setStatus(responseEntity.getStatusCode());
+            return responseEntity.getBody();
+        } catch (RestClientException e){
+            logger.error("failed to post message", e);
+        }
+        return null;
     }
 
     public void put(String uri, String json) {
@@ -69,7 +75,7 @@ public class DroneClient {
         String res = post("robot/waypoint", json);
     }
 
-    public void postPath(LocalPath path) throws Exception {
+    public void postPath(LocalPath path) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(path);
         String res = post("robot/path", json);

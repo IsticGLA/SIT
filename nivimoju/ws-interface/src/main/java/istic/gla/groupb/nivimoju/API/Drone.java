@@ -32,6 +32,7 @@ public class Drone {
         Position position = new Position(latitude,longitude);
 
         LocalCoordinate local = converter.getLocal(position);
+        local.setZ(20);
         try {
             client.postWaypoint(local);
         } catch (Exception e) {

@@ -39,7 +39,9 @@ public class DroneEngine {
         List<LocalCoordinate> localCoordinates = new ArrayList<>();
         for(Position latLong : path.getPositions()){
             try{
-                localCoordinates.add(converter.getLocal(latLong));
+                LocalCoordinate coord = converter.getLocal(latLong);
+                coord.setZ(20);
+                localCoordinates.add(coord);
             } catch (IllegalArgumentException e){
                 logger.error("could not transfer " + latLong + " to local coordinates");
             }
