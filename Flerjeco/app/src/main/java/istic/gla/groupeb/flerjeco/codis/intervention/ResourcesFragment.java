@@ -58,7 +58,7 @@ public class ResourcesFragment extends Fragment {
         listViewRequests = (ListView) v.findViewById(R.id.listViewRequests);
 
         InterventionActivity interventionActivity = (InterventionActivity) getActivity();
-        updateResources(interventionActivity.getInterventions()[0]);
+        updateResources(interventionActivity.getInterventions().get(0));
 
         return v;
     }

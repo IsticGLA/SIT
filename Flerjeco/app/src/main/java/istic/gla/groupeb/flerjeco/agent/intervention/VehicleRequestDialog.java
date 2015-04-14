@@ -54,6 +54,9 @@ public class VehicleRequestDialog extends DialogFragment {
     private View mProgressView;
     private View mVehicleFormView;
 
+    private ResourceTypesTask resourceTypesTask;
+    private ResourceRequestTask resourceRequestTask;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -67,7 +70,9 @@ public class VehicleRequestDialog extends DialogFragment {
 
         showProgress(true);
 
-        new ResourceTypesTask().execute();
+        resourceTypesTask = new ResourceTypesTask();
+        resourceTypesTask.execute();
+
         //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
         //        R.array.vehicles_array, android.R.layout.simple_spinner_item);
         //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -86,8 +91,18 @@ public class VehicleRequestDialog extends DialogFragment {
 
     public void validate(String vehicle) {
         this.dismiss();
-        new ResourceRequestTask().execute(intervention, vehicle);
+        resourceRequestTask = new ResourceRequestTask();
+        resourceRequestTask.execute(intervention, vehicle);
         Toast.makeText(getActivity(), "" + vehicle, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(resourceTypesTask != null)
+            resourceTypesTask.cancel(true);
+        else if (resourceRequestTask != null)
+            resourceRequestTask.cancel(true);
     }
 
     /**
@@ -158,12 +173,6 @@ public class VehicleRequestDialog extends DialogFragment {
             spinner.setAdapter(spinnerAdapter);
 
         }
-
-        @Override
-        protected void onCancelled() {
-            showProgress(false);
-        }
-
     }
 
     private class ResourceRequestTask extends AsyncTask<Object, Void, Long> {

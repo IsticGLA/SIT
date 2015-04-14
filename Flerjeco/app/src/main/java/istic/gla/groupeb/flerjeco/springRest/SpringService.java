@@ -61,7 +61,7 @@ public class SpringService {
     }
 
 
-    public long postIntervention(Intervention intervention) {
+    public Intervention postIntervention(Intervention intervention) {
         try {
 
             final String url = URL + "intervention/create";
@@ -74,11 +74,11 @@ public class SpringService {
             if (intervetionResult == null) {
                 Log.i("MAMH", "intervetionResult = null");
             } else
-                return intervetionResult.getBody().getId();
+                return intervetionResult.getBody();
         } catch (HttpStatusCodeException e) {
             Log.i("MAMH", "Problème de la création de l'intervention : " + e.getMessage());
         }
-        return 0;
+        return null;
     }
 
     public String login(String id, String password) {

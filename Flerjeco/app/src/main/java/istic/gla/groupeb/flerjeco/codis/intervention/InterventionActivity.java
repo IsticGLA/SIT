@@ -21,10 +21,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
+import java.util.Arrays;
+import java.util.List;
 
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.VehicleRequestDialog;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class InterventionActivity extends FragmentActivity
@@ -32,7 +33,9 @@ public class InterventionActivity extends FragmentActivity
 
     private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention[] interventionTab;
+    protected List<Intervention> interventionList;
     private int position=0;
+    private InterventionFragment firstFragment;
 
     /** Called when the activity is first created. */
     @Override
@@ -46,6 +49,7 @@ public class InterventionActivity extends FragmentActivity
             for(int i=0;i<objects.length;i++) {
                 interventionTab[i] = (Intervention) objects[i];
             }
+            interventionList = Arrays.asList(interventionTab);
         }
 
         setContentView(R.layout.activity_list_interventions_codis);
@@ -62,7 +66,7 @@ public class InterventionActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            InterventionFragment firstFragment = new InterventionFragment();
+            firstFragment = new InterventionFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -108,8 +112,16 @@ public class InterventionActivity extends FragmentActivity
         }
     }
 
-    public Intervention[] getInterventions() {
-        return interventionTab;
+    public List<Intervention> getInterventions() {
+        return interventionList;
+    }
+
+    public void addIntervention(Intervention intervention) {
+        interventionList.add(intervention);
+    }
+
+    public void updateInterventions() {
+        ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
     }
 
     public void showDialogIntervention(View view) {
