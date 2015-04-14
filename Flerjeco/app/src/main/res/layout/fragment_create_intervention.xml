@@ -79,25 +79,12 @@
                 android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/lat"
+                    android:id="@+id/address"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="0.5"
-                    android:hint="lat"
-
-                    android:inputType="numberDecimal"
-                    android:maxLines="1"
-                    android:singleLine="true" />
-
-                <EditText
-                    android:id="@+id/lng"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="0.5"
-                    android:hint="lng"
-                    android:inputType="numberDecimal"
-                    android:maxLines="1"
-                    android:singleLine="true" />
+                    android:hint="@string/intervention_address"
+                    android:inputType="text"/>
             </LinearLayout>
 
             <Button

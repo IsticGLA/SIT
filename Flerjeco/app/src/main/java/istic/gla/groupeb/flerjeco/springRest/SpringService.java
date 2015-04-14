@@ -1,5 +1,8 @@
 package istic.gla.groupeb.flerjeco.springRest;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import org.springframework.http.HttpMethod;
@@ -25,7 +28,7 @@ public class SpringService {
 
 
     public SpringService(){
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+        //restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
     }
 
@@ -90,13 +93,13 @@ public class SpringService {
             intervention.updateDate();
             final String url = URL + "intervention/update";
 
-            ResponseEntity<Intervention> intervetionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
+            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
 
-            if (intervetionResult == null) {
+            if (interventionResult == null) {
                 Log.i("MAMH", "intervetionResult = null");
             } else
-                Log.i(TAG, intervetionResult.toString());
-                return intervetionResult.getBody();
+                Log.i(TAG, interventionResult.toString());
+                return interventionResult.getBody();
         } catch (HttpStatusCodeException e) {
             Log.i("MAMH", "Problème de l'update de l'intervention : " + e.getMessage());
         }
