@@ -158,17 +158,31 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         Button button = (Button) findViewById(R.id.buttonCreatePath);
+        Button cancel = (Button) findViewById(R.id.buttonCancel);
+        Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
 
         if (!editionMode) {
-            editionMode = true;
             Log.i(TAG, "Mode d'édition du trajet");
+            editionMode = true;
+
+            // unselect on the listView
+            DroneListFragment droneListFragment = (DroneListFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
+            droneListFragment.unCheckedListView();
+
+            // begin the creation of the new path (add event on Google Map)
             mapFragment.createPath();
+
+            // show edit mode buttons
             button.setText(getString(R.string.finish_edition));
+            cancel.setVisibility(View.VISIBLE);
+            removeLast.setVisibility(View.VISIBLE);
             checkBox.setVisibility(View.VISIBLE);
         } else  {
-            button.setText(getString(R.string.create_path));
-            checkBox.setVisibility(View.GONE);
+            // Reset button and checkbox
+            resetButton();
+            // send the newPath on databse
             mapFragment.sendPath();
         }
     }
@@ -179,10 +193,37 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         mapFragment.closePath();
     }
 
+    public void removeLastPoint(View v){
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.removeLastPoint();
+    }
+
+    public void cancel(View v){
+        resetButton();
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.resetMapListener();
+        mapFragment.clearGoogleMap();
+    }
+
+    public void resetButton(){
+        Button button = (Button) findViewById(R.id.buttonCreatePath);
+        Button cancel = (Button) findViewById(R.id.buttonCancel);
+        Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
+        CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
+        button.setText(getString(R.string.create_path));
+        checkBox.setChecked(false);
+        checkBox.setVisibility(View.GONE);
+        removeLast.setVisibility(View.GONE);
+        cancel.setVisibility(View.GONE);
+        editionMode = false;
+    }
+
     public void refreshList(Intervention intervention){
         this.intervention = intervention;
         DroneListFragment droneListFragment = (DroneListFragment)
-                getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        droneListFragment.refresh();
+                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
+        droneListFragment.refresh(intervention);
     }
 }

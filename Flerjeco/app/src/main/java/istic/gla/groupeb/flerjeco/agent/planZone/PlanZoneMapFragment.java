@@ -128,7 +128,10 @@ public class PlanZoneMapFragment extends Fragment {
                 marker.icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
                 // adding marker
-                googleMap.addMarker(marker);
+                Marker m = googleMap.addMarker(marker);
+
+                // add the marker on the markers list
+                markers.add(m);
 
                 // Set the Position on newPath
                 newPath.getPositions().add(new Position(latitude, longitude, 20));
@@ -177,7 +180,10 @@ public class PlanZoneMapFragment extends Fragment {
                 marker.icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
                 // adding marker
-                googleMap.addMarker(marker);
+                Marker m = googleMap.addMarker(marker);
+
+                // add the marker on the markers list
+                markers.add(m);
 
                 // draw line between two points if is not the first
                 if (i > 0){
@@ -215,9 +221,14 @@ public class PlanZoneMapFragment extends Fragment {
      * Send the new path in the database
      */
     public void sendPath(){
+        resetMapListener();
         Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
         inter.getWatchPath().add(newPath);
         new SendPathToDrone().execute(inter);
+    }
+
+    public void resetMapListener(){
+        googleMap.setOnMapClickListener(null);
     }
 
     public void closePath(){
@@ -225,13 +236,7 @@ public class PlanZoneMapFragment extends Fragment {
             Log.i(TAG, "Close the new path");
             newPath.setClosed(true);
 
-            // if there are at least two points in the path
-            if (newPath.getPositions().size() > 2) {
-                LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
-                LatLng lastLatLng = new LatLng(newPath.getPositions().get(newPath.getPositions().size() - 1).getLatitude(),
-                        newPath.getPositions().get(newPath.getPositions().size() - 1).getLongitude());
-                drawLine(firstLatLng, lastLatLng);
-            }
+            drawClosePolyline();
         } else {
             Log.i(TAG, "Open the new path");
             newPath.setClosed(false);
@@ -240,6 +245,16 @@ public class PlanZoneMapFragment extends Fragment {
             if (newPath.getPositions().size() > 3) {
                 removeLine(polylines.size() - 1);
             }
+        }
+    }
+
+    public void drawClosePolyline(){
+        // if there are at least two points in the path
+        if (newPath.getPositions().size() > 2) {
+            LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
+            LatLng lastLatLng = new LatLng(newPath.getPositions().get(newPath.getPositions().size() - 1).getLatitude(),
+                    newPath.getPositions().get(newPath.getPositions().size() - 1).getLongitude());
+            drawLine(firstLatLng, lastLatLng);
         }
     }
 
@@ -254,6 +269,24 @@ public class PlanZoneMapFragment extends Fragment {
         Log.i(TAG, "Remove the polyline at the " + i + " position");
         polylines.get(i).remove();
         polylines.remove(i);
+    }
+
+    public void removeLastPoint(){
+        Log.i(TAG, "Remove the last position on the path");
+        int i = markers.size()-1;
+        markers.get(i).remove();
+        markers.remove(i);
+        newPath.getPositions().remove(i);
+        // remove the last polyline if there is at least one polyline
+        if (polylines.size() > 0) {
+            removeLine(polylines.size() - 1);
+        }
+        // remove the polyline which close the path is isClosed is true
+        if (polylines.size() > 1 && newPath.isClosed()){
+            removeLine(polylines.size() - 1);
+            // closed the path
+            drawClosePolyline();
+        }
     }
 
     @Override
@@ -309,7 +342,7 @@ public class PlanZoneMapFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(), "La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer", Toast.LENGTH_LONG).show();
             } else {
                 Log.i(TAG, "Intervention was updated !");
-                Toast.makeText(getActivity().getApplicationContext(), "Le chemin à été créé", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(), "Le trajet à été créé", Toast.LENGTH_LONG).show();
                 Log.i(TAG, intervention.toString());
                 pathList = intervention.getWatchPath();
                 updateMapView(pathList.size() - 1);
