@@ -1,5 +1,6 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,34 +18,38 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import entity.Intervention;
 import entity.Path;
 import entity.Position;
-import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import util.ResourceCategory;
 
 /**
  * A fragment that launches other parts of the demo application.
  */
 public class PlanZoneMapFragment extends Fragment {
 
+    private static final String TAG = PlanZoneMapFragment.class.getSimpleName();
     final static String ARG_POSITION = "position";
 
     MapView mMapView;
     private GoogleMap googleMap;
+    private List<Polyline> polylines;
+    private List<Marker> markers;
     int mCurrentPosition = -1;
-    boolean editMode = false;
 
-    private List<Resource> droneList;
     private List<Path> pathList;
+    private Path newPath;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,28 +70,15 @@ public class PlanZoneMapFragment extends Fragment {
 
         googleMap = mMapView.getMap();
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(48.11705, -1.63825)).zoom(16).build();
+        PlanZoneActivity activity = (PlanZoneActivity) getActivity();
 
+        // Center the camera on the intervention position
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(activity.getIntervention().getLatitude(), activity.getIntervention().getLongitude())).zoom(16).build();
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
 
-
-
-        /*googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                if (editMode) {
-                    double latitude = latLng.latitude;
-                    double longitude = latLng.longitude;
-                    Log.i(getActivity().getLocalClassName(), "Click on the Map at " + latitude + ", " + longitude);
-                    new SendLocationToDrone().execute(latitude, longitude);
-                }
-            }
-        });*/
-
-        PlanZoneActivity activity = (PlanZoneActivity) getActivity();
-        initMap(activity.getResourceEntities(), activity.getPaths());
+        initMap(activity.getPaths());
 
         return v;
     }
@@ -108,64 +101,159 @@ public class PlanZoneMapFragment extends Fragment {
         }
     }
 
-    public void updateMapView(final int position) {
-        googleMap.clear();
-        if (null != pathList.get(position)){
-            mCurrentPosition = position;
-            Resource res = droneList.get(position);
-            LatLngBounds.Builder bounds = new LatLngBounds.Builder();
-            for (Position p : pathList.get(position).getPositions()){
-                bounds.include(new LatLng(p.getLatitude(), p.getLongitude()));
+    /**
+     * Creation of the new path
+     */
+    public void createPath(){
+        // clear the Google Map
+        clearGoogleMap();
+
+        // Add clickListener on the map two save positions in new path
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                double latitude = latLng.latitude;
+                double longitude = latLng.longitude;
+                Log.i("Click on the map", "latitude : " + latitude + ", " + "longitude : " + longitude);
+
+                //if there are at least two polyline on the Google Map and newPath is closed, remove the last one
+                if (polylines.size() > 2 && newPath.isClosed()) {
+                    removeLine(polylines.size() - 1);
+                }
 
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(
-                        new LatLng(p.getLatitude(), p.getLongitude())).title(res.getLabel());
+                        new LatLng(latitude, longitude)).title("new Path");
                 // Changing marker icon
                 marker.icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
                 // adding marker
                 googleMap.addMarker(marker);
+
+                // Set the Position on newPath
+                newPath.getPositions().add(new Position(latitude, longitude, 20));
+
+                int size = newPath.getPositions().size();
+                // draw line between two points if is not the first
+                if (size > 1) {
+                    Log.i(TAG, "Size > 1 " + size);
+                    LatLng previousLatLng = new LatLng(newPath.getPositions().get(size - 2).getLatitude(), newPath.getPositions().get(size - 2).getLongitude());
+                    drawLine(latLng, previousLatLng);
+                    // else if it the path is closed, draw line between first and last point
+                }
+                if (size > 2 && newPath.isClosed()) {
+                    Log.i(TAG, "Size > 2 and newPath.isClosed == true " + size);
+                    LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
+                    drawLine(firstLatLng, latLng);
+                }
+            }
+        });
+    }
+
+    /**
+     * Update the Google Map with the path you just clicked
+     * @param position position of the path you clicked in the list
+     */
+    public void updateMapView(int position) {
+        // clear the Google Map
+        clearGoogleMap();
+
+        // if path of the position position in the list is not null, we draw it on the map
+        if (null != pathList.get(position)){
+            // Set mCurrentPosition to future resume on fragment
+            mCurrentPosition = position;
+
+            List<Position> positions = pathList.get(position).getPositions();
+
+            // Create LatLngBound to zoom on the set of positions in the path
+            LatLngBounds.Builder bounds = new LatLngBounds.Builder();
+            for (int i = 0; i < positions.size(); i++){
+                LatLng latLng = new LatLng(positions.get(i).getLatitude(), positions.get(i).getLongitude());
+                bounds.include(latLng);
+
+                // create marker
+                MarkerOptions marker = new MarkerOptions().position(latLng);
+                // Changing marker icon
+                marker.icon(BitmapDescriptorFactory
+                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                // adding marker
+                googleMap.addMarker(marker);
+
+                // draw line between two points if is not the first
+                if (i > 0){
+                    LatLng previousLatLng = new LatLng(positions.get(i-1).getLatitude(), positions.get(i-1).getLongitude());
+                    drawLine(latLng, previousLatLng);
+                // else if it the path is closed, draw line between first and last point
+                } if (i == positions.size()-1 && pathList.get(position).isClosed()){
+                    LatLng firstLatLng = new LatLng(positions.get(0).getLatitude(), positions.get(0).getLongitude());
+                    drawLine(firstLatLng, latLng);
+                }
             }
             googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
-        } else {
-            Log.i("TEST", "test");
-            googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng latLng) {
-                    double latitude = latLng.latitude;
-                    double longitude = latLng.longitude;
-                    Log.i("Click on the map", "latitude : " + latitude + ", " + "longitude : " + longitude);
-
-                    // create marker
-                    MarkerOptions marker = new MarkerOptions().position(
-                            new LatLng(latitude, longitude)).title("new Path");
-                    // Changing marker icon
-                    marker.icon(BitmapDescriptorFactory
-                            .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                    // adding marker
-                    googleMap.addMarker(marker);
-                }
-            });
         }
     }
 
-    public void initMap(List<Resource> droneList, List<Path> pathList){
-        this.droneList = new ArrayList<>();
-        for (Resource res : droneList){
-            if (res.getResourceCategory() == ResourceCategory.drone){
-                this.droneList.add(res);
+    /**
+     * Init the Google Map
+     * @param pathList
+     */
+    public void initMap(List<Path> pathList){
+        this.pathList = pathList;
+        this.polylines = new ArrayList<>();
+        this.markers = new ArrayList<>();
+        this.newPath = new Path();
+    }
 
-                // create marker
-                MarkerOptions marker = new MarkerOptions().position(
-                        new LatLng(res.getLatitude(), res.getLongitude())).title(res.getLabel());
-                // Changing marker icon
-                marker.icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
-                // adding marker
-                googleMap.addMarker(marker);
+    public void clearGoogleMap(){
+        googleMap.clear();
+        this.polylines = new ArrayList<>();
+        this.markers = new ArrayList<>();
+        this.newPath = new Path();
+    }
+
+    /**
+     * Send the new path in the database
+     */
+    public void sendPath(){
+        Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
+        inter.getWatchPath().add(newPath);
+        new SendPathToDrone().execute(inter);
+    }
+
+    public void closePath(){
+        if (!newPath.isClosed()) {
+            Log.i(TAG, "Close the new path");
+            newPath.setClosed(true);
+
+            // if there are at least two points in the path
+            if (newPath.getPositions().size() > 2) {
+                LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
+                LatLng lastLatLng = new LatLng(newPath.getPositions().get(newPath.getPositions().size() - 1).getLatitude(),
+                        newPath.getPositions().get(newPath.getPositions().size() - 1).getLongitude());
+                drawLine(firstLatLng, lastLatLng);
+            }
+        } else {
+            Log.i(TAG, "Open the new path");
+            newPath.setClosed(false);
+
+            // if there are at least three points in newPath
+            if (newPath.getPositions().size() > 3) {
+                removeLine(polylines.size() - 1);
             }
         }
-        this.pathList = pathList;
+    }
+
+    public void drawLine(LatLng first, LatLng last){
+        Polyline line = googleMap.addPolyline((new PolylineOptions())
+                .add(first, last).width(3).color(Color.BLUE)
+                .geodesic(true));
+        polylines.add(line);
+    }
+
+    public void removeLine(int i){
+        Log.i(TAG, "Remove the polyline at the " + i + " position");
+        polylines.get(i).remove();
+        polylines.remove(i);
     }
 
     @Override
@@ -193,27 +281,40 @@ public class PlanZoneMapFragment extends Fragment {
     }
 
     /**
-     * Represents an asynchronous call for move drone to location you clicked
+     * Represents an asynchronous call for add new path for drone in the current intervention
      * the user.
      */
-    public class SendLocationToDrone extends AsyncTask<Object, Void, Long> {
+    public class SendPathToDrone extends AsyncTask<Intervention, Void, Intervention> {
+
+        private final String TAG = SendPathToDrone.class.getSimpleName();
 
         @Override
-        protected Long doInBackground(Object... params) {
+        protected Intervention doInBackground(Intervention... params) {
             try {
-                Long id = new SpringService().moveDrone(params);
-                return id;
+                Log.i(TAG, "Update of the intervention with id : "+ params[0].getId());
+                Intervention intervention = new SpringService().updateIntervention(params[0]);
+                return intervention;
 
             } catch (HttpStatusCodeException e) {
-                Log.e("Drone don't move", e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
 
             return null;
         }
 
         @Override
-        protected void onPostExecute(Long id) {
-            Log.i("SendLocationToDrone", "Request posted");
+        protected void onPostExecute(Intervention intervention) {
+            if (null == intervention){
+                Log.i(TAG, "La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer");
+                Toast.makeText(getActivity().getApplicationContext(), "La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer", Toast.LENGTH_LONG).show();
+            } else {
+                Log.i(TAG, "Intervention was updated !");
+                Toast.makeText(getActivity().getApplicationContext(), "Le chemin à été créé", Toast.LENGTH_LONG).show();
+                Log.i(TAG, intervention.toString());
+                pathList = intervention.getWatchPath();
+                updateMapView(pathList.size() - 1);
+                ((PlanZoneActivity) getActivity()).refreshList(intervention);
+            }
         }
     }
 }

@@ -52,6 +52,25 @@ public class Intervention {
 
     }
 
+    /**
+     * Update an intervention
+     * @param intervention
+     * @return The id of the updated intervention
+     */
+    @Path("/update")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateIntervention(
+            entity.Intervention intervention) {
+        InterventionDAO interventionDAO= new InterventionDAO();
+        interventionDAO.connect();
+        entity.Intervention result = interventionDAO.update(intervention);
+        interventionDAO.disconnect();
+        return  Response.ok(result).build();
+
+    }
+
     /*
 
     /**
