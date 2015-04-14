@@ -1,6 +1,7 @@
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -28,6 +29,7 @@ import entity.Marker;
 import entity.Resource;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import util.ResourceRole;
 import util.State;
@@ -38,7 +40,7 @@ import util.State;
 public class MapFragment extends Fragment {
 
     final static String ARG_POSITION = "position";
-    final static String STATIC_DATA = "static_data";
+    final static String STATIC_DATA = "staticdatas";
 
     MapView mMapView;
     private GoogleMap googleMap;
@@ -70,7 +72,7 @@ public class MapFragment extends Fragment {
         Bundle args = getArguments();
         if (args != null) {
             // Set article based on argument passed in
-            Object[] objects1 = (Object[]) args.getSerializable("staticdatas");
+            Object[] objects1 = (Object[]) args.getSerializable(STATIC_DATA);
             staticDataTab = new StaticData[objects1.length];
             for (int i = 0; i < objects1.length; i++) {
                 staticDataTab[i] = (StaticData) objects1[i];
@@ -176,13 +178,23 @@ public class MapFragment extends Fragment {
     }
 
     public void drawStaticMarker(MarkerOptions markerOptions, StaticData data){
+        Bitmap bmp = null;
         switch (data.getMarkerType()){
             case waterSource:
+                bmp = BitmapFactory.decodeResource(getResources(), R.drawable.watersource);
                 break;
             case danger:
+                Danger danger = new Danger();
+                bmp = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
+                Canvas mCanvas = new Canvas(bmp);
+                danger.drawDanger(mCanvas);
                 break;
             case incident:
+                bmp = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
                 break;
+        }
+        if (bmp != null) {
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bmp));
         }
     }
 

@@ -16,9 +16,11 @@
 package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 
 import java.io.Serializable;
@@ -28,6 +30,7 @@ import entity.Intervention;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class ListInterventionsActivity extends FragmentActivity
@@ -50,13 +53,10 @@ public class ListInterventionsActivity extends FragmentActivity
             for(int i=0;i<objects.length;i++) {
                 interventionTab[i] = (Intervention) objects[i];
             }
-            Object[] objects1 = (Object[]) extras.getSerializable("staticdatas");
-            staticDataTab = new StaticData[objects1.length];
-            for (int i=0; i<objects1.length; i++){
-                staticDataTab[i] = (StaticData) objects1[i];
-            }
-
         }
+
+        GetAllStaticDataTask mGetAllStaticDataTask = new GetAllStaticDataTask();
+        mGetAllStaticDataTask.execute((Void)null);
 
         setContentView(R.layout.activity_list_interventions);
 
@@ -105,7 +105,7 @@ public class ListInterventionsActivity extends FragmentActivity
             mapFragment = new MapListInterventionsFragment();
             Bundle args = new Bundle();
             args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
-            args.putSerializable("staticdata", getStaticDatas());
+            args.putSerializable("staticdatas", getStaticDatas());
             mapFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -132,9 +132,44 @@ public class ListInterventionsActivity extends FragmentActivity
         Bundle bundle = new Bundle();
 
         bundle.putSerializable("intervention", getInterventions()[position]);
-        bundle.putSerializable("staticdata", getStaticDatas());
+        bundle.putSerializable("staticdatas", getStaticDatas());
 
         intent.putExtras(bundle);
         startActivity(intent);
+    }
+
+    /**
+     * Represents an asynchronous Task that gets the static data
+     * and give it to the next activity to display it
+     */
+    public class GetAllStaticDataTask extends AsyncTask<Void, Void, Boolean> {
+
+        private StaticData[] staticDataTab;
+
+        public GetAllStaticDataTask() {
+
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            SpringService service = new SpringService();
+            staticDataTab = service.getAllStaticDatas();
+            Log.i(TAG, "staticdataTab size : " + staticDataTab.length);
+            Log.i(TAG, "doInBackground end");
+            return true;
+        }
+
+        /*@Override
+        protected void onPostExecute(final Boolean success) {
+
+            Intent intent = new Intent(ListInterventionsActivity.this, SecondActivity.class);
+
+            Bundle bundle = new Bundle();
+
+            bundle.putSerializable("staticdatas", staticDataTab);
+
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }*/
     }
 }

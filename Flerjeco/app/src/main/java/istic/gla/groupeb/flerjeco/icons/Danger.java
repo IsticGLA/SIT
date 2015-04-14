@@ -1,5 +1,6 @@
 package istic.gla.groupeb.flerjeco.icons;
 
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -52,6 +53,10 @@ public class Danger {
             default:
                 paint.setColor(Color.BLACK);
         }
+    }
+
+    public void drawDanger(Canvas mCanvas){
+        mCanvas.drawPath(triangle, paint);
     }
 
     public Path getTriangle() {
