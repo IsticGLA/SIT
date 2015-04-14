@@ -8,9 +8,15 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.Messenger;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -20,22 +26,27 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import org.springframework.web.client.HttpStatusCodeException;
+
 import entity.Intervention;
+import entity.ResourceType;
+import istic.gla.groupeb.flerjeco.ISynchTool;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionDialogFragment;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.SynchService;
 
 
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity implements ISynchTool{
     private static final String TAG = LoginActivity.class.getSimpleName();
+
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -52,6 +63,34 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        Intent i=new Intent(this, SynchService.class);
+        i.putExtra("handler", new Messenger(this.handler));
+
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                display();
+            }
+        };
+
+        i.putExtra("displaySynch", displaySynch);
+
+        Log.i("MAMH", i.toString());
+        this.startService(i);
+
+        display();
+    }
+
+
+
+    @Override
+    public void display() {
+
+
+        Log.i("MAMH", "LoginActivity display");
+
+        new ResourceTypeSynch().execute();
 
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);
@@ -79,6 +118,54 @@ public class LoginActivity extends Activity {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
+
+
+    // Backgroud task to post intervention
+    private class ResourceTypeSynch extends AsyncTask<entity.Intervention, Void, ResourceType> {
+
+        @Override
+        protected ResourceType doInBackground(entity.Intervention... params) {
+            try {
+
+                SpringService springService = new SpringService();
+
+                return  springService.getResourceTypeById(1L);
+            } catch (HttpStatusCodeException e) {
+                Log.e("InterventionActivity", e.getMessage(), e);
+
+            }
+            return  null;
+
+        }
+
+        @Override
+        protected void onPostExecute(ResourceType resultPost) {
+            test  = (TextView) findViewById(R.id.editText_test);
+            if(resultPost != null)
+                test.setText(resultPost.getLabel());
+            else Toast.makeText(LoginActivity.this, "Label est null", Toast.LENGTH_LONG).show();
+
+        }
+
+    }
+
+
+    TextView test ;
+    Handler handler=new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg) {
+            //get data from msg
+
+            test  = (TextView) findViewById(R.id.editText_test);
+            String result=msg.getData().getString("result");
+            test.setText(result);
+            Log.d("xxxxx", "get data " + result);
+
+
+            super.handleMessage(msg);
+        }
+    };
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -271,6 +358,25 @@ public class LoginActivity extends Activity {
 
             intent.putExtras(bundle);
             startActivity(intent);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_logout, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                // Comportement du bouton "A Propos"
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
