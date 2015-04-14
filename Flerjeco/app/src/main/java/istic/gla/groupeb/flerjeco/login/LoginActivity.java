@@ -86,7 +86,7 @@ public class LoginActivity extends Activity implements ISynchTool{
 
         Log.i("MAMH", "LoginActivity display");
 
-        callSynch();
+        new ResourceTypeSynch().execute();
 
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);
@@ -114,13 +114,6 @@ public class LoginActivity extends Activity implements ISynchTool{
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
-
-
-
-    public void callSynch(){
-        new ResourceTypeSynch().execute();
-    }
-
 
 
     // Backgroud task to post intervention

@@ -25,11 +25,14 @@ public class SpringService {
 
     boolean test = true;
 
+    /**
+     * get resource by id
+     * @param idRes id of the resource to get
+     * @return the resource type retrieved
+     */
     public ResourceType getResourceTypeById(Long idRes){
 
-
         final String url = URL + "resource/"+idRes;
-
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -43,11 +46,14 @@ public class SpringService {
         return rt;
     }
 
+    /**
+     * Get incident codes
+     * @return array of IncidentCode
+     * @throws HttpStatusCodeException throw exception if status code is bad
+     */
     public IncidentCode[] codeSinistreClient() throws HttpStatusCodeException {
 
-
         final String url = URL + "incidentcode";
-
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -64,6 +70,11 @@ public class SpringService {
     }
 
 
+    /**
+     * Create intervention
+     * @param intervention intervention to be created
+     * @return id of the intervention created
+     */
     public long postIntervention(Intervention intervention) {
         try {
 
@@ -84,6 +95,12 @@ public class SpringService {
         return 0;
     }
 
+    /**
+     *
+     * @param id
+     * @param password
+     * @return
+     */
     public String login(String id, String password) {
         Log.i(TAG, "login start");
         final String url = URL + "authentication/connected/" + id + "/" + password;
@@ -103,6 +120,10 @@ public class SpringService {
         return httpResult;
     }
 
+    /**
+     * get a notification from server
+     * @return intervention to update
+     */
     public Intervention getNotify() {
         Log.i(TAG, "notify start");
         final String url = URL + "notify";
