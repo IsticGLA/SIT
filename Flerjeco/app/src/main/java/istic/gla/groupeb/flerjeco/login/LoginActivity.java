@@ -34,6 +34,7 @@ import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.ISynchTool;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.MyApp;
+import istic.gla.groupeb.flerjeco.MyStaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
@@ -64,7 +65,7 @@ public class LoginActivity extends Activity implements ISynchTool{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Intent i=new Intent(this, SynchService.class);
+       /* Intent i=new Intent(this, SynchService.class);
         i.putExtra("handler", new Messenger(this.handler));
 
         DisplaySynch displaySynch = new DisplaySynch() {
@@ -77,7 +78,7 @@ public class LoginActivity extends Activity implements ISynchTool{
         i.putExtra("displaySynch", displaySynch);
 
         Log.i("MAMH", i.toString());
-        this.startService(i);
+        this.startService(i);*/
 
         display();
     }
@@ -286,7 +287,6 @@ public class LoginActivity extends Activity implements ISynchTool{
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
             showProgress(false);
-
             MyApp myApp = MyApp.getInstance();
             boolean isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
             myApp.setCodisUser(isCodis);
@@ -321,7 +321,6 @@ public class LoginActivity extends Activity implements ISynchTool{
     public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
         private Intervention[] interventionTab;
-        private StaticData[] staticDataTab;
         private boolean isCodis;
 
         public GetAllInterventionTask(boolean isCodis) {

@@ -1,12 +1,11 @@
 package istic.gla.groupeb.flerjeco.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
+import android.widget.CheckBox;
 
 import java.util.List;
 
@@ -24,7 +23,7 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
 
     private static class ViewHolder {
         public IconView iconViewResource;
-        public ImageView imageViewStateResource;
+        public CheckBox checkBoxResource;
     }
 
     public ResourceAdapter(Context context, int resource, List<Resource> resources) {
@@ -40,7 +39,7 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
             // configure view holder
             viewHolder = new ViewHolder();
             viewHolder.iconViewResource = (IconView) convertView.findViewById(R.id.iconViewResource);
-            viewHolder.imageViewStateResource = (ImageView) convertView.findViewById(R.id.imageViewStateResource);
+            viewHolder.checkBoxResource = (CheckBox) convertView.findViewById(R.id.checkboxResource);
             convertView.setTag(viewHolder);
         }else{
             viewHolder = (ViewHolder) convertView.getTag();
@@ -50,31 +49,6 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
 
         Vehicle vehicle = new Vehicle(resource.getLabel());
         viewHolder.iconViewResource.setmVehicle(vehicle);
-
-        Drawable drawable;
-
-        switch (resource.getState()){
-            case active:
-                drawable = convertView.getResources().getDrawable(android.R.drawable.presence_online);
-                break;
-            case planned:
-                drawable = convertView.getResources().getDrawable(android.R.drawable.presence_online);
-                break;
-            case validated:
-                drawable = convertView.getResources().getDrawable(android.R.drawable.presence_online);
-                break;
-            case waiting:
-                drawable = convertView.getResources().getDrawable(android.R.drawable.presence_away);
-                break;
-            case refused:
-                drawable = convertView.getResources().getDrawable(android.R.drawable.presence_busy);
-                break;
-            default:
-                drawable = convertView.getResources().getDrawable(android.R.drawable.presence_away);
-                break;
-        }
-
-        viewHolder.imageViewStateResource.setImageDrawable(drawable);
 
         return convertView;
     }

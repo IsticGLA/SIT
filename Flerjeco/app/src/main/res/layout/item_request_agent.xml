@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<istic.gla.groupeb.flerjeco.agent.intervention.CheckableLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content">
@@ -11,12 +11,11 @@
         android:id="@+id/iconViewResource"
         android:layout_weight="5" />
 
-    <istic.gla.groupeb.flerjeco.agent.intervention.CustomCheckBox
+    <ImageView
         android:layout_width="0dp"
         android:layout_height="20dp"
         android:layout_gravity="center"
-        android:id="@+id/checkboxResource"
-        android:layout_weight="1"
-        android:focusable="false" />
+        android:id="@+id/imageViewStateResource"
+        android:layout_weight="1" />
 
-</istic.gla.groupeb.flerjeco.agent.intervention.CheckableLinearLayout>
+</LinearLayout>
