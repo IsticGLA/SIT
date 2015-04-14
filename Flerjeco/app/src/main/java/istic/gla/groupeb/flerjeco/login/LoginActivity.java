@@ -120,7 +120,7 @@ public class LoginActivity extends Activity implements ISynchTool{
     }
 
 
-    // Backgroud task to post intervention
+    // Backgroud task to get notify
     private class ResourceTypeSynch extends AsyncTask<entity.Intervention, Void, ResourceType> {
 
         @Override
