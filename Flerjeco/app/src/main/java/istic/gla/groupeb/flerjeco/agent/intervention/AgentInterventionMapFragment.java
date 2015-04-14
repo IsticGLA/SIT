@@ -222,7 +222,7 @@ public class AgentInterventionMapFragment extends Fragment {
                 break;
             case danger:
                 Danger danger = new Danger();
-                bmp = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
+                bmp = Bitmap.createBitmap(60, 60, Bitmap.Config.ARGB_8888);
                 Canvas mCanvas = new Canvas(bmp);
                 danger.drawDanger(mCanvas);
                 break;
