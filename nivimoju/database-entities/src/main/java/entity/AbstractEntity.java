@@ -54,4 +54,8 @@ public abstract class AbstractEntity  implements Serializable {
     public Timestamp getLastUpdate() {
         return lastUpdate;
     }
+
+    public void setLastUpdate(Timestamp lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 }

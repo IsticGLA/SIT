@@ -164,6 +164,7 @@ public class VehicleRequestDialog extends DialogFragment {
             if(resources != null && resources.length > 0 ) {
                 for (int i = 0; i < resources.length; i++) {
                     spinnerMap.put(resources[i].getLabel(), resources[i].getId());
+                    //TODO if(resources[i].getCategorie().equals(Categorie.vehicle)
                     spinnerArray[i] = resources[i].getLabel();
                 }
             }

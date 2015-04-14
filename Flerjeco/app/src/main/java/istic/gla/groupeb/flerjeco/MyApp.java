@@ -2,6 +2,9 @@ package istic.gla.groupeb.flerjeco;
 
 import android.app.Application;
 
+import entity.StaticData;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
+
 /**
  * Created by corentin on 09/04/15.
  */
@@ -9,6 +12,7 @@ public class MyApp extends Application {
 
     private boolean isCodisUser; //make getter and setter
     private String login, password;
+    private StaticData[] staticDatas;
     private static MyApp singleInstance = null;
 
     public static MyApp getInstance()
@@ -44,5 +48,13 @@ public class MyApp extends Application {
 
     public void setLogin(String login) {
         this.login = login;
+    }
+
+    public StaticData[] getStaticDatas() {
+        return staticDatas;
+    }
+
+    public void setStaticDatas(StaticData[] staticDatas) {
+        this.staticDatas = staticDatas;
     }
 }
