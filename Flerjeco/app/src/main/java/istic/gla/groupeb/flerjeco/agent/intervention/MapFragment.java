@@ -28,6 +28,7 @@ import entity.Intervention;
 import entity.Marker;
 import entity.Resource;
 import entity.StaticData;
+import istic.gla.groupeb.flerjeco.MyStaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
@@ -40,7 +41,6 @@ import util.State;
 public class MapFragment extends Fragment {
 
     final static String ARG_POSITION = "position";
-    final static String STATIC_DATA = "staticdatas";
 
     MapView mMapView;
     private GoogleMap googleMap;
@@ -59,6 +59,9 @@ public class MapFragment extends Fragment {
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
+        MyStaticData myStaticData = MyStaticData.getSingleInstance();
+        staticDataTab = myStaticData.getStaticDatas();
+
         mMapView.onResume();// needed to get the map to display immediately
 
         try {
@@ -68,16 +71,6 @@ public class MapFragment extends Fragment {
         }
 
         googleMap = mMapView.getMap();
-
-        Bundle args = getArguments();
-        if (args != null) {
-            // Set article based on argument passed in
-            Object[] objects1 = (Object[]) args.getSerializable(STATIC_DATA);
-            staticDataTab = new StaticData[objects1.length];
-            for (int i = 0; i < objects1.length; i++) {
-                staticDataTab[i] = (StaticData) objects1[i];
-            }
-        }
 
         SecondActivity secondActivity = (SecondActivity) getActivity();
         initMap(secondActivity.intervention);

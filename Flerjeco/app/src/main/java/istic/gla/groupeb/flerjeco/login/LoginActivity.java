@@ -321,7 +321,6 @@ public class LoginActivity extends Activity implements ISynchTool{
     public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
         private Intervention[] interventionTab;
-        private StaticData[] staticDataTab;
         private boolean isCodis;
 
         public GetAllInterventionTask(boolean isCodis) {
