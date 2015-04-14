@@ -15,6 +15,7 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.view.IconView;
+import util.ResourceRole;
 
 /**
  * Created by flolegazier on 13/04/15.
@@ -49,7 +50,11 @@ public class RequestAdapter extends ArrayAdapter<Resource> {
 
         Resource resource = resources.get(position);
 
-        Vehicle vehicle = new Vehicle(resource.getLabel());
+        ResourceRole role = ResourceRole.otherwise;
+        if (resource.getResourceRole()!=null) {
+            role = resource.getResourceRole();
+        }
+        Vehicle vehicle = new Vehicle(resource.getLabel(),role,resource.getState());
         viewHolder.iconViewResource.setmVehicle(vehicle);
 
         Drawable drawable;

@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -27,11 +28,14 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import entity.Intervention;
 import entity.Resource;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
+import util.ResourceCategory;
+import util.ResourceRole;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import util.State;
 
@@ -43,6 +47,7 @@ public class AgentInterventionActivity extends FragmentActivity
     protected Intervention intervention;
 
     private AgentInterventionResourcesFragment firstFragment;
+    private AgentInterventionMapFragment mapFragment;
 
     int mCurrentPosition = -1;
 
@@ -55,16 +60,16 @@ public class AgentInterventionActivity extends FragmentActivity
         intervention.setLatitude(48.117749);
         intervention.setLongitude(-1.677297);
         List<Resource> resourceList = new ArrayList<>();
-        resourceList.add(new Resource("Resource0", State.validated, 0, 0));
-        resourceList.add(new Resource("Resource1", State.active, 48.117749, -1.677297));
-        resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
-        resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
-        resourceList.add(new Resource("Resource4", State.validated, 0, 0));
-        resourceList.add(new Resource("Resource5", State.waiting, 0, 0));
-        resourceList.add(new Resource("VSAP", State.refused, 0, 0));
-        resourceList.add(new Resource("Resource7", State.refused, 0, 0));
-        resourceList.add(new Resource("Resource8", State.waiting, 0, 0));
-        resourceList.add(new Resource("Resource9", State.waiting, 0, 0));
+        resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource1", State.active, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
+        resourceList.add(new Resource("Resource2", State.active, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
+        resourceList.add(new Resource("Resource3", State.planned, ResourceRole.commands, ResourceCategory.vehicule, 48.107749, -1.687297));
+        resourceList.add(new Resource("Resource4", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource5", State.waiting, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("VSAP", State.refused, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource7", State.refused, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource8", State.waiting, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource9", State.refused, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
 
         intervention.setResources(resourceList);
 
@@ -96,7 +101,7 @@ public class AgentInterventionActivity extends FragmentActivity
 
     public void onResourceSelected(int position) {
 
-        AgentInterventionMapFragment mapFragment = (AgentInterventionMapFragment)
+        mapFragment = (AgentInterventionMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
         if (mapFragment != null) {
@@ -131,6 +136,17 @@ public class AgentInterventionActivity extends FragmentActivity
         bundle.putLong(VehicleRequestDialog.INTERVENTION,10);
         vehicleDialog.setArguments(bundle);
         vehicleDialog.show(getSupportFragmentManager(), "vehicle_dialog");
+    }
+
+    public void validateResources(View v){
+        Set<Resource> resourceSet = mapFragment.getResourcesPutOnMap();
+        for (Resource resource : resourceSet){
+            Log.i(getClass().getSimpleName(),resource.getLabel());
+        }
+    }
+
+    public void cancelResources(View v){
+        mapFragment.cancelResources();
     }
 
     // Action Menu for Logout
