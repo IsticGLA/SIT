@@ -85,7 +85,7 @@ public class LatLongConverter {
         logger.debug(String.format("width:%s, ratioX:%s, offsetX:%s, x=>%s", width, ratioX, offsetX, x));
         logger.debug(String.format("height:%s, ratioY:%s, offsetY:%s, y=>%s", height, ratioY, offsetY, y));
 
-        return new LocalCoordinate(x, y, 0);
+        return new LocalCoordinate(x, y, 20);
     }
 
 
