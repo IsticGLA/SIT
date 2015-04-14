@@ -26,6 +26,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import entity.Intervention;
 import entity.ResourceType;
+import entity.StaticData;
 import istic.gla.groupeb.flerjeco.ISynchTool;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;

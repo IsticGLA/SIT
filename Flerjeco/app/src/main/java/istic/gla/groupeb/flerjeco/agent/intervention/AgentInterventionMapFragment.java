@@ -31,6 +31,7 @@ import java.util.Set;
 import entity.Intervention;
 import entity.Resource;
 import entity.StaticData;
+import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
@@ -113,7 +114,7 @@ public class AgentInterventionMapFragment extends Fragment {
                 Marker markerAdded = googleMap.addMarker(marker);
                 markers.put(resourceToPut.getLabel(), markerAdded);
 
-                Log.d(getClass().getSimpleName(),"resource : "+resourceToPut.getLabel());
+                Log.d(getClass().getSimpleName(), "resource : " + resourceToPut.getLabel());
 
                 resourcesPutOnMap.add(resourceToPut);
 
@@ -175,7 +176,7 @@ public class AgentInterventionMapFragment extends Fragment {
                     resources.add(resource);
                 }else if (State.validated.equals(resourceState)){
                     resourcesToPutOnMap.add(resource);
-                    Log.i(getClass().getSimpleName(),"Adding "+resource.getLabel()+" to resourcesToPutOnMap");
+                    Log.i(getClass().getSimpleName(), "Adding " + resource.getLabel() + " to resourcesToPutOnMap");
                 }
 
             }
