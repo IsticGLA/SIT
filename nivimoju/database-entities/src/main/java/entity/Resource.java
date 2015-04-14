@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 public class Resource implements Serializable {
 
+    private long idRes;
     private String label;
     private State state;
     private ResourceRole resourceRole;
@@ -72,6 +73,14 @@ public class Resource implements Serializable {
         this.state = state;
         this.resourceRole = ResourceRole.otherwise;
         this.resourceCategory = ResourceCategory.vehicule;
+    }
+
+    public long getIdRes() {
+        return idRes;
+    }
+
+    public void setIdRes(long idRes) {
+        this.idRes = idRes;
     }
 
     public String getLabel() {
