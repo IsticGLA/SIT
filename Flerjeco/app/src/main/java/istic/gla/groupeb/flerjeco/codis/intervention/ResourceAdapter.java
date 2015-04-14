@@ -69,12 +69,10 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
         viewHolder.acceptButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "" + _viewHolder.interventionId + " - " + interventionId, Toast.LENGTH_LONG).show();
                 if(_viewHolder.interventionId >= 0) {
                     new ResourceRequestTask().execute(
                             "" + interventionId,
-                            resource.getLabel(),
-                            fragment.getActivity().getString(R.string.state_waiting),
+                            "" + resource.getIdRes(),
                             fragment.getActivity().getString(R.string.state_validated));
                 }
             }
@@ -84,8 +82,7 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
             public void onClick(View v) {
                 if(interventionId >= 0)
                     new ResourceRequestTask().execute("" + interventionId,
-                            resource.getLabel(),
-                            fragment.getActivity().getString(R.string.state_waiting),
+                            "" + resource.getIdRes(),
                             fragment.getActivity().getString(R.string.state_refused));
             }
         });

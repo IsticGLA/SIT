@@ -83,7 +83,7 @@ public class ResourcesFragment extends Fragment {
 
         for (Resource resource : intervention.getResources()){
             State resourceState = resource.getState();
-            if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+            if (State.active.equals(resourceState) || State.planned.equals(resourceState) || State.validated.equals(resourceState)){
                 labelsResources.add(resource.getLabel());
             }else{
                 requests.add(resource);

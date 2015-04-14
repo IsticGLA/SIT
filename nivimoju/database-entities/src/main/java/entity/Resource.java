@@ -67,8 +67,9 @@ public class Resource implements Serializable {
      * @param label
      * @param state
      */
-    public Resource(String label, State state) {
+    public Resource(Long id, String label, State state) {
         super();
+        this.idRes = id;
         this.label = label;
         this.state = state;
         this.resourceRole = ResourceRole.otherwise;

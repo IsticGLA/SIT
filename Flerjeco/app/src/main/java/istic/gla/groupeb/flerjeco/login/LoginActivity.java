@@ -34,7 +34,6 @@ import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.ISynchTool;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.MyApp;
-import istic.gla.groupeb.flerjeco.MyStaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;

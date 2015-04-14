@@ -172,10 +172,11 @@ public class SpringService {
     }
 
     public Intervention changeResourceState(Object[] params) {
-        final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2] + "/" + params[3];
+        final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2];
 
-        ResponseEntity<Intervention> id = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
-        return id.getBody();
+        ResponseEntity<Intervention> intervention = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
+        Log.i("SpringService", intervention.getBody().getName());
+        return intervention.getBody();
     }
     public StaticData[] getAllStaticDatas() {
         Log.i(TAG, "getAllStaticDatas start");
