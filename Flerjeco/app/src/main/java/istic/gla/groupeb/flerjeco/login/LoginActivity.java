@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Messenger;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,14 +26,15 @@ import android.widget.Toast;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import entity.Intervention;
-import entity.ResourceType;
 import entity.StaticData;
-import istic.gla.groupeb.flerjeco.ISynchTool;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.SynchService;
 
 
 /**
@@ -47,6 +49,8 @@ public class LoginActivity extends Activity implements ISynchTool{
      */
     private UserLoginTask mAuthTask = null;
 
+
+
     // UI references.
     private EditText mLoginView;
     private EditText mPasswordView;
@@ -58,7 +62,7 @@ public class LoginActivity extends Activity implements ISynchTool{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-       /* Intent i=new Intent(this, SynchService.class);
+        Intent i=new Intent(this, SynchService.class);
         i.putExtra("handler", new Messenger(this.handler));
 
         DisplaySynch displaySynch = new DisplaySynch() {
@@ -70,8 +74,14 @@ public class LoginActivity extends Activity implements ISynchTool{
 
         i.putExtra("displaySynch", displaySynch);
 
+        Intervention intervention = new Intervention();
+        intervention.setId(19L);
+        intervention.updateDate();
+
+        i.putExtra("intervention", intervention);
+
         Log.i("MAMH", i.toString());
-        this.startService(i);*/
+        this.startService(i);
 
         display();
     }
@@ -84,7 +94,9 @@ public class LoginActivity extends Activity implements ISynchTool{
 
         Log.i("MAMH", "LoginActivity display");
 
-        new ResourceTypeSynch().execute();
+
+            new InterventionNotifyTask().execute(19L);
+
 
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);
@@ -115,15 +127,18 @@ public class LoginActivity extends Activity implements ISynchTool{
 
 
     // Backgroud task to get notify
-    private class ResourceTypeSynch extends AsyncTask<entity.Intervention, Void, ResourceType> {
+    private class InterventionNotifyTask extends AsyncTask<Long, Void, Intervention> {
 
         @Override
-        protected ResourceType doInBackground(entity.Intervention... params) {
+        protected Intervention doInBackground(Long... params) {
             try {
 
                 SpringService springService = new SpringService();
 
-                return  springService.getResourceTypeById(1L);
+                Intervention interventionResult = springService.getInterventionById(19L);
+                Log.i("MAMH", "Inter Name : "+interventionResult.getName());
+                return interventionResult;
+
             } catch (HttpStatusCodeException e) {
                 Log.e("InterventionActivity", e.getMessage(), e);
 
@@ -133,12 +148,10 @@ public class LoginActivity extends Activity implements ISynchTool{
         }
 
         @Override
-        protected void onPostExecute(ResourceType resultPost) {
+        protected void onPostExecute(Intervention intervention) {
 
             //TODO
-           /* if(resultPost != null)
-                Toast.makeText(LoginActivity.this, "Label est "+resultPost.getLabel(), Toast.LENGTH_LONG).show();
-            else Toast.makeText(LoginActivity.this, "Label est null", Toast.LENGTH_LONG).show();*/
+            Log.i("MAMH", "onPostExecute");
 
         }
 

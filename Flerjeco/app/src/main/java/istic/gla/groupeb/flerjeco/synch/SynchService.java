@@ -2,17 +2,18 @@ package istic.gla.groupeb.flerjeco.synch;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.os.Bundle;
-import android.os.Message;
+import android.os.AsyncTask;
 import android.os.Messenger;
-import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
+
+import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-import istic.gla.groupeb.flerjeco.ISynchTool;
-import istic.gla.groupeb.flerjeco.login.DisplaySynch;
+import entity.Intervention;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 /**
@@ -33,6 +34,8 @@ public class SynchService extends IntentService {
     }
 
     DisplaySynch displaySynch;
+    Intervention intervention;
+    SpringService springService;
     Messenger messenger;
     Timer t=new Timer();
 
@@ -40,18 +43,45 @@ public class SynchService extends IntentService {
     @Override
     protected void onHandleIntent(final Intent intent) {
         displaySynch = (DisplaySynch) intent.getExtras().get("displaySynch");
+        intervention = (Intervention) intent.getExtras().get("intervention");
+        final GetNotifyTask getNotifyTask = new GetNotifyTask();
 
         t.schedule(new TimerTask() {
 
             @Override
             public void run() {
-                // just call the handler every 3 Seconds
-                if(displaySynch != null)
-                    displaySynch.ctrlDisplay();
-                else Log.i("MAMH", " displaySynch == null");
 
+                Log.i("MAMH", "ID : "+intervention.getId());
+                getNotifyTask.execute(intervention);
             }
-        }, 100,3000);
+        }, 100,10000);
+
+    }
+
+    // Backgroud task to post intervention
+    private class GetNotifyTask extends AsyncTask<Intervention, Void, String> {
+
+        @Override
+        protected String doInBackground(entity.Intervention... params) {
+            try {
+                Log.i("MAMH", "ID inter : "+params[0]);
+                return springService.getNotify(params[0]);
+            } catch (HttpStatusCodeException e) {
+                Log.e("InterventionActivity", e.getMessage(), e);
+                return null;
+            }
+
+        }
+
+        @Override
+        protected void onPostExecute(String resultPost) {
+            // just call the handler every 3 Seconds
+            if(displaySynch != null && "210".equals(resultPost)) {
+                displaySynch.ctrlDisplay();
+            }
+            else if ("210".equals(resultPost)) { Log.i("MAMH", "SynchService : l'intervention est à jour");}
+                else Log.i("MAMH", " displaySynch == nusll");
+        }
 
     }
 }

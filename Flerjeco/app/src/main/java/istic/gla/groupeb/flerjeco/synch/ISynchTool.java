@@ -1,4 +1,4 @@
-package istic.gla.groupeb.flerjeco;
+package istic.gla.groupeb.flerjeco.synch;
 
 /**
  * Created by amhachi on 13/04/15.

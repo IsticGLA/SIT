@@ -21,6 +21,7 @@ public class SpringService {
 
     private static final String TAG = SpringService.class.getSimpleName();
     private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
+    private static final String URL_TEST  =  "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
     private static RestTemplate restTemplate = new RestTemplate();
 
 
@@ -36,12 +37,29 @@ public class SpringService {
      */
     public ResourceType getResourceTypeById(Long idRes){
 
-        final String url = URL + "resource/"+idRes;
+        //TODO modify URL_TEST -> URL
+        final String url = URL_TEST + "resource/"+idRes;
 
         ResponseEntity<ResourceType> resourcetype = restTemplate.getForEntity(url, ResourceType.class);
 
         ResourceType rt = resourcetype.getBody();
         return rt;
+    }
+
+    /**
+     * get intervention by id
+     * @param idIntervention id of the resource to get
+     * @return the intervention retrieved
+     */
+    public Intervention getInterventionById(Long idIntervention){
+
+        //TODO modify URL_TEST -> URL
+        final String url = URL_TEST + "intervention/"+idIntervention;
+
+        ResponseEntity<Intervention> interventionResult = restTemplate.getForEntity(url, Intervention.class);
+
+        Intervention intervention = interventionResult.getBody();
+        return intervention;
     }
 
     /**
@@ -126,16 +144,23 @@ public class SpringService {
 
     /**
      * get a notification from server
+     * @param intervention
      * @return intervention to update
      */
-    public Intervention getNotify() {
-        Log.i(TAG, "notify start");
-        final String url = URL + "notify";
+    public String getNotify(Intervention intervention) {
+        String httpResult = "";
+        final String url = URL_TEST + "notify";
+        try {
 
-        ResponseEntity<Intervention> interventionTest = restTemplate.getForEntity(url, Intervention.class);
+            intervention.updateDate();
 
-        Intervention rt = interventionTest.getBody();
-        return rt;
+            ResponseEntity<String> entity = restTemplate.postForEntity(url, intervention, String.class);
+            httpResult = entity.getStatusCode().toString();
+
+        } catch (HttpStatusCodeException e) {
+            httpResult = e.getStatusCode().toString();
+        }
+        return httpResult;
     }
 
 
