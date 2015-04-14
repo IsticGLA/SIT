@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="Preferences">
+    <PreferenceCategory
+        android:title="Options">
+        <Preference
+            android:title="@string/action_log_out"
+            android:summary="@string/logout_summary">
+            <intent
+                android:action="istic.gla.groupeb.flerjeco.login.LoginActivity" />
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

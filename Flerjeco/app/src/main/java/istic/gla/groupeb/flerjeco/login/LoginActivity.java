@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import entity.Intervention;
+import entity.StaticData;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
@@ -208,16 +209,9 @@ public class LoginActivity extends Activity {
             if (success) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
                 Intent intent;
-                if(isCodis) {
-                    intent = new Intent(LoginActivity.this, InterventionActivity.class);
-                    startActivity(intent);
-                }
-                else {
-                    showProgress(true);
-                    GetAllInterventionTask mGetAllTask = new GetAllInterventionTask();
-                    mGetAllTask.execute((Void) null);
-                }
-
+                showProgress(true);
+                GetAllInterventionTask mGetAllTask = new GetAllInterventionTask(isCodis);
+                mGetAllTask.execute((Void) null);
             } else {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
@@ -239,11 +233,18 @@ public class LoginActivity extends Activity {
     public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
         private Intervention[] interventionTab;
+        private StaticData[] staticDataTab;
+        private boolean isCodis;
+
+        public GetAllInterventionTask(boolean isCodis) {
+            this.isCodis = isCodis;
+        }
 
         @Override
         protected Boolean doInBackground(Void... params) {
             SpringService service = new SpringService();
             interventionTab = service.getAllInterventions();
+            staticDataTab = service.getAllStaticDatas();
             Log.i(TAG, "interventionTab size : "+interventionTab.length);
             Log.i(TAG, "doInBackground end");
             return true;
@@ -252,10 +253,21 @@ public class LoginActivity extends Activity {
         @Override
         protected void onPostExecute(final Boolean success) {
             showProgress(false);
-            Intent intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
+            Intent intent;
+            if(isCodis) {
+                intent = new Intent(LoginActivity.this, InterventionActivity.class);
+            }
+            else {
+                intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
+            }
+
             Bundle bundle = new Bundle();
+            for(int i = 0; i < interventionTab.length; i++)
+                Log.d("LoginAct", interventionTab[i].getName() + " - " + interventionTab[i].getId());
 
             bundle.putSerializable("interventions", interventionTab);
+            bundle.putSerializable("staticdatas", staticDataTab);
+
 
             intent.putExtras(bundle);
             startActivity(intent);

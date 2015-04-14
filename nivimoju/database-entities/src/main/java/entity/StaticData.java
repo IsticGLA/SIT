@@ -3,10 +3,12 @@ package entity;
 import util.Constant;
 import util.MarkerType;
 
+import java.io.Serializable;
+
 /**
  * Created by jeremy on 08/04/15.
  */
-public class StaticData extends AbstractEntity {
+public class StaticData extends AbstractEntity implements Serializable {
 
     private double latitude;
     private double longitude;

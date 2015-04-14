@@ -15,24 +15,27 @@
  */
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
-import android.content.Intent;
+
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
+import java.util.Arrays;
+import java.util.List;
 
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
-import istic.gla.groupeb.flerjeco.agent.interventionsList.InterventionsNamesFragment;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class InterventionActivity extends FragmentActivity
-        implements InterventionsNamesFragment.OnResourceSelectedListener {
+        implements InterventionFragment.OnResourceSelectedListener {
 
     private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention[] interventionTab;
     private int position=0;
+    private InterventionFragment firstFragment;
 
     /** Called when the activity is first created. */
     @Override
@@ -41,10 +44,15 @@ public class InterventionActivity extends FragmentActivity
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            interventionTab = (Intervention[]) extras.getSerializable("interventions");
+            Object[] objects = (Object[]) extras.getSerializable("interventions");
+            interventionTab = new Intervention[objects.length];
+            for(int i=0;i<objects.length;i++) {
+                interventionTab[i] = (Intervention) objects[i];
+                Log.d("IntervAct", interventionTab[i].getName() + " - " + interventionTab[i].getId());
+            }
         }
 
-        setContentView(R.layout.activity_list_interventions);
+        setContentView(R.layout.activity_list_interventions_codis);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -58,7 +66,7 @@ public class InterventionActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            InterventionsNamesFragment firstFragment = new InterventionsNamesFragment();
+            firstFragment = new InterventionFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -82,10 +90,25 @@ public class InterventionActivity extends FragmentActivity
             this.position = position;
 
             // Call a method in the ArticleFragment to update its content
-            //resourcesFragment.updateMapView(position);
+            resourcesFragment.updateResources(interventionTab[position]);
 
         } else {
-            // TODO : Drag and drop
+            // If the frag is not available, we're in the one-pane layout and must swap frags...
+
+            // Create fragment and give it an argument for the selected article
+            resourcesFragment = new ResourcesFragment();
+            Bundle args = new Bundle();
+            args.putInt("position", position);
+            resourcesFragment.setArguments(args);
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+            // Replace whatever is in the fragment_container view with this fragment,
+            // and add the transaction to the back stack so the user can navigate back
+            transaction.replace(R.id.fragment_container, resourcesFragment);
+            transaction.addToBackStack(null);
+
+            // Commit the transaction
+            transaction.commit();
         }
     }
 
@@ -93,13 +116,23 @@ public class InterventionActivity extends FragmentActivity
         return interventionTab;
     }
 
-    public void selectIntervention(View view) {
-        Intent intent = new Intent(InterventionActivity.this, SecondActivity.class);
-        Bundle bundle = new Bundle();
+    public void addIntervention(Intervention intervention) {
+        int oldLength = interventionTab.length;
+        Intervention[] tmpIntervention = interventionTab;
+        interventionTab = new Intervention[oldLength+1];
+        for(int i=0;i<oldLength;i++) {
+            interventionTab[i] = tmpIntervention[i];
+        }
+        interventionTab[oldLength] = intervention;
+    }
 
-        bundle.putSerializable("intervention", getInterventions()[position]);
+    public void updateInterventions() {
+        ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
+    }
 
-        intent.putExtras(bundle);
-        startActivity(intent);
+    public void showDialogIntervention(View view) {
+        // Create the fragment and show it as a dialog.
+        DialogFragment newFragment = new InterventionDialogFragment();
+        newFragment.show(getSupportFragmentManager(), "intervention_dialog");
     }
 }

@@ -1,13 +1,13 @@
 package entity;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.io.Serializable;
 
 /**
  * Created by corentin on 10/03/15.
  */
-public abstract class AbstractEntity {
+public abstract class AbstractEntity  implements Serializable {
     /**
      * Unique id of entity
      */
@@ -24,7 +24,7 @@ public abstract class AbstractEntity {
     protected Timestamp lastUpdate;
 
     /**
-     * Basic contruct, assign a random id
+     * Basic contruct, assign an id
      */
     public AbstractEntity()
     {
