@@ -70,8 +70,6 @@ public class SpringService {
 
     }
 
-
-
     /**
      * Create intervention
      * @param intervention intervention to be created
@@ -80,6 +78,7 @@ public class SpringService {
     public Intervention postIntervention(Intervention intervention) {
         try {
 
+            intervention.updateDate();
 
             final String url = URL + "intervention/create";
 
@@ -100,7 +99,7 @@ public class SpringService {
 
     public Intervention updateIntervention(Intervention intervention) {
         try {
-
+            intervention.updateDate();
             final String url = URL + "intervention/update";
 
             RestTemplate restTemplate = new RestTemplate();
