@@ -165,4 +165,23 @@ public class Vehicle extends Canvas {
         this.role = role;
         changeFunction(role);
     }
+
+    public void drawVehicle(Canvas mCanvas){
+        DashPathEffect temp = (DashPathEffect) paint.getPathEffect();
+        Paint tempPaint = new Paint();
+        tempPaint.setColor(Color.WHITE);
+        tempPaint.setStyle(Paint.Style.FILL);
+        mCanvas.drawRect(rect, tempPaint);
+        //Drawing the first rectangle
+        mCanvas.drawRect(rect, paint);
+        //Drawing the second little rectangle
+        paint.setStyle(Paint.Style.FILL);
+        mCanvas.drawRect(rect2, paint);
+        //Drawing the name of the vehicle
+        paint.setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
+        mCanvas.drawText(name, rect.centerX() - 40, rect.centerY(), paint);
+        paint.setStyle(Paint.Style.STROKE);
+        //Reapplying the PathEffect
+        paint.setPathEffect(temp);
+    }
 }

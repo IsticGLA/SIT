@@ -16,15 +16,22 @@
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import java.util.Arrays;
+import java.util.List;
 
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.VehicleRequestDialog;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class InterventionActivity extends FragmentActivity
@@ -33,6 +40,7 @@ public class InterventionActivity extends FragmentActivity
     private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention[] interventionTab;
     private int position=0;
+    private InterventionFragment firstFragment;
 
     /** Called when the activity is first created. */
     @Override
@@ -45,6 +53,7 @@ public class InterventionActivity extends FragmentActivity
             interventionTab = new Intervention[objects.length];
             for(int i=0;i<objects.length;i++) {
                 interventionTab[i] = (Intervention) objects[i];
+                Log.d("IntervAct", interventionTab[i].getName() + " - " + interventionTab[i].getId());
             }
         }
 
@@ -62,7 +71,7 @@ public class InterventionActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            InterventionFragment firstFragment = new InterventionFragment();
+            firstFragment = new InterventionFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -112,9 +121,43 @@ public class InterventionActivity extends FragmentActivity
         return interventionTab;
     }
 
+    public void addIntervention(Intervention intervention) {
+        int oldLength = interventionTab.length;
+        Intervention[] tmpIntervention = interventionTab;
+        interventionTab = new Intervention[oldLength+1];
+        for(int i=0;i<oldLength;i++) {
+            interventionTab[i] = tmpIntervention[i];
+        }
+        interventionTab[oldLength] = intervention;
+    }
+
+    public void updateInterventions() {
+        ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
+    }
+
     public void showDialogIntervention(View view) {
         // Create the fragment and show it as a dialog.
         DialogFragment newFragment = new InterventionDialogFragment();
         newFragment.show(getSupportFragmentManager(), "intervention_dialog");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_logout, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                Intent intent = new Intent(InterventionActivity.this, LoginActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

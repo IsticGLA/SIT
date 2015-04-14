@@ -26,15 +26,19 @@ import java.util.List;
 
 import entity.Intervention;
 import entity.Resource;
+import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
 import util.State;
 
-public class InterventionActivity extends FragmentActivity
-        implements InterventionResourcesFragment.OnResourceSelectedListener {
+public class AgentInterventionActivity extends FragmentActivity
+        implements AgentInterventionResourcesFragment.OnResourceSelectedListener {
+
+    private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
     protected Intervention intervention;
+    private StaticData[] staticDataTab;
 
-    private InterventionResourcesFragment firstFragment;
+    private AgentInterventionResourcesFragment firstFragment;
 
     int mCurrentPosition = -1;
 
@@ -45,7 +49,11 @@ public class InterventionActivity extends FragmentActivity
 
         /*Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            intervention = (Intervention) extras.getSerializable("intervention");
+            Object[] objects1 = (Object[]) extras.getSerializable("staticdatas");
+            staticDataTab = new StaticData[objects1.length];
+            for (int i=0; i<objects1.length; i++){
+                staticDataTab[i] = (StaticData) objects1[i];
+            }
         }*/
 
         intervention = new Intervention();
@@ -79,7 +87,7 @@ public class InterventionActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            firstFragment = new InterventionResourcesFragment();
+            firstFragment = new AgentInterventionResourcesFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -93,7 +101,7 @@ public class InterventionActivity extends FragmentActivity
 
     public void onResourceSelected(int position) {
 
-        InterventionMapFragment mapFragment = (InterventionMapFragment)
+        AgentInterventionMapFragment mapFragment = (AgentInterventionMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
         if (mapFragment != null) {
@@ -105,9 +113,10 @@ public class InterventionActivity extends FragmentActivity
             // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
-            InterventionMapFragment newFragment = new InterventionMapFragment();
+            AgentInterventionMapFragment newFragment = new AgentInterventionMapFragment();
             Bundle args = new Bundle();
-            args.putInt(InterventionMapFragment.ARG_POSITION, position);
+            args.putInt(AgentInterventionMapFragment.ARG_POSITION, position);
+            args.putSerializable("staticdatas", staticDataTab);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 

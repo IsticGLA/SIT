@@ -1,11 +1,13 @@
 package entity;
 
-import java.util.Random;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.io.Serializable;
 
 /**
  * Created by corentin on 10/03/15.
  */
-public abstract class AbstractEntity {
+public abstract class AbstractEntity  implements Serializable {
     /**
      * Unique id of entity
      */
@@ -17,11 +19,23 @@ public abstract class AbstractEntity {
     protected String type;
 
     /**
-     * Basic contruct, assign a random id
+     * Timestamp
+     */
+    protected Timestamp lastUpdate;
+
+    /**
+     * Basic contruct, assign an id
      */
     public AbstractEntity()
     {
         id = -1;
+    }
+
+    /**
+     * Update the lastUpdate timestamp to current timestamp
+     */
+    public void updateDate() {
+        this.lastUpdate = new Timestamp(Calendar.getInstance().getTime().getTime());
     }
 
     public long getId() {
@@ -35,5 +49,9 @@ public abstract class AbstractEntity {
 
     public String getType() {
         return type;
+    }
+
+    public Timestamp getLastUpdate() {
+        return lastUpdate;
     }
 }

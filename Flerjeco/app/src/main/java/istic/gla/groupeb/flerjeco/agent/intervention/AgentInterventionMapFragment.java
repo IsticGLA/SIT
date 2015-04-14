@@ -1,5 +1,8 @@
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -24,15 +27,20 @@ import java.util.Map;
 
 import entity.Intervention;
 import entity.Resource;
+import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.icons.Danger;
+import istic.gla.groupeb.flerjeco.icons.Vehicle;
+import util.ResourceRole;
 import util.State;
 
 /**
  * A fragment that launches other parts of the demo application.
  */
-public class InterventionMapFragment extends Fragment {
+public class AgentInterventionMapFragment extends Fragment {
 
     final static String ARG_POSITION = "position";
+    final static String STATIC_DATA = "staticdatas";
 
     MapView mMapView;
     private GoogleMap googleMap;
@@ -40,14 +48,25 @@ public class InterventionMapFragment extends Fragment {
     int position = -1;
 
     private Intervention intervention;
+    private StaticData[] staticDataTab;
     private List<Resource> resources = new ArrayList<>();
     private List<Resource> resourcesToPutOnMap = new ArrayList<>();
-    private Map<String, Marker> markers = new HashMap<>();
+    private Map<String, com.google.android.gms.maps.model.Marker> markers = new HashMap<>();
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Bundle args = getArguments();
+        if (args != null) {
+            // Set article based on argument passed in
+            Object[] objects1 = (Object[]) args.getSerializable(STATIC_DATA);
+            staticDataTab = new StaticData[objects1.length];
+            for (int i = 0; i < objects1.length; i++) {
+                staticDataTab[i] = (StaticData) objects1[i];
+            }
+        }
         // inflat and return the layout
         View v = inflater.inflate(R.layout.map_view, container,
                 false);
@@ -64,7 +83,7 @@ public class InterventionMapFragment extends Fragment {
 
         googleMap = mMapView.getMap();
 
-        InterventionActivity interventionActivity = (InterventionActivity) getActivity();
+        AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
         initMap(interventionActivity.intervention);
 
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -72,29 +91,48 @@ public class InterventionMapFragment extends Fragment {
             public void onMapClick(LatLng latLng) {
                 double latitude = latLng.latitude;
                 double longitude = latLng.longitude;
-                Log.i(getActivity().getLocalClassName(), "Click on the Map at " + latitude + ", " + longitude + " for item "+position);
+                Log.i(getActivity().getLocalClassName(), "Click on the Map at " + latitude + ", " + longitude + " for item " + position);
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(
                         new LatLng(latitude, longitude)).title(resourcesToPutOnMap.get(position).getLabel());
                 // Changing marker icon
-                marker.icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                drawMarker(marker, resourcesToPutOnMap.get(position));
 
-                if (markers.get(resourcesToPutOnMap.get(position).getLabel())!=null){
+                if (markers.get(resourcesToPutOnMap.get(position).getLabel()) != null) {
                     markers.get(resourcesToPutOnMap.get(position).getLabel()).remove();
                 }
                 // adding marker
                 Marker markerAdded = googleMap.addMarker(marker);
-                markers.put(resourcesToPutOnMap.get(position).getLabel(),markerAdded);
+                markers.put(resourcesToPutOnMap.get(position).getLabel(), markerAdded);
 
             }
         });
-
         return v;
+    }
+
+
+    public void updateMapView(int position) {
+        Resource resource = resources.get(position);
+        if (resource.getState() == State.planned || resource.getState() == State.active) {
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(resource.getLatitude(), resource.getLongitude())).zoom(16).build();
+            googleMap.animateCamera(CameraUpdateFactory
+                    .newCameraPosition(cameraPosition));
+            this.position = position;
+        }
     }
 
     public void initMap(Intervention intervention){
         this.intervention = intervention;
+
+        if (staticDataTab != null && staticDataTab.length > 0){
+            for (StaticData data : staticDataTab){
+                MarkerOptions marker = new MarkerOptions().position(
+                        new LatLng(data.getLatitude(), data.getLongitude()));
+                drawStaticMarker(marker, data);
+                googleMap.addMarker(marker);
+            }
+        }
 
         if (intervention.getResources().size()>0){
 
@@ -105,8 +143,8 @@ public class InterventionMapFragment extends Fragment {
                     MarkerOptions marker = new MarkerOptions().position(
                             new LatLng(resource.getLatitude(), resource.getLongitude())).title(resource.getLabel());
                     // Changing marker icon
-                    marker.icon(BitmapDescriptorFactory
-                            .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+
+                    drawMarker(marker, resource);
                     // adding marker
                     googleMap.addMarker(marker);
 
@@ -116,7 +154,6 @@ public class InterventionMapFragment extends Fragment {
                 }
 
             }
-
         }
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -156,5 +193,42 @@ public class InterventionMapFragment extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    public void drawStaticMarker(MarkerOptions markerOptions, StaticData data){
+        Bitmap bmp = null;
+        switch (data.getMarkerType()){
+            case waterSource:
+                bmp = BitmapFactory.decodeResource(getResources(), R.drawable.watersource);
+                break;
+            case danger:
+                Danger danger = new Danger();
+                bmp = Bitmap.createBitmap(50, 50, Bitmap.Config.ARGB_8888);
+                Canvas mCanvas = new Canvas(bmp);
+                danger.drawDanger(mCanvas);
+                break;
+            case incident:
+                bmp = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
+                break;
+        }
+        if (bmp != null) {
+            markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bmp));
+        }
+    }
+
+    public void drawMarker(MarkerOptions markerOptions, Resource resource){
+        switch (resource.getResourceCategory()){
+            case vehicule:
+                Vehicle mVehicle = new Vehicle(resource.getLabel(), ResourceRole.otherwise, resource.getState());
+                int width = mVehicle.getRect().width();
+                int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
+                Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                Canvas mCanvas = new Canvas(mBitmap);
+                mVehicle.drawVehicle(mCanvas);
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mBitmap));
+                break;
+            case drone:
+                break;
+        }
     }
 }

@@ -47,7 +47,7 @@ limitations under the License.
         android:layout_height="match_parent"
         android:background="@android:color/darker_gray"/>
 
-    <fragment android:name="istic.gla.groupeb.flerjeco.agent.intervention.InterventionMapFragment"
+    <fragment android:name="istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionMapFragment"
         android:id="@+id/map_fragment"
         android:layout_weight="4"
         android:layout_width="0dp"
