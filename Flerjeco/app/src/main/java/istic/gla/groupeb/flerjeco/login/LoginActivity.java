@@ -140,9 +140,9 @@ public class LoginActivity extends Activity implements ISynchTool{
 
         @Override
         protected void onPostExecute(ResourceType resultPost) {
-            test  = (TextView) findViewById(R.id.editText_test);
+
             if(resultPost != null)
-                test.setText(resultPost.getLabel());
+                Toast.makeText(LoginActivity.this, "Label est "+resultPost.getLabel(), Toast.LENGTH_LONG).show();
             else Toast.makeText(LoginActivity.this, "Label est null", Toast.LENGTH_LONG).show();
 
         }
@@ -150,16 +150,16 @@ public class LoginActivity extends Activity implements ISynchTool{
     }
 
 
-    TextView test ;
+
     Handler handler=new Handler()
     {
         @Override
         public void handleMessage(Message msg) {
             //get data from msg
 
-            test  = (TextView) findViewById(R.id.editText_test);
+
             String result=msg.getData().getString("result");
-            test.setText(result);
+
             Log.d("xxxxx", "get data " + result);
 
 
