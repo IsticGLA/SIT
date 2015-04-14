@@ -172,7 +172,7 @@ public class Intervention {
             }
             interventionDAO.update(intervention);
             interventionDAO.disconnect();
-            return Response.ok().build();
+            return Response.ok(intervention).build();
         } catch (Exception ex) {
             return Response.serverError().build();
         }

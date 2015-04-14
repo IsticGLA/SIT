@@ -17,6 +17,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.List;
 
+import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
@@ -28,11 +29,13 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
 
     private List<Resource> resources;
     private long interventionId;
+    private ResourcesFragment fragment;
 
-    public ResourceAdapter(Context context, int resource, List<Resource> resources, Long interventionId) {
+    public ResourceAdapter(Context context, int resource, List<Resource> resources, Long interventionId, ResourcesFragment fragment) {
         super(context, resource, resources);
         this.resources = resources;
         this.interventionId = interventionId;
+        this.fragment = fragment;
     }
 
     private static class ViewHolder {
@@ -68,8 +71,11 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
             public void onClick(View v) {
                 Toast.makeText(getContext(), "" + _viewHolder.interventionId + " - " + interventionId, Toast.LENGTH_LONG).show();
                 if(_viewHolder.interventionId >= 0) {
-                    Toast.makeText(getContext(), "TEeeeeeeeest", Toast.LENGTH_LONG).show();
-                    new ResourceRequestTask().execute(interventionId, resource.getLabel(), R.string.state_waiting, R.string.state_validated);
+                    new ResourceRequestTask().execute(
+                            "" + interventionId,
+                            resource.getLabel(),
+                            fragment.getActivity().getString(R.string.state_waiting),
+                            fragment.getActivity().getString(R.string.state_validated));
                 }
             }
         });
@@ -77,20 +83,21 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
             @Override
             public void onClick(View v) {
                 if(interventionId >= 0)
-                    new ResourceRequestTask().execute(interventionId, resource.getLabel(), R.string.state_waiting, R.string.state_refused);
+                    new ResourceRequestTask().execute("" + interventionId,
+                            resource.getLabel(),
+                            fragment.getActivity().getString(R.string.state_waiting),
+                            fragment.getActivity().getString(R.string.state_refused));
             }
         });
 
         return convertView;
     }
-    private class ResourceRequestTask extends AsyncTask<Object, Void, Long> {
+    private class ResourceRequestTask extends AsyncTask<String, Void, Intervention> {
 
         @Override
-        protected Long doInBackground(Object... params) {
+        protected Intervention doInBackground(String... params) {
             try {
-                Long id = new SpringService().changeResourceState(params);
-                return id;
-
+                return new SpringService().changeResourceState(params);
             } catch (HttpStatusCodeException e) {
                 Log.e("ResourceAdapterCodis", e.getMessage(), e);
             }
@@ -99,8 +106,9 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
         }
 
         @Override
-        protected void onPostExecute(Long id) {
-            Log.i("ResourceAdapterCodis", "Request posted");
+        protected void onPostExecute(Intervention intervention) {
+            fragment.updateResources(intervention);
+            Log.i("ResourceAdapterCodis", "Request returned");
         }
 
     }
