@@ -55,7 +55,7 @@ public class SecondActivity extends FragmentActivity
         resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
         resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
         resourceList.add(new Resource("Resource5", State.waiting, 0, 0));
-        resourceList.add(new Resource("Resource6", State.refused, 0, 0));
+        resourceList.add(new Resource("VSAP", State.refused, 0, 0));
         resourceList.add(new Resource("Resource7", State.refused, 0, 0));
         resourceList.add(new Resource("Resource8", State.waiting, 0, 0));
         resourceList.add(new Resource("Resource9", State.waiting, 0, 0));

@@ -50,21 +50,7 @@ public class IconView extends View {
     protected void onDraw(Canvas mCanvas){
         super.onDraw(mCanvas);
         if (mVehicle != null) {
-            //Saving the current PathEffect
-            DashPathEffect temp = (DashPathEffect) mVehicle.getPaint().getPathEffect();
-            //Drawing the first rectangle
-            mCanvas.drawRect(mVehicle.getRect(), mVehicle.getPaint());
-            //Drawing the second little rectangle
-            mVehicle.getPaint().setStyle(Paint.Style.FILL);
-            mCanvas.drawRect(mVehicle.getRect2(), mVehicle.getPaint());
-            //Drawing the name of the vehicle
-            mVehicle.getPaint().setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
-            mCanvas.drawText(mVehicle.getName(), mVehicle.getRect().centerX() - 40, mVehicle.getRect().centerY(), mVehicle.getPaint());
-            mVehicle.getPaint().setStyle(Paint.Style.STROKE);
-            //Reapplying the PathEffect
-            mVehicle.getPaint().setPathEffect(temp);
-            //mCanvas.drawPath(mDanger.getTriangle(), mDanger.getPaint());
-            //mCanvas.drawPath(mSensitive.getTriangle(), mSensitive.getPaint());
+            mVehicle.drawVehicle(mCanvas);
         }
     }
 

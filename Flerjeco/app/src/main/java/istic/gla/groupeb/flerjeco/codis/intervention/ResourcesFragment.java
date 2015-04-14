@@ -19,23 +19,25 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
 import util.State;
 
 public class ResourcesFragment extends Fragment {
-    OnResourceSelectedListener mCallback;
 
     private ListView listViewResources;
     private ListView listViewRequests;
@@ -57,34 +59,8 @@ public class ResourcesFragment extends Fragment {
         listViewResources = (ListView) v.findViewById(R.id.listViewResources);
         listViewRequests = (ListView) v.findViewById(R.id.listViewRequests);
 
-        // We need to use a different list item layout for devices older than Honeycomb
-        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-                android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
-
-
-        List<String> labelsResources = new ArrayList<>();
-        List<String> labelsRequests = new ArrayList<>();
-
-        InterventionActivity interventionActivity = new InterventionActivity();
-        /*for (Resource resource : interventionActivity.intervention.getResources()){
-            State resourceState = resource.getState();
-            if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
-                labelsResources.add(resource.getLabel());
-            }else{
-                labelsRequests.add(resource.getLabel());
-            }
-        }*/
-
-        listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
-        listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
-
-        listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                mCallback.onResourceSelected(position);
-                listViewResources.setItemChecked(position,true);
-            }
-        });
+        InterventionActivity interventionActivity = (InterventionActivity) getActivity();
+        updateResources(interventionActivity.getInterventions()[0]);
 
         return v;
     }
@@ -100,17 +76,26 @@ public class ResourcesFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void updateResources(Intervention intervention) {
+        List<String> labelsResources = new ArrayList<>();
+        List<Resource> requests = new ArrayList<>();
 
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception.
-        try {
-            mCallback = (OnResourceSelectedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
+        // We need to use a different list item layout for devices older than Honeycomb
+        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
+                android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
+
+        for (Resource resource : intervention.getResources()){
+            State resourceState = resource.getState();
+            if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+                labelsResources.add(resource.getLabel());
+            }else{
+                requests.add(resource);
+            }
         }
+
+        listViewResources.setAdapter(new ArrayAdapter(getActivity(), layout, labelsResources));
+        Log.d("zqdozdhoqzqgdiqzd", "" + intervention.getId());
+
+        listViewRequests.setAdapter(new ResourceAdapter(getActivity(), layout, requests, intervention.getId()));
     }
 }

@@ -13,31 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package istic.gla.groupeb.flerjeco.agent.intervention;
+package istic.gla.groupeb.flerjeco.agent.planZone;
 
 import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Resource;
+import entity.Path;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.adapter.ResourceAdapter;
-import util.State;
 
-public class ResourcesFragment extends Fragment {
+public class DroneListFragment extends Fragment {
     OnResourceSelectedListener mCallback;
 
-    private ListView listViewResources;
-    private ListView listViewRequests;
+    private ListView listViewPath;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -50,65 +49,32 @@ public class ResourcesFragment extends Fragment {
                              Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        View v = inflater.inflate(R.layout.resource_view, container,
+        View v = inflater.inflate(R.layout.fragment_list_drone, container,
                 false);
 
-        listViewResources = (ListView) v.findViewById(R.id.listViewResources);
-        listViewRequests = (ListView) v.findViewById(R.id.listViewRequests);
+        listViewPath = (ListView) v.findViewById(R.id.listViewPath);
 
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
 
-        List<String> labelsResources = new ArrayList<>();
-        List<String> labelsRequests = new ArrayList<>();
+        List<String> labelsPath = new ArrayList<>();
 
-        List<Resource> resourceList = new ArrayList<>();
-        List<Resource> requestList = new ArrayList<>();
+        PlanZoneActivity activity = (PlanZoneActivity) getActivity();
+        List<Path> pathList = activity.getPaths();
 
-        SecondActivity secondActivity = (SecondActivity) getActivity();
-        for (Resource resource : secondActivity.intervention.getResources()){
-            State resourceState = resource.getState();
-
-
-            if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
-                labelsResources.add(resource.getLabel());
-                resourceList.add(resource);
-            }else{
-                labelsRequests.add(resource.getLabel());
-                requestList.add(resource);
-            }
+        for(int i = 0; i < pathList.size(); i++) {
+            labelsPath.add("Trajet " + (i+1));
         }
 
-        //listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
-        //listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
+        listViewPath.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsPath));
 
-        listViewResources.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_resource_agent, resourceList));
-        listViewRequests.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_resource_agent, requestList));
-
-        /*
-        List<IconView> iconViewList = new ArrayList<>();
-        List<Vehicle> mVehicleList = new ArrayList<>();
-        mVehicleList.add(new Vehicle("VSAP"));
-        mVehicleList.add(new Vehicle("VSAP"));
-        mVehicleList.add(new Vehicle("VSAP"));
-        for(Vehicle vehicle : mVehicleList){
-            vehicle.changeFunction(Vehicle.Function.Commands);
-            iconViewList.add(new IconView(this.getActivity(), vehicle));
-        }
-
-        //listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
-        listViewResources.setAdapter(new IconViewAdapter(this.getActivity(), R.layout.list_row, iconViewList));
-        listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
-
-        */
-
-        listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listViewPath.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
-                listViewResources.setItemChecked(position,true);
+                listViewPath.setItemChecked(position, true);
             }
         });
 
@@ -122,7 +88,7 @@ public class ResourcesFragment extends Fragment {
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
         if (getFragmentManager().findFragmentById(R.id.map_fragment) != null) {
-            listViewResources.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            listViewPath.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         }
     }
 
@@ -136,7 +102,15 @@ public class ResourcesFragment extends Fragment {
             mCallback = (OnResourceSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
+                    + " must implement OnResourceSelectedListener");
         }
+    }
+
+    public void refresh(){
+
+        listViewPath.destroyDrawingCache();
+        listViewPath.setVisibility(ListView.INVISIBLE);
+        listViewPath.setVisibility(ListView.VISIBLE);
+        //listViewPath.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsPath));
     }
 }

@@ -21,6 +21,13 @@
                 android:layout_height="wrap_content" android:text="default"
                  android:maxLines="1"
                 android:singleLine="true" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView_logo"
+                android:baselineAlignBottom="false"
+                android:layout_gravity="center"
+                android:src="@drawable/istic" />
 
             <EditText android:id="@+id/editText_login" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_login"

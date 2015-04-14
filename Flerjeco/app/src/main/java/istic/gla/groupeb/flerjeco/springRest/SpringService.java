@@ -14,6 +14,7 @@ import java.util.List;
 import entity.IncidentCode;
 import entity.Intervention;
 import entity.ResourceType;
+import entity.StaticData;
 
 /**
  * Created by amhachi on 08/04/15.
@@ -70,12 +71,13 @@ public class SpringService {
     }
 
 
+
     /**
      * Create intervention
      * @param intervention intervention to be created
      * @return id of the intervention created
      */
-    public long postIntervention(Intervention intervention) {
+    public Intervention postIntervention(Intervention intervention) {
         try {
 
 
@@ -89,11 +91,32 @@ public class SpringService {
             if (intervetionResult == null) {
                 Log.i("MAMH", "intervetionResult = null");
             } else
-                return intervetionResult.getBody().getId();
+                return intervetionResult.getBody();
         } catch (HttpStatusCodeException e) {
             Log.i("MAMH", "Problème de la création de l'intervention : " + e.getMessage());
         }
-        return 0;
+        return null;
+    }
+
+    public Intervention updateIntervention(Intervention intervention) {
+        try {
+
+            final String url = URL + "intervention/update";
+
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+            ResponseEntity<Intervention> intervetionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
+
+            if (intervetionResult == null) {
+                Log.i("MAMH", "intervetionResult = null");
+            } else
+                Log.i(TAG, intervetionResult.toString());
+                return intervetionResult.getBody();
+        } catch (HttpStatusCodeException e) {
+            Log.i("MAMH", "Problème de l'update de l'intervention : " + e.getMessage());
+        }
+        return null;
     }
 
     /**
@@ -181,5 +204,24 @@ public class SpringService {
 
         ResponseEntity<Long> id = restTemplate.exchange(url, HttpMethod.GET, null, Long.class);
         return id.getBody();
+    }
+
+    public Long changeResourceState(Object[] params) {
+        final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2] + "/" + params[3];
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<Long> id = restTemplate.exchange(url, HttpMethod.PUT, null, Long.class);
+        return id.getBody();
+    }
+    public StaticData[] getAllStaticDatas() {
+        Log.i(TAG, "getAllStaticDatas start");
+        final String url = URL + "staticdata";
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<StaticData[]> entity = restTemplate.getForEntity(url, StaticData[].class);
+        Log.i(TAG, "getAllStaticData : " + entity.getBody().toString());
+        return entity.getBody();
     }
 }
