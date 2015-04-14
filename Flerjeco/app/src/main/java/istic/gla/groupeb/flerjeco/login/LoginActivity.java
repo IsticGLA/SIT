@@ -262,6 +262,8 @@ public class LoginActivity extends Activity {
             }
 
             Bundle bundle = new Bundle();
+            for(int i = 0; i < interventionTab.length; i++)
+                Log.d("LoginAct", interventionTab[i].getName() + " - " + interventionTab[i].getId());
 
             bundle.putSerializable("interventions", interventionTab);
             bundle.putSerializable("staticdatas", staticDataTab);

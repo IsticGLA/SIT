@@ -141,6 +141,14 @@ public class SpringService {
         return id.getBody();
     }
 
+    public Long changeResourceState(Object[] params) {
+        final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2] + "/" + params[3];
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+        ResponseEntity<Long> id = restTemplate.exchange(url, HttpMethod.PUT, null, Long.class);
+        return id.getBody();
+    }
     public StaticData[] getAllStaticDatas() {
         Log.i(TAG, "getAllStaticDatas start");
         final String url = URL + "staticdata";

@@ -129,23 +129,25 @@ public class Intervention {
     /**
      * Changes the state of a resource
      * @param inter The id of the intervention
-     * @param res The id of the resource
-     * @param state A String representing the wanted state
+     * @param res The type of the resource
+     * @param oldState A String representing the old state
+     * @param newState A String representing the wanted state
      * @return OK if the state has been correctly updated
      */
     @PUT
-    @Path("{inter}/resources/{res}/{state}")
+    @Path("{inter}/resources/{res}/{oldstate}/{newstate}")
     public Response changeResourceState(
             @PathParam("inter") Long inter,
             @PathParam("res") String res,
-            @PathParam("state") String state) {
+            @PathParam("oldstate") String oldState,
+            @PathParam("newstate") String newState) {
         InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
         entity.Intervention intervention = interventionDAO.getById(inter);
         try {
             for (entity.Resource resource : intervention.getResources()) {
-                if (resource.getLabel().equals(res)) {
-                    resource.setState(State.valueOf(state));
+                if (resource.getLabel().equals(res) && resource.getState().equals(oldState)) {
+                    resource.setState(State.valueOf(newState));
                     break;
                 }
             }

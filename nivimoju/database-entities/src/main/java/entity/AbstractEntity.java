@@ -1,11 +1,12 @@
 package entity;
 
+import java.io.Serializable;
 import java.util.Random;
 
 /**
  * Created by corentin on 10/03/15.
  */
-public abstract class AbstractEntity {
+public abstract class AbstractEntity  implements Serializable {
     /**
      * Unique id of entity
      */
