@@ -1,6 +1,7 @@
 package istic.gla.groupeb.flerjeco;
 
 import android.app.Application;
+import android.util.Log;
 
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
@@ -10,6 +11,7 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
  */
 public class MyStaticData extends Application{
 
+    private static final String TAG = MyStaticData.class.getSimpleName();
     private static MyStaticData singleInstance = null;
     private StaticData[] staticDatas;
 
@@ -20,12 +22,13 @@ public class MyStaticData extends Application{
     @Override
     public void onCreate(){
         super.onCreate();
-        SpringService springService = new SpringService();
-        staticDatas = springService.getAllStaticDatas();
+        Log.i(TAG, "Instanciating MyStaticData");
         singleInstance = this;
     }
 
     public StaticData[] getStaticDatas() {
+        SpringService springService = new SpringService();
+        staticDatas = springService.getAllStaticDatas();
         return staticDatas;
     }
 }

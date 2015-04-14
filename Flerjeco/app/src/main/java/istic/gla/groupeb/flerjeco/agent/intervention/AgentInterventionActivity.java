@@ -36,7 +36,6 @@ public class AgentInterventionActivity extends FragmentActivity
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
     protected Intervention intervention;
-    private StaticData[] staticDataTab;
 
     private AgentInterventionResourcesFragment firstFragment;
 
@@ -46,15 +45,6 @@ public class AgentInterventionActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        /*Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            Object[] objects1 = (Object[]) extras.getSerializable("staticdatas");
-            staticDataTab = new StaticData[objects1.length];
-            for (int i=0; i<objects1.length; i++){
-                staticDataTab[i] = (StaticData) objects1[i];
-            }
-        }*/
 
         intervention = new Intervention();
         intervention.setLatitude(48.117749);
@@ -116,7 +106,6 @@ public class AgentInterventionActivity extends FragmentActivity
             AgentInterventionMapFragment newFragment = new AgentInterventionMapFragment();
             Bundle args = new Bundle();
             args.putInt(AgentInterventionMapFragment.ARG_POSITION, position);
-            args.putSerializable("staticdatas", staticDataTab);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 

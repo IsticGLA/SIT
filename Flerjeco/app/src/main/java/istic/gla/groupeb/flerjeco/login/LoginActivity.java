@@ -34,6 +34,7 @@ import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.ISynchTool;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.MyApp;
+import istic.gla.groupeb.flerjeco.MyStaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
@@ -286,7 +287,6 @@ public class LoginActivity extends Activity implements ISynchTool{
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
             showProgress(false);
-
             MyApp myApp = MyApp.getInstance();
             boolean isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
             myApp.setCodisUser(isCodis);

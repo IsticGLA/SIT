@@ -65,7 +65,9 @@ public class AgentInterventionMapFragment extends Fragment {
         mMapView.onCreate(savedInstanceState);
 
         MyStaticData myStaticData = MyStaticData.getSingleInstance();
-        staticDataTab = myStaticData.getStaticDatas();
+        if (myStaticData != null) {
+            staticDataTab = myStaticData.getStaticDatas();
+        }
 
         mMapView.onResume();// needed to get the map to display immediately
 
