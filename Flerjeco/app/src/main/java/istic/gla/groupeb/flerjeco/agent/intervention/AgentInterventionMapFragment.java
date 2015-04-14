@@ -31,6 +31,7 @@ import java.util.Set;
 import entity.Intervention;
 import entity.Resource;
 import entity.StaticData;
+import istic.gla.groupeb.flerjeco.MyStaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
@@ -43,7 +44,6 @@ import util.State;
 public class AgentInterventionMapFragment extends Fragment {
 
     final static String ARG_POSITION = "position";
-    final static String STATIC_DATA = "staticdatas";
 
     MapView mMapView;
     Button buttonValidateResources;
@@ -64,15 +64,6 @@ public class AgentInterventionMapFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        Bundle args = getArguments();
-        if (args != null) {
-            // Set article based on argument passed in
-            Object[] objects1 = (Object[]) args.getSerializable(STATIC_DATA);
-            staticDataTab = new StaticData[objects1.length];
-            for (int i = 0; i < objects1.length; i++) {
-                staticDataTab[i] = (StaticData) objects1[i];
-            }
-        }
         // inflat and return the layout
         View v = inflater.inflate(R.layout.map_view, container,
                 false);

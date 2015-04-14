@@ -21,11 +21,15 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import entity.Intervention;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class ListInterventionsActivity extends FragmentActivity
@@ -33,10 +37,11 @@ public class ListInterventionsActivity extends FragmentActivity
 
     private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention[] interventionTab;
-    protected StaticData[] staticDataTab;
-    private int position=0;
+    private int position = 0;
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,13 +50,10 @@ public class ListInterventionsActivity extends FragmentActivity
         if (extras != null) {
             Object[] objects = (Object[]) extras.getSerializable("interventions");
             interventionTab = new Intervention[objects.length];
-            for(int i=0;i<objects.length;i++) {
+            for (int i = 0; i < objects.length; i++) {
                 interventionTab[i] = (Intervention) objects[i];
             }
         }
-
-        GetAllStaticDataTask mGetAllStaticDataTask = new GetAllStaticDataTask();
-        mGetAllStaticDataTask.execute((Void)null);
 
         setContentView(R.layout.activity_list_interventions);
 
@@ -100,7 +102,7 @@ public class ListInterventionsActivity extends FragmentActivity
             mapFragment = new MapListInterventionsFragment();
             Bundle args = new Bundle();
             args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
-            args.putSerializable("staticdatas", getStaticDatas());
+            //args.putSerializable("staticdatas", getStaticDatas());
             mapFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -118,53 +120,35 @@ public class ListInterventionsActivity extends FragmentActivity
         return interventionTab;
     }
 
-    public StaticData[] getStaticDatas(){
-        return staticDataTab;
-    }
-
     public void selectIntervention(View view) {
         Intent intent = new Intent(this, AgentInterventionActivity.class);
         Bundle bundle = new Bundle();
 
         bundle.putSerializable("intervention", getInterventions()[position]);
-        bundle.putSerializable("staticdatas", getStaticDatas());
 
         intent.putExtras(bundle);
         startActivity(intent);
     }
 
-    /**
-     * Represents an asynchronous Task that gets the static data
-     * and give it to the next activity to displ+ay it
-     */
-    public class GetAllStaticDataTask extends AsyncTask<Void, Void, Boolean> {
+    // Action Menu for Logout
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_logout, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-        private StaticData[] staticDataTab;
-
-        public GetAllStaticDataTask() {
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                Intent intent = new Intent(ListInterventionsActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            SpringService service = new SpringService();
-            staticDataTab = service.getAllStaticDatas();
-            Log.i(TAG, "staticdataTab size : " + staticDataTab.length);
-            Log.i(TAG, "doInBackground end");
-            return true;
-        }
-
-        /*@Override
-        protected void onPostExecute(final Boolean success) {
-
-            Intent intent = new Intent(ListInterventionsActivity.this, SecondActivity.class);
-
-            Bundle bundle = new Bundle();
-
-            bundle.putSerializable("staticdatas", staticDataTab);
-
-            intent.putExtras(bundle);
-            startActivity(intent);
-        }*/
     }
 }

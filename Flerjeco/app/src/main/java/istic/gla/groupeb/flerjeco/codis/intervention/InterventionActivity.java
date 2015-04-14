@@ -141,6 +141,7 @@ public class InterventionActivity extends FragmentActivity
         newFragment.show(getSupportFragmentManager(), "intervention_dialog");
     }
 
+    // Action Menu for Logout
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
@@ -154,8 +155,9 @@ public class InterventionActivity extends FragmentActivity
         switch (item.getItemId()) {
             case R.id.menu_logout:
                 Intent intent = new Intent(InterventionActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
-                return true;
+                finish();
             default:
                 return super.onOptionsItemSelected(item);
         }

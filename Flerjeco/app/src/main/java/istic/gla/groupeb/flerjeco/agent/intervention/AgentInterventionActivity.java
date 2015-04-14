@@ -15,11 +15,15 @@
  */
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -32,6 +36,7 @@ import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
 import util.ResourceCategory;
 import util.ResourceRole;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
@@ -40,7 +45,6 @@ public class AgentInterventionActivity extends FragmentActivity
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
     protected Intervention intervention;
-    private StaticData[] staticDataTab;
 
     private AgentInterventionResourcesFragment firstFragment;
     private AgentInterventionMapFragment mapFragment;
@@ -51,15 +55,6 @@ public class AgentInterventionActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        /*Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            Object[] objects1 = (Object[]) extras.getSerializable("staticdatas");
-            staticDataTab = new StaticData[objects1.length];
-            for (int i=0; i<objects1.length; i++){
-                staticDataTab[i] = (StaticData) objects1[i];
-            }
-        }*/
 
         intervention = new Intervention();
         intervention.setLatitude(48.117749);
@@ -121,7 +116,6 @@ public class AgentInterventionActivity extends FragmentActivity
             AgentInterventionMapFragment newFragment = new AgentInterventionMapFragment();
             Bundle args = new Bundle();
             args.putInt(AgentInterventionMapFragment.ARG_POSITION, position);
-            args.putSerializable("staticdatas", staticDataTab);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -155,4 +149,26 @@ public class AgentInterventionActivity extends FragmentActivity
         mapFragment.cancelResources();
     }
 
+    // Action Menu for Logout
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_logout, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                Intent intent = new Intent(AgentInterventionActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }
