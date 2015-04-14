@@ -21,8 +21,7 @@ import entity.StaticData;
  */
 public class SpringService {
     private static final String TAG = SpringService.class.getSimpleName();
-    private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
-    //private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
+    private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
 
     boolean test = true;
 
