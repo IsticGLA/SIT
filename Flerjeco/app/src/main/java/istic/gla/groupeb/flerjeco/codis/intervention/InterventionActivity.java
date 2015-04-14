@@ -141,6 +141,7 @@ public class InterventionActivity extends FragmentActivity
         newFragment.show(getSupportFragmentManager(), "intervention_dialog");
     }
 
+    // Action Menu for Logout
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar

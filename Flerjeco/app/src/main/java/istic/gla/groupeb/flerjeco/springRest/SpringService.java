@@ -187,7 +187,7 @@ public class SpringService {
         Log.i(TAG, "getAllInterventions start");
         final String url = URL + "intervention";
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+        restTemplate.getMessageConverters().add(new );
 
         ResponseEntity<Intervention[]> entity = restTemplate.getForEntity(url, Intervention[].class);
         Log.i(TAG, "getAllInterventions : " + entity.getBody().toString());
