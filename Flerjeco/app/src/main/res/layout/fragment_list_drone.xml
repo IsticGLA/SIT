@@ -6,8 +6,30 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:id="@+id/listViewDrone"
+        android:id="@+id/listViewPath"
         android:layout_gravity="center_horizontal"
         android:layout_weight="1" />
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="3dp"
+        android:background="@android:color/darker_gray"/>
+
+    <CheckBox
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/closed_path"
+        android:id="@+id/checkbox_closed_path"
+        android:onClick="closePath"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="@string/create_path"
+        android:id="@+id/buttonCreatePath"
+        android:layout_gravity="center_horizontal"
+        android:onClick="createPath"/>
 
 </LinearLayout>

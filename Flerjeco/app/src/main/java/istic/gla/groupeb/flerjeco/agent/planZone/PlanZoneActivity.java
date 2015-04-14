@@ -1,10 +1,16 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
+import android.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 
 
 import java.util.ArrayList;
@@ -24,6 +30,7 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     private static final String TAG = PlanZoneActivity.class.getSimpleName();
     private Intervention intervention;
     private int position=0;
+    private boolean editionMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +43,11 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
 
         }
 
+        // Temporary intervention for test
         intervention = new Intervention("Test", 4, 48.1120404, -1.61111);
         List<Resource> resources = new ArrayList<>();
         resources.add(new Resource("Drone1", State.validated, ResourceRole.otherwise, ResourceCategory.drone, 48.117749, -1.677297));
         intervention.setResources(resources);
-
         List<Path> paths = new ArrayList<>();
         Path p = new Path();
         List<Position> positionList = new ArrayList<>();
@@ -50,6 +57,7 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         p.setPositions(positionList);
         paths.add(p);
         intervention.setWatchPath(paths);
+        intervention.setId(10l);
 
         setContentView(R.layout.activity_plan_zone);
 
@@ -140,5 +148,41 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
 
     public List<Path> getPaths() {
         return intervention.getWatchPath();
+    }
+
+    public Intervention getIntervention(){
+        return intervention;
+    }
+
+    public void createPath(View v){
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        Button button = (Button) findViewById(R.id.buttonCreatePath);
+        CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
+
+        if (!editionMode) {
+            editionMode = true;
+            Log.i(TAG, "Mode d'édition du trajet");
+            mapFragment.createPath();
+            button.setText(getString(R.string.finish_edition));
+            checkBox.setVisibility(View.VISIBLE);
+        } else  {
+            button.setText(getString(R.string.create_path));
+            checkBox.setVisibility(View.GONE);
+            mapFragment.sendPath();
+        }
+    }
+
+    public void closePath(View v){
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.closePath();
+    }
+
+    public void refreshList(Intervention intervention){
+        this.intervention = intervention;
+        DroneListFragment droneListFragment = (DroneListFragment)
+                getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        droneListFragment.refresh();
     }
 }
