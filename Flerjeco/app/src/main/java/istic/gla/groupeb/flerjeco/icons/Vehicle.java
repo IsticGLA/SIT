@@ -75,7 +75,7 @@ public class Vehicle extends Canvas {
                 paint.setColor(Color.RED);
                 break;
             case people:
-                paint.setColor(Color.GREEN);
+                paint.setColor(Color.argb(255,102,255,102));
                 break;
             case risks:
                 paint.setColor(Color.argb(255,255,102,0));
