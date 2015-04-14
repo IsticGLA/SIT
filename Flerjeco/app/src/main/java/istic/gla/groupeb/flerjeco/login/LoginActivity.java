@@ -331,7 +331,6 @@ public class LoginActivity extends Activity implements ISynchTool{
         protected Boolean doInBackground(Void... params) {
             SpringService service = new SpringService();
             interventionTab = service.getAllInterventions();
-            staticDataTab = service.getAllStaticDatas();
             Log.i(TAG, "interventionTab size : "+interventionTab.length);
             Log.i(TAG, "doInBackground end");
             return true;
@@ -353,8 +352,6 @@ public class LoginActivity extends Activity implements ISynchTool{
                 Log.d("LoginAct", interventionTab[i].getName() + " - " + interventionTab[i].getId());
 
             bundle.putSerializable("interventions", interventionTab);
-            bundle.putSerializable("staticdatas", staticDataTab);
-
 
             intent.putExtras(bundle);
             startActivity(intent);

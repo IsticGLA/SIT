@@ -140,7 +140,7 @@ public class ListInterventionsActivity extends FragmentActivity
 
     /**
      * Represents an asynchronous Task that gets the static data
-     * and give it to the next activity to display it
+     * and give it to the next activity to displ+ay it
      */
     public class GetAllStaticDataTask extends AsyncTask<Void, Void, Boolean> {
 
