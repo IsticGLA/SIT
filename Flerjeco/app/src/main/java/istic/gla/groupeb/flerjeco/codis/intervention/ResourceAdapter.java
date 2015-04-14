@@ -21,6 +21,7 @@ import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import util.State;
 
 /**
  * Created by jules on 13/04/15.
@@ -73,7 +74,7 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
                     new ResourceRequestTask().execute(
                             "" + interventionId,
                             "" + resource.getIdRes(),
-                            fragment.getActivity().getString(R.string.state_validated));
+                            State.validated.name());
                 }
             }
         });
@@ -83,7 +84,7 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
                 if(interventionId >= 0)
                     new ResourceRequestTask().execute("" + interventionId,
                             "" + resource.getIdRes(),
-                            fragment.getActivity().getString(R.string.state_refused));
+                            State.refused.name());
             }
         });
 

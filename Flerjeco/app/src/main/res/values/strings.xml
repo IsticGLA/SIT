@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="state_validated">validated</string>
-    <string name="state_refused">refused</string>
-    <string name="state_waiting">waiting</string>
-</resources>
