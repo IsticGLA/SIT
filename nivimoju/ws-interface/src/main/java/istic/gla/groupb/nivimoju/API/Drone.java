@@ -29,7 +29,7 @@ public class Drone {
             @PathParam("long") double longitude) {
         DroneClient client = new DroneClient();
         LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
-        LatLong position = new LatLong(latitude,longitude);
+        Position position = new Position(latitude,longitude);
 
         LocalCoordinate local = converter.getLocal(position);
         try {

@@ -1,31 +1,26 @@
-package entity;
+package istic.gla.groupb.nivimoju.drone.latlong;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by jeremy on 13/04/15.
+ * Created by sacapuces on 13/04/15.
  */
-public class Path {
-
-    List<Position> positions;
+public class LocalPath {
+    List<LocalCoordinate> positions;
     boolean closed;
 
-    public Path(){
+    public LocalPath(){
         this.positions = new ArrayList<>();
         this.closed = false;
     }
 
-    public List<Position> getPositions() {
+    public List<LocalCoordinate> getPositions() {
         return positions;
     }
 
-    public void setPositions(List<Position> positions) {
+    public void setPositions(List<LocalCoordinate> positions) {
         this.positions = positions;
-    }
-
-    public void addPosition(Position position){
-        positions.add(position);
     }
 
     public boolean isClosed() {
