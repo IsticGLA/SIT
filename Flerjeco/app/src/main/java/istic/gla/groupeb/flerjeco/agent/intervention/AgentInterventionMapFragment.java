@@ -31,7 +31,7 @@ import java.util.Set;
 import entity.Intervention;
 import entity.Resource;
 import entity.StaticData;
-import istic.gla.groupeb.flerjeco.MyStaticData;
+import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
@@ -69,6 +69,12 @@ public class AgentInterventionMapFragment extends Fragment {
                 false);
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
+
+        /*MyApp myApp = MyApp.getInstance();
+        if (myApp != null) {
+            staticDataTab = myApp.getStaticDatas();
+        }*/
+
         mMapView.onResume();// needed to get the map to display immediately
 
         buttonValidateResources = (Button) v.findViewById(R.id.buttonValidateResources);
