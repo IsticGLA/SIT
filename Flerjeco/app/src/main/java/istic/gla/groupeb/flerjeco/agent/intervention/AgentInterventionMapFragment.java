@@ -252,7 +252,8 @@ public class AgentInterventionMapFragment extends Fragment {
                     if (resource.getResourceRole()!=null) {
                         role = resource.getResourceRole();
                     }
-                    Vehicle mVehicle = new Vehicle(resource.getLabel(), role, resource.getState());
+                    String name = resource.getLabel()+" "+resource.getIdRes();
+                    Vehicle mVehicle = new Vehicle(name, role, resource.getState());
                     int width = mVehicle.getRect().width();
                     int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
                     Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
