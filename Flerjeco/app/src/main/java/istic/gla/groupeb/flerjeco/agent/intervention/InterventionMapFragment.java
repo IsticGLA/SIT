@@ -2,6 +2,7 @@ package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +14,13 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import entity.Intervention;
 import entity.Resource;
@@ -26,16 +30,20 @@ import util.State;
 /**
  * A fragment that launches other parts of the demo application.
  */
-public class MapFragment extends Fragment {
+public class InterventionMapFragment extends Fragment {
 
     final static String ARG_POSITION = "position";
 
     MapView mMapView;
     private GoogleMap googleMap;
-    int mCurrentPosition = -1;
+
+    int position = -1;
 
     private Intervention intervention;
     private List<Resource> resources = new ArrayList<>();
+    private List<Resource> resourcesToPutOnMap = new ArrayList<>();
+    private Map<String, Marker> markers = new HashMap<>();
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,37 +64,33 @@ public class MapFragment extends Fragment {
 
         googleMap = mMapView.getMap();
 
-        SecondActivity secondActivity = (SecondActivity) getActivity();
-        initMap(secondActivity.intervention);
+        InterventionActivity interventionActivity = (InterventionActivity) getActivity();
+        initMap(interventionActivity.intervention);
+
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                double latitude = latLng.latitude;
+                double longitude = latLng.longitude;
+                Log.i(getActivity().getLocalClassName(), "Click on the Map at " + latitude + ", " + longitude + " for item "+position);
+                // create marker
+                MarkerOptions marker = new MarkerOptions().position(
+                        new LatLng(latitude, longitude)).title(resourcesToPutOnMap.get(position).getLabel());
+                // Changing marker icon
+                marker.icon(BitmapDescriptorFactory
+                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+
+                if (markers.get(resourcesToPutOnMap.get(position).getLabel())!=null){
+                    markers.get(resourcesToPutOnMap.get(position).getLabel()).remove();
+                }
+                // adding marker
+                Marker markerAdded = googleMap.addMarker(marker);
+                markers.put(resourcesToPutOnMap.get(position).getLabel(),markerAdded);
+
+            }
+        });
 
         return v;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        // During startup, check if there are arguments passed to the fragment.
-        // onStart is a good place to do this because the layout has already been
-        // applied to the fragment at this point so we can safely call the method
-        // below that sets the article text.
-        Bundle args = getArguments();
-        if (args != null) {
-            // Set article based on argument passed in
-            updateMapView(args.getInt(ARG_POSITION));
-        } else if (mCurrentPosition != -1) {
-            // Set article based on saved instance state defined during onCreateView
-            updateMapView(mCurrentPosition);
-        }
-    }
-
-    public void updateMapView(int position) {
-        Resource resource = resources.get(position);
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(resource.getLatitude(), resource.getLongitude())).zoom(16).build();
-        googleMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
-        mCurrentPosition = position;
     }
 
     public void initMap(Intervention intervention){
@@ -107,6 +111,8 @@ public class MapFragment extends Fragment {
                     googleMap.addMarker(marker);
 
                     resources.add(resource);
+                }else if (State.validated.equals(resourceState)){
+                    resourcesToPutOnMap.add(resource);
                 }
 
             }
@@ -118,6 +124,14 @@ public class MapFragment extends Fragment {
 
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     @Override

@@ -29,10 +29,14 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import util.State;
 
-public class SecondActivity extends FragmentActivity
-        implements ResourcesFragment.OnResourceSelectedListener {
+public class InterventionActivity extends FragmentActivity
+        implements InterventionResourcesFragment.OnResourceSelectedListener {
 
     protected Intervention intervention;
+
+    private InterventionResourcesFragment firstFragment;
+
+    int mCurrentPosition = -1;
 
     /** Called when the activity is first created. */
     @Override
@@ -44,16 +48,15 @@ public class SecondActivity extends FragmentActivity
             intervention = (Intervention) extras.getSerializable("intervention");
         }*/
 
-
-
         intervention = new Intervention();
         intervention.setLatitude(48.117749);
         intervention.setLongitude(-1.677297);
         List<Resource> resourceList = new ArrayList<>();
+        resourceList.add(new Resource("Resource0", State.validated, 0, 0));
         resourceList.add(new Resource("Resource1", State.active, 48.117749, -1.677297));
         resourceList.add(new Resource("Resource2", State.active, 48.127749, -1.657297));
         resourceList.add(new Resource("Resource3", State.planned, 48.107749, -1.687297));
-        resourceList.add(new Resource("Resource4", State.validated, 48.017749, -1.477297));
+        resourceList.add(new Resource("Resource4", State.validated, 0, 0));
         resourceList.add(new Resource("Resource5", State.waiting, 0, 0));
         resourceList.add(new Resource("VSAP", State.refused, 0, 0));
         resourceList.add(new Resource("Resource7", State.refused, 0, 0));
@@ -76,7 +79,7 @@ public class SecondActivity extends FragmentActivity
             }
 
             // Create an instance of ExampleFragment
-            ResourcesFragment firstFragment = new ResourcesFragment();
+            firstFragment = new InterventionResourcesFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -90,22 +93,21 @@ public class SecondActivity extends FragmentActivity
 
     public void onResourceSelected(int position) {
 
-        MapFragment mapFragment = (MapFragment)
+        InterventionMapFragment mapFragment = (InterventionMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
         if (mapFragment != null) {
-            // If article frag is available, we're in two-pane layout...
-
-            // Call a method in the ArticleFragment to update its content
-            mapFragment.updateMapView(position);
+            //save the current position
+            mCurrentPosition = position;
+            mapFragment.setPosition(position);
 
         } else {
             // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
-            MapFragment newFragment = new MapFragment();
+            InterventionMapFragment newFragment = new InterventionMapFragment();
             Bundle args = new Bundle();
-            args.putInt(MapFragment.ARG_POSITION, position);
+            args.putInt(InterventionMapFragment.ARG_POSITION, position);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
