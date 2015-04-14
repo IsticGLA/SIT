@@ -1,5 +1,8 @@
 package istic.gla.groupb.nivimoju.API;
 
+import entity.*;
+import entity.Intervention;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -19,6 +22,9 @@ public class Notify {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInterventions() {
-        return  Response.ok("test").build();
+        Intervention intervention = new Intervention();
+        intervention.setName("test");
+        //Response.ok(intervention).build();
+        return Response.noContent().build();
     }
 }
