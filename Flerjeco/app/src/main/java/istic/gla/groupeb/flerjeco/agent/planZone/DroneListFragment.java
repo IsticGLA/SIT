@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,13 +30,13 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Resource;
+import entity.Path;
 import istic.gla.groupeb.flerjeco.R;
 
 public class DroneListFragment extends Fragment {
     OnResourceSelectedListener mCallback;
 
-    private ListView listViewResources;
+    private ListView listViewPath;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -51,29 +52,29 @@ public class DroneListFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_list_drone, container,
                 false);
 
-        listViewResources = (ListView) v.findViewById(R.id.listViewDrone);
+        listViewPath = (ListView) v.findViewById(R.id.listViewPath);
 
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
 
-        List<String> labelsDrone = new ArrayList<>();
+        List<String> labelsPath = new ArrayList<>();
 
-        PlanZoneActivity droneList = (PlanZoneActivity) getActivity();
-        List<Resource> droneTab = droneList.getResourceEntities();
+        PlanZoneActivity activity = (PlanZoneActivity) getActivity();
+        List<Path> pathList = activity.getPaths();
 
-        for(Resource res : droneTab) {
-            labelsDrone.add(res.getLabel());
+        for(int i = 0; i < pathList.size(); i++) {
+            labelsPath.add("Trajet " + (i+1));
         }
 
-        listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsDrone));
+        listViewPath.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsPath));
 
-        listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listViewPath.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
-                listViewResources.setItemChecked(position, true);
+                listViewPath.setItemChecked(position, true);
             }
         });
 
@@ -87,7 +88,7 @@ public class DroneListFragment extends Fragment {
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
         if (getFragmentManager().findFragmentById(R.id.map_fragment) != null) {
-            listViewResources.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            listViewPath.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         }
     }
 
@@ -103,5 +104,13 @@ public class DroneListFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement OnResourceSelectedListener");
         }
+    }
+
+    public void refresh(){
+
+        listViewPath.destroyDrawingCache();
+        listViewPath.setVisibility(ListView.INVISIBLE);
+        listViewPath.setVisibility(ListView.VISIBLE);
+        //listViewPath.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsPath));
     }
 }

@@ -1,7 +1,8 @@
 package entity;
 
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.io.Serializable;
-import java.util.Random;
 
 /**
  * Created by corentin on 10/03/15.
@@ -18,11 +19,23 @@ public abstract class AbstractEntity  implements Serializable {
     protected String type;
 
     /**
-     * Basic contruct, assign a random id
+     * Timestamp
+     */
+    protected Timestamp lastUpdate;
+
+    /**
+     * Basic contruct, assign an id
      */
     public AbstractEntity()
     {
         id = -1;
+    }
+
+    /**
+     * Update the lastUpdate timestamp to current timestamp
+     */
+    public void updateDate() {
+        this.lastUpdate = new Timestamp(Calendar.getInstance().getTime().getTime());
     }
 
     public long getId() {

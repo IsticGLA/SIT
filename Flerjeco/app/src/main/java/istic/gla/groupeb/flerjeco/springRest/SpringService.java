@@ -82,6 +82,27 @@ public class SpringService {
         return null;
     }
 
+    public Intervention updateIntervention(Intervention intervention) {
+        try {
+
+            final String url = URL + "intervention/update";
+
+            RestTemplate restTemplate = new RestTemplate();
+            restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
+
+            ResponseEntity<Intervention> intervetionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
+
+            if (intervetionResult == null) {
+                Log.i("MAMH", "intervetionResult = null");
+            } else
+                Log.i(TAG, intervetionResult.toString());
+                return intervetionResult.getBody();
+        } catch (HttpStatusCodeException e) {
+            Log.i("MAMH", "Problème de l'update de l'intervention : " + e.getMessage());
+        }
+        return null;
+    }
+
     public String login(String id, String password) {
         Log.i(TAG, "login start");
         final String url = URL + "authentication/connected/" + id + "/" + password;
