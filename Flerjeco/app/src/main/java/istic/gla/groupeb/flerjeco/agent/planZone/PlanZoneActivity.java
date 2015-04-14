@@ -167,8 +167,11 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
             button.setText(getString(R.string.finish_edition));
             checkBox.setVisibility(View.VISIBLE);
         } else  {
+            // Reset button and checkbox
             button.setText(getString(R.string.create_path));
+            checkBox.setChecked(false);
             checkBox.setVisibility(View.GONE);
+            editionMode = false;
             mapFragment.sendPath();
         }
     }
@@ -179,10 +182,16 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         mapFragment.closePath();
     }
 
+    public void removeLastPoint(View v){
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.removeLastPoint();
+    }
+
     public void refreshList(Intervention intervention){
         this.intervention = intervention;
         DroneListFragment droneListFragment = (DroneListFragment)
-                getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        droneListFragment.refresh();
+                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
+        droneListFragment.refresh(intervention);
     }
 }

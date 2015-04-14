@@ -25,18 +25,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import entity.Intervention;
 import entity.Path;
+import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 
 public class DroneListFragment extends Fragment {
     OnResourceSelectedListener mCallback;
 
     private ListView listViewPath;
+    private ArrayAdapter adapter;
+    private List<String> labelsPath;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -59,7 +64,7 @@ public class DroneListFragment extends Fragment {
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
 
-        List<String> labelsPath = new ArrayList<>();
+        labelsPath = new ArrayList<>();
 
         PlanZoneActivity activity = (PlanZoneActivity) getActivity();
         List<Path> pathList = activity.getPaths();
@@ -67,8 +72,8 @@ public class DroneListFragment extends Fragment {
         for(int i = 0; i < pathList.size(); i++) {
             labelsPath.add("Trajet " + (i+1));
         }
-
-        listViewPath.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsPath));
+        adapter = new ArrayAdapter<String>(getActivity(), layout, labelsPath);
+        listViewPath.setAdapter(adapter);
 
         listViewPath.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -106,11 +111,13 @@ public class DroneListFragment extends Fragment {
         }
     }
 
-    public void refresh(){
-
-        listViewPath.destroyDrawingCache();
-        listViewPath.setVisibility(ListView.INVISIBLE);
-        listViewPath.setVisibility(ListView.VISIBLE);
-        //listViewPath.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsPath));
+    public void refresh(Intervention intervention){
+        adapter.clear();
+        labelsPath = new ArrayList<>();
+        for(int i = 0; i < intervention.getWatchPath().size(); i++) {
+            labelsPath.add("Trajet " + (i+1));
+        }
+        adapter.addAll(labelsPath);
+        adapter.notifyDataSetChanged();
     }
 }

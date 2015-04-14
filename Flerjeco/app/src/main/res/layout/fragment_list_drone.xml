@@ -15,6 +15,14 @@
         android:layout_height="3dp"
         android:background="@android:color/darker_gray"/>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="@string/remove_marker"
+        android:id="@+id/buttonRemoveLastPoint"
+        android:layout_gravity="center_horizontal"
+        android:onClick="removeLastPoint"/>
+
     <CheckBox
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

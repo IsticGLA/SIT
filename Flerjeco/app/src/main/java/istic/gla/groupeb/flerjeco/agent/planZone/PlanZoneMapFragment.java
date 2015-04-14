@@ -128,7 +128,10 @@ public class PlanZoneMapFragment extends Fragment {
                 marker.icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
                 // adding marker
-                googleMap.addMarker(marker);
+                Marker m = googleMap.addMarker(marker);
+
+                // add the marker on the markers list
+                markers.add(m);
 
                 // Set the Position on newPath
                 newPath.getPositions().add(new Position(latitude, longitude, 20));
@@ -177,7 +180,10 @@ public class PlanZoneMapFragment extends Fragment {
                 marker.icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
                 // adding marker
-                googleMap.addMarker(marker);
+                Marker m = googleMap.addMarker(marker);
+
+                // add the marker on the markers list
+                markers.add(m);
 
                 // draw line between two points if is not the first
                 if (i > 0){
@@ -215,6 +221,7 @@ public class PlanZoneMapFragment extends Fragment {
      * Send the new path in the database
      */
     public void sendPath(){
+        googleMap.setOnMapClickListener(null);
         Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
         inter.getWatchPath().add(newPath);
         new SendPathToDrone().execute(inter);
@@ -254,6 +261,11 @@ public class PlanZoneMapFragment extends Fragment {
         Log.i(TAG, "Remove the polyline at the " + i + " position");
         polylines.get(i).remove();
         polylines.remove(i);
+    }
+
+    public void removeLastPoint(){
+        Log.i(TAG, "Remove the last position on the path");
+        markers.remove(markers.size()-1);
     }
 
     @Override
@@ -309,7 +321,7 @@ public class PlanZoneMapFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(), "La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer", Toast.LENGTH_LONG).show();
             } else {
                 Log.i(TAG, "Intervention was updated !");
-                Toast.makeText(getActivity().getApplicationContext(), "Le chemin à été créé", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity().getApplicationContext(), "Le trajet à été créé", Toast.LENGTH_LONG).show();
                 Log.i(TAG, intervention.toString());
                 pathList = intervention.getWatchPath();
                 updateMapView(pathList.size() - 1);
