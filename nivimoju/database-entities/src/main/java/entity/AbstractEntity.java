@@ -50,4 +50,8 @@ public abstract class AbstractEntity  implements Serializable {
     public String getType() {
         return type;
     }
+
+    public Timestamp getLastUpdate() {
+        return lastUpdate;
+    }
 }
