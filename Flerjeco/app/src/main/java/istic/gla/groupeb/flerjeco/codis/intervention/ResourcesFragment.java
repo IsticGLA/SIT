@@ -94,8 +94,6 @@ public class ResourcesFragment extends Fragment {
         }
 
         listViewResources.setAdapter(new ArrayAdapter(getActivity(), layout, labelsResources));
-        Log.d("zqdozdhoqzqgdiqzd", "" + intervention.getId());
-
-        listViewRequests.setAdapter(new ResourceAdapter(getActivity(), layout, requests, intervention.getId()));
+        listViewRequests.setAdapter(new ResourceAdapter(getActivity(), layout, requests, intervention.getId(), this));
     }
 }
