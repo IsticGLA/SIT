@@ -15,10 +15,13 @@
  */
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -26,13 +29,20 @@ import java.util.List;
 
 import entity.Intervention;
 import entity.Resource;
+import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import util.State;
 
 public class SecondActivity extends FragmentActivity
         implements ResourcesFragment.OnResourceSelectedListener {
 
+    private static final String TAG = SecondActivity.class.getSimpleName();
+
     protected Intervention intervention;
+    private StaticData[] staticDataTab;
 
     /** Called when the activity is first created. */
     @Override
@@ -41,10 +51,12 @@ public class SecondActivity extends FragmentActivity
 
         /*Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            intervention = (Intervention) extras.getSerializable("intervention");
+            Object[] objects1 = (Object[]) extras.getSerializable("staticdatas");
+            staticDataTab = new StaticData[objects1.length];
+            for (int i=0; i<objects1.length; i++){
+                staticDataTab[i] = (StaticData) objects1[i];
+            }
         }*/
-
-
 
         intervention = new Intervention();
         intervention.setLatitude(48.117749);
@@ -106,6 +118,7 @@ public class SecondActivity extends FragmentActivity
             MapFragment newFragment = new MapFragment();
             Bundle args = new Bundle();
             args.putInt(MapFragment.ARG_POSITION, position);
+            args.putSerializable("staticdatas", staticDataTab);
             newFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
