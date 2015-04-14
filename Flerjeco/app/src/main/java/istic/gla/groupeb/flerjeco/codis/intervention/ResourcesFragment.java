@@ -19,12 +19,14 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +78,7 @@ public class ResourcesFragment extends Fragment {
 
     public void updateResources(Intervention intervention) {
         List<String> labelsResources = new ArrayList<>();
-        List<String> labelsRequests = new ArrayList<>();
+        List<Resource> requests = new ArrayList<>();
 
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
@@ -87,11 +89,11 @@ public class ResourcesFragment extends Fragment {
             if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
                 labelsResources.add(resource.getLabel());
             }else{
-                labelsRequests.add(resource.getLabel());
+                requests.add(resource);
             }
         }
 
-        listViewResources.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsResources));
-        listViewRequests.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsRequests));
+        listViewResources.setAdapter(new ArrayAdapter(getActivity(), layout, labelsResources));
+        listViewRequests.setAdapter(new ResourceAdapter(getActivity(), layout, requests, intervention.getId(), this));
     }
 }

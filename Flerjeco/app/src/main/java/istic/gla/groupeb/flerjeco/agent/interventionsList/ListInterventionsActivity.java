@@ -16,16 +16,21 @@
 package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import entity.Intervention;
+import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.SecondActivity;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class ListInterventionsActivity extends FragmentActivity
@@ -33,6 +38,7 @@ public class ListInterventionsActivity extends FragmentActivity
 
     private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention[] interventionTab;
+    protected StaticData[] staticDataTab;
     private int position=0;
 
     /** Called when the activity is first created. */
@@ -48,6 +54,9 @@ public class ListInterventionsActivity extends FragmentActivity
                 interventionTab[i] = (Intervention) objects[i];
             }
         }
+
+        GetAllStaticDataTask mGetAllStaticDataTask = new GetAllStaticDataTask();
+        mGetAllStaticDataTask.execute((Void)null);
 
         setContentView(R.layout.activity_list_interventions);
 
@@ -96,6 +105,7 @@ public class ListInterventionsActivity extends FragmentActivity
             mapFragment = new MapListInterventionsFragment();
             Bundle args = new Bundle();
             args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
+            args.putSerializable("staticdatas", getStaticDatas());
             mapFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -113,13 +123,53 @@ public class ListInterventionsActivity extends FragmentActivity
         return interventionTab;
     }
 
+    public StaticData[] getStaticDatas(){
+        return staticDataTab;
+    }
+
     public void selectIntervention(View view) {
         Intent intent = new Intent(ListInterventionsActivity.this, SecondActivity.class);
         Bundle bundle = new Bundle();
 
         bundle.putSerializable("intervention", getInterventions()[position]);
+        bundle.putSerializable("staticdatas", getStaticDatas());
 
         intent.putExtras(bundle);
         startActivity(intent);
+    }
+
+    /**
+     * Represents an asynchronous Task that gets the static data
+     * and give it to the next activity to displ+ay it
+     */
+    public class GetAllStaticDataTask extends AsyncTask<Void, Void, Boolean> {
+
+        private StaticData[] staticDataTab;
+
+        public GetAllStaticDataTask() {
+
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            SpringService service = new SpringService();
+            staticDataTab = service.getAllStaticDatas();
+            Log.i(TAG, "staticdataTab size : " + staticDataTab.length);
+            Log.i(TAG, "doInBackground end");
+            return true;
+        }
+
+        /*@Override
+        protected void onPostExecute(final Boolean success) {
+
+            Intent intent = new Intent(ListInterventionsActivity.this, SecondActivity.class);
+
+            Bundle bundle = new Bundle();
+
+            bundle.putSerializable("staticdatas", staticDataTab);
+
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }*/
     }
 }

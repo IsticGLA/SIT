@@ -1,6 +1,7 @@
 package entity;
 
 import util.ResourceRole;
+import util.ResourceCategory;
 import util.State;
 
 import java.io.Serializable;
@@ -10,9 +11,11 @@ import java.io.Serializable;
  */
 public class Resource implements Serializable {
 
+    private long idRes;
     private String label;
     private State state;
     private ResourceRole resourceRole;
+    private ResourceCategory resourceCategory;
     private double latitude;
     private double longitude;
 
@@ -35,6 +38,26 @@ public class Resource implements Serializable {
         this.label = label;
         this.state = state;
         this.resourceRole = ResourceRole.otherwise;
+        this.resourceCategory = ResourceCategory.vehicule;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
+    /**
+     * Build a resource
+     * @param label
+     * @param state
+     * @param resourceRole
+     * @param resourceCategory
+     * @param latitude
+     * @param longitude
+     */
+    public Resource(String label, State state, ResourceRole resourceRole, ResourceCategory resourceCategory, double latitude, double longitude) {
+        super();
+        this.label = label;
+        this.state = state;
+        this.resourceRole = resourceRole;
+        this.resourceCategory = resourceCategory;
         this.latitude = latitude;
         this.longitude = longitude;
     }
@@ -48,6 +71,16 @@ public class Resource implements Serializable {
         super();
         this.label = label;
         this.state = state;
+        this.resourceRole = ResourceRole.otherwise;
+        this.resourceCategory = ResourceCategory.vehicule;
+    }
+
+    public long getIdRes() {
+        return idRes;
+    }
+
+    public void setIdRes(long idRes) {
+        this.idRes = idRes;
     }
 
     public String getLabel() {
@@ -82,6 +115,22 @@ public class Resource implements Serializable {
         this.longitude = longitude;
     }
 
+    public ResourceCategory getResourceCategory() {
+        return resourceCategory;
+    }
+
+    public void setResourceCategory(ResourceCategory resourceCategory) {
+        this.resourceCategory = resourceCategory;
+    }
+
+    public ResourceRole getResourceRole() {
+        return resourceRole;
+    }
+
+    public void setResourceRole(ResourceRole resourceRole) {
+        this.resourceRole = resourceRole;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -92,7 +141,9 @@ public class Resource implements Serializable {
         if (Double.compare(resource.latitude, latitude) != 0) return false;
         if (Double.compare(resource.longitude, longitude) != 0) return false;
         if (!label.equals(resource.label)) return false;
-        return state == resource.state;
+        if (state != resource.state) return false;
+        if (resourceRole != resource.resourceRole) return false;
+        return resourceCategory == resource.resourceCategory;
 
     }
 
@@ -102,18 +153,12 @@ public class Resource implements Serializable {
         long temp;
         result = label.hashCode();
         result = 31 * result + state.hashCode();
+        result = 31 * result + resourceRole.hashCode();
+        result = 31 * result + resourceCategory.hashCode();
         temp = Double.doubleToLongBits(latitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(longitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
-    }
-
-    public ResourceRole getResourceRole() {
-        return resourceRole;
-    }
-
-    public void setResourceRole(ResourceRole resourceRole) {
-        this.resourceRole = resourceRole;
     }
 }

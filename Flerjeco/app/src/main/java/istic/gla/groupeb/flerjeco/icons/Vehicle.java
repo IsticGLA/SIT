@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
 
 import util.ResourceRole;
@@ -15,6 +14,16 @@ import util.State;
  * of a Vehicle according to the SIT graphic
  */
 public class Vehicle extends Canvas {
+
+    public static final int RECT_LEFT = 0;
+    public static final int RECT_TOP = 20;
+    public static final int RECT_RIGHT_COEF = 8;
+    public static final int RECT_RIGHT_SUP = 40;
+    public static final int RECT_BOTTOM = 50;
+    public static final int RECT_STROKE = 2;
+    public static final int RECT2_SIZE = 10;
+    public static final int TEXT_SIZE = 15;
+
 
     private Paint paint;
     private Rect rect;
@@ -28,38 +37,28 @@ public class Vehicle extends Canvas {
      */
     public Vehicle(String name){
         this.name = name;
-        paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setStrokeWidth(5);
-        paint.setTextSize(15);
-        this.setState(State.planned);
-        this.setRole(ResourceRole.otherwise);
-        rect = new Rect(10, 40, 160, 110);
-        rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
+        initDrawingVehicle(ResourceRole.otherwise, State.planned);
     }
 
     public Vehicle(String name, ResourceRole role){
         this.name = name;
-        this.setState(State.planned);
-        this.setRole(role);
-        paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setStrokeWidth(5);
-        paint.setTextSize(15);
-        rect = new Rect(10, 40, 160, 110);
-        rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
+        initDrawingVehicle(role, State.planned);
     }
 
     public Vehicle(String name, ResourceRole role, State state){
         this.name = name;
-        this.setRole(role);
-        this.setState(state);
+        initDrawingVehicle(role, state);
+    }
+
+    private void initDrawingVehicle(ResourceRole role, State state){
         paint = new Paint();
         paint.setAntiAlias(true);
-        paint.setStrokeWidth(5);
-        paint.setTextSize(15);
-        rect = new Rect(10, 40, 160, 110);
-        rect2 = new Rect(rect.centerX()-10, rect.top-30, rect.centerX()+10, rect.top);
+        paint.setStrokeWidth(RECT_STROKE);
+        paint.setTextSize(TEXT_SIZE);
+        rect = new Rect(RECT_LEFT, RECT_TOP, name.length()*RECT_RIGHT_COEF + RECT_RIGHT_SUP, RECT_BOTTOM);
+        rect2 = new Rect(rect.centerX()-(RECT2_SIZE/2), rect.top-RECT2_SIZE, rect.centerX()+(RECT2_SIZE/2), rect.top);
+        this.setRole(role);
+        this.setState(state);
     }
 
     /**
@@ -98,13 +97,13 @@ public class Vehicle extends Canvas {
         paint.setStyle(Paint.Style.STROKE);
         switch (state){
             case planned:
-                paint.setPathEffect(new DashPathEffect(new float[]{20, 10}, 0));
+                paint.setPathEffect(new DashPathEffect(new float[]{10, 5}, 0));
                 break;
             case active:
                 paint.setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
                 break;
             default:
-                paint.setPathEffect(new DashPathEffect(new float[]{20, 10}, 0));
+                paint.setPathEffect(new DashPathEffect(new float[]{10, 5}, 0));
                 break;
         }
     }
@@ -165,5 +164,24 @@ public class Vehicle extends Canvas {
     public void setRole(ResourceRole role) {
         this.role = role;
         changeFunction(role);
+    }
+
+    public void drawVehicle(Canvas mCanvas){
+        DashPathEffect temp = (DashPathEffect) paint.getPathEffect();
+        Paint tempPaint = new Paint();
+        tempPaint.setColor(Color.WHITE);
+        tempPaint.setStyle(Paint.Style.FILL);
+        mCanvas.drawRect(rect, tempPaint);
+        //Drawing the first rectangle
+        mCanvas.drawRect(rect, paint);
+        //Drawing the second little rectangle
+        paint.setStyle(Paint.Style.FILL);
+        mCanvas.drawRect(rect2, paint);
+        //Drawing the name of the vehicle
+        paint.setPathEffect(new DashPathEffect(new float[]{0, 0}, 0));
+        mCanvas.drawText(name, rect.centerX() - 40, rect.centerY(), paint);
+        paint.setStyle(Paint.Style.STROKE);
+        //Reapplying the PathEffect
+        paint.setPathEffect(temp);
     }
 }
