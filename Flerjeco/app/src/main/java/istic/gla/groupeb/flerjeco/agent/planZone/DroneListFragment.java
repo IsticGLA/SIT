@@ -119,5 +119,10 @@ public class DroneListFragment extends Fragment {
         }
         adapter.addAll(labelsPath);
         adapter.notifyDataSetChanged();
+        listViewPath.setItemChecked(labelsPath.size()-1, true);
+    }
+
+    public void unCheckedListView(){
+        listViewPath.setItemChecked(listViewPath.getCheckedItemPosition(), false);
     }
 }

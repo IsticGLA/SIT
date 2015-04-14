@@ -21,7 +21,8 @@
         android:text="@string/remove_marker"
         android:id="@+id/buttonRemoveLastPoint"
         android:layout_gravity="center_horizontal"
-        android:onClick="removeLastPoint"/>
+        android:onClick="removeLastPoint"
+        android:visibility="gone"/>
 
     <CheckBox
         android:layout_width="match_parent"
@@ -30,6 +31,15 @@
         android:id="@+id/checkbox_closed_path"
         android:onClick="closePath"
         android:layout_gravity="center_horizontal"
+        android:visibility="gone"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="@string/cancel"
+        android:id="@+id/buttonCancel"
+        android:layout_gravity="center_horizontal"
+        android:onClick="cancel"
         android:visibility="gone"/>
 
     <Button
