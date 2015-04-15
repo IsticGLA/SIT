@@ -185,16 +185,17 @@ public class SpringService {
             httpCode = entity.getStatusCode().toString();
             restTimestamp = entity.getBody();
             Log.i(TAG, "HttpCode  :  " + httpCode);
-            if ("200".equals(httpCode)) {
-                return timestamp;
-            } else if ("201".equals(httpCode)) {
+            if ("201".equals(httpCode)) {
                 return restTimestamp;
+            }else {
+                return timestamp;
             }
+
         } catch (HttpStatusCodeException e) {
             httpCode = e.getStatusCode().toString();
             return restTimestamp;
         }
-        return restTimestamp;
+
     }
 
 
