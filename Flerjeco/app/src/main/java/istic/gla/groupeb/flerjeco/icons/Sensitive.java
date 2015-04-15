@@ -23,8 +23,8 @@ public class Sensitive implements IIcon {
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setAntiAlias(true);
         changeComponent(ResourceRole.otherwise);
-        Point point1 = new Point(0,0);
-        Point point2 = new Point(40,0);
+        Point point1 = new Point(5,5);
+        Point point2 = new Point(35,5);
         Point point3 = new Point((point2.x+point1.x)/2, (int) ((point2.x-point1.x)*(Math.sqrt(3)/2))+point1.y);
         triangle = new Path();
         triangle.moveTo(point1.x, point1.y);

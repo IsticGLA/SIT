@@ -65,7 +65,7 @@ public class ResourceIconAdapter extends ArrayAdapter<Resource> {
                     mIcon = new IIcon() {
                         @Override
                         public void drawIcon(Canvas mCanvas) {
-                            Bitmap mBitmap = BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.incident);
+                            Bitmap mBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.incident);
                             mCanvas.drawBitmap(mBitmap,10,10,new Paint());
                         }
                     };

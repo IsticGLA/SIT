@@ -23,8 +23,8 @@ public class Danger implements IIcon {
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setAntiAlias(true);
         changeComponent(ResourceRole.otherwise);
-        Point point1 = new Point(0,40);
-        Point point2 = new Point(40,40);
+        Point point1 = new Point(5,35);
+        Point point2 = new Point(35,35);
         Point point3 = new Point((point2.x+point1.x)/2, point1.x);
         triangle = new Path();
         triangle.moveTo(point1.x, point1.y);
