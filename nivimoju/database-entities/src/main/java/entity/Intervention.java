@@ -27,6 +27,10 @@ public class Intervention extends AbstractEntity implements Serializable {
     public Intervention() {
         super();
         this.type = Constant.TYPE_INTERVENTION;
+        this.resources = new ArrayList<>();
+        this.exclusionArea = new ArrayList<>();
+        this.watchArea = new ArrayList<>();
+        this.watchPath = new ArrayList<>();
     }
 
     /**
