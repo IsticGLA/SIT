@@ -87,9 +87,9 @@ public class SpringService {
     }
 
     /**
-     * Create intervention
+     * Creates intervention
      * @param intervention intervention to be created
-     * @return id of the intervention created
+     * @return The intervention created
      */
     public Intervention postIntervention(Intervention intervention) {
         try {
@@ -97,14 +97,13 @@ public class SpringService {
             intervention.updateDate();
 
             final String url = URL + "intervention/create";
-            ResponseEntity<Intervention> intervetionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
+            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
 
-            if (intervetionResult == null) {
-                Log.i(TAG, "intervetionResult = null");
+            if (interventionResult == null) {
+                Log.i(TAG, "interventionResult = null");
             } else {
-
                 // assignement of the drone for the intervention
-                final String urlDrone = URL + "/drone/assign/" + intervetionResult.getBody().getId();
+                final String urlDrone = URL + "drone/assign/" + interventionResult.getBody().getId();
                 ResponseEntity<Drone> drone = restTemplate.getForEntity(urlDrone, Drone.class);
 
                 if (drone.getStatusCode() == HttpStatus.NOT_FOUND){
@@ -112,7 +111,7 @@ public class SpringService {
                 }// else {
                 // we return the intervention even if drone is null
 
-                return intervetionResult.getBody();
+                return interventionResult.getBody();
                 //}
             }
         } catch (HttpStatusCodeException e) {
@@ -121,6 +120,11 @@ public class SpringService {
         return null;
     }
 
+    /**
+     * Updates intervention with the one in parameters
+     * @param intervention The new intervention
+     * @return The new intervention backing from the server
+     */
     public Intervention updateIntervention(Intervention intervention) {
         try {
             intervention.updateDate();
@@ -134,7 +138,7 @@ public class SpringService {
                 Log.i(TAG, interventionResult.toString());
                 return interventionResult.getBody();
         } catch (HttpStatusCodeException e) {
-            Log.i(TAG, "Problème de l'update de l'intervention : " + e.getMessage());
+            Log.i(TAG, "Fail updating intervention : " + e.getMessage());
         }
         return null;
     }
@@ -159,10 +163,10 @@ public class SpringService {
     }
 
     /**
-     *
-     * @param id
-     * @param password
-     * @return
+     * Tries to log in the user with his id and password
+     * @param id The user identifier
+     * @param password The user password
+     * @return 200 if connected
      */
     public String login(String id, String password) {
         Log.i(TAG, "login start");
@@ -180,7 +184,7 @@ public class SpringService {
     }
 
     /**
-     * get a notification from server
+     * Gets a notification from server
      * @param url url already prepared to call the server
      * @param timestamp lastUpdate timestamp
      * @return the lastUpdate timestamp
@@ -209,6 +213,10 @@ public class SpringService {
     }
 
 
+    /**
+     * Gets all the resource types
+     * @return A list of resource types
+     */
     public ResourceType[] resourceTypes() {
         final String url = URL + "resource";
 
@@ -216,6 +224,11 @@ public class SpringService {
         return resourceTypes.getBody();
     }
 
+    /**
+     * Requests a new vehicle for an intervention of a type in resource types
+     * @param params The intervention id and the vehicle type
+     * @return The updated intervention
+     */
     public Intervention requestVehicle(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
 
@@ -241,13 +254,27 @@ public class SpringService {
         return id.getBody();
     }
 
+    /**
+     * Change the state of a resource in parameters (waiting, planned, validated...)
+     * @param params The id of the intervention, the resource label and the new state
+     * @return The updated intervention
+     */
     public Intervention changeResourceState(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2];
-
-        ResponseEntity<Intervention> intervention = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
+        ResponseEntity<Intervention> intervention = null;
+        try {
+            intervention = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
+        } catch (HttpServerErrorException e) {
+            Log.e(TAG, e.getMessage());
+        }
         Log.i("SpringService", intervention.getBody().getName());
         return intervention.getBody();
     }
+
+    /**
+     * Gets all static data
+     * @return A list of static data
+     */
     public StaticData[] getAllStaticDatas() {
         Log.i(TAG, "getAllStaticDatas start");
         final String url = URL + "staticdata";
@@ -255,7 +282,7 @@ public class SpringService {
         try {
             entity = restTemplate.getForEntity(url, StaticData[].class);
         } catch (HttpServerErrorException e) {
-            Log.i(TAG, e.getMessage());
+            Log.e(TAG, e.getMessage());
             return null;
         }
         Log.i(TAG, "getAllStaticData : " + entity.getBody().toString());

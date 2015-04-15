@@ -2,6 +2,7 @@
     <string name="title_activity_intervention">Current Intervention</string>
     <string name="title_fragment_create_intervention">Create Intervention</string>
     <string name="intervention_creation">Create Intervention</string>
+    <string name="geocoder_failed">Adress did not found</string>
     <string name="nameInterventionHint">Intervention name</string>
     <string name="createInterventionButton">Create Intervention</string>
     <string name="action_create_intervention">Create Intervention</string>
