@@ -23,8 +23,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import org.springframework.web.client.HttpStatusCodeException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,10 +45,13 @@ public class PlanZoneMapFragment extends Fragment {
     private List<Polyline> polylines;
     private List<Marker> markers;
     int mCurrentPosition = -1;
-    boolean editPath = false;
-
     private List<Path> pathList;
+
     public Path newPath;
+    private Path savePath;
+
+    public boolean removePath = false;
+    public boolean editPath = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -108,7 +109,7 @@ public class PlanZoneMapFragment extends Fragment {
     public void createPath(){
         // clear the Google Map
         clearGoogleMap();
-
+        editPath = false;
         addMapClickListener();
     }
 
@@ -121,9 +122,10 @@ public class PlanZoneMapFragment extends Fragment {
         clearGoogleMap();
 
         // if path of the position position in the list is not null, we draw it on the map
-        if (null != pathList.get(position)){
+        if (position < pathList.size() && null != pathList.get(position)){
             // Set mCurrentPosition to future resume on fragment
             mCurrentPosition = position;
+
 
             // set closed property on newPath
             boolean b = pathList.get(position).isClosed();
@@ -131,6 +133,10 @@ public class PlanZoneMapFragment extends Fragment {
             ((PlanZoneActivity) getActivity()).checkCloseBox(b);
 
             List<Position> positions = pathList.get(position).getPositions();
+
+            // save the old path for future restore if the update doesn't work
+            savePath = new Path();
+            savePath.setClosed(b);
 
             // Create LatLngBound to zoom on the set of positions in the path
             LatLngBounds.Builder bounds = new LatLngBounds.Builder();
@@ -141,6 +147,7 @@ public class PlanZoneMapFragment extends Fragment {
                 bounds.include(latLng);
 
                 newPath.getPositions().add(new Position(latitude, longitude, 20));
+                savePath.getPositions().add(new Position(latitude, longitude, 20));
 
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(latLng);
@@ -180,8 +187,6 @@ public class PlanZoneMapFragment extends Fragment {
 
     public void clearGoogleMap(){
         googleMap.clear();
-        editPath = false;
-        Log.i("EDITPATH", "SET TO FALSE CLEARGOOGLEMAP");
         this.polylines = new ArrayList<>();
         this.markers = new ArrayList<>();
         this.newPath = new Path();
@@ -193,7 +198,6 @@ public class PlanZoneMapFragment extends Fragment {
     public void sendPath(){
         resetMapListener();
         Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
-        Log.i("EDITPATH", "" + editPath);
         if (editPath){
             inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
             inter.getWatchPath().get(mCurrentPosition).setClosed(newPath.isClosed());
@@ -207,6 +211,7 @@ public class PlanZoneMapFragment extends Fragment {
      * Remove path on the database
      */
     public void removePath(){
+        removePath = true;
         resetMapListener();
         Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
         inter.getWatchPath().remove(mCurrentPosition);
@@ -221,43 +226,41 @@ public class PlanZoneMapFragment extends Fragment {
         googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-            double latitude = latLng.latitude;
-            double longitude = latLng.longitude;
-            Log.i("Click on the map", "latitude : " + latitude + ", " + "longitude : " + longitude);
+                double latitude = latLng.latitude;
+                double longitude = latLng.longitude;
+                Log.i("Click on the map", "latitude : " + latitude + ", " + "longitude : " + longitude);
 
-            //if there are at least two polyline on the Google Map and newPath is closed, remove the last one
-            if (polylines.size() > 2 && newPath.isClosed()) {
-                removeLine(polylines.size() - 1);
-            }
+                //if there are at least two polyline on the Google Map and newPath is closed, remove the last one
+                if (polylines.size() > 2 && newPath.isClosed()) {
+                    removeLine(polylines.size() - 1);
+                }
 
-            // create marker
-            MarkerOptions marker = new MarkerOptions().position(
-                    new LatLng(latitude, longitude)).title("new Path");
-            // Changing marker icon
-            marker.icon(BitmapDescriptorFactory
-                    .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-            // adding marker
-            Marker m = googleMap.addMarker(marker);
+                // create marker
+                MarkerOptions marker = new MarkerOptions().position(
+                        new LatLng(latitude, longitude)).title("new Path");
+                // Changing marker icon
+                marker.icon(BitmapDescriptorFactory
+                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                // adding marker
+                Marker m = googleMap.addMarker(marker);
 
-            // add the marker on the markers list
-            markers.add(m);
+                // add the marker on the markers list
+                markers.add(m);
 
-            // Set the Position on newPath
-            newPath.getPositions().add(new Position(latitude, longitude, 20));
+                // Set the Position on newPath
+                newPath.getPositions().add(new Position(latitude, longitude, 20));
 
-            int size = newPath.getPositions().size();
-            // draw line between two points if is not the first
-            if (size > 1) {
-                Log.i(TAG, "Size > 1 " + size);
-                LatLng previousLatLng = new LatLng(newPath.getPositions().get(size - 2).getLatitude(), newPath.getPositions().get(size - 2).getLongitude());
-                drawLine(latLng, previousLatLng);
-                // else if it the path is closed, draw line between first and last point
-            }
-            if (size > 2 && newPath.isClosed()) {
-                Log.i(TAG, "Size > 2 and newPath.isClosed == true " + size);
-                LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
-                drawLine(firstLatLng, latLng);
-            }
+                int size = newPath.getPositions().size();
+                // draw line between two points if is not the first
+                if (size > 1) {
+                    LatLng previousLatLng = new LatLng(newPath.getPositions().get(size - 2).getLatitude(), newPath.getPositions().get(size - 2).getLongitude());
+                    drawLine(latLng, previousLatLng);
+                    // else if it the path is closed, draw line between first and last point
+                }
+                if (size > 2 && newPath.isClosed()) {
+                    LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
+                    drawLine(firstLatLng, latLng);
+                }
             }
         });
     }
@@ -387,7 +390,7 @@ public class PlanZoneMapFragment extends Fragment {
                 Intervention intervention = springService.updateIntervention(params[0]);
                 return intervention;
 
-            } catch (HttpStatusCodeException e) {
+            } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);
             }
 
@@ -398,13 +401,32 @@ public class PlanZoneMapFragment extends Fragment {
         protected void onPostExecute(Intervention intervention) {
             if (null == intervention){
                 Log.i(TAG, "La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer");
+                Intervention i = ((PlanZoneActivity) getActivity()).getIntervention();
+
+                // update doesn't work
+                if (editPath && !removePath){
+                    Log.i("TEST", "Update");
+                    pathList.set(mCurrentPosition, savePath);
+                    updateMapView(mCurrentPosition);
+
+                    // remove doesn't work
+                } else if (removePath) {
+                    Log.i("TEST", "Delete " + savePath.toString() + "  " + mCurrentPosition);
+                    pathList.add(mCurrentPosition, savePath);
+                    updateMapView(mCurrentPosition);
+
+                    // create doesn't work
+                } else {
+                    Log.i("TEST", "Create");
+                    pathList.remove(pathList.size()-1);
+                    clearGoogleMap();
+                }
                 Toast.makeText(getActivity().getApplicationContext(), "La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer", Toast.LENGTH_LONG).show();
             } else {
                 Log.i(TAG, "Intervention was updated !");
-                Toast.makeText(getActivity().getApplicationContext(), "Le trajet à été créé", Toast.LENGTH_LONG).show();
-                Log.i(TAG, intervention.toString());
+                Toast.makeText(getActivity().getApplicationContext(), "Les modifications ont été enregistées", Toast.LENGTH_LONG).show();
                 pathList = intervention.getWatchPath();
-                updateMapView(pathList.size() - 1);
+                updateMapView(intervention.getWatchPath().size()-1);
                 ((PlanZoneActivity) getActivity()).refreshList(intervention);
             }
         }
