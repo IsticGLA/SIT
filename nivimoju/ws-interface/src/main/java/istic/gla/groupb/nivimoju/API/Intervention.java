@@ -217,6 +217,7 @@ public class Intervention {
     public Response placeVehicle(
             ObjectWithDate objectWithDate,
             @PathParam("inter") Long inter) {
+        boolean found = false;
         InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
         Resource newResource = (Resource) objectWithDate.getObject();
@@ -224,7 +225,11 @@ public class Intervention {
         for (Resource resource : intervention.getResources()) {
             if (resource.getIdRes() == newResource.getIdRes()) {
                 resource = newResource;
+                found = true;
             }
+        }
+        if (!found){
+            intervention.getResources().add(newResource);
         }
         intervention.setLastUpdate(objectWithDate.getDate());
 

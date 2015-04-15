@@ -45,6 +45,7 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.view.IconView;
 import util.ResourceCategory;
 import util.ResourceRole;
@@ -217,8 +218,11 @@ public class AgentInterventionActivity extends FragmentActivity
      * Update lists of resources and map
      * @param intervention
      */
-    public void updateIntervention(Intervention intervention) {
+    public void updateIntervention(Intervention intervention, Resource resource) {
         //TODO update lists of resources and map
+        SpringService springService = new SpringService();
+        springService.updateResourceIntervention(intervention.getId(), resource);
+
     }
 
     class MyDragListener implements View.OnDragListener {
@@ -260,6 +264,11 @@ public class AgentInterventionActivity extends FragmentActivity
                     IconView iconView = (IconView) ((LinearLayout)view).getChildAt(0);
 
                     Resource resource = iconView.getResource();
+
+                    resource.setLatitude(latLng.latitude);
+                    resource.setLongitude(latLng.longitude);
+
+                    updateIntervention(intervention, resource);
 
                     MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
                     // Changing marker icon
