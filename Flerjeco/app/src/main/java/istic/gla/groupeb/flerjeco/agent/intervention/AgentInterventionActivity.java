@@ -17,15 +17,22 @@ package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Display;
+import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+
+import com.google.android.gms.maps.MapView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +67,8 @@ public class AgentInterventionActivity extends FragmentActivity
 
         intervention = new Intervention();
 
+
+
         /*Bundle extras = getIntent().getExtras();
 
         if (extras != null){
@@ -71,15 +80,15 @@ public class AgentInterventionActivity extends FragmentActivity
         intervention.setLongitude(-1.677297);
         List<Resource> resourceList = new ArrayList<>();
         resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource1", State.active, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
-        resourceList.add(new Resource("Resource2", State.active, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
-        resourceList.add(new Resource("Resource3", State.planned, ResourceRole.commands, ResourceCategory.vehicule, 48.107749, -1.687297));
+        resourceList.add(new Resource("Resource1", State.validated, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
+        resourceList.add(new Resource("Resource2", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
+        resourceList.add(new Resource("Resource3", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 48.107749, -1.687297));
         resourceList.add(new Resource("Resource4", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource5", State.waiting, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("VSAP", State.refused, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource7", State.refused, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource8", State.waiting, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource9", State.refused, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource5", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("VSAP", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource7", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource8", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
 
         intervention.setResources(resourceList);
 
@@ -106,6 +115,10 @@ public class AgentInterventionActivity extends FragmentActivity
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
+
+
+            findViewById(R.id.fragment_container).setOnDragListener(new MyDragListener());
+            findViewById(R.id.map_fragment).setOnDragListener(new MyDragListener());
         }
 
         final ActionBar actionBar = getActionBar();
@@ -129,6 +142,8 @@ public class AgentInterventionActivity extends FragmentActivity
 
         mapFragment = (AgentInterventionMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+
+
 
         if (mapFragment != null) {
             //save the current position
@@ -199,6 +214,65 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
+    class MyDragListener implements View.OnDragListener {
+
+        float x, y;
+
+
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+            int action = event.getAction();
+            switch (event.getAction()) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    // do nothing
+                    break;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    break;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    break;
+                case DragEvent.ACTION_DROP:
+                    // Dropped, reassign View to ViewGroup
+                    View view = (View) event.getLocalState();
+                    /*ViewGroup owner = (ViewGroup) view.getParent();
+                    owner.removeView(view);
+                    LinearLayout container = (LinearLayout) v;
+                    container.addView(view);
+                    view.setVisibility(View.VISIBLE);*/
+                    Log.i("DROP DROP DROP", ((LinearLayout) view).getChildAt(0).toString());
+                    Log.i("DROP DROP DROP", ((FrameLayout) v).getChildAt(0).toString());
+
+                    MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
+
+                    Log.i("DROP DROP DROP", mapView.getMap().getCameraPosition().toString());
+
+                    x = event.getX();
+                    y = event.getY();
+
+                    Display display = getWindowManager().getDefaultDisplay();
+                    Point size = new Point();
+                    display.getSize(size);
+                    int maxX = size.x;
+                    int maxY = size.y;
+
+                    int maxXMap = maxX - maxX / 5;
+                    int maxYMap = maxY - maxY / 5;
+
+                    Log.i("DROP DROP DROP", "x : " + x + ", y : " + y);
+                    Log.i("DROP DROP DROP", "maxX : " + maxX + ", maxY : " + maxY);
+                    Log.i("DROP DROP DROP", "maxX MAP : " + maxXMap + ", maxY MAP : " + maxYMap);
+
+                    view.setX(x);
+                    view.setY(y);
+
+                    break;
+                case DragEvent.ACTION_DRAG_ENDED:
+                default:
+                    break;
+            }
+            return true;
+        }
+    }
+
     @Override
     public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
         if(tab.getText().toString().equals("Drone")) {
@@ -220,6 +294,5 @@ public class AgentInterventionActivity extends FragmentActivity
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-
     }
 }
