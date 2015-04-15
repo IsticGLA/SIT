@@ -3,7 +3,7 @@ package istic.gla.groupeb.flerjeco.synch;
 import android.content.Context;
 import android.content.Intent;
 
-import istic.gla.groupeb.flerjeco.MyApp;
+import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 
 /**
  * Created by amhachi on 15/04/15.
@@ -15,7 +15,7 @@ public class IntentWraper {
 
     public static Intent getIntentInstance(){
         if(intent == null) {
-            context = MyApp.getInstance().getApplicationContext();
+            context = FlerjecoApplication.getInstance().getApplicationContext();
             intent = new Intent(context, SynchService.class);
         }
         return  intent;

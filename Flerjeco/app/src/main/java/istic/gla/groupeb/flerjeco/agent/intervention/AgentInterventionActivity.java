@@ -42,7 +42,6 @@ import java.util.Set;
 
 import entity.Intervention;
 import entity.Resource;
-import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
