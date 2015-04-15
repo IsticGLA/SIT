@@ -21,8 +21,8 @@ public class Danger {
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setAntiAlias(true);
         changeComponent(Component.FIRE);
-        Point point1 = new Point(10,60);
-        Point point2 = new Point(60,60);
+        Point point1 = new Point(0,40);
+        Point point2 = new Point(40,40);
         Point point3 = new Point((point2.x+point1.x)/2, point1.x);
         triangle = new Path();
         triangle.moveTo(point1.x, point1.y);

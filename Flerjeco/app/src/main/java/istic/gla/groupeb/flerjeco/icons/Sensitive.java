@@ -1,5 +1,6 @@
 package istic.gla.groupeb.flerjeco.icons;
 
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -20,8 +21,8 @@ public class Sensitive {
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setAntiAlias(true);
         changeComponent(Component.HUMAN);
-        Point point1 = new Point(10,10);
-        Point point2 = new Point(60,10);
+        Point point1 = new Point(0,0);
+        Point point2 = new Point(40,0);
         Point point3 = new Point((point2.x+point1.x)/2, (int) ((point2.x-point1.x)*(Math.sqrt(3)/2))+point1.y);
         triangle = new Path();
         triangle.moveTo(point1.x, point1.y);
@@ -60,6 +61,10 @@ public class Sensitive {
 
     public Paint getPaint() {
         return paint;
+    }
+
+    public void drawSensitive(Canvas mCanvas){
+        mCanvas.drawPath(triangle, paint);
     }
 
 }
