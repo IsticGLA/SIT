@@ -1,8 +1,8 @@
 package dao;
 
 import entity.Drone;
+import entity.User;
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -20,7 +20,7 @@ public class DroneDAOTest {
     public static void init() {
         drone = new Drone("Drone 1");
         droneDAO = new DroneDAO();
-        DAOManager.connectTest();
+        DAOManager.connect();
     }
 
     @AfterClass
@@ -31,10 +31,14 @@ public class DroneDAOTest {
     @Test
     public void createTest() {
         Drone originalDrone = droneDAO.cloneEntity(drone);
-        Drone res = droneDAO.create(drone);
+        //Drone res = droneDAO.create(drone);
+        String login = "a";
+        List<User> u = new UserDAO().getBy("login", login);
+        System.out.println(u.size());
+        System.out.println(u.get(0).getLogin() + "  " + u.get(0).getPassword());
 
-        originalDrone.setId(res.getId());
-        Assert.assertEquals(originalDrone, res);
+        //originalDrone.setId(res.getId());
+        //Assert.assertEquals(originalDrone, res);
 
     }
 
