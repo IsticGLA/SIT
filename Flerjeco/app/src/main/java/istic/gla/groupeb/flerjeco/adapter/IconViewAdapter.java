@@ -47,7 +47,7 @@ public class IconViewAdapter extends ArrayAdapter<IconView> {
         }
 
         IconView iconView = iconViewList.get(position);
-        holder.iconView.setmVehicle(iconView.getVehicle());
+        holder.iconView.setIcon(iconView.getIcon());
         return row;
     }
 

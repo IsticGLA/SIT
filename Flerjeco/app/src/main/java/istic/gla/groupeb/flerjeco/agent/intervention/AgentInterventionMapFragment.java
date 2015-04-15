@@ -34,6 +34,7 @@ import entity.StaticData;
 import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
+import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import util.ResourceCategory;
 import util.ResourceRole;
@@ -231,7 +232,7 @@ public class AgentInterventionMapFragment extends Fragment {
                 Danger danger = new Danger();
                 bmp = Bitmap.createBitmap(60, 60, Bitmap.Config.ARGB_8888);
                 Canvas mCanvas = new Canvas(bmp);
-                danger.drawDanger(mCanvas);
+                danger.drawIcon(mCanvas);
                 break;
             case incident:
                 bmp = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
@@ -244,23 +245,38 @@ public class AgentInterventionMapFragment extends Fragment {
 
     public void drawMarker(MarkerOptions markerOptions, Resource resource){
         ResourceCategory category = resource.getResourceCategory();
+        Bitmap mBitmap = null;
         if (category!=null){
-
-            switch (resource.getResourceCategory()){
+            switch (category){
                 case vehicule:
-                    ResourceRole role = ResourceRole.otherwise;
-                    if (resource.getResourceRole()!=null) {
-                        role = resource.getResourceRole();
-                    }
+                    ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
                     String name = resource.getLabel()+" "+resource.getIdRes();
                     Vehicle mVehicle = new Vehicle(name, role, resource.getState());
                     int width = mVehicle.getRect().width();
                     int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
-                    Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                    mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                     Canvas mCanvas = new Canvas(mBitmap);
-                    mVehicle.drawVehicle(mCanvas);
-                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mBitmap));
+                    mVehicle.drawIcon(mCanvas);
                     break;
+                case dragabledata:
+                    String label = resource.getLabel();
+                    if ("incident".equals(label)){
+                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
+                    } else if ("danger".equals(label)) {
+                        Danger danger = new Danger();
+                        mBitmap = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888);
+                        Canvas dCanvas = new Canvas(mBitmap);
+                        danger.drawIcon(dCanvas);
+                    } else if ("sensitive".equals(label)) {
+                        Sensitive sensitive = new Sensitive();
+                        mBitmap = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888);
+                        Canvas sCanvas = new Canvas(mBitmap);
+                        sensitive.drawIcon(sCanvas);
+                    }
+                    break;
+            }
+            if (mBitmap != null){
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mBitmap));
             }
 
         }

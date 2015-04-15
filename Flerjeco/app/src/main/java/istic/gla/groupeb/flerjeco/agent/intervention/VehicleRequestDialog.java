@@ -21,9 +21,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.HashMap;
 
+import entity.Intervention;
 import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import util.ResourceCategory;
 
 /**
  * Created by jules on 09/04/15.
@@ -164,8 +166,8 @@ public class VehicleRequestDialog extends DialogFragment {
             if(resources != null && resources.length > 0 ) {
                 for (int i = 0; i < resources.length; i++) {
                     spinnerMap.put(resources[i].getLabel(), resources[i].getId());
-                    //TODO if(resources[i].getCategorie().equals(Categorie.vehicle)
-                    spinnerArray[i] = resources[i].getLabel();
+                    if(resources[i].getCategory().equals(ResourceCategory.vehicule));
+                        spinnerArray[i] = resources[i].getLabel();
                 }
             }
 
@@ -176,14 +178,12 @@ public class VehicleRequestDialog extends DialogFragment {
         }
     }
 
-    private class ResourceRequestTask extends AsyncTask<Object, Void, Long> {
+    private class ResourceRequestTask extends AsyncTask<Object, Void, Intervention> {
 
         @Override
-        protected Long doInBackground(Object... params) {
+        protected Intervention doInBackground(Object... params) {
             try {
-                Long id = new SpringService().requestVehicle(params);
-                return id;
-
+                return new SpringService().requestVehicle(params);
             } catch (HttpStatusCodeException e) {
                 Log.e("VehicleRequestDialog", e.getMessage(), e);
             }
@@ -192,8 +192,9 @@ public class VehicleRequestDialog extends DialogFragment {
         }
 
         @Override
-        protected void onPostExecute(Long id) {
-            Log.i("VehicleRequestDialog", "Request posted");
+        protected void onPostExecute(Intervention intervention) {
+            Log.i("VehicleRequestDialog", "Resource requested for intervention: " + intervention.getName());
+            ((AgentInterventionActivity)getActivity()).updateIntervention(intervention);
         }
 
     }

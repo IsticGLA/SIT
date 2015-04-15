@@ -8,14 +8,13 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import istic.gla.groupeb.flerjeco.icons.Danger;
+import istic.gla.groupeb.flerjeco.icons.IIcon;
 import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 
 public class IconView extends View {
 
-    private Vehicle mVehicle;
-    private Danger mDanger;
-    private Sensitive mSensitive;
+    private IIcon mIcon;
 
     /**
      * Default constructor, instantiate a default vehicle
@@ -23,19 +22,16 @@ public class IconView extends View {
      */
     public IconView(Context context) {
         super(context);
-        mVehicle = new Vehicle("VSAP SG2");
-        mDanger = new Danger();
-        mSensitive = new Sensitive();
     }
 
     /**
      * Constructor with a vehicle
      * @param context application context
-     * @param mVehicle the vehicle that will be drawn
+     * @param mIcon the icon that will be drawn
      */
-    public IconView(Context context, Vehicle mVehicle) {
+    public IconView(Context context, IIcon mIcon) {
         super(context);
-        this.mVehicle = mVehicle;
+        this.mIcon = mIcon;
     }
 
     public IconView(Context context, AttributeSet attributeSet){
@@ -49,24 +45,24 @@ public class IconView extends View {
     @Override
     protected void onDraw(Canvas mCanvas){
         super.onDraw(mCanvas);
-        if (mVehicle != null) {
-            mVehicle.drawVehicle(mCanvas);
+        if (mIcon != null) {
+            mIcon.drawIcon(mCanvas);
         }
     }
 
     /**
      * Getter for the vehicle
-     * @return the vehicle associated to the view
+     * @return the icon associated to the view
      */
-    public Vehicle getVehicle() {
-        return mVehicle;
+    public IIcon getIcon() {
+        return mIcon;
     }
 
     /**
      * Setter for the vehicle
-     * @param mVehicle the vehicle that will be drawn
+     * @param mIcon the icon that will be drawn
      */
-    public void setmVehicle(Vehicle mVehicle) {
-        this.mVehicle = mVehicle;
+    public void setIcon(IIcon mIcon) {
+        this.mIcon = mIcon;
     }
 }

@@ -64,16 +64,16 @@ class Controller:
     def pose_callback(self, pose_stamped):
         assert isinstance(pose_stamped, PoseStamped)
         pose = pose_stamped.pose
-        app.logger.info("robot position " + str(pose.position.x) +", "+str(pose.position.y)+", "+str(pose.position.z))
+        #app.logger.info("robot position " + str(pose.position.x) +", "+str(pose.position.y)+", "+str(pose.position.z))
         if self.dest is not None:
-            app.logger.info("dest  position " + str(self.dest["x"]) + ", "+str(self.dest["y"])+", "+str(self.dest["z"]))
+            #app.logger.info("dest  position " + str(self.dest["x"]) + ", "+str(self.dest["y"])+", "+str(self.dest["z"]))
             ez = self.dest["z"] - pose.position.z
             ex = self.dest["x"] - pose.position.x
             ey = self.dest["y"] - pose.position.y
-            app.logger.info("deltas " + str(ex) + ", "+ str(ey) + ", "+str(ez))
+            #app.logger.info("deltas " + str(ex) + ", "+ str(ey) + ", "+str(ez))
             # verification de l'arrivée
             distance_squared = ex*ex + ey*ey + ez*ez
-            app.logger.info("distance_squared : "+ str(distance_squared))
+            #app.logger.info("distance_squared : "+ str(distance_squared))
             if distance_squared < self.dest_tol_squared:
                 app.logger.info("robot arrived to waypoint")
                 self.nextWaypointInPath()
@@ -112,6 +112,19 @@ def path():
         app.logger.error(traceback.format_exc())
         abort(400)
     return "hello", 200
+
+@app.route('/drones/info', methods=['GET'])
+def dronesInfos():
+    app.logger.info("received a new request on /drones/info")
+    try:
+        drones_infos = []
+        info = dict([('label', "drone_1"), ('x', 4127), ('y', 4098)])
+        drones_infos.append(info)
+        return jsonify(infos = drones_infos)
+    except Exception as e:
+        app.logger.error(traceback.format_exc())
+        abort(400)
+    
 
 @app.route('/hello', methods=['GET'])
 def hello():
