@@ -246,8 +246,7 @@ public class LoginActivity extends Activity implements ISynchTool{
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * Represents an asynchronous task used to get interventions
      */
     public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
