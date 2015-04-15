@@ -193,7 +193,7 @@ public class SpringService {
 
         } catch (HttpStatusCodeException e) {
             httpCode = e.getStatusCode().toString();
-            return restTimestamp;
+            return timestamp;
         }
 
     }
