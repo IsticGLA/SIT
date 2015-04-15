@@ -103,11 +103,11 @@ public class SpringService {
             ResponseEntity<Intervention> intervetionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
 
             if (intervetionResult == null) {
-                Log.i("MAMH", "intervetionResult = null");
+                Log.i(TAG, "intervetionResult = null");
             } else
                 return intervetionResult.getBody();
         } catch (HttpStatusCodeException e) {
-            Log.i("MAMH", "Problème de la création de l'intervention : " + e.getMessage());
+            Log.i(TAG, "Problème de la création de l'intervention : " + e.getMessage());
         }
         return null;
     }
@@ -120,12 +120,12 @@ public class SpringService {
             ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
 
             if (interventionResult == null) {
-                Log.i("MAMH", "interventionResult = null");
+                Log.i(TAG, "interventionResult = null");
             } else
                 Log.i(TAG, interventionResult.toString());
                 return interventionResult.getBody();
         } catch (HttpStatusCodeException e) {
-            Log.i("MAMH", "Problème de l'update de l'intervention : " + e.getMessage());
+            Log.i(TAG, "Problème de l'update de l'intervention : " + e.getMessage());
         }
         return null;
     }
@@ -179,12 +179,12 @@ public class SpringService {
         String httpCode = "";
         Timestamp restTimestamp = timestamp;
         url = URL_TEST+url;
-        Log.i("MAMH", "url  :  " + url);
+        Log.i(TAG, "url  :  " + url);
         try {
             ResponseEntity<Timestamp> entity = restTemplate.postForEntity(url, timestamp, Timestamp.class);
             httpCode = entity.getStatusCode().toString();
             restTimestamp = entity.getBody();
-            Log.i("MAMH", "HttpCode  :  " + httpCode);
+            Log.i(TAG, "HttpCode  :  " + httpCode);
             if ("200".equals(httpCode)) {
                 return timestamp;
             } else if ("201".equals(httpCode)) {
