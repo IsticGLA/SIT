@@ -18,6 +18,7 @@ package istic.gla.groupeb.flerjeco.agent.intervention;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -38,6 +39,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import entity.Intervention;
@@ -218,10 +220,8 @@ public class AgentInterventionActivity extends FragmentActivity
      * Update lists of resources and map
      * @param intervention
      */
-    public void updateIntervention(Intervention intervention, Resource resource) {
+    public void updateIntervention(Intervention intervention) {
         //TODO update lists of resources and map
-        SpringService springService = new SpringService();
-        springService.updateResourceIntervention(intervention.getId(), resource);
 
     }
 
@@ -268,7 +268,8 @@ public class AgentInterventionActivity extends FragmentActivity
                     resource.setLatitude(latLng.latitude);
                     resource.setLongitude(latLng.longitude);
 
-                    updateIntervention(intervention, resource);
+                    UpdateIntervention mUpdateIntervention = new UpdateIntervention();
+                    mUpdateIntervention.execute(intervention.getId(), resource);
 
                     MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
                     // Changing marker icon
@@ -312,5 +313,18 @@ public class AgentInterventionActivity extends FragmentActivity
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
+    }
+
+    private class UpdateIntervention extends AsyncTask<Object, Void, Intervention> {
+
+        @Override
+        protected Intervention doInBackground(Object... params) {
+            return new SpringService().updateResourceIntervention(params);
+        }
+
+        @Override
+        protected void onPostExecute(Intervention intervention){
+            updateIntervention(intervention);
+        }
     }
 }

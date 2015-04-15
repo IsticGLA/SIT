@@ -14,6 +14,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
+import java.util.Calendar;
 
 import entity.IncidentCode;
 import entity.Intervention;
@@ -129,7 +130,9 @@ public class SpringService {
         return null;
     }
 
-    public Intervention updateResourceIntervention(long interventionId, Resource resource) {
+    public Intervention updateResourceIntervention(Object[] params) {
+        long interventionId = (long)params[0];
+        Resource resource = (Resource)params[1];
         try {
             final String url = URL + "intervention/"+interventionId+"/resources/update";
             ObjectWithDate objectWithDate = new ObjectWithDate(resource, new Timestamp(Calendar.getInstance().getTime().getTime()));
