@@ -1,6 +1,7 @@
 package entity;
 
 import util.Constant;
+import util.ResourceCategory;
 
 /**
  * Created by jeremy on 08/04/15.
@@ -8,6 +9,7 @@ import util.Constant;
 public class ResourceType extends AbstractEntity {
 
     private String label;
+    private ResourceCategory category;
 
     /**
      * Build a ResourceType
@@ -27,12 +29,30 @@ public class ResourceType extends AbstractEntity {
         this.label = label;
     }
 
+    /**
+     * Build a ResourceType
+     * @param label
+     * @param category
+     */
+    public ResourceType(String label, ResourceCategory category) {
+        this.label = label;
+        this.category = category;
+    }
+
     public String getLabel() {
         return label;
     }
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public ResourceCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(ResourceCategory category) {
+        this.category = category;
     }
 
     @Override
@@ -44,6 +64,7 @@ public class ResourceType extends AbstractEntity {
 
         if (id != that.id) return false;
         if (!type.equals(that.type)) return false;
+        if (category != that.category) return false;
         return label.equals(that.label);
 
     }

@@ -1,6 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
 import dao.InterventionDAO;
+import entity.ObjectWithDate;
 import entity.Resource;
 import util.State;
 
@@ -148,25 +149,23 @@ public class Intervention {
     /**
      * Changes the state of a resource
      * @param inter The id of the intervention
-     * @param res The type of the resource
-     * @param oldState A String representing the old state
-     * @param newState A String representing the wanted state
+     * @param res The id of the resource
+     * @param state A String representing the state
      * @return OK if the state has been correctly updated
      */
     @PUT
-    @Path("{inter}/resources/{res}/{oldstate}/{newstate}")
+    @Path("{inter}/resources/{res}/{state}")
     public Response changeResourceState(
             @PathParam("inter") Long inter,
-            @PathParam("res") String res,
-            @PathParam("oldstate") String oldState,
-            @PathParam("newstate") String newState) {
+            @PathParam("res") Long res,
+            @PathParam("state") String state) {
         InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
         entity.Intervention intervention = interventionDAO.getById(inter);
         try {
             for (entity.Resource resource : intervention.getResources()) {
-                if (resource.getLabel().equals(res) && resource.getState().equals(oldState)) {
-                    resource.setState(State.valueOf(newState));
+                if (resource.getIdRes() == res) {
+                    resource.setState(State.valueOf(state));
                     break;
                 }
             }
@@ -192,29 +191,45 @@ public class Intervention {
         InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
         entity.Intervention intervention = interventionDAO.getById(inter);
-        intervention.getResources().add(new Resource(vehicle, State.waiting));
+        Long id = Long.valueOf(0);
+        for(Resource resource : intervention.getResources()) {
+            if(resource.getIdRes() >= id) {
+                id = resource.getIdRes();
+            }
+        }
+        id++;
+        intervention.getResources().add(new Resource(id, vehicle + id, State.waiting));
         interventionDAO.update(intervention);
         interventionDAO.disconnect();
-        return Response.ok().build();
+        return Response.ok(intervention).build();
     }
 
     /**
      * Places the vehicle at coordinates with a role
      * @param inter The id of the intervention
-     * @param res The id of the resource
-     * @param lat The latitude of the vehicle
-     * @param lng The longitude of the vehicle
-     * @param role A String representing the role of the vehicle
+     * @param objectWithDate resource with date
      * @return OK if the vehicle has been correctly placed
      */
     @PUT
-    @Path("{inter}/resources/{res}/{lat}/{lng}/{role}")
+    @Path("{inter}/resources/update")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response placeVehicle(
-            @PathParam("inter") String inter,
-            @PathParam("res") String res,
-            @PathParam("lat") long lat,
-            @PathParam("lng") long lng,
-            @PathParam("role") String role) {
-        return Response.ok().build();
+            ObjectWithDate objectWithDate,
+            @PathParam("inter") Long inter) {
+        InterventionDAO interventionDAO = new InterventionDAO();
+        interventionDAO.connect();
+        Resource newResource = (Resource) objectWithDate.getObject();
+        entity.Intervention intervention = interventionDAO.getById(inter);
+        for (Resource resource : intervention.getResources()) {
+            if (resource.getIdRes() == newResource.getIdRes()) {
+                resource = newResource;
+            }
+        }
+        intervention.setLastUpdate(objectWithDate.getDate());
+
+        intervention = interventionDAO.update(intervention);
+        interventionDAO.disconnect();
+        return Response.ok(intervention).build();
     }
 }

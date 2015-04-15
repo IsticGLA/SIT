@@ -18,13 +18,11 @@ package istic.gla.groupeb.flerjeco.codis.intervention;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,9 +79,10 @@ public class ResourcesFragment extends Fragment {
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
+        ((InterventionActivity)getActivity()).updateIntervention(intervention);
         for (Resource resource : intervention.getResources()){
             State resourceState = resource.getState();
-            if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+            if (State.active.equals(resourceState) || State.planned.equals(resourceState) || State.validated.equals(resourceState)){
                 labelsResources.add(resource.getLabel());
             }else{
                 requests.add(resource);

@@ -25,6 +25,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
+
 import entity.Intervention;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
@@ -74,6 +76,7 @@ public class ListInterventionsActivity extends FragmentActivity
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
             firstFragment.setArguments(getIntent().getExtras());
+            firstFragment.mCallback.onResourceSelected(0);
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()

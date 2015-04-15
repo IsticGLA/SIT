@@ -121,9 +121,20 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         }
     }
 
-    public final List<T> getBy(String key, String value){
+    public final List<T> getBy(String key, Object value){
         createViewBy(key);
-        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(value).stale(Stale.FALSE)).allRows();
+        ViewQuery query = null;
+        if (value instanceof Long){
+            Long v = (Long) value;
+            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(v).stale(Stale.FALSE);
+        } else if (value instanceof Integer){
+            Integer v = (Integer) value;
+            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(v).stale(Stale.FALSE);
+        } else {
+            String v = (String) value;
+            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(v).stale(Stale.FALSE);
+        }
+        List<ViewRow> result = DAOManager.getCurrentBucket().query(query).allRows();
         return viewRowsToEntities(result);
     }
 
