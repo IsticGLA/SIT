@@ -33,6 +33,7 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
+import util.ResourceCategory;
 import util.State;
 
 public class AgentInterventionResourcesFragment extends Fragment {
@@ -59,6 +60,17 @@ public class AgentInterventionResourcesFragment extends Fragment {
         View v = inflater.inflate(R.layout.resource_view, container,
                 false);
 
+        Resource incident = new Resource("incident", State.validated, 0, 0);
+        incident.setResourceCategory(ResourceCategory.dragabledata);
+        Resource danger = new Resource("danger", State.validated, 0, 0);
+        danger.setResourceCategory(ResourceCategory.dragabledata);
+        Resource sensitive = new Resource("sensitive", State.validated, 0, 0);
+        sensitive.setResourceCategory(ResourceCategory.dragabledata);
+
+        additionalResourceList.add(incident);
+        additionalResourceList.add(danger);
+        additionalResourceList.add(sensitive);
+
         listViewAdditionalResources = (ListView) v.findViewById(R.id.listViewAditionalResources);
         listViewResources = (ListView) v.findViewById(R.id.listViewAgentResources);
         listViewRequests = (ListView) v.findViewById(R.id.listViewAgentRequests);
@@ -77,6 +89,7 @@ public class AgentInterventionResourcesFragment extends Fragment {
             }
         }
 
+        listViewAdditionalResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.list_row, additionalResourceList));
         listViewResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.list_row, resourceList));
         listViewRequests.setAdapter(new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList));
 
