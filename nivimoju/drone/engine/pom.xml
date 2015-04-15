@@ -27,5 +27,10 @@
             <artifactId>database-entities</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>groupeb.gla.istic</groupId>
+            <artifactId>database-dao</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
