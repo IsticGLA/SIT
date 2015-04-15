@@ -17,15 +17,24 @@ package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +44,6 @@ import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import util.ResourceCategory;
 import util.ResourceRole;
@@ -71,15 +79,15 @@ public class AgentInterventionActivity extends FragmentActivity
         intervention.setLongitude(-1.677297);
         List<Resource> resourceList = new ArrayList<>();
         resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource1", State.active, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
-        resourceList.add(new Resource("Resource2", State.active, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
-        resourceList.add(new Resource("Resource3", State.planned, ResourceRole.commands, ResourceCategory.vehicule, 48.107749, -1.687297));
+        resourceList.add(new Resource("Resource1", State.validated, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
+        resourceList.add(new Resource("Resource2", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
+        resourceList.add(new Resource("Resource3", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 48.107749, -1.687297));
         resourceList.add(new Resource("Resource4", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource5", State.waiting, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("VSAP", State.refused, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource7", State.refused, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource8", State.waiting, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource9", State.refused, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource5", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("VSAP", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource7", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource8", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
 
         intervention.setResources(resourceList);
 
@@ -106,6 +114,10 @@ public class AgentInterventionActivity extends FragmentActivity
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
+
+
+            findViewById(R.id.fragment_container).setOnDragListener(new MyDragListener());
+            findViewById(R.id.map_fragment).setOnDragListener(new MyDragListener());
         }
 
         final ActionBar actionBar = getActionBar();
@@ -129,6 +141,8 @@ public class AgentInterventionActivity extends FragmentActivity
 
         mapFragment = (AgentInterventionMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+
+
 
         if (mapFragment != null) {
             //save the current position
@@ -199,6 +213,47 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
+    class MyDragListener implements View.OnDragListener {
+
+        @Override
+        public boolean onDrag(View v, DragEvent event) {
+            switch (event.getAction()) {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    // do nothing
+                    break;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    break;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    break;
+                case DragEvent.ACTION_DROP:
+                    View view = (View) event.getLocalState();
+                    MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
+
+                    GoogleMap googleMap = mapView.getMap();
+
+                    int x = (int) event.getX();
+                    int y = (int) event.getY();
+
+                    Point point = new Point(x,y);
+
+                    LatLng latLng = mapView.getMap().getProjection().fromScreenLocation(point);
+
+                    MarkerOptions marker = new MarkerOptions().position(latLng).title("Hello Maps");
+                    // Changing marker icon
+                    marker.icon(BitmapDescriptorFactory
+                            .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                    // adding marker
+                    googleMap.addMarker(marker);
+
+                    break;
+                case DragEvent.ACTION_DRAG_ENDED:
+                default:
+                    break;
+            }
+            return true;
+        }
+    }
+
     @Override
     public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
         if(tab.getText().toString().equals("Drone")) {
@@ -220,6 +275,5 @@ public class AgentInterventionActivity extends FragmentActivity
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-
     }
 }
