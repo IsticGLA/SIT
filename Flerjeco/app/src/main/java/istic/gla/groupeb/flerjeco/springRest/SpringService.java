@@ -1,8 +1,5 @@
 package istic.gla.groupeb.flerjeco.springRest;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
 import org.springframework.http.HttpMethod;
@@ -15,12 +12,10 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
 
 import entity.Drone;
 import entity.IncidentCode;
 import entity.Intervention;
-import entity.ObjectWithDate;
 import entity.Resource;
 import entity.ResourceType;
 import entity.StaticData;
