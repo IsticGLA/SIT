@@ -18,6 +18,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -46,6 +47,7 @@ import util.State;
 public class AgentInterventionMapFragment extends Fragment {
 
     final static String ARG_POSITION = "position";
+    private static final String TAG = AgentInterventionMapFragment.class.getSimpleName();
 
     MapView mMapView;
     Button buttonValidateResources;
@@ -55,6 +57,7 @@ public class AgentInterventionMapFragment extends Fragment {
     int position = -1;
 
     private Intervention intervention;
+    private LatLngBounds.Builder bounds;
     private StaticData[] staticDataTab;
     private List<Resource> resources = new ArrayList<>();
     private List<Resource> resourcesToPutOnMap = new ArrayList<>();
@@ -150,6 +153,9 @@ public class AgentInterventionMapFragment extends Fragment {
 
     public void initMap(Intervention intervention){
         this.intervention = intervention;
+        // Create LatLngBound to zoom on the set of positions in the path
+        bounds = new LatLngBounds.Builder();
+        boolean isPositionResource = false;
 
         if (staticDataTab != null && staticDataTab.length > 0){
             for (StaticData data : staticDataTab){
@@ -163,6 +169,15 @@ public class AgentInterventionMapFragment extends Fragment {
         if (intervention.getResources().size()>0){
 
             for (Resource resource : intervention.getResources()){
+                double latitude = resource.getLatitude();
+                double longitude = resource .getLongitude();
+                if(latitude != 0 && longitude != 0) {
+                    Log.i(TAG, "Latitude : "+latitude+" Longitude : "+longitude);
+                    isPositionResource = true;
+                    LatLng latLng = new LatLng(latitude, longitude);
+                    bounds.include(latLng);
+                }
+
                 State resourceState = resource.getState();
                 if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
                     // create marker
@@ -179,15 +194,27 @@ public class AgentInterventionMapFragment extends Fragment {
                     resourcesToPutOnMap.add(resource);
                     Log.i(getClass().getSimpleName(), "Adding " + resource.getLabel() + " to resourcesToPutOnMap");
                 }
-
             }
         }
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
+        if(!isPositionResource) {
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
 
-        googleMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
+            googleMap.animateCamera(CameraUpdateFactory
+                    .newCameraPosition(cameraPosition));
+        } else {
+            googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+
+                @Override
+                public void onCameraChange(CameraPosition arg0) {
+                    // Move camera.
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                    // Remove listener to prevent position reset on camera move.
+                    googleMap.setOnCameraChangeListener(null);
+                }
+            });
+        }
     }
 
     public int getPosition() {
@@ -232,7 +259,7 @@ public class AgentInterventionMapFragment extends Fragment {
                 Danger danger = new Danger();
                 bmp = Bitmap.createBitmap(60, 60, Bitmap.Config.ARGB_8888);
                 Canvas mCanvas = new Canvas(bmp);
-                danger.drawIcon(mCanvas);g
+                danger.drawIcon(mCanvas);
                 break;
             case incident:
                 bmp = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
