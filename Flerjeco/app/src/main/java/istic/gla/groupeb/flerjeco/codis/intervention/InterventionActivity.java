@@ -37,7 +37,7 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 public class InterventionActivity extends FragmentActivity
         implements InterventionFragment.OnResourceSelectedListener {
 
-    private static final String TAG = SpringService.class.getSimpleName();
+    private static final String TAG = InterventionActivity.class.getSimpleName();
     protected Intervention[] interventionTab;
     private int position=0;
     private InterventionFragment firstFragment;

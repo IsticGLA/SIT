@@ -56,6 +56,7 @@ public class InterventionFragment extends Fragment {
         listViewInterventions = (ListView) v.findViewById(R.id.listViewInterventions);
 
         updateList();
+        listViewInterventions.setItemChecked(0, true);
 
         listViewInterventions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

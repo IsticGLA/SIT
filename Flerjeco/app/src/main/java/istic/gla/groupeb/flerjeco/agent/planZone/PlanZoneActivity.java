@@ -49,7 +49,7 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         // Temporary intervention for test
         intervention = new Intervention("Test", 4, 48.1120404, -1.61111);
         List<Resource> resources = new ArrayList<>();
-        resources.add(new Resource("Drone1", State.validated, ResourceRole.otherwise, ResourceCategory.drone, 48.117749, -1.677297));
+        //resources.add(new Resource("Drone1", State.validated, ResourceRole.otherwise, ResourceCategory.drone, 48.117749, -1.677297));
         intervention.setResources(resources);
         List<Path> paths = new ArrayList<>();
         Path p = new Path();

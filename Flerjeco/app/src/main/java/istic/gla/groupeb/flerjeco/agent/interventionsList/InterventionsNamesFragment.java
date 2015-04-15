@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,10 +33,12 @@ import java.util.List;
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 public class InterventionsNamesFragment extends Fragment {
     OnResourceSelectedListener mCallback;
 
+    private static final String TAG = InterventionsNamesFragment.class.getSimpleName();
     private ListView listViewInterventions;
 
     // The container Activity must implement this interface so the frag can deliver messages
@@ -75,6 +78,7 @@ public class InterventionsNamesFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
                 listViewInterventions.setItemChecked(position, true);
+                Log.i(TAG, "setOnItemClickListener : "+position);
             }
         });
 

@@ -74,6 +74,7 @@ public class ListInterventionsActivity extends FragmentActivity
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
             firstFragment.setArguments(getIntent().getExtras());
+            firstFragment.mCallback.onResourceSelected(0);
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction()
