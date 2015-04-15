@@ -16,12 +16,12 @@ camera.add_interface("ros")
 # use waypoint to control the drone_1
 waypoint = RotorcraftWaypoint()
 drone_1.append(waypoint)
-waypoint.add_interface('ros', topic="/waypoint")
+waypoint.add_interface('ros')
 
 # use a pose sensor to know where the drone_1 is
 pose = Pose()
 drone_1.append(pose)
-pose.add_interface('ros', topic="/pose")
+pose.add_interface('ros')
 drone_1.add_default_interface('ros')
 
 env = Environment('simulation/map/rennes1.blend')

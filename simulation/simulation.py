@@ -10,17 +10,19 @@ from logging.handlers import RotatingFileHandler
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Point
+import os
 
 app = Flask(__name__)
 
 class Controller:
     def __init__(self):
         # Souscris pour écouter la position du robot
-        self.pose_sub = rospy.Subscriber("/pose", PoseStamped, self.pose_callback)
+        self.pose_sub = rospy.Subscriber("/drone_1/pose", PoseStamped, self.pose_callback)
         # Publie pour setter le waypoint du robot
-        self.waypoint_pub = rospy.Publisher("/waypoint", Pose, queue_size=10, latch=False)
-        self.dest_tol=1 #tolérance de 1m
-        self.forward = true
+        self.waypoint_pub = rospy.Publisher("/drone_1/waypoint", Pose, queue_size=10, latch=False)
+        self.dest=None
+        self.dest_tol_squared=1 #tolérance de 1m (valeur au carré)
+        self.forward = True
         self.currentIndex = 0
 
     def setWaypoint(self, x, y, z):
@@ -33,9 +35,10 @@ class Controller:
         self.path = path
         self.currentIndex = 0
         self.setWaypoint(path[0]["x"], path[0]["y"], path[0]["z"])
-        self.forward = true
+        self.dest = path[0]
+        self.forward = True
 
-    def setClose(self, closed):
+    def setClosed(self, closed):
         self.closed = closed
 
     def nextWaypointInPath(self):
@@ -46,31 +49,32 @@ class Controller:
                     self.currentIndex = 0
                 else:
                     self.currentIndex = len(self.path) - 1
-                    self.forward = false
+                    self.forward = False
         else:
             self.currentIndex = self.currentIndex - 1
             if self.currentIndex < 0:
                 self.currentIndex = 0
-                self.forward = true
+                self.forward = True
 
         point = self.path[self.currentIndex]
         self.setWaypoint(point["x"], point["y"], point["z"])
+        self.dest = point
 
     # appellée a chaque mise a jour de la position du robot
     def pose_callback(self, pose_stamped):
-        app.logger.info("hey")
         assert isinstance(pose_stamped, PoseStamped)
         pose = pose_stamped.pose
-        
-        app.logger.info("robot position " + str(pose.position.x) +", "+str(pose.position.y)+", "+str(pose.position.z))
-        if self.dest:
-            ez = self.dest.z - pose.position.z
-            ex = self.dest.x - pose.position.x
-            ey = self.dest.y - pose.position.y
-
+        #app.logger.info("robot position " + str(pose.position.x) +", "+str(pose.position.y)+", "+str(pose.position.z))
+        if self.dest is not None:
+            #app.logger.info("dest  position " + str(self.dest["x"]) + ", "+str(self.dest["y"])+", "+str(self.dest["z"]))
+            ez = self.dest["z"] - pose.position.z
+            ex = self.dest["x"] - pose.position.x
+            ey = self.dest["y"] - pose.position.y
+            #app.logger.info("deltas " + str(ex) + ", "+ str(ey) + ", "+str(ez))
             # verification de l'arrivée
-            distance = sqrt(ex*ex + ey*ey + ez*ez)
-            if distance < self.dest_tol:
+            distance_squared = ex*ex + ey*ey + ez*ez
+            #app.logger.info("distance_squared : "+ str(distance_squared))
+            if distance_squared < self.dest_tol_squared:
                 app.logger.info("robot arrived to waypoint")
                 self.nextWaypointInPath()
 
@@ -109,6 +113,23 @@ def path():
         abort(400)
     return "hello", 200
 
+@app.route('/drones/info', methods=['GET'])
+def dronesInfos():
+    app.logger.info("received a new request on /drones/info")
+    try:
+        drones_infos = []
+        info = dict([('label', "drone_1"), ('x', 4127), ('y', 4098)])
+        drones_infos.append(info)
+        return jsonify(infos = drones_infos)
+    except Exception as e:
+        app.logger.error(traceback.format_exc())
+        abort(400)
+    
+
+@app.route('/hello', methods=['GET'])
+def hello():
+    return "hello", 200
+
 if __name__ == '__main__' :
     handler = RotatingFileHandler('flask.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.DEBUG)
@@ -116,9 +137,9 @@ if __name__ == '__main__' :
     handler.setFormatter(formatter)
     app.logger.addHandler(handler)
     try:
-        app.logger.info("starting ros node")
-        rospy.init_node("flask")
-        app.logger.info("ros node started")
+        app.logger.info("starting ros node with ROS_IP:" + os.environ['ROS_IP'])
+        rospy.init_node("node_server")
+        app.logger.info("ros node started with ROS_IP:" + os.environ['ROS_IP'])
         app.run(debug=True, host='0.0.0.0', port=5000)
     except Exception as e:
         app.logger.error(traceback.format_exc())

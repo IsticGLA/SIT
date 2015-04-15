@@ -3,6 +3,8 @@ package istic.gla.groupeb.flerjeco.codis.intervention;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Build;
 import android.support.v4.app.DialogFragment;
 import android.os.AsyncTask;
@@ -13,15 +15,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import org.springframework.web.client.HttpStatusCodeException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import entity.IncidentCode;
 import entity.Intervention;
@@ -33,7 +40,7 @@ import util.State;
 
 
 public class InterventionDialogFragment extends DialogFragment implements OnTaskCompleted{
-
+    private static final String TAG = SpringService.class.getSimpleName();
 
     Spinner codeSinistreSpinner;
 
@@ -41,9 +48,12 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
     Button intervention_creation_button;
 
     //Text fields
-    EditText nameIntervetionEditText;
+    EditText nameInterventionEditText;
+    EditText addressEditText;
     EditText latitudeEditText;
     EditText longitudeEditText;
+
+    LinearLayout latLongLinearLayout;
 
     private View mProgressView;
     private View mCreateFormView;
@@ -56,7 +66,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
     private HashMap<String, List<Long>> resourceTypeMap;
 
 
-    boolean data_local = false;
+    boolean data_local = false, addressOrCoordinates=true;
     private HttpRequestTask httpRequestTask;
     private AsyncTask<Intervention, Void, Intervention> at;
     private ResourceGetTask resourceGetTask;
@@ -64,16 +74,20 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.activity_intervention, container, false);
+        View v = inflater.inflate(R.layout.fragment_create_intervention, container, false);
+        getDialog().setTitle(R.string.title_fragment_create_intervention);
 
         mCreateFormView = v.findViewById(R.id.intervention_scroll);
         mProgressView = v.findViewById(R.id.create_progress);
 
         //Set up code sinistre list
         codeSinistreSpinner = (Spinner) v.findViewById(R.id.CodeSinistreSpinner);
-        nameIntervetionEditText = (EditText) v.findViewById(R.id.nameInterventionEditText);
-        latitudeEditText = (EditText) v.findViewById(R.id.lat);
-        longitudeEditText = (EditText) v.findViewById(R.id.lng);
+        nameInterventionEditText = (EditText) v.findViewById(R.id.nameInterventionEditText);
+        addressEditText = (EditText) v.findViewById(R.id.address);
+        latitudeEditText = (EditText) v.findViewById(R.id.latitude);
+        longitudeEditText = (EditText) v.findViewById(R.id.longitude);
+        latLongLinearLayout = (LinearLayout) v.findViewById(R.id.lat_long);
+
 
         // Set up Button of intervention creation
         intervention_creation_button = (Button) v.findViewById(R.id.intervention_button);
@@ -86,16 +100,24 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         intervention_creation_button.setOnClickListener(new View.OnClickListener() {
 
             public boolean validate() {
-
-                if (latitudeEditText.getText().toString().length() == 0) {
-                    latitudeEditText.setError("latitude est obligatoire!");
-                    return false;
+                Log.i(TAG, "Validate addressOrCoordinates : "+addressOrCoordinates);
+                if(addressOrCoordinates) {
+                    if (addressEditText.getText().toString().length() == 0) {
+                        addressEditText.setError(getString(R.string.error_field_required));
+                        return false;
+                    }
                 }
-
-                if (longitudeEditText.getText().toString().length() == 0) {
-                    longitudeEditText.setError("longitude est obligatoire!");
-                    return false;
+                else {
+                    if (latitudeEditText.getText().toString().length() == 0) {
+                        latitudeEditText.setError(getString(R.string.error_field_required));
+                        return false;
+                    }
+                    if (longitudeEditText.getText().toString().length() == 0) {
+                        longitudeEditText.setError(getString(R.string.error_field_required));
+                        return false;
+                    }
                 }
+                Log.i(TAG, "Validate OK");
                 showProgress(true);
                 return true;
             }
@@ -122,6 +144,21 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
                     resourceGetTask = new ResourceGetTask(InterventionDialogFragment.this);
                     resourceGetTask.execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
 
+                }
+            }
+        });
+
+        ToggleButton toggle = (ToggleButton) v.findViewById(R.id.address_or_coordinate);
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    addressOrCoordinates = true;
+                    addressEditText.setVisibility(View.VISIBLE);
+                    latLongLinearLayout.setVisibility(View.GONE);
+                } else {
+                    addressOrCoordinates = false;
+                    latLongLinearLayout.setVisibility(View.VISIBLE);
+                    addressEditText.setVisibility(View.GONE);
                 }
             }
         });
@@ -292,13 +329,42 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
     }
 
+    public Address getCoordinates() {
+        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+        List<Address> addressList = new ArrayList<>();
+        try {
+            addressList = geocoder.getFromLocationName(addressEditText.getText().toString(),1);
+            while (addressList.size()==0) {
+                addressList = geocoder.getFromLocationName(addressEditText.getText().toString(), 1);
+            }
+            if (addressList.size()>0) {
+                return addressList.get(0);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public void onTaskCompleted(List<ResourceType> resourcesType){
-        //Intervetion
+        //Intervention
         entity.Intervention intervention;
+        //Address of the intervention
+        Address address = new Address(Locale.getDefault());
+
+        if(addressOrCoordinates) {
+            // Create intervention with Address
+            address = getCoordinates();
+        }
+        else {
+            // Create intervention with Coordinates
+            address.setLatitude(Double.parseDouble(latitudeEditText.getText().toString()));
+            address.setLongitude(Double.parseDouble(longitudeEditText.getText().toString()));
+        }
 
         //Les champs text sont toujours vérifié
-        intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()));
+        intervention = new entity.Intervention(nameInterventionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), address.getLatitude(), address.getLongitude());
 
         Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
 

@@ -13,7 +13,7 @@ import util.State;
  * This class allows to draw the representation
  * of a Vehicle according to the SIT graphic
  */
-public class Vehicle extends Canvas {
+public class Vehicle implements IIcon {
 
     public static final int RECT_LEFT = 0;
     public static final int RECT_TOP = 20;
@@ -75,7 +75,7 @@ public class Vehicle extends Canvas {
                 paint.setColor(Color.RED);
                 break;
             case people:
-                paint.setColor(Color.GREEN);
+                paint.setColor(Color.argb(255,102,255,102));
                 break;
             case risks:
                 paint.setColor(Color.argb(255,255,102,0));
@@ -166,7 +166,8 @@ public class Vehicle extends Canvas {
         changeFunction(role);
     }
 
-    public void drawVehicle(Canvas mCanvas){
+    @Override
+    public void drawIcon(Canvas mCanvas) {
         DashPathEffect temp = (DashPathEffect) paint.getPathEffect();
         Paint tempPaint = new Paint();
         tempPaint.setColor(Color.WHITE);

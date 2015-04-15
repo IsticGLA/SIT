@@ -1,16 +1,24 @@
 package istic.gla.groupeb.flerjeco.springRest;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Timestamp;
+
 import entity.IncidentCode;
 import entity.Intervention;
+import entity.ObjectWithDate;
+import entity.Resource;
 import entity.ResourceType;
 import entity.StaticData;
 
@@ -21,11 +29,12 @@ public class SpringService {
 
     private static final String TAG = SpringService.class.getSimpleName();
     private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
+    private static final String URL_TEST = "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
     private static RestTemplate restTemplate = new RestTemplate();
 
 
     public SpringService(){
-        restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+        //restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
     }
 
@@ -42,6 +51,23 @@ public class SpringService {
 
         ResourceType rt = resourcetype.getBody();
         return rt;
+    }
+
+    /**
+     * get intervention by id
+     *
+     * @param idIntervention id of the resource to get
+     * @return the intervention retrieved
+     */
+    public Intervention getInterventionById(Long idIntervention) {
+
+        //TODO modify URL_TEST -> URL
+        final String url = URL_TEST + "intervention/" + idIntervention;
+
+        ResponseEntity<Intervention> interventionResult = restTemplate.getForEntity(url, Intervention.class);
+
+        Intervention intervention = interventionResult.getBody();
+        return intervention;
     }
 
     /**
@@ -90,15 +116,33 @@ public class SpringService {
             intervention.updateDate();
             final String url = URL + "intervention/update";
 
-            ResponseEntity<Intervention> intervetionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
+            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
 
-            if (intervetionResult == null) {
-                Log.i("MAMH", "intervetionResult = null");
+            if (interventionResult == null) {
+                Log.i("MAMH", "interventionResult = null");
             } else
-                Log.i(TAG, intervetionResult.toString());
-                return intervetionResult.getBody();
+                Log.i(TAG, interventionResult.toString());
+                return interventionResult.getBody();
         } catch (HttpStatusCodeException e) {
             Log.i("MAMH", "Problème de l'update de l'intervention : " + e.getMessage());
+        }
+        return null;
+    }
+
+    public Intervention updateResourceIntervention(long interventionId, Resource resource) {
+        try {
+            final String url = URL + "intervention/"+interventionId+"/resources/update";
+            ObjectWithDate objectWithDate = new ObjectWithDate(resource, new Timestamp(Calendar.getInstance().getTime().getTime()));
+
+            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, objectWithDate, Intervention.class);
+
+            if (interventionResult == null) {
+                Log.i(TAG, "updateResourceIntervention interventionResult = null");
+            } else
+                Log.i(TAG, interventionResult.toString());
+            return interventionResult.getBody();
+        } catch (HttpStatusCodeException e) {
+            Log.i(TAG, "resource can not be update : " + e.getMessage());
         }
         return null;
     }
@@ -126,16 +170,30 @@ public class SpringService {
 
     /**
      * get a notification from server
-     * @return intervention to update
+     * @param url url already prepared to call the server
+     * @param timestamp lastUpdate timestamp
+     * @return the lastUpdate timestamp
      */
-    public Intervention getNotify() {
-        Log.i(TAG, "notify start");
-        final String url = URL + "notify";
-
-        ResponseEntity<Intervention> interventionTest = restTemplate.getForEntity(url, Intervention.class);
-
-        Intervention rt = interventionTest.getBody();
-        return rt;
+    public Timestamp getNotify(String url, Timestamp timestamp) {
+        String httpCode = "";
+        Timestamp restTimestamp = timestamp;
+        url = URL_TEST+url;
+        Log.i("MAMH", "url  :  " + url);
+        try {
+            ResponseEntity<Timestamp> entity = restTemplate.postForEntity(url, timestamp, Timestamp.class);
+            httpCode = entity.getStatusCode().toString();
+            restTimestamp = entity.getBody();
+            Log.i("MAMH", "HttpCode  :  " + httpCode);
+            if ("200".equals(httpCode)) {
+                return timestamp;
+            } else if ("201".equals(httpCode)) {
+                return restTimestamp;
+            }
+        } catch (HttpStatusCodeException e) {
+            httpCode = e.getStatusCode().toString();
+            return restTimestamp;
+        }
+        return restTimestamp;
     }
 
 
@@ -146,12 +204,12 @@ public class SpringService {
         return resourceTypes.getBody();
     }
 
-    public Long requestVehicle(Object[] params) {
+    public Intervention requestVehicle(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
 
-        ResponseEntity<Long> requestId = restTemplate.exchange(url, HttpMethod.PUT, null, Long.class);
+        ResponseEntity<Intervention> intervention = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
 
-        return requestId.getBody();
+        return intervention.getBody();
     }
 
     public Intervention[] getAllInterventions() {
@@ -172,16 +230,22 @@ public class SpringService {
     }
 
     public Intervention changeResourceState(Object[] params) {
-        final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2] + "/" + params[3];
+        final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2];
 
-        ResponseEntity<Intervention> id = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
-        return id.getBody();
+        ResponseEntity<Intervention> intervention = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
+        Log.i("SpringService", intervention.getBody().getName());
+        return intervention.getBody();
     }
     public StaticData[] getAllStaticDatas() {
         Log.i(TAG, "getAllStaticDatas start");
         final String url = URL + "staticdata";
-
-        ResponseEntity<StaticData[]> entity = restTemplate.getForEntity(url, StaticData[].class);
+        ResponseEntity<StaticData[]> entity;
+        try {
+            entity = restTemplate.getForEntity(url, StaticData[].class);
+        } catch (HttpServerErrorException e) {
+            Log.i(TAG, e.getMessage());
+            return null;
+        }
         Log.i(TAG, "getAllStaticData : " + entity.getBody().toString());
         return entity.getBody();
     }

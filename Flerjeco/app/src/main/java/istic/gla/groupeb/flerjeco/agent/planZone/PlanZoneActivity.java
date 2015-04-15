@@ -1,6 +1,8 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
+import android.app.ActionBar;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
@@ -21,11 +23,12 @@ import entity.Path;
 import entity.Position;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import util.ResourceCategory;
 import util.ResourceRole;
 import util.State;
 
-public class PlanZoneActivity extends FragmentActivity implements DroneListFragment.OnResourceSelectedListener {
+public class PlanZoneActivity extends FragmentActivity implements DroneListFragment.OnResourceSelectedListener, ActionBar.TabListener {
 
     private static final String TAG = PlanZoneActivity.class.getSimpleName();
     private Intervention intervention;
@@ -46,7 +49,7 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         // Temporary intervention for test
         intervention = new Intervention("Test", 4, 48.1120404, -1.61111);
         List<Resource> resources = new ArrayList<>();
-        resources.add(new Resource("Drone1", State.validated, ResourceRole.otherwise, ResourceCategory.drone, 48.117749, -1.677297));
+        //resources.add(new Resource("Drone1", State.validated, ResourceRole.otherwise, ResourceCategory.drone, 48.117749, -1.677297));
         intervention.setResources(resources);
         List<Path> paths = new ArrayList<>();
         Path p = new Path();
@@ -83,6 +86,22 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
         }
+
+        final ActionBar actionBar = getActionBar();
+
+        // Specify that tabs should be displayed in the action bar.
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        // Add 2 tabs, specifying the tab's text and TabListener
+        ActionBar.Tab tabInter = actionBar.newTab();
+        tabInter.setText("Intervention");
+        tabInter.setTabListener(this);
+
+        ActionBar.Tab tabDrone = actionBar.newTab();
+        tabDrone.setText("Drone");
+        tabDrone.setTabListener(this);
+        actionBar.addTab(tabDrone);
+        actionBar.addTab(tabInter, 0, false);
     }
 
 
@@ -119,8 +138,14 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
             //save the current position
             this.position = position;
 
+            Log.i("EDITPATH", "SET TO TRUE ONRESOURCESELECTED");
+            mapFragment.editPath = true;
+
+            editModeOn();
+
             // Call a method in the ArticleFragment to update its content
             mapFragment.updateMapView(position);
+            mapFragment.addMapClickListener();
 
         } else {
             // If the frag is not available, we're in the one-pane layout and must swap frags...
@@ -157,31 +182,17 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     public void createPath(View v){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-        Button button = (Button) findViewById(R.id.buttonCreatePath);
-        Button cancel = (Button) findViewById(R.id.buttonCancel);
-        Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
-        CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
 
         if (!editionMode) {
             Log.i(TAG, "Mode d'édition du trajet");
-            editionMode = true;
-
-            // unselect on the listView
-            DroneListFragment droneListFragment = (DroneListFragment)
-                    getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
-            droneListFragment.unCheckedListView();
-
+            editModeOn();
+            checkCloseBox(false);
             // begin the creation of the new path (add event on Google Map)
             mapFragment.createPath();
 
-            // show edit mode buttons
-            button.setText(getString(R.string.finish_edition));
-            cancel.setVisibility(View.VISIBLE);
-            removeLast.setVisibility(View.VISIBLE);
-            checkBox.setVisibility(View.VISIBLE);
         } else  {
             // Reset button and checkbox
-            resetButton();
+            editModeOff();
             // send the newPath on databse
             mapFragment.sendPath();
         }
@@ -200,24 +211,73 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     }
 
     public void cancel(View v){
-        resetButton();
+        editModeOff();
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         mapFragment.resetMapListener();
-        mapFragment.clearGoogleMap();
+        if (mapFragment.editPath) {
+            mapFragment.updateMapView(position);
+            Log.i("EDITPATH", "SET TO FALSE CANCEL");
+            mapFragment.editPath = false;
+        } else {
+            mapFragment.clearGoogleMap();
+        }
     }
 
-    public void resetButton(){
+    public void removePath(View v){
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.removePath();
+    }
+
+    public void editModeOff(){
         Button button = (Button) findViewById(R.id.buttonCreatePath);
         Button cancel = (Button) findViewById(R.id.buttonCancel);
         Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
+        Button removePath = (Button) findViewById(R.id.buttonRemove);
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
         button.setText(getString(R.string.create_path));
         checkBox.setChecked(false);
         checkBox.setVisibility(View.GONE);
         removeLast.setVisibility(View.GONE);
         cancel.setVisibility(View.GONE);
+        removePath.setVisibility(View.GONE);
         editionMode = false;
+    }
+
+    public void editModeOn(){
+        editionMode = true;
+
+        Button button = (Button) findViewById(R.id.buttonCreatePath);
+        Button cancel = (Button) findViewById(R.id.buttonCancel);
+        Button removePath = (Button) findViewById(R.id.buttonRemove);
+        Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
+        CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+
+        // unselect on the listView
+        DroneListFragment droneListFragment = (DroneListFragment)
+                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
+        droneListFragment.unCheckedListView();
+
+        // show edit mode buttons
+        button.setText(getString(R.string.finish_edition));
+        cancel.setVisibility(View.VISIBLE);
+        removeLast.setVisibility(View.VISIBLE);
+        checkBox.setVisibility(View.VISIBLE);
+
+        if (mapFragment.editPath){
+            removePath.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void checkCloseBox(boolean b){
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
+
+        checkBox.setChecked(b);
     }
 
     public void refreshList(Intervention intervention){
@@ -225,5 +285,29 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         DroneListFragment droneListFragment = (DroneListFragment)
                 getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
         droneListFragment.refresh(intervention);
+    }
+
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
+        if(tab.getText().toString().equals("Intervention")) {
+            Intent intent = new Intent(PlanZoneActivity.this, AgentInterventionActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("intervention", intervention);
+            intent.putExtras(bundle);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
+        if(tab.getText().toString().equals("Drone")) {
+            finish();
+        }
+    }
+
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
+
     }
 }

@@ -16,9 +16,11 @@
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -30,7 +32,8 @@ import java.util.List;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
-import istic.gla.groupeb.flerjeco.adapter.ResourceAdapter;
+import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
+import util.ResourceCategory;
 import util.State;
 
 public class AgentInterventionResourcesFragment extends Fragment {
@@ -38,8 +41,10 @@ public class AgentInterventionResourcesFragment extends Fragment {
 
     private ListView listViewResources;
     private ListView listViewRequests;
+    private ListView listViewAdditionalResources;
     private List<Resource> resourceList = new ArrayList<>();
     private List<Resource> requestList = new ArrayList<>();
+    private List<Resource> additionalResourceList = new ArrayList<>();
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -55,6 +60,18 @@ public class AgentInterventionResourcesFragment extends Fragment {
         View v = inflater.inflate(R.layout.resource_view, container,
                 false);
 
+        Resource incident = new Resource("incident", State.validated, 0, 0);
+        incident.setResourceCategory(ResourceCategory.dragabledata);
+        Resource danger = new Resource("danger", State.validated, 0, 0);
+        danger.setResourceCategory(ResourceCategory.dragabledata);
+        Resource sensitive = new Resource("sensitive", State.validated, 0, 0);
+        sensitive.setResourceCategory(ResourceCategory.dragabledata);
+
+        additionalResourceList.add(incident);
+        additionalResourceList.add(danger);
+        additionalResourceList.add(sensitive);
+
+        listViewAdditionalResources = (ListView) v.findViewById(R.id.listViewAditionalResources);
         listViewResources = (ListView) v.findViewById(R.id.listViewAgentResources);
         listViewRequests = (ListView) v.findViewById(R.id.listViewAgentRequests);
 
@@ -62,13 +79,18 @@ public class AgentInterventionResourcesFragment extends Fragment {
         for (Resource resource : interventionActivity.intervention.getResources()){
             State resourceState = resource.getState();
             if (State.validated.equals(resourceState)){
-                resourceList.add(resource);
+                /*if (resource.getResourceCategory() != null && resource.getResourceCategory() == ResourceCategory.dragabledata){
+                    additionalResourceList.add(resource);
+                } else {*/
+                    resourceList.add(resource);
+                //}
             }else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) ){
                 requestList.add(resource);
             }
         }
 
-        listViewResources.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_resource_agent, resourceList));
+        listViewAdditionalResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.list_row, additionalResourceList));
+        listViewResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.list_row, resourceList));
         listViewRequests.setAdapter(new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList));
 
         listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -78,6 +100,24 @@ public class AgentInterventionResourcesFragment extends Fragment {
                 listViewResources.setItemChecked(position,true);
             }
         });
+
+        listViewResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                view.setVisibility(View.INVISIBLE);
+                return true;
+            }
+        });
+        //v.findViewById(R.id.listViewAgentResources).setOnTouchListener(new MyTouchListener());
+
+        /*for (int i=0; i < listViewResources.getChildCount(); i++){
+            View iconView = listViewResources.getChildAt(i);
+            Log.i(getClass().getSimpleName(),iconView.toString());
+            iconView.setOnTouchListener(new MyTouchListener());
+        }*/
 
         return v;
     }
@@ -109,6 +149,32 @@ public class AgentInterventionResourcesFragment extends Fragment {
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnHeadlineSelectedListener");
+        }
+    }
+
+    private final class MyTouchListener implements View.OnTouchListener {
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                view.setVisibility(View.INVISIBLE);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private final class MyLongClickListener implements View.OnLongClickListener {
+
+        @Override
+        public boolean onLongClick(View view) {
+            ClipData data = ClipData.newPlainText("", "");
+            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+            view.startDrag(data, shadowBuilder, view, 0);
+            view.setVisibility(View.INVISIBLE);
+            return true;
         }
     }
 }

@@ -37,7 +37,7 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 public class InterventionActivity extends FragmentActivity
         implements InterventionFragment.OnResourceSelectedListener {
 
-    private static final String TAG = SpringService.class.getSimpleName();
+    private static final String TAG = InterventionActivity.class.getSimpleName();
     protected Intervention[] interventionTab;
     private int position=0;
     private InterventionFragment firstFragment;
@@ -53,7 +53,6 @@ public class InterventionActivity extends FragmentActivity
             interventionTab = new Intervention[objects.length];
             for(int i=0;i<objects.length;i++) {
                 interventionTab[i] = (Intervention) objects[i];
-                Log.d("IntervAct", interventionTab[i].getName() + " - " + interventionTab[i].getId());
             }
         }
 
@@ -129,6 +128,14 @@ public class InterventionActivity extends FragmentActivity
             interventionTab[i] = tmpIntervention[i];
         }
         interventionTab[oldLength] = intervention;
+    }
+
+    public void updateIntervention(Intervention intervention) {
+        for(int i = 0; i < interventionTab.length; i++) {
+            if(interventionTab[i].getId() == intervention.getId()) {
+                interventionTab[i].setResources(intervention.getResources());
+            }
+        }
     }
 
     public void updateInterventions() {

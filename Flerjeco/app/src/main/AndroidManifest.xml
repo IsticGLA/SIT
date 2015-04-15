@@ -6,11 +6,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".MyApp"
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/ic_sitistic_drone"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <meta-data
@@ -25,17 +27,21 @@
             android:exported="true"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustResize|stateVisible" >
-            <intent android:targetPackage="istic.gla.groupeb.flerjeco.login"
-                android:targetClass="istic.gla.groupeb.flerjeco.login.LoginActivity"/>
+            <intent
+                android:targetClass="istic.gla.groupeb.flerjeco.login.LoginActivity"
+                android:targetPackage="istic.gla.groupeb.flerjeco.login" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:exported="true"
             android:name=".agent.intervention.AgentInterventionActivity"
-            android:label="@string/title_activity_second" >
+            android:exported="true"
+            android:label="@string/title_activity_second"
+            android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name=".codis.intervention.InterventionActivity"
@@ -43,6 +49,7 @@
         </activity>
         <activity
             android:name=".agent.interventionsList.ListInterventionsActivity"
+            android:exported="true"
             android:label="@string/title_activity_list_interventions" >
         </activity>
         <activity
@@ -55,6 +62,7 @@
             android:name=".synch.SynchService"
             android:exported="false" >
         </service>
+
     </application>
 
 </manifest>
