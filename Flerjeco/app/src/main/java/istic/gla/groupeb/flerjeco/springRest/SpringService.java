@@ -1,11 +1,9 @@
 package istic.gla.groupeb.flerjeco.springRest;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.util.Log;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -14,14 +12,14 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
-import java.util.Calendar;
 
+import entity.Drone;
 import entity.IncidentCode;
 import entity.Intervention;
-import entity.ObjectWithDate;
 import entity.Resource;
 import entity.ResourceType;
 import entity.StaticData;
+import istic.gla.groupeb.flerjeco.codis.intervention.ResourcesFragment;
 
 /**
  * Created by amhachi on 08/04/15.
@@ -99,13 +97,24 @@ public class SpringService {
             intervention.updateDate();
 
             final String url = URL + "intervention/create";
-
             ResponseEntity<Intervention> intervetionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
 
             if (intervetionResult == null) {
                 Log.i(TAG, "intervetionResult = null");
-            } else
+            } else {
+
+                // assignement of the drone for the intervention
+                final String urlDrone = URL + "/drone/assign/" + intervetionResult.getBody().getId();
+                ResponseEntity<Drone> drone = restTemplate.getForEntity(urlDrone, Drone.class);
+
+                if (drone.getStatusCode() == HttpStatus.NOT_FOUND){
+                    Log.i(TAG, "drone = null");
+                }// else {
+                // we return the intervention even if drone is null
+
                 return intervetionResult.getBody();
+                //}
+            }
         } catch (HttpStatusCodeException e) {
             Log.i(TAG, "Problème de la création de l'intervention : " + e.getMessage());
         }
@@ -130,12 +139,13 @@ public class SpringService {
         return null;
     }
 
-    public Intervention updateResourceIntervention(long interventionId, Resource resource) {
+    public Intervention updateResourceIntervention(Object[] params) {
+        long interventionId = (long)params[0];
+        Resource resource = (Resource)params[1];
         try {
             final String url = URL + "intervention/"+interventionId+"/resources/update";
-            ObjectWithDate objectWithDate = new ObjectWithDate(resource, new Timestamp(Calendar.getInstance().getTime().getTime()));
 
-            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, objectWithDate, Intervention.class);
+            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, resource, Intervention.class);
 
             if (interventionResult == null) {
                 Log.i(TAG, "updateResourceIntervention interventionResult = null");

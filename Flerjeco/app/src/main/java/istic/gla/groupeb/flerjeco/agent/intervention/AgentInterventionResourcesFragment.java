@@ -111,6 +111,17 @@ public class AgentInterventionResourcesFragment extends Fragment {
                 return true;
             }
         });
+
+        listViewAdditionalResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                view.setVisibility(View.VISIBLE);
+                return true;
+            }
+        });
         //v.findViewById(R.id.listViewAgentResources).setOnTouchListener(new MyTouchListener());
 
         /*for (int i=0; i < listViewResources.getChildCount(); i++){

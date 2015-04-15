@@ -2,14 +2,12 @@ package istic.gla.groupb.nivimoju.API;
 
 import dao.DroneDAO;
 import entity.Position;
+import istic.gla.goupb.nivimoju.drone.engine.DroneEngine;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -21,7 +19,7 @@ import java.util.List;
 public class Drone {
 
     /**
-     * Request connection validation from the server
+     * Send a move request directly to the simulation (for debug)
      * @param latitude The latitude of the position
      * @param longitude The longitude of the position
      * @return OK if authenticated
@@ -53,7 +51,7 @@ public class Drone {
     @GET
     @Path("/byIntervention/{idIntervention}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response connect(
+    public Response getAll(
             @PathParam("idIntervention") Long idIntervention) {
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();
@@ -61,5 +59,37 @@ public class Drone {
         List<entity.Drone> droneList = droneDAO.getBy("idIntervention", idIntervention);
         droneDAO.disconnect();
         return Response.ok(droneList).build();
+    }
+
+    /**
+     * Assign a drone to an intervention of id idIntervention
+     * @param idIntervention
+     * @return
+     */
+    @GET
+    @Path("/assign/{idIntervention}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response assign(
+            @PathParam("idIntervention") Long idIntervention) {
+        DroneDAO droneDAO = new DroneDAO();
+        droneDAO.connect();
+
+        List<entity.Drone> droneList = droneDAO.getBy("idIntervention", -1);
+        droneDAO.disconnect();
+
+        if (null != droneList && droneList.size() > 1) {
+            return Response.ok(droneList.get(0)).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    @POST
+    @Path("/status/{droneNumber}")
+    public Response move(
+            @PathParam("droneNumber") int droneNumber) {
+        DroneEngine engine = DroneEngine.getInstance();
+
+        return Response.ok().build();
     }
 }

@@ -24,7 +24,7 @@
     <string name="intervention_creation">Créer l\'intervention</string>
     <string name="latitude">Latitude</string>
     <string name="login_failed">Connexion échoué</string>
-    <string name="login_successful">Connexion réussi</string>
+    <string name="login_successful">Connexion réussie</string>
     <string name="logout_summary">Déconnexion de l\'application</string>
     <string name="longitude">Longitude</string>
     <string name="nameInterventionHint">Nom de l\'intervention</string>

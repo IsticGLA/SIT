@@ -1,7 +1,11 @@
 package istic.gla.groupb.nivimoju.drone.latlong;
 
+import entity.Path;
 import entity.Position;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Classe de convertissage entre un système géodesique (latlong) et des coordonnées dans un repère local
@@ -86,6 +90,23 @@ public class LatLongConverter {
         logger.debug(String.format("height:%s, ratioY:%s, offsetY:%s, y=>%s", height, ratioY, offsetY, y));
 
         return new LocalCoordinate(x, y, 0);
+    }
+
+    public LocalPath getLocalPath(Path path){
+        LocalPath localPath = new LocalPath();
+        localPath.setClosed(path.isClosed());
+        List<LocalCoordinate> localCoordinates = new ArrayList<>();
+        for(Position latLong : path.getPositions()){
+            try{
+                LocalCoordinate coord = getLocal(latLong);
+                coord.setZ(20);
+                localCoordinates.add(coord);
+            } catch (IllegalArgumentException e){
+                logger.error("could not transfer " + latLong + " to local coordinates");
+            }
+        }
+        localPath.setPositions(localCoordinates);
+        return localPath;
     }
 
 

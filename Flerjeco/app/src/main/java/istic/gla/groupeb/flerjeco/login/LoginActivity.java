@@ -24,7 +24,7 @@ import entity.Intervention;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
-import istic.gla.groupeb.flerjeco.MyApp;
+import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
@@ -215,12 +215,12 @@ public class LoginActivity extends Activity implements ISynchTool{
         protected void onPostExecute(String statusCode) {
             mAuthTask = null;
             showProgress(false);
-            MyApp myApp = MyApp.getInstance();
+            FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
             boolean isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
-            myApp.setCodisUser(isCodis);
-            myApp.setLogin(mLogin);
-            myApp.setPassword(mPassword);
-            if (!isCodis) myApp.setStaticDatas(staticDatas);
+            flerjecoApplication.setCodisUser(isCodis);
+            flerjecoApplication.setLogin(mLogin);
+            flerjecoApplication.setPassword(mPassword);
+            if (!isCodis) flerjecoApplication.setStaticDatas(staticDatas);
             Log.i(TAG, "isCodis "+isCodis);
 
             if (statusCode.equals("200")) {

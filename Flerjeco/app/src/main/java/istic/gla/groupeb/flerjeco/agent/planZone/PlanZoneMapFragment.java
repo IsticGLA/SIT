@@ -323,8 +323,10 @@ public class PlanZoneMapFragment extends Fragment {
      */
     public void removeLine(int i){
         Log.i(TAG, "Remove the polyline at the " + i + " position");
-        polylines.get(i).remove();
-        polylines.remove(i);
+        if (polylines.size() > 0) {
+            polylines.get(i).remove();
+            polylines.remove(i);
+        }
     }
 
     /**
@@ -332,21 +334,24 @@ public class PlanZoneMapFragment extends Fragment {
      */
     public void removeLastPoint(){
         Log.i(TAG, "Remove the last position on the path");
-        // remove the last marker on the Google Map
-        int i = markers.size()-1;
-        markers.get(i).remove();
-        markers.remove(i);
-        newPath.getPositions().remove(i);
+        if (markers.size() > 0) {
 
-        // remove the last polyline if there is at least one polyline
-        if (polylines.size() > 0) {
-            removeLine(polylines.size() - 1);
-        }
-        // remove the polyline which close the path is isClosed is true
-        if (polylines.size() > 1 && newPath.isClosed()){
-            removeLine(polylines.size() - 1);
-            // closed the path
-            drawClosePolyline();
+            // remove the last marker on the Google Map
+            int i = markers.size()-1;
+            markers.get(i).remove();
+            markers.remove(i);
+            newPath.getPositions().remove(i);
+
+            // remove the last polyline if there is at least one polyline
+            if (polylines.size() > 0) {
+                removeLine(polylines.size() - 1);
+            }
+            // remove the polyline which close the path is isClosed is true
+            if (polylines.size() > 1 && newPath.isClosed()) {
+                removeLine(polylines.size() - 1);
+                // closed the path
+                drawClosePolyline();
+            }
         }
     }
 

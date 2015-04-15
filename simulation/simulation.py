@@ -14,36 +14,45 @@ import os
 
 app = Flask(__name__)
 
-class Controller:
-    def __init__(self):
-        # Souscris pour écouter la position du robot
-        self.pose_sub = rospy.Subscriber("/drone_1/pose", PoseStamped, self.pose_callback)
-        # Publie pour setter le waypoint du robot
-        self.waypoint_pub = rospy.Publisher("/drone_1/waypoint", Pose, queue_size=10, latch=False)
-        self.dest=None
-        self.dest_tol_squared=1 #tolérance de 1m (valeur au carré)
+
+class Drone:
+    def __init__(self, label, dest_tolerance_squared):
+        self.label = label
+        self.dest = None
+        self.position = None
+        self.dest_tolerance_squared = dest_tolerance_squared
+        self.path = []  # liste de dict<x,y,z>
         self.forward = True
+        self.closed = False
         self.currentIndex = 0
+        self.pose_sub = rospy.Subscriber(label+"/pose", PoseStamped, self.pose_callback)
+        self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=10, latch=False)
 
-    def setWaypoint(self, x, y, z):
-        app.logger.info("setting waypoint to " + str(x) +", "+str(y)+", "+str(z))
-        pose = Pose(position=Point(x,y,z))
-        self.waypoint_pub.publish(pose)
-        self.dest = Point(x,y,z)
+    def pose_callback(self, pose_stamped):
+        assert isinstance(pose_stamped, PoseStamped)
+        pose = pose_stamped.pose
+        self.position = dict([('x', pose.position.x), ('y', pose.position.y), ('z', pose.position.z)])
+        if self.dest is not None:
+            ex = self.dest["x"] - pose.position.x
+            ey = self.dest["y"] - pose.position.y
+            ez = self.dest["z"] - pose.position.z
+            # verification de l'arrivée
+            distance_squared = ex*ex + ey*ey + ez*ez
+            if distance_squared < self.dest_tolerance_squared:
+                app.logger.info("robot " + self.label + " arrived to destination")
+                if len(self.path) > 1:
+                    self.next_waypoint_in_path()
 
-    def setPath(self, path):
+    def set_path(self, path, closed):
         self.path = path
-        self.currentIndex = 0
-        self.setWaypoint(path[0]["x"], path[0]["y"], path[0]["z"])
-        self.dest = path[0]
         self.forward = True
-
-    def setClosed(self, closed):
         self.closed = closed
+        self.currentIndex = 0
 
-    def nextWaypointInPath(self):
+    def next_waypoint_in_path(self):
+        app.logger.info("setting next waypoint dor robot " + self.label)
         if self.forward:
-            self.currentIndex = self.currentIndex + 1
+            self.currentIndex += 1
             if self.currentIndex >= len(self.path):
                 if self.closed:
                     self.currentIndex = 0
@@ -51,77 +60,77 @@ class Controller:
                     self.currentIndex = len(self.path) - 1
                     self.forward = False
         else:
-            self.currentIndex = self.currentIndex - 1
+            self.currentIndex -= 1
             if self.currentIndex < 0:
                 self.currentIndex = 0
                 self.forward = True
+        self.goto(self.path[self.currentIndex])
 
-        point = self.path[self.currentIndex]
-        self.setWaypoint(point["x"], point["y"], point["z"])
-        self.dest = point
-
-    # appellée a chaque mise a jour de la position du robot
-    def pose_callback(self, pose_stamped):
-        assert isinstance(pose_stamped, PoseStamped)
-        pose = pose_stamped.pose
-        #app.logger.info("robot position " + str(pose.position.x) +", "+str(pose.position.y)+", "+str(pose.position.z))
-        if self.dest is not None:
-            #app.logger.info("dest  position " + str(self.dest["x"]) + ", "+str(self.dest["y"])+", "+str(self.dest["z"]))
-            ez = self.dest["z"] - pose.position.z
-            ex = self.dest["x"] - pose.position.x
-            ey = self.dest["y"] - pose.position.y
-            #app.logger.info("deltas " + str(ex) + ", "+ str(ey) + ", "+str(ez))
-            # verification de l'arrivée
-            distance_squared = ex*ex + ey*ey + ez*ez
-            #app.logger.info("distance_squared : "+ str(distance_squared))
-            if distance_squared < self.dest_tol_squared:
-                app.logger.info("robot arrived to waypoint")
-                self.nextWaypointInPath()
+    def goto(self, position):
+        x = position["x"]
+        y = position["y"]
+        z = position["z"]
+        app.logger.info("setting waypoint to " + str(x) + ", " + str(y) + ", " + str(z))
+        pose = Pose(position=Point(x, y, z))
+        self.waypoint_pub.publish(pose)
+        self.dest = position
 
 
-controller = Controller()
+class Controller:
+    def __init__(self, nb_drones):
+        self.drones = []
+        for i in range(1, nb_drones + 1):
+            self.drones.append(Drone("drone_" + str(i), 1))
+
+
+controller = Controller(5)
+
 
 @app.route('/robot/waypoint', methods=['POST'])
 def waypoint():
     global controller
     app.logger.info("received a new request on /robot/waypoint")
-    if not request.json or not 'x' in request.json or not 'y' in request.json or not 'z' in request.json:
+    if not request.json or 'x' not in request.json or 'y' not in request.json or 'z' not in request.json:
         app.logger.error("request is not json")
         abort(400)
     try:
         x = request.json['x']
         y = request.json['y']
         z = request.json['z']
-    except Exception as e:
+        controller.set_waypoint(x, y, z)
+        return jsonify({"x": x, "y": y, "z": z}), 200
+    except:
         app.logger.error(traceback.format_exc())
         abort(400)
-    controller.setWaypoint(x, y, z)
-    return jsonify({"x": x, "y": y, "z": z}), 200
 
-@app.route('/robot/path', methods=['POST'])
-def path():
-    global command
-    app.logger.info("received a new request on /robot/path")
+
+@app.route('/<path:drone_label>/path', methods=['POST'])
+def set_path_for_drone(drone_label):
+    global controller
+    app.logger.info("received a new request on "+drone_label+"/path")
     try:
         # Get the JSON data sent from the form
-        path = request.json['positions'] # list<dict<x,y,z>>
+        path = request.json['positions']  # list<dict<x,y,z>>
         closed = request.json['closed']
-        controller.setPath(path)
-        controller.setClosed(closed)
-    except Exception as e:
+        controller.set_path(path)
+        controller.set_closed(closed)
+    except:
         app.logger.error(traceback.format_exc())
         abort(400)
     return "hello", 200
 
+
 @app.route('/drones/info', methods=['GET'])
-def dronesInfos():
+def get_drones_info():
     app.logger.info("received a new request on /drones/info")
+    global controller
     try:
         drones_infos = []
-        info = dict([('label', "drone_1"), ('x', 4127), ('y', 4098)])
-        drones_infos.append(info)
-        return jsonify(infos = drones_infos)
-    except Exception as e:
+        for drone in controller.drones:
+            info = dict([('label', drone.label), ('position', drone.position)])
+            drones_infos.append(info)
+        return jsonify(infos=drones_infos)
+    except:
         app.logger.error(traceback.format_exc())
         abort(400)
     
@@ -130,7 +139,7 @@ def dronesInfos():
 def hello():
     return "hello", 200
 
-if __name__ == '__main__' :
+if __name__ == '__main__':
     handler = RotatingFileHandler('flask.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -143,4 +152,3 @@ if __name__ == '__main__' :
         app.run(debug=True, host='0.0.0.0', port=5000)
     except Exception as e:
         app.logger.error(traceback.format_exc())
-
