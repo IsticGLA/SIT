@@ -20,7 +20,8 @@ class Controller:
         self.pose_sub = rospy.Subscriber("/drone_1/pose", PoseStamped, self.pose_callback)
         # Publie pour setter le waypoint du robot
         self.waypoint_pub = rospy.Publisher("/drone_1/waypoint", Pose, queue_size=10, latch=False)
-        self.dest_tol=1 #tolérance de 1m
+        self.dest=None
+        self.dest_tol_squared=1 #tolérance de 1m (valeur au carré)
         self.forward = True
         self.currentIndex = 0
 
@@ -34,6 +35,7 @@ class Controller:
         self.path = path
         self.currentIndex = 0
         self.setWaypoint(path[0]["x"], path[0]["y"], path[0]["z"])
+        self.dest = path[0]
         self.forward = True
 
     def setClosed(self, closed):
@@ -56,22 +58,23 @@ class Controller:
 
         point = self.path[self.currentIndex]
         self.setWaypoint(point["x"], point["y"], point["z"])
+        self.dest = point
 
     # appellée a chaque mise a jour de la position du robot
     def pose_callback(self, pose_stamped):
-        app.logger.info("hey")
         assert isinstance(pose_stamped, PoseStamped)
         pose = pose_stamped.pose
-        
         app.logger.info("robot position " + str(pose.position.x) +", "+str(pose.position.y)+", "+str(pose.position.z))
-        if self.dest:
-            ez = self.dest.z - pose.position.z
-            ex = self.dest.x - pose.position.x
-            ey = self.dest.y - pose.position.y
-
+        if self.dest is not None:
+            app.logger.info("dest  position " + str(self.dest["x"]) + ", "+str(self.dest["y"])+", "+str(self.dest["z"]))
+            ez = self.dest["z"] - pose.position.z
+            ex = self.dest["x"] - pose.position.x
+            ey = self.dest["y"] - pose.position.y
+            app.logger.info("deltas " + str(ex) + ", "+ str(ey) + ", "+str(ez))
             # verification de l'arrivée
-            distance = sqrt(ex*ex + ey*ey + ez*ez)
-            if distance < self.dest_tol:
+            distance_squared = ex*ex + ey*ey + ez*ez
+            app.logger.info("distance_squared : "+ str(distance_squared))
+            if distance_squared < self.dest_tol_squared:
                 app.logger.info("robot arrived to waypoint")
                 self.nextWaypointInPath()
 
@@ -108,6 +111,10 @@ def path():
     except Exception as e:
         app.logger.error(traceback.format_exc())
         abort(400)
+    return "hello", 200
+
+@app.route('/hello', methods=['GET'])
+def hello():
     return "hello", 200
 
 if __name__ == '__main__' :
