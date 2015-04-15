@@ -14,33 +14,27 @@ public class DAOManager {
     /**
      * Current Connection
      */
-    protected static Cluster currentCluster;
-
-    /**
-     * Current Bucket
-     */
-    protected static Bucket currentBucket;
+    protected static Cluster currentCluster = CouchbaseCluster.create(Configuration.COUCHBASE_HOSTNAME);
 
     /**
      * Instance of the DAOManager
      */
     private static DAOManager instance = new DAOManager();
 
-    public static void connect(){
-        if(currentCluster == null || currentBucket==null) {
-            // Connect to a cluster
-            currentCluster = CouchbaseCluster.create(Configuration.COUCHBASE_HOSTNAME);
+    /**
+     * Current Bucket
+     */
+    protected static Bucket currentBucket;
 
+    public static void connect(){
+        if (currentCluster != null && currentBucket==null) {
             // Open a bucket
             currentBucket = currentCluster.openBucket(Configuration.BUCKET_NAME);
         }
     }
 
     public static void connectTest(){
-        if(currentCluster == null || currentBucket==null) {
-            // Connect to a cluster
-            currentCluster = CouchbaseCluster.create(Configuration.COUCHBASE_HOSTNAME);
-
+        if (currentCluster != null && currentBucket==null) {
             // Open a bucket
             currentBucket = currentCluster.openBucket(Configuration.BUCKET_NAME_TEST);
         }
@@ -49,8 +43,9 @@ public class DAOManager {
     public static void disconnect() {
         if(currentCluster != null)
         {
-            currentCluster.disconnect();
-            currentBucket =null;
+            if (currentBucket.close()){
+                currentBucket = null;
+            }
         }
     }
 

@@ -4,6 +4,7 @@ import entity.Drone;
 import entity.User;
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -21,7 +22,7 @@ public class DroneDAOTest {
     public static void init() {
         drone = new Drone("Drone 1");
         droneDAO = new DroneDAO();
-        DAOManager.connect();
+        droneDAO.connect();
     }
 
     @AfterClass
@@ -70,5 +71,13 @@ public class DroneDAOTest {
             logger.info(d.getLabel());
             logger.info(d.getIdIntervention());
         }
+    }
+
+    @Test
+    public void update() {
+        drone.setIdIntervention(10);
+        Drone updatedDrone = droneDAO.update(drone);
+        logger.info(updatedDrone);
+        Assert.assertEquals(10, updatedDrone.getIdIntervention());
     }
 }
