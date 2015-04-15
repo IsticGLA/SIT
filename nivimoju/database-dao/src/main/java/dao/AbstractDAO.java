@@ -12,6 +12,7 @@ import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +45,32 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final void disconnect() {
         DAOManager.disconnect();
+    }
+
+    /**
+     * return the LastUpdate from the base
+     * @param timestamp
+     * @return
+     */
+    public Timestamp getNewerLastUpdate(Timestamp timestamp) {
+        return null;
+    }
+
+    /**
+     * return the LastUpdate from the base
+     * @param timestamp
+     * @return
+     */
+    public Timestamp getLastUpdate(long id, Timestamp timestamp) {
+        return this.getById(id).getLastUpdate();
+    }
+
+    public boolean checkLastUpdate(T e) {
+        Timestamp databaseDate = this.getById(e.getId()).getLastUpdate();
+        if(databaseDate.before(e.getLastUpdate())) {
+            return  true;
+        }
+        return false;
     }
 
     /**
@@ -83,8 +110,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final T update(T e) {
         try {
-            JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
-            return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+            if(checkLastUpdate(e)) {
+                JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
+                return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+            }
+            return null;
         } catch (DocumentDoesNotExistException ex){
             return null;
         }
@@ -121,9 +151,20 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         }
     }
 
-    public final List<T> getBy(String key, String value){
+    public final List<T> getBy(String key, Object value){
         createViewBy(key);
-        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(value).stale(Stale.FALSE)).allRows();
+        ViewQuery query = null;
+        if (value instanceof Long){
+            Long v = (Long) value;
+            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
+        } else if (value instanceof Integer){
+            Integer v = (Integer) value;
+            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
+        } else {
+            String v = (String) value;
+            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
+        }
+        List<ViewRow> result = DAOManager.getCurrentBucket().query(query).allRows();
         return viewRowsToEntities(result);
     }
 

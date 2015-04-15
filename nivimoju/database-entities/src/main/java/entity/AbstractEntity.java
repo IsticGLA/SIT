@@ -29,6 +29,7 @@ public abstract class AbstractEntity  implements Serializable {
     public AbstractEntity()
     {
         id = -1;
+        lastUpdate = new Timestamp(0);
     }
 
     /**

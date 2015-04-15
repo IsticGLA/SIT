@@ -2,6 +2,7 @@ package istic.gla.groupb.nivimoju.drone.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import entity.Position;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
@@ -12,12 +13,15 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class DroneClient {
     private static Logger logger = Logger.getLogger(DroneClient.class);
 
-    private String server = "http://37.59.58.42:5000/";
+    //private String server = "http://37.59.58.42:5000/"; // serveur kimsufi
+    private String server = "http://148.60.11.203:5000/"; //VM istic
     private RestTemplate rest;
     private HttpHeaders headers;
     private HttpStatus status;
@@ -75,10 +79,23 @@ public class DroneClient {
         String res = post("robot/waypoint", json);
     }
 
-    public void postPath(LocalPath path) throws JsonProcessingException {
+    public void postPath(String droneLabel, LocalPath path) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(path);
-        String res = post("robot/path", json);
+        String res = post(droneLabel+"/path", json);
+    }
+
+    public DronesInfos getDronesInfos() {
+        String res = get("drones/info");
+        //map label localposition
+        Map<String, LocalCoordinate> infos;
+        ObjectReader reader = new ObjectMapper().reader(DronesInfos.class);
+        try {
+            return reader.readValue(res);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 

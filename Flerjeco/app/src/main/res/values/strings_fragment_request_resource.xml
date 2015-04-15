@@ -1,4 +1,8 @@
 <resources>
+    <string name="state_validated">validated</string>
+    <string name="state_refused">refused</string>
+    <string name="state_waiting">waiting</string>
+
     <string name="app_name">Flerjeco</string>
     <string name="title_activity_second">Current Intervention</string>
     <string name="title_activity_list_interventions">List of Interventions</string>
@@ -7,9 +11,9 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="vehicle_fragment_text">Sélectionnez le type de véhicule dont vous avez besoin :</string>
+    <string name="vehicle_fragment_text">Select the type of vehicle you need :</string>
     <string name="title_activity_display_intervention">DisplayIntervention</string>
-    <string name="title_activity_plan_zone">PlanZoneActivity</string>
-    <string name="resource_request_dialog_title">Demande de moyen</string>
-    <string name="button_request_resource">Demander</string>
+    <string name="title_activity_plan_zone">Drone Management</string>
+    <string name="resource_request_dialog_title">Ask for resource</string>
+    <string name="button_request_resource">Ask</string>
 </resources>
