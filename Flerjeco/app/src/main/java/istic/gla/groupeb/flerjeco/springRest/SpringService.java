@@ -115,6 +115,7 @@ public class SpringService {
                     Log.i(TAG, "drone = null");
                 }// else {
                 // we return the intervention even if drone is null
+
                 return intervetionResult.getBody();
                 //}
             }
@@ -132,22 +133,23 @@ public class SpringService {
             ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
 
             if (interventionResult == null) {
-                Log.i("MAMH", "interventionResult = null");
+                Log.i(TAG, "interventionResult = null");
             } else
                 Log.i(TAG, interventionResult.toString());
                 return interventionResult.getBody();
         } catch (HttpStatusCodeException e) {
-            Log.i("MAMH", "Problème de l'update de l'intervention : " + e.getMessage());
+            Log.i(TAG, "Problème de l'update de l'intervention : " + e.getMessage());
         }
         return null;
     }
 
-    public Intervention updateResourceIntervention(long interventionId, Resource resource) {
+    public Intervention updateResourceIntervention(Object[] params) {
+        long interventionId = (long)params[0];
+        Resource resource = (Resource)params[1];
         try {
             final String url = URL + "intervention/"+interventionId+"/resources/update";
-            ObjectWithDate objectWithDate = new ObjectWithDate(resource, new Timestamp(Calendar.getInstance().getTime().getTime()));
 
-            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, objectWithDate, Intervention.class);
+            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, resource, Intervention.class);
 
             if (interventionResult == null) {
                 Log.i(TAG, "updateResourceIntervention interventionResult = null");
@@ -191,22 +193,23 @@ public class SpringService {
         String httpCode = "";
         Timestamp restTimestamp = timestamp;
         url = URL_TEST+url;
-        Log.i("MAMH", "url  :  " + url);
+        Log.i(TAG, "url  :  " + url);
         try {
             ResponseEntity<Timestamp> entity = restTemplate.postForEntity(url, timestamp, Timestamp.class);
             httpCode = entity.getStatusCode().toString();
             restTimestamp = entity.getBody();
-            Log.i("MAMH", "HttpCode  :  " + httpCode);
-            if ("200".equals(httpCode)) {
-                return timestamp;
-            } else if ("201".equals(httpCode)) {
+            Log.i(TAG, "HttpCode  :  " + httpCode);
+            if ("201".equals(httpCode)) {
                 return restTimestamp;
+            }else {
+                return timestamp;
             }
+
         } catch (HttpStatusCodeException e) {
             httpCode = e.getStatusCode().toString();
-            return restTimestamp;
+            return timestamp;
         }
-        return restTimestamp;
+
     }
 
 

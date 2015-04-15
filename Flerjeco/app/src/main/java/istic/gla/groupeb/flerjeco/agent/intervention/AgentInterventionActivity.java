@@ -18,6 +18,7 @@ package istic.gla.groupeb.flerjeco.agent.intervention;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -38,6 +39,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import entity.Intervention;
@@ -45,13 +47,15 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.view.IconView;
 import util.ResourceCategory;
 import util.ResourceRole;
 import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
-        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener {
+        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool {
 
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
@@ -134,6 +138,10 @@ public class AgentInterventionActivity extends FragmentActivity
         actionBar.addTab(tab);
     }
 
+    @Override
+    public void refresh(){
+
+    }
     public void onResourceSelected(int position) {
 
         mapFragment = (AgentInterventionMapFragment)
@@ -216,6 +224,7 @@ public class AgentInterventionActivity extends FragmentActivity
      */
     public void updateIntervention(Intervention intervention) {
         //TODO update lists of resources and map
+
     }
 
     class MyDragListener implements View.OnDragListener {
@@ -257,6 +266,12 @@ public class AgentInterventionActivity extends FragmentActivity
                     IconView iconView = (IconView) ((LinearLayout)view).getChildAt(0);
 
                     Resource resource = iconView.getResource();
+
+                    resource.setLatitude(latLng.latitude);
+                    resource.setLongitude(latLng.longitude);
+
+                    UpdateIntervention mUpdateIntervention = new UpdateIntervention();
+                    mUpdateIntervention.execute(intervention.getId(), resource);
 
                     MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
                     // Changing marker icon
@@ -301,5 +316,18 @@ public class AgentInterventionActivity extends FragmentActivity
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
+    }
+
+    private class UpdateIntervention extends AsyncTask<Object, Void, Intervention> {
+
+        @Override
+        protected Intervention doInBackground(Object... params) {
+            return new SpringService().updateResourceIntervention(params);
+        }
+
+        @Override
+        protected void onPostExecute(Intervention intervention){
+            updateIntervention(intervention);
+        }
     }
 }

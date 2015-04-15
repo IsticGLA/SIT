@@ -2,6 +2,7 @@ package dao;
 
 import entity.Drone;
 import entity.User;
+import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -12,7 +13,7 @@ import java.util.List;
  * Created by jeremy on 14/04/15.
  */
 public class DroneDAOTest {
-
+    Logger logger = Logger.getLogger(DroneDAOTest.class);
     private static Drone drone;
     private static DroneDAO droneDAO;
 
@@ -34,8 +35,8 @@ public class DroneDAOTest {
         //Drone res = droneDAO.create(drone);
         String login = "a";
         List<User> u = new UserDAO().getBy("login", login);
-        System.out.println(u.size());
-        System.out.println(u.get(0).getLogin() + "  " + u.get(0).getPassword());
+        logger.info(u.size());
+        logger.info(u.get(0).getLogin() + "  " + u.get(0).getPassword());
 
         //originalDrone.setId(res.getId());
         //Assert.assertEquals(originalDrone, res);
@@ -45,10 +46,19 @@ public class DroneDAOTest {
     @Test
     public void getByIdIntervention() {
         List<Drone> list = droneDAO.getBy("idIntervention", 10);
-        System.out.println(list);
+        logger.info(list);
         for (Drone d : list){
-            System.out.println(d.getLabel());
+            logger.info(d.getLabel());
         }
 
+    }
+
+    @Test
+    public void getAll() {
+        List<Drone> list = droneDAO.getAll();
+        logger.info(list);
+        for (Drone d : list){
+            logger.info(d.getLabel());
+        }
     }
 }
