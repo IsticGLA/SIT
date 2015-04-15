@@ -15,6 +15,7 @@
  */
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -33,13 +34,15 @@ import java.util.Set;
 import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import util.ResourceCategory;
 import util.ResourceRole;
 import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
-        implements AgentInterventionResourcesFragment.OnResourceSelectedListener {
+        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener {
 
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
@@ -104,6 +107,22 @@ public class AgentInterventionActivity extends FragmentActivity
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
         }
+
+        final ActionBar actionBar = getActionBar();
+
+        // Specify that tabs should be displayed in the action bar.
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        // Add 2 tabs, specifying the tab's text and TabListener
+        ActionBar.Tab tab = actionBar.newTab();
+        tab.setText("Intervention");
+        tab.setTabListener(this);
+        actionBar.addTab(tab);
+
+        tab = actionBar.newTab();
+        tab.setText("Drone");
+        tab.setTabListener(this);
+        actionBar.addTab(tab);
     }
 
     public void onResourceSelected(int position) {
@@ -162,6 +181,7 @@ public class AgentInterventionActivity extends FragmentActivity
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_logout, menu);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -177,5 +197,29 @@ public class AgentInterventionActivity extends FragmentActivity
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
+        if(tab.getText().toString().equals("Drone")) {
+            Intent intent = new Intent(AgentInterventionActivity.this, PlanZoneActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("intervention", intervention);
+            intent.putExtras(bundle);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    @Override
+    public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
+        if(tab.getText().toString().equals("Intervention")) {
+            finish();
+        }
+    }
+
+    @Override
+    public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
+
     }
 }
