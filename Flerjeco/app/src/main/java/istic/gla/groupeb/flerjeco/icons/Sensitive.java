@@ -6,11 +6,13 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 
+import util.ResourceRole;
+
 /**
  * This class allows to draw the representation
  * of a Sensitive point according to the SIT graphic
  */
-public class Sensitive {
+public class Sensitive implements IIcon {
 
     private Path triangle;
     private Paint paint;
@@ -20,7 +22,7 @@ public class Sensitive {
         paint.setStrokeWidth(2);
         paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setAntiAlias(true);
-        changeComponent(Component.HUMAN);
+        changeComponent(ResourceRole.otherwise);
         Point point1 = new Point(0,0);
         Point point2 = new Point(40,0);
         Point point3 = new Point((point2.x+point1.x)/2, (int) ((point2.x-point1.x)*(Math.sqrt(3)/2))+point1.y);
@@ -32,22 +34,40 @@ public class Sensitive {
         triangle.close();
     }
 
-    public enum Component{
-        HUMAN, FIRE, RISKS, WATER
+    public Sensitive(ResourceRole component){
+        paint = new Paint();
+        paint.setStrokeWidth(2);
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        paint.setAntiAlias(true);
+        changeComponent(component);
+        Point point1 = new Point(0,0);
+        Point point2 = new Point(40,0);
+        Point point3 = new Point((point2.x+point1.x)/2, (int) ((point2.x-point1.x)*(Math.sqrt(3)/2))+point1.y);
+        triangle = new Path();
+        triangle.moveTo(point1.x, point1.y);
+        triangle.lineTo(point2.x, point2.y);
+        triangle.lineTo(point3.x, point3.y);
+        triangle.lineTo(point1.x, point1.y);
+        triangle.close();
     }
 
-    public void changeComponent(Component component){
+    @Override
+    public void drawIcon(Canvas mCanvas) {
+        mCanvas.drawPath(triangle, paint);
+    }
+
+    public void changeComponent(ResourceRole component){
         switch (component){
-            case HUMAN:
+            case people:
                 paint.setColor(Color.GREEN);
                 break;
-            case FIRE:
+            case fire:
                 paint.setColor(Color.RED);
                 break;
-            case RISKS:
+            case risks:
                 paint.setColor(Color.argb(0,255,102,0));
                 break;
-            case WATER:
+            case water:
                 paint.setColor(Color.BLUE);
                 break;
             default:
@@ -61,10 +81,6 @@ public class Sensitive {
 
     public Paint getPaint() {
         return paint;
-    }
-
-    public void drawSensitive(Canvas mCanvas){
-        mCanvas.drawPath(triangle, paint);
     }
 
 }

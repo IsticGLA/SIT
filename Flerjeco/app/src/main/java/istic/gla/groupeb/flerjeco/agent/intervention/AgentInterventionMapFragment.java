@@ -232,7 +232,7 @@ public class AgentInterventionMapFragment extends Fragment {
                 Danger danger = new Danger();
                 bmp = Bitmap.createBitmap(60, 60, Bitmap.Config.ARGB_8888);
                 Canvas mCanvas = new Canvas(bmp);
-                danger.drawDanger(mCanvas);
+                danger.drawIcon(mCanvas);
                 break;
             case incident:
                 bmp = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
@@ -256,7 +256,7 @@ public class AgentInterventionMapFragment extends Fragment {
                     int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
                     mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                     Canvas mCanvas = new Canvas(mBitmap);
-                    mVehicle.drawVehicle(mCanvas);
+                    mVehicle.drawIcon(mCanvas);
                     break;
                 case dragabledata:
                     String label = resource.getLabel();
@@ -266,11 +266,12 @@ public class AgentInterventionMapFragment extends Fragment {
                         Danger danger = new Danger();
                         mBitmap = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888);
                         Canvas dCanvas = new Canvas(mBitmap);
-                        danger.drawDanger(dCanvas);
+                        danger.drawIcon(dCanvas);
                     } else if ("sensitive".equals(label)) {
                         Sensitive sensitive = new Sensitive();
                         mBitmap = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888);
-                        Canvas dCanvas = new Canvas(mBitmap);
+                        Canvas sCanvas = new Canvas(mBitmap);
+                        sensitive.drawIcon(sCanvas);
                     }
                     break;
             }
