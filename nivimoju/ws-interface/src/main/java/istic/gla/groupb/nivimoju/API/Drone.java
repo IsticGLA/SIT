@@ -85,7 +85,7 @@ public class Drone {
             return Response.ok(droneList.get(0)).build();
         } else {
             droneDAO.disconnect();
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.ok().build();
         }
     }
 
