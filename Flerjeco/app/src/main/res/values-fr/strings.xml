@@ -43,5 +43,5 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="geocoder_failed">L'adresse n'as pas été trouvée</string>
+    <string name="geocoder_failed">L\'adresse n\'as pas été trouvée</string>
 </resources>
