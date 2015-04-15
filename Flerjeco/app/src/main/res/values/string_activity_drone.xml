@@ -4,5 +4,7 @@
     <string name="closed_path">Fermer le trajet</string>
     <string name="cancel">Annuler</string>
     <string name="remove_marker">Supprimer le dernier point</string>
+    <string name="remove_path">Supprimer le trajet</string>
+
 
 </resources>

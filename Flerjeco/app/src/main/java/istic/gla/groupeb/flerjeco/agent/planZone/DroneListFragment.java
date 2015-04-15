@@ -111,6 +111,10 @@ public class DroneListFragment extends Fragment {
         }
     }
 
+    /**
+     * refresh the listView when the update of the intervention is done
+     * @param intervention
+     */
     public void refresh(Intervention intervention){
         adapter.clear();
         labelsPath = new ArrayList<>();
@@ -122,6 +126,9 @@ public class DroneListFragment extends Fragment {
         listViewPath.setItemChecked(labelsPath.size()-1, true);
     }
 
+    /**
+     * unchecked the listView when you create a new path
+     */
     public void unCheckedListView(){
         listViewPath.setItemChecked(listViewPath.getCheckedItemPosition(), false);
     }

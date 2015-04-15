@@ -23,6 +23,7 @@ public class Drone extends AbstractEntity {
 
     /**
      * Build a Drone
+     *
      * @param label
      */
     public Drone(String label) {
@@ -34,6 +35,7 @@ public class Drone extends AbstractEntity {
 
     /**
      * Build a Drone
+     *
      * @param label
      * @param latitude
      * @param longitude
