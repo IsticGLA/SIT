@@ -37,24 +37,30 @@ public class SynchService extends IntentService {
     //TODO SpringService
     SpringService springService = new SpringService();
     Messenger messenger;
-    Timer t = new Timer();
+    static Timer t = new Timer();
+    TimerTask timerTask;
 
 
     @Override
     protected void onHandleIntent(final Intent intent) {
         displaySynch = (DisplaySynch) intent.getExtras().get("displaySynch");
         url = (String) intent.getExtras().get("url");
-        //intervention.updateDate();
+
+        t.cancel();
+        t.purge();
+        t = new Timer();
 
         final GetNotifyTask getNotifyTask = new GetNotifyTask();
 
-        t.schedule(new TimerTask() {
+        timerTask = new TimerTask() {
 
             @Override
             public void run() {
                 new GetNotifyTask().execute(url);
             }
-        }, 100, 10000);
+        };
+
+        t.schedule(timerTask, 100, 10000);
 
     }
 
@@ -67,7 +73,7 @@ public class SynchService extends IntentService {
                 //Log.i("MAMH", "ID inter : "+params[0]);
                 return springService.getNotify(params[0], timestamp);
             } catch (HttpStatusCodeException e) {
-                Log.e("InterventionActivity", e.getMessage(), e);
+                //Log.e("InterventionActivity", e.getMessage(), e);
                 return null;
             }
 
@@ -75,9 +81,9 @@ public class SynchService extends IntentService {
 
         @Override
         protected void onPostExecute(Timestamp resultPost) {
-//            Log.i("MAMH", "onPostExecute Synch");
-//            Log.i("MAMH", "resultPost : "+resultPost);
-//            Log.i("MAMH", "timestamp : "+timestamp);
+            //Log.i("MAMH", "onPostExecute Synch");
+            //Log.i("MAMH", "resultPost : "+resultPost);
+            //Log.i("MAMH", "timestamp : "+timestamp);
             // just call the handler every 3 Seconds
             if(resultPost == null){
 //                Log.i("MAMH", "resultPost est null ");

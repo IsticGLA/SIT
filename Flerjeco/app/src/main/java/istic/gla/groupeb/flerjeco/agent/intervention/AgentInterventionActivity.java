@@ -42,10 +42,13 @@ import java.util.Set;
 
 import entity.Intervention;
 import entity.Resource;
+import istic.gla.groupeb.flerjeco.MyApp;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 import istic.gla.groupeb.flerjeco.view.IconView;
 import util.ResourceCategory;
 import util.ResourceRole;
@@ -70,12 +73,21 @@ public class AgentInterventionActivity extends FragmentActivity
 
         intervention = new Intervention();
 
-        /*Bundle extras = getIntent().getExtras();
+        Bundle extras = getIntent().getExtras();
 
         if (extras != null){
             intervention = (Intervention) extras.getSerializable("intervention");
-        }*/
+        }
 
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/"+intervention.getId();
+
+        IntentWraper.startService(url, displaySynch);
 
         intervention.setLatitude(48.117749);
         intervention.setLongitude(-1.677297);

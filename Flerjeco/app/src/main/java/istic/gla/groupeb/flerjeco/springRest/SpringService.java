@@ -30,6 +30,7 @@ public class SpringService {
 
     private static final String TAG = SpringService.class.getSimpleName();
     private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
+    //private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
     private static final String URL_TEST = "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
     private static RestTemplate restTemplate = new RestTemplate();
 
@@ -62,8 +63,7 @@ public class SpringService {
      */
     public Intervention getInterventionById(Long idIntervention) {
 
-        //TODO modify URL_TEST -> URL
-        final String url = URL_TEST + "intervention/" + idIntervention;
+        final String url = URL + "intervention/" + idIntervention;
 
         ResponseEntity<Intervention> interventionResult = restTemplate.getForEntity(url, Intervention.class);
 
@@ -178,8 +178,8 @@ public class SpringService {
     public Timestamp getNotify(String url, Timestamp timestamp) {
         String httpCode = "";
         Timestamp restTimestamp = timestamp;
-        url = URL_TEST+url;
-        Log.i(TAG, "url  :  " + url);
+        url = URL+url;
+        Log.i(TAG, "GetNotify url  :  " + url);
         try {
             ResponseEntity<Timestamp> entity = restTemplate.postForEntity(url, timestamp, Timestamp.class);
             httpCode = entity.getStatusCode().toString();
