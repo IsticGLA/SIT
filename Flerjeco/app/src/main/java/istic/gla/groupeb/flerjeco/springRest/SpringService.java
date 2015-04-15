@@ -22,6 +22,7 @@ import entity.ObjectWithDate;
 import entity.Resource;
 import entity.ResourceType;
 import entity.StaticData;
+import istic.gla.groupeb.flerjeco.codis.intervention.ResourcesFragment;
 
 /**
  * Created by amhachi on 08/04/15.

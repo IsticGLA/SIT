@@ -194,7 +194,7 @@ public class Intervention {
      * @param newResource resource
      * @return OK if the vehicle has been correctly placed
      */
-    @PUT
+    @POST
     @Path("{inter}/resources/update")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
