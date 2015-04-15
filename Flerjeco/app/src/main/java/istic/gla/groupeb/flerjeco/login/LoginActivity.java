@@ -57,19 +57,15 @@ public class LoginActivity extends Activity implements ISynchTool{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Intent i= IntentWraper.getIntentInstance(this);
-
         DisplaySynch displaySynch = new DisplaySynch() {
             @Override
             public void ctrlDisplay() {
                 refresh();
             }
         };
-        i.putExtra("displaySynch", displaySynch);
         String url = "notify/19";
-        i.putExtra("url", url);
 
-        this.startService(i);
+        IntentWraper.startService(url, displaySynch);
 
         refresh();
     }

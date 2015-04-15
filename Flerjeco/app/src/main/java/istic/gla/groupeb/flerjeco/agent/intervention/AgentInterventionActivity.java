@@ -39,7 +39,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import entity.Intervention;
@@ -49,6 +48,7 @@ import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 import istic.gla.groupeb.flerjeco.view.IconView;
 import util.ResourceCategory;
 import util.ResourceRole;
@@ -71,7 +71,7 @@ public class AgentInterventionActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //intervention = new Intervention("TestEnDur", 4, 48.117749, -1.677297);
+        intervention = new Intervention();
 
         Bundle extras = getIntent().getExtras();
 
@@ -300,7 +300,6 @@ public class AgentInterventionActivity extends FragmentActivity
             Intent intent = new Intent(AgentInterventionActivity.this, PlanZoneActivity.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable("intervention", intervention);
-            Log.i(TAG, intervention.getName());
             intent.putExtras(bundle);
             startActivity(intent);
             finish();

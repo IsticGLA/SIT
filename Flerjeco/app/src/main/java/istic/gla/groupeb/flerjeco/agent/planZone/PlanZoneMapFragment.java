@@ -122,7 +122,7 @@ public class PlanZoneMapFragment extends Fragment {
         clearGoogleMap();
 
         // if path of the position position in the list is not null, we draw it on the map
-        if (position < pathList.size() && null != pathList.get(position)){
+        if (pathList.size() > 0 && position < pathList.size() && null != pathList.get(position)){
             // Set mCurrentPosition to future resume on fragment
             mCurrentPosition = position;
 

@@ -362,6 +362,17 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
             address.setLongitude(Double.parseDouble(longitudeEditText.getText().toString()));
         }
 
+        if (null == address) {
+            Toast.makeText(InterventionDialogFragment.this.getActivity(), R.string.geocoder_failed, Toast.LENGTH_LONG);
+            showProgress(true);
+            return;
+        }
+
+        Log.i(TAG, nameInterventionEditText.getText().toString());
+        Log.i(TAG, spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).toString());
+        Log.i(TAG, "  " + address.getLatitude());
+        Log.i(TAG, "  " + address.getLongitude());
+
         //Les champs text sont toujours vérifié
         intervention = new entity.Intervention(nameInterventionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), address.getLatitude(), address.getLongitude());
 
