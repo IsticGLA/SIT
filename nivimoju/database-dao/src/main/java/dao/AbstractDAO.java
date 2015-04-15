@@ -12,6 +12,7 @@ import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +45,32 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final void disconnect() {
         DAOManager.disconnect();
+    }
+
+    /**
+     * return the LastUpdate from the base
+     * @param timestamp
+     * @return
+     */
+    public Timestamp getNewerLastUpdate(Timestamp timestamp) {
+        return null;
+    }
+
+    /**
+     * return the LastUpdate from the base
+     * @param timestamp
+     * @return
+     */
+    public Timestamp getLastUpdate(long id, Timestamp timestamp) {
+        return this.getById(id).getLastUpdate();
+    }
+
+    public boolean checkLastUpdate(T e) {
+        Timestamp databaseDate = this.getById(e.getId()).getLastUpdate();
+        if(databaseDate.before(e.getLastUpdate())) {
+            return  true;
+        }
+        return false;
     }
 
     /**
@@ -83,8 +110,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final T update(T e) {
         try {
-            JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
-            return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+            if(checkLastUpdate(e)) {
+                JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
+                return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+            }
+            return null;
         } catch (DocumentDoesNotExistException ex){
             return null;
         }
