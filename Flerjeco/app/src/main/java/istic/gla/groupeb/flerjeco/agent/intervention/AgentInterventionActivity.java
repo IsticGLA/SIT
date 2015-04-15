@@ -213,6 +213,14 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
+    /**
+     * Update lists of resources and map
+     * @param intervention
+     */
+    public void updateIntervention(Intervention intervention) {
+        //TODO update lists of resources and map
+    }
+
     class MyDragListener implements View.OnDragListener {
 
         @Override

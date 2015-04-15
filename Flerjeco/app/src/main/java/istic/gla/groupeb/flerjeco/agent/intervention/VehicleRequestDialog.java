@@ -193,7 +193,8 @@ public class VehicleRequestDialog extends DialogFragment {
 
         @Override
         protected void onPostExecute(Intervention intervention) {
-            Log.i("VehicleRequestDialog", "Request posted");
+            Log.i("VehicleRequestDialog", "Resource requested for intervention: " + intervention.getName());
+            ((AgentInterventionActivity)getActivity()).updateIntervention(intervention);
         }
 
     }
