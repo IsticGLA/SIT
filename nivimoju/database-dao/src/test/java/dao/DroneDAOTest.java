@@ -74,8 +74,27 @@ public class DroneDAOTest {
     }
 
     @Test
+    public void testAssign() {
+
+        List<entity.Drone> droneList = droneDAO.getBy("idIntervention", -1);
+        if (null != droneList && droneList.size() > 1) {
+            logger.info(droneList.size());
+            entity.Drone updateDrone = droneList.get(0);
+            updateDrone.setIdIntervention(46);
+            updateDrone.updateDate();
+            logger.info(updateDrone.getIdIntervention() + "  " + updateDrone.getId());
+            Drone d = droneDAO.update(updateDrone);
+            logger.info(d.getIdIntervention() + "  " + d.getId());
+            Assert.assertEquals(updateDrone, d);
+
+        }
+    }
+
+    @Test
     public void update() {
+        drone = droneDAO.getById(25l);
         drone.setIdIntervention(10);
+        drone.updateDate();
         Drone updatedDrone = droneDAO.update(drone);
         logger.info(updatedDrone);
         Assert.assertEquals(10, updatedDrone.getIdIntervention());

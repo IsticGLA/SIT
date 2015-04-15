@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,8 @@ import entity.Path;
 import istic.gla.groupeb.flerjeco.R;
 
 public class DroneListFragment extends Fragment {
+
+    private static final String TAG = DroneListFragment.class.getSimpleName();
 
     // callback for the selected Listener
     OnResourceSelectedListener mCallback;

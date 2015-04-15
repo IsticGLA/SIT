@@ -13,11 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 
-import java.util.List;
-
 import entity.Intervention;
-import entity.Path;
-import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
@@ -171,7 +167,7 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     public void createPath(View v){
 	PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-		
+
         // if we are in edition mode, initi of the edit buttons
         if (!editionMode) {
             Log.i(TAG, "Mode d'édition du trajet");

@@ -79,8 +79,8 @@ public class Drone {
         if (null != droneList && droneList.size() > 1) {
             entity.Drone updateDrone = droneList.get(0);
             updateDrone.setIdIntervention(idIntervention);
+            updateDrone.updateDate();
             droneDAO.update(updateDrone);
-
             droneDAO.disconnect();
             return Response.ok(droneList.get(0)).build();
         } else {
