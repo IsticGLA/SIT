@@ -104,7 +104,7 @@ public class SpringService {
             } else {
 
                 // assignement of the drone for the intervention
-                final String urlDrone = URL + "/drone/assign/" + intervetionResult.getBody().getId();
+                final String urlDrone = URL + "drone/assign/" + intervetionResult.getBody().getId();
                 ResponseEntity<Drone> drone = restTemplate.getForEntity(urlDrone, Drone.class);
 
                 if (drone.getStatusCode() == HttpStatus.NOT_FOUND){
