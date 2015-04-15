@@ -73,13 +73,13 @@ public class AgentInterventionResourcesFragment extends Fragment {
         listViewResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.item_resource_agent_icon_view, resourceList));
         listViewRequests.setAdapter(new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList));
 
-        /*listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
                 listViewResources.setItemChecked(position,true);
             }
-        });*/
+        });
 
         listViewResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
