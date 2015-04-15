@@ -73,14 +73,14 @@ public class AgentInterventionActivity extends FragmentActivity
 
         intervention = new Intervention();
 
-        /*Bundle extras = getIntent().getExtras();
+        Bundle extras = getIntent().getExtras();
 
         if (extras != null){
             intervention = (Intervention) extras.getSerializable("intervention");
-        }*/
+        }
 
 
-        intervention.setLatitude(48.117749);
+        /*intervention.setLatitude(48.117749);
         intervention.setLongitude(-1.677297);
         List<Resource> resourceList = new ArrayList<>();
         resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
@@ -95,6 +95,7 @@ public class AgentInterventionActivity extends FragmentActivity
         resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
 
         intervention.setResources(resourceList);
+        */
 
         setContentView(R.layout.activity_second);
 
