@@ -13,6 +13,7 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
@@ -33,6 +34,7 @@ public class MapListInterventionsFragment extends Fragment {
     int mCurrentPosition = -1;
 
     private Intervention[] interventionTab;
+    private LatLngBounds.Builder bounds;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,7 +45,7 @@ public class MapListInterventionsFragment extends Fragment {
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
-        mMapView.onResume();// needed to get the map to display immediately
+        mMapView.onResume();// needed to get the map to refresh immediately
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -88,10 +90,16 @@ public class MapListInterventionsFragment extends Fragment {
 
     public void initMap(Intervention[] interventionTab){
         this.interventionTab = interventionTab;
+        // Create LatLngBound to zoom on the set of positions in the path
+        bounds = new LatLngBounds.Builder();
 
         if (interventionTab.length > 0){
+            for (Intervention intervention : interventionTab) {
+                double latitude = intervention.getLatitude();
+                double longitude = intervention .getLongitude();
+                LatLng latLng = new LatLng(latitude, longitude);
+                bounds.include(latLng);
 
-            for (Intervention intervention : interventionTab){
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(
                         new LatLng(intervention.getLatitude(), intervention.getLongitude())).title("Hello Maps");
@@ -102,13 +110,17 @@ public class MapListInterventionsFragment extends Fragment {
                 googleMap.addMarker(marker);
             }
 
+            googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+
+                @Override
+                public void onCameraChange(CameraPosition arg0) {
+                    // Move camera.
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                    // Remove listener to prevent position reset on camera move.
+                    googleMap.setOnCameraChangeListener(null);
+                }
+            });
         }
-
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(interventionTab[0].getLatitude(), interventionTab[0].getLongitude())).zoom(12).build();
-
-        googleMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
     }
 
     @Override
