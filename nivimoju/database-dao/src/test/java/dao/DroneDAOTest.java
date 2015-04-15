@@ -6,6 +6,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.List;
+
 /**
  * Created by jeremy on 14/04/15.
  */
@@ -33,6 +35,16 @@ public class DroneDAOTest {
 
         originalDrone.setId(res.getId());
         Assert.assertEquals(originalDrone, res);
+
+    }
+
+    @Test
+    public void getByIdIntervention() {
+        List<Drone> list = droneDAO.getBy("idIntervention", 10);
+        System.out.println(list);
+        for (Drone d : list){
+            System.out.println(d.getLabel());
+        }
 
     }
 }
