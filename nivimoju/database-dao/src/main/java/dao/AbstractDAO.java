@@ -134,7 +134,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             String v = (String) value;
             query = ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(v).stale(Stale.FALSE);
         }
-        System.out.println(query);
         List<ViewRow> result = DAOManager.getCurrentBucket().query(query).allRows();
         return viewRowsToEntities(result);
     }
