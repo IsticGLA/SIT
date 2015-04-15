@@ -120,7 +120,9 @@ public class InterventionFragment extends Fragment {
 
         InterventionActivity interventionActivity = (InterventionActivity) getActivity();
         for (Intervention intervention : interventionActivity.getInterventions()){
-            labelsInterventions.add(intervention.getName());
+            if(intervention != null) {
+                labelsInterventions.add(intervention.getName());
+            }
         }
 
         listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));

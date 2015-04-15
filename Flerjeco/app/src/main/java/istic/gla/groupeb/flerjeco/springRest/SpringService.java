@@ -9,6 +9,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
@@ -19,7 +20,6 @@ import entity.Intervention;
 import entity.Resource;
 import entity.ResourceType;
 import entity.StaticData;
-import istic.gla.groupeb.flerjeco.codis.intervention.ResourcesFragment;
 
 /**
  * Created by amhachi on 08/04/15.
@@ -60,7 +60,7 @@ public class SpringService {
      * @return the intervention retrieved
      */
     public Intervention getInterventionById(Long idIntervention) {
-
+        //TODO modify URL_TEST -> URL
         final String url = URL + "intervention/" + idIntervention;
 
         ResponseEntity<Intervention> interventionResult = restTemplate.getForEntity(url, Intervention.class);
@@ -153,8 +153,9 @@ public class SpringService {
 
             if (interventionResult == null) {
                 Log.i(TAG, "updateResourceIntervention interventionResult = null");
-            } else
-                Log.i(TAG, interventionResult.toString());
+            } else {
+                Log.i(TAG, "Intervention up to date : "+interventionResult.toString());
+            }
             return interventionResult.getBody();
         } catch (HttpStatusCodeException e) {
             Log.i(TAG, "resource can not be update : " + e.getMessage());
@@ -177,6 +178,8 @@ public class SpringService {
             httpResult = entity.getStatusCode().toString();
         } catch (HttpStatusCodeException e) {
             httpResult = e.getStatusCode().toString();
+        } catch (ResourceAccessException e) {
+            httpResult = "500";
         }
         Log.i(TAG, "httpResult : " + httpResult);
         Log.i(TAG, "login end");
@@ -244,15 +247,15 @@ public class SpringService {
     public Intervention[] getAllInterventions() {
         Log.i(TAG, "getAllInterventions start");
         final String url = URL + "intervention";
-        ResponseEntity<Intervention[]> interventions;
+        Intervention[] interventions = null;
         try {
-            interventions = restTemplate.getForEntity(url, Intervention[].class);
-        } catch (HttpServerErrorException e) {
-            Log.e(TAG, e.getMessage());
-            return null;
+            ResponseEntity<Intervention[]> entity = restTemplate.getForEntity(url, Intervention[].class);
+            interventions = entity.getBody();
+        } catch (ResourceAccessException e) {
+            Log.i(TAG, "getAllInterventions : " + e.getLocalizedMessage());
         }
-        Log.i(TAG, "getAllInterventions : " + interventions.getBody().toString());
-        return interventions.getBody();
+        Log.i(TAG, "getAllInterventions end");
+        return interventions;
     }
 
     public Long moveDrone(Object[] params) {
@@ -288,14 +291,18 @@ public class SpringService {
     public StaticData[] getAllStaticDatas() {
         Log.i(TAG, "getAllStaticDatas start");
         final String url = URL + "staticdata";
-        ResponseEntity<StaticData[]> entity;
+        StaticData[] datas = null;
         try {
-            entity = restTemplate.getForEntity(url, StaticData[].class);
+            ResponseEntity<StaticData[]> entity = restTemplate.getForEntity(url, StaticData[].class);
+            datas = entity.getBody();
         } catch (HttpServerErrorException e) {
-            Log.e(TAG, e.getMessage());
-            return null;
+            Log.i(TAG, e.getMessage());
+            return datas;
+        } catch (ResourceAccessException e) {
+            Log.i(TAG, "getAllStaticDatas : " + e.getLocalizedMessage());
+            return datas;
         }
-        Log.i(TAG, "getAllStaticData : " + entity.getBody().toString());
-        return entity.getBody();
+        Log.i(TAG, "getAllStaticData success");
+        return datas;
     }
 }

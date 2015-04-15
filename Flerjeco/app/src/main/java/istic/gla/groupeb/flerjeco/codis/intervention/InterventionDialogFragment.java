@@ -127,7 +127,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
             public void onClick(View v) {
                 if (validate()) {
                     //String idIncidentCode, double latitude, double longitude, String name
-                    Log.i("MAMH", spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()) + "");
+                    Log.i(TAG, spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()) + "");
 
 
                    /* //Intervetion
@@ -271,7 +271,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
         @Override
         protected void onPostExecute(entity.Intervention resultPost) {
-            Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost.getId()+" est ajoutée ", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "InterventionPostTask onPostExecute");
             showProgress(false);
             ((InterventionActivity)getActivity()).addIntervention(resultPost);
             ((InterventionActivity)getActivity()).updateInterventions();
@@ -297,19 +297,19 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
                 resourcesType = new ArrayList<ResourceType>();
 
                 List<Long> idResourcesTypes = params[0];
-                Log.i("MAMH", "Size idResourcesTypes = "+idResourcesTypes.size());
+                Log.i(TAG, "Size idResourcesTypes = "+idResourcesTypes.size());
                 for (Long id : idResourcesTypes){
                     Log.i("MAMH", "ID = "+id);
                 }
-                Log.i("MAMH", "Fin Size idResourcesTypes");
-                Log.i("MAMH", "getResourceTypeById");
+                Log.i(TAG, "Fin Size idResourcesTypes");
+                Log.i(TAG, "getResourceTypeById");
                 for(Long idRes : idResourcesTypes){
 
                     ResourceType rt = springService.getResourceTypeById(idRes);
                     resourcesType.add(rt);
-                    Log.i("MAMH", "Label :  "+rt.getLabel());
+                    Log.i(TAG, "Label :  "+rt.getLabel());
                 }
-                Log.i("MAMH", "Fin getResourceTypeById ");
+                Log.i(TAG, "Fin getResourceTypeById ");
                 return  resourcesType;
 
             } catch (HttpStatusCodeException e) {
@@ -322,8 +322,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
         @Override
         protected void onPostExecute(List<ResourceType> resultPost) {
-            Toast.makeText(InterventionDialogFragment.this.getActivity(), "Intervention N°"+resultPost+" est ajoutée ", Toast.LENGTH_LONG).show();
-            Log.i("MAMH", "Size resultPost = "+resultPost.size());
+            Log.i(TAG, "Size resultPost = "+resultPost.size());
             listener.onTaskCompleted(resultPost);
         }
 
@@ -377,16 +376,16 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         //Les champs text sont toujours vérifié
         intervention = new entity.Intervention(nameInterventionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), address.getLatitude(), address.getLongitude());
 
-        Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
+        Log.i(TAG, "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
 
 
         List<Resource> resources = covertResourcesTypeToResources(resourcesType);
 
-        Log.i("MAMH", "Resource");
+        Log.i(TAG, "Resource");
         for (Resource res : resources){
-            Log.i("MAMH", "Resource : "+res.getLabel());
+            Log.i(TAG, "Resource : "+res.getLabel());
         }
-        Log.i("MAMH", "Fin Resource");
+        Log.i(TAG, "Fin Resource");
         //intervention.set
         intervention.setResources(resources);
         at = new InterventionPostTask().execute(intervention);
