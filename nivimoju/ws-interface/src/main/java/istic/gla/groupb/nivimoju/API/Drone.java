@@ -51,7 +51,7 @@ public class Drone {
     @GET
     @Path("/byIntervention/{idIntervention}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response connect(
+    public Response getAll(
             @PathParam("idIntervention") Long idIntervention) {
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();
@@ -59,6 +59,29 @@ public class Drone {
         List<entity.Drone> droneList = droneDAO.getBy("idIntervention", idIntervention);
         droneDAO.disconnect();
         return Response.ok(droneList).build();
+    }
+
+    /**
+     * Assign a drone to an intervention of id idIntervention
+     * @param idIntervention
+     * @return
+     */
+    @GET
+    @Path("/assign/{idIntervention}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response assign(
+            @PathParam("idIntervention") Long idIntervention) {
+        DroneDAO droneDAO = new DroneDAO();
+        droneDAO.connect();
+
+        List<entity.Drone> droneList = droneDAO.getBy("idIntervention", -1);
+        droneDAO.disconnect();
+
+        if (null != droneList && droneList.size() > 1) {
+            return Response.ok(droneList.get(0)).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 
     @POST

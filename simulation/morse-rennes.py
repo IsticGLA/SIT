@@ -14,7 +14,10 @@ drone_5 = Quadrotor()
 drone_5.translate(x=9.5, y=-220, z=30)
 drones = [drone_1, drone_2, drone_3, drone_4, drone_5]
 
+i = 1
 for drone in drones:
+    drone.name = "drone_" + str(i)
+    i += 1
     camera = VideoCamera()
     camera.translate(z=-0.1)
     camera.rotate(y=-90 / 180 * pi)

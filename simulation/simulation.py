@@ -31,11 +31,11 @@ class Drone:
     def pose_callback(self, pose_stamped):
         assert isinstance(pose_stamped, PoseStamped)
         pose = pose_stamped.pose
+        self.position = dict([('x', pose.position.x), ('y', pose.position.y), ('z', pose.position.z)])
         if self.dest is not None:
             ex = self.dest["x"] - pose.position.x
             ey = self.dest["y"] - pose.position.y
             ez = self.dest["z"] - pose.position.z
-            self.position = dict([('x', pose.position.x), ('y', pose.position.y), ('z', pose.position.z)])
             # verification de l'arrivée
             distance_squared = ex*ex + ey*ey + ez*ez
             if distance_squared < self.dest_tolerance_squared:
@@ -79,7 +79,7 @@ class Drone:
 class Controller:
     def __init__(self, nb_drones):
         self.drones = []
-        for i in range(1, nb_drones):
+        for i in range(1, nb_drones + 1):
             self.drones.append(Drone("drone_" + str(i), 1))
 
 

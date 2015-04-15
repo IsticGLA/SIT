@@ -40,27 +40,16 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         super.onCreate(savedInstanceState);
 
         Bundle extras = getIntent().getExtras();
+
+        if (extras != null){
+            Log.i(TAG, "Get the intervention from the bundle");
+            intervention = (Intervention) extras.getSerializable("intervention");
+            Log.i(TAG, intervention.getName());
+        }
         if (extras != null) {
             Object objects = (Object) extras.getSerializable("intervention");
             intervention = (Intervention) objects;
-
         }
-
-        // Temporary intervention for test
-        intervention = new Intervention("Test", 4, 48.1120404, -1.61111);
-        List<Resource> resources = new ArrayList<>();
-        //resources.add(new Resource("Drone1", State.validated, ResourceRole.otherwise, ResourceCategory.drone, 48.117749, -1.677297));
-        intervention.setResources(resources);
-        List<Path> paths = new ArrayList<>();
-        Path p = new Path();
-        List<Position> positionList = new ArrayList<>();
-        positionList.add(new Position(48.117749, -1.677297));
-        positionList.add(new Position(48.127749, -1.699297));
-        positionList.add(new Position(48.227749, -1.707297));
-        p.setPositions(positionList);
-        paths.add(p);
-        intervention.setWatchPath(paths);
-        intervention.setId(10l);
 
         setContentView(R.layout.activity_plan_zone);
 
