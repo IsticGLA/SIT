@@ -1,14 +1,14 @@
 <resources>
-    <string name="title_activity_intervention">Intervention en cours</string>
-    <string name="title_fragment_create_intervention">Création de l\'intervention</string>
-    <string name="intervention_creation">Créer l\'intervention</string>
-    <string name="nameInterventionHint">Nom de l\'intervention</string>
-    <string name="createInterventionButton">Créer intervention</string>
-    <string name="action_create_intervention">Créer une intervention</string>
-    <string name="intervention_address">Adresse de l\'intervention</string>
-    <string name="error_required_field">Ce champ est obligatoire</string>
-    <string name="create_by_address">Adresse</string>
-    <string name="create_by_coordinate">Coordonnées</string>
+    <string name="title_activity_intervention">Current Intervention</string>
+    <string name="title_fragment_create_intervention">Create Intervention</string>
+    <string name="intervention_creation">Create Intervention</string>
+    <string name="nameInterventionHint">Intervention name</string>
+    <string name="createInterventionButton">Create Intervention</string>
+    <string name="action_create_intervention">Create Intervention</string>
+    <string name="intervention_address">Intervention address</string>
+    <string name="error_required_field">This field is required</string>
+    <string name="create_by_address">Address</string>
+    <string name="create_by_coordinate">Coordinates</string>
     <string name="longitude">Longitude</string>
     <string name="latitude">Latitude</string>
     <string-array name="code">
