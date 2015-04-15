@@ -1,10 +1,10 @@
 <resources>
-    <string name="create_path">Créer un trajet</string>
-    <string name="finish_edition">Terminer</string>
-    <string name="closed_path">Fermer le trajet</string>
-    <string name="cancel">Annuler</string>
-    <string name="remove_marker">Supprimer le dernier point</string>
-    <string name="remove_path">Supprimer le trajet</string>
+    <string name="create_path">Create path</string>
+    <string name="finish_edition">Terminate</string>
+    <string name="closed_path">Close the path</string>
+    <string name="cancel">Cancel</string>
+    <string name="remove_marker">Delete the last point</string>
+    <string name="remove_path">Delete the path</string>
 
 
 </resources>
