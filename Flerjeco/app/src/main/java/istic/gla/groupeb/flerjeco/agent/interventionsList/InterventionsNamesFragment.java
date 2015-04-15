@@ -39,7 +39,7 @@ public class InterventionsNamesFragment extends Fragment {
     OnResourceSelectedListener mCallback;
 
     private static final String TAG = InterventionsNamesFragment.class.getSimpleName();
-    private ListView listViewInterventions;
+    protected ListView listViewInterventions;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -91,8 +91,9 @@ public class InterventionsNamesFragment extends Fragment {
 
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
-        if (getFragmentManager().findFragmentById(R.id.map_fragment) != null) {
+        if (getFragmentManager().findFragmentById(R.id.resources_fragment) != null) {
             listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            listViewInterventions.setItemChecked(0,true);
         }
     }
 

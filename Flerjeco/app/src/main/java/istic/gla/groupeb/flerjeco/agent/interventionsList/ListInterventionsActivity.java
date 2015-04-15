@@ -25,6 +25,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
+
 import entity.Intervention;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
