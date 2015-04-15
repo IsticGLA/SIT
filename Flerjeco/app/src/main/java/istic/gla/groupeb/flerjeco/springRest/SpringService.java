@@ -173,12 +173,12 @@ public class SpringService {
         return resourceTypes.getBody();
     }
 
-    public Long requestVehicle(Object[] params) {
+    public Intervention requestVehicle(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
 
-        ResponseEntity<Long> requestId = restTemplate.exchange(url, HttpMethod.PUT, null, Long.class);
+        ResponseEntity<Intervention> intervention = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
 
-        return requestId.getBody();
+        return intervention.getBody();
     }
 
     public Intervention[] getAllInterventions() {
