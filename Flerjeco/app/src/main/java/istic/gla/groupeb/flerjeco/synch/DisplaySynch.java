@@ -1,11 +1,8 @@
-package istic.gla.groupeb.flerjeco.login;
+package istic.gla.groupeb.flerjeco.synch;
 
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
-
-import istic.gla.groupeb.flerjeco.ISynchTool;
 
 /**
  * Created by amhachi on 13/04/15.
