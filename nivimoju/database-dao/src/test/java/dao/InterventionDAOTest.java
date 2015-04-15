@@ -1,10 +1,8 @@
 package dao;
 
-import entity.IncidentCode;
 import entity.Intervention;
 import entity.Resource;
 import org.junit.*;
-import util.Constant;
 import util.State;
 
 import java.util.ArrayList;
@@ -32,8 +30,8 @@ public class InterventionDAOTest {
     @Before
     public void instantiate(){
         List<Resource> ressources = new ArrayList<>();
-        ressources.add(new Resource("VSAV", State.planned));
-        ressources.add(new Resource("VLCG", State.planned));
+        ressources.add(new Resource(1l, "VSAV", State.planned));
+        ressources.add(new Resource(2l, "VLCG", State.planned));
         interData = new Intervention("test_insert", 4, 48.11, -1.61);
         interData.setResources(ressources);
     }
@@ -51,7 +49,7 @@ public class InterventionDAOTest {
         Intervention res = interDAO.create(interData);
 
         res.setName("test_updated");
-        res.getResources().add(new Resource("TEST", State.waiting));
+        res.getResources().add(new Resource(1l, "TEST", State.waiting));
 
         Intervention updateIntervention = interDAO.update(res);
         Assert.assertEquals(res.getResources(), updateIntervention.getResources());
@@ -103,7 +101,7 @@ public class InterventionDAOTest {
 
     @Test
     public void getWaitingResourcesTest(){
-        interData.getResources().add(new Resource("VSAP", State.waiting));
+        interData.getResources().add(new Resource(1l, "VSAP", State.waiting));
         interDAO.create(interData);
         List<Intervention> list = interDAO.getWaitingResources();
         boolean ok = true;
