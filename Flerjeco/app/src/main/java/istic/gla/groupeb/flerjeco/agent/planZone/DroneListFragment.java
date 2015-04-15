@@ -19,13 +19,11 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -33,14 +31,18 @@ import java.util.List;
 
 import entity.Intervention;
 import entity.Path;
-import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 
 public class DroneListFragment extends Fragment {
+
+    // callback for the selected Listener
     OnResourceSelectedListener mCallback;
 
+    // the listView of the fragment
     private ListView listViewPath;
+    // Adapter for the ListView
     private ArrayAdapter adapter;
+    // List of the label path in the current intervention
     private List<String> labelsPath;
 
     // The container Activity must implement this interface so the frag can deliver messages
@@ -54,8 +56,7 @@ public class DroneListFragment extends Fragment {
                              Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        View v = inflater.inflate(R.layout.fragment_list_drone, container,
-                false);
+        View v = inflater.inflate(R.layout.fragment_list_drone, container, false);
 
         listViewPath = (ListView) v.findViewById(R.id.listViewPath);
 
@@ -63,18 +64,16 @@ public class DroneListFragment extends Fragment {
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
-
+        // init of the label path list
         labelsPath = new ArrayList<>();
-
-        PlanZoneActivity activity = (PlanZoneActivity) getActivity();
-        List<Path> pathList = activity.getPaths();
-
+        List<Path> pathList = ((PlanZoneActivity) getActivity()).getIntervention().getWatchPath();
         for(int i = 0; i < pathList.size(); i++) {
             labelsPath.add("Trajet " + (i+1));
         }
-        adapter = new ArrayAdapter<String>(getActivity(), layout, labelsPath);
-        listViewPath.setAdapter(adapter);
+        adapter = new ArrayAdapter<>(getActivity(), layout, labelsPath);
 
+        // set adapter on the listView and set the listener
+        listViewPath.setAdapter(adapter);
         listViewPath.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -82,6 +81,12 @@ public class DroneListFragment extends Fragment {
                 listViewPath.setItemChecked(position, true);
             }
         });
+
+        // set the list on the first item if not null
+        if (labelsPath.size() > 0){
+            mCallback.onResourceSelected(0);
+            listViewPath.setItemChecked(0, true);
+        }
 
         return v;
     }

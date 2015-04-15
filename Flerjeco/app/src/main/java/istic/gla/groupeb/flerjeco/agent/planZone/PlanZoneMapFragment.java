@@ -40,36 +40,45 @@ public class PlanZoneMapFragment extends Fragment {
     private static final String TAG = PlanZoneMapFragment.class.getSimpleName();
     final static String ARG_POSITION = "position";
 
+    // all variables for the Google Map
     MapView mMapView;
     private GoogleMap googleMap;
     private List<Polyline> polylines;
     private List<Marker> markers;
-    int mCurrentPosition = -1;
-    private List<Path> pathList;
 
+    // list of all the path of the intervention
+    private List<Path> pathList;
+    // current position in the pathList in the intervention
+    int mCurrentPosition = -1;
+    // initialized when we create a new path for the current intervention
     public Path newPath;
+    // save the path when we edit it to future restore (request to database failed)
     private Path savePath;
 
+    // indicate if we want to remove a path in the intervention
     public boolean removePath = false;
+    // indicate if we want to edit a path in the intervention
     public boolean editPath = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // inflate and return the layout
-        View v = inflater.inflate(R.layout.map_view, container,
-                false);
+        View v = inflater.inflate(R.layout.map_view, container, false);
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
-        mMapView.onResume();// needed to get the map to refresh immediately
+        // needed to get the map to refresh immediately
+        mMapView.onResume();
 
+        // Initialize Google Map
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        // get the googleMap
         googleMap = mMapView.getMap();
 
         PlanZoneActivity activity = (PlanZoneActivity) getActivity();
@@ -80,8 +89,7 @@ public class PlanZoneMapFragment extends Fragment {
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
 
-        initMap(activity.getPaths());
-
+        initMap(activity.getIntervention().getWatchPath());
         return v;
     }
 
@@ -132,11 +140,12 @@ public class PlanZoneMapFragment extends Fragment {
             newPath.setClosed(b);
             ((PlanZoneActivity) getActivity()).checkCloseBox(b);
 
-            List<Position> positions = pathList.get(position).getPositions();
-
             // save the old path for future restore if the update doesn't work
             savePath = new Path();
             savePath.setClosed(b);
+
+            // get all the positions of the path to draw it
+            List<Position> positions = pathList.get(position).getPositions();
 
             // Create LatLngBound to zoom on the set of positions in the path
             LatLngBounds.Builder bounds = new LatLngBounds.Builder();
@@ -152,11 +161,9 @@ public class PlanZoneMapFragment extends Fragment {
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(latLng);
                 // Changing marker icon
-                marker.icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
                 // adding marker
                 Marker m = googleMap.addMarker(marker);
-
                 // add the marker on the markers list
                 markers.add(m);
 
@@ -185,6 +192,9 @@ public class PlanZoneMapFragment extends Fragment {
         this.newPath = new Path();
     }
 
+    /**
+     * Clear the Google Map
+     */
     public void clearGoogleMap(){
         googleMap.clear();
         this.polylines = new ArrayList<>();
@@ -196,14 +206,20 @@ public class PlanZoneMapFragment extends Fragment {
      * Send the new path in the database
      */
     public void sendPath(){
+        // remove Click listener
         resetMapListener();
+
         Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
+
+        // if we are in edition mode, we set the new path in the intervention we get back from the main activity
         if (editPath){
             inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
             inter.getWatchPath().get(mCurrentPosition).setClosed(newPath.isClosed());
+        // else, we add the new path
         } else {
             inter.getWatchPath().add(newPath);
         }
+        // send to the database
         new SendPathToDrone().execute(inter);
     }
 
@@ -212,9 +228,15 @@ public class PlanZoneMapFragment extends Fragment {
      */
     public void removePath(){
         removePath = true;
+
+        // remove Click listener
         resetMapListener();
+
+        // get back the intervention from the main activity
         Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
+        // remove of the path we want to remove
         inter.getWatchPath().remove(mCurrentPosition);
+        // send to the database
         new SendPathToDrone().execute(inter);
     }
 
@@ -228,7 +250,6 @@ public class PlanZoneMapFragment extends Fragment {
             public void onMapClick(LatLng latLng) {
                 double latitude = latLng.latitude;
                 double longitude = latLng.longitude;
-                Log.i("Click on the map", "latitude : " + latitude + ", " + "longitude : " + longitude);
 
                 //if there are at least two polyline on the Google Map and newPath is closed, remove the last one
                 if (polylines.size() > 2 && newPath.isClosed()) {
@@ -239,11 +260,9 @@ public class PlanZoneMapFragment extends Fragment {
                 MarkerOptions marker = new MarkerOptions().position(
                         new LatLng(latitude, longitude)).title("new Path");
                 // Changing marker icon
-                marker.icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
                 // adding marker
                 Marker m = googleMap.addMarker(marker);
-
                 // add the marker on the markers list
                 markers.add(m);
 
@@ -255,8 +274,8 @@ public class PlanZoneMapFragment extends Fragment {
                 if (size > 1) {
                     LatLng previousLatLng = new LatLng(newPath.getPositions().get(size - 2).getLatitude(), newPath.getPositions().get(size - 2).getLongitude());
                     drawLine(latLng, previousLatLng);
-                    // else if it the path is closed, draw line between first and last point
                 }
+                // else if it the path is closed, draw line between first and last point
                 if (size > 2 && newPath.isClosed()) {
                     LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
@@ -276,15 +295,15 @@ public class PlanZoneMapFragment extends Fragment {
      * function called when we check or uncheck the checkbox checkbox_closed_path
      */
     public void closePath(){
+        // if the path is not close, we close it
         if (!newPath.isClosed()) {
-            Log.i(TAG, "Close the new path");
+            Log.i(TAG, "Close the path");
             newPath.setClosed(true);
-
             drawClosePolyline();
+        // else unclose it
         } else {
-            Log.i(TAG, "Open the new path");
+            Log.i(TAG, "Open the path");
             newPath.setClosed(false);
-
             // if there are at least three points in newPath
             if (newPath.getPositions().size() > 2) {
                 removeLine(polylines.size() - 1);
@@ -433,6 +452,7 @@ public class PlanZoneMapFragment extends Fragment {
                 pathList = intervention.getWatchPath();
                 updateMapView(intervention.getWatchPath().size()-1);
                 ((PlanZoneActivity) getActivity()).refreshList(intervention);
+
             }
         }
     }

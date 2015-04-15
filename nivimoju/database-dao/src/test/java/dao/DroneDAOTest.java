@@ -61,4 +61,14 @@ public class DroneDAOTest {
             logger.info(d.getLabel());
         }
     }
+
+    @Test
+    public void getUnassign() {
+        List<Drone> list = droneDAO.getBy("idIntervention", -1l);
+        logger.info(list);
+        for (Drone d : list){
+            logger.info(d.getLabel());
+            logger.info(d.getIdIntervention());
+        }
+    }
 }

@@ -1,56 +1,57 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
 import android.app.ActionBar;
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 
-
-import java.util.ArrayList;
 import java.util.List;
 
 import entity.Intervention;
 import entity.Path;
-import entity.Position;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
-import util.ResourceCategory;
-import util.ResourceRole;
-import util.State;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
 
 public class PlanZoneActivity extends FragmentActivity implements DroneListFragment.OnResourceSelectedListener, ActionBar.TabListener {
 
     private static final String TAG = PlanZoneActivity.class.getSimpleName();
+
+    // current intervention
     private Intervention intervention;
+
+    // current position of the path in the ListView DroneListFragment
     private int position=0;
+
+    // save of the edition mode
     private boolean editionMode = false;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Get the Bundle from the intent
         Bundle extras = getIntent().getExtras();
 
+        // if we got an extras, we set the intervention to the value of the extras
         if (extras != null){
             Log.i(TAG, "Get the intervention from the bundle");
             intervention = (Intervention) extras.getSerializable("intervention");
-            Log.i(TAG, intervention.getName());
-        }
-        if (extras != null) {
-            Object objects = (Object) extras.getSerializable("intervention");
-            intervention = (Intervention) objects;
         }
 
+        // Set the content view with the activity_plan_zone layout
         setContentView(R.layout.activity_plan_zone);
 
         // Check whether the activity is using the layout version with
@@ -94,26 +95,26 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     }
 
 
+    // Action Menu for Logout
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_plan_zone, menu);
-        return true;
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_logout, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                Intent intent = new Intent(PlanZoneActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -121,23 +122,22 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
+        // If article frag is available, we're in two-pane layout...
         if (mapFragment != null) {
-            // If article frag is available, we're in two-pane layout...
 
             //save the current position
             this.position = position;
 
-            Log.i("EDITPATH", "SET TO TRUE ONRESOURCESELECTED");
+            // Set edition Mode on
             mapFragment.editPath = true;
-
             editModeOn();
 
             // Call a method in the ArticleFragment to update its content
             mapFragment.updateMapView(position);
             mapFragment.addMapClickListener();
 
+        // If the frag is not available, we're in the one-pane layout and must swap frags...
         } else {
-            // If the frag is not available, we're in the one-pane layout and must swap frags...
 
             // Create fragment and give it an argument for the selected article
             mapFragment = new PlanZoneMapFragment();
@@ -156,29 +156,30 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         }
     }
 
-    public List<Resource> getResourceEntities() {
-        return intervention.getResources();
-    }
-
-    public List<Path> getPaths() {
-        return intervention.getWatchPath();
-    }
-
+    /**
+     * get the intervention set by the init Bundle on the launch of the activity
+     * @return the Intervention
+     */
     public Intervention getIntervention(){
         return intervention;
     }
 
+    /**
+     * create a new path on the current activity when we click on create button
+     * @param v the view of the activity
+     */
     public void createPath(View v){
-        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+	PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-
+		
+        // if we are in edition mode, initi of the edit buttons
         if (!editionMode) {
             Log.i(TAG, "Mode d'édition du trajet");
             editModeOn();
             checkCloseBox(false);
             // begin the creation of the new path (add event on Google Map)
             mapFragment.createPath();
-
+        // else, hide edit buttons and send the path on the database
         } else  {
             // Reset button and checkbox
             editModeOff();
@@ -187,38 +188,60 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         }
     }
 
+    /**
+     * close/unclose the current path when we click on checkbox
+     * @param v the view of the activity
+     */
     public void closePath(View v){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         mapFragment.closePath();
     }
 
+    /**
+     * remove last point on the current path when we click on the remove_last_point button
+     * @param v the view of the activity
+     */
     public void removeLastPoint(View v){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         mapFragment.removeLastPoint();
     }
 
+    /**
+     * cancel the current edition on the current path when we click on the cancel button
+     * @param v the view of the activity
+     */
     public void cancel(View v){
+        // hide edit buttons
         editModeOff();
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        // remove the click Listener on the Google Map
         mapFragment.resetMapListener();
+        // if we are in edition mode, we clear the path we are updating
         if (mapFragment.editPath) {
             mapFragment.updateMapView(position);
-            Log.i("EDITPATH", "SET TO FALSE CANCEL");
             mapFragment.editPath = false;
+        // else, we clear the Google Map
         } else {
             mapFragment.clearGoogleMap();
         }
     }
 
+    /**
+     * remove the current path
+     * @param v the view of the activity
+     */
     public void removePath(View v){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         mapFragment.removePath();
     }
 
+    /**
+     * clear the edit button on the ListView fragment
+     */
     public void editModeOff(){
         Button button = (Button) findViewById(R.id.buttonCreatePath);
         Button cancel = (Button) findViewById(R.id.buttonCancel);
@@ -234,6 +257,9 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         editionMode = false;
     }
 
+    /**
+     * show the edit button on the ListView fragment
+     */
     public void editModeOn(){
         editionMode = true;
 
@@ -256,19 +282,27 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         removeLast.setVisibility(View.VISIBLE);
         checkBox.setVisibility(View.VISIBLE);
 
+        // if we are in edition mode, we show the remove path button
         if (mapFragment.editPath){
             removePath.setVisibility(View.VISIBLE);
         }
     }
 
+    /**
+     * Check/uncheck the checkBox
+     * @param b if b check else uncheck
+     */
     public void checkCloseBox(boolean b){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
-
         checkBox.setChecked(b);
     }
 
+    /**
+     * refresh the list in the ListView fragment
+     * @param intervention intervention updated
+     */
     public void refreshList(Intervention intervention){
         this.intervention = intervention;
         DroneListFragment droneListFragment = (DroneListFragment)
