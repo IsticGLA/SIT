@@ -32,7 +32,7 @@ import java.util.Set;
 import entity.Intervention;
 import entity.Resource;
 import entity.StaticData;
-import istic.gla.groupeb.flerjeco.MyApp;
+import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Sensitive;
@@ -75,9 +75,9 @@ public class AgentInterventionMapFragment extends Fragment {
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
-        MyApp myApp = MyApp.getInstance();
-        if (myApp != null) {
-            staticDataTab = myApp.getStaticDatas();
+        FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
+        if (flerjecoApplication != null) {
+            staticDataTab = flerjecoApplication.getStaticDatas();
         }
 
         mMapView.onResume();// needed to get the map to refresh immediately

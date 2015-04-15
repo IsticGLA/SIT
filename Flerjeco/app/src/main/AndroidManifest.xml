@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name=".MyApp"
+        android:name=".FlerjecoApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_sitistic_drone"
         android:label="@string/app_name"
