@@ -1,6 +1,11 @@
 package istic.gla.groupeb.flerjeco.adapter;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +15,9 @@ import java.util.List;
 
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.icons.Danger;
+import istic.gla.groupeb.flerjeco.icons.IIcon;
+import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.view.IconView;
 import util.ResourceRole;
@@ -32,6 +40,7 @@ public class ResourceIconAdapter extends ArrayAdapter<Resource> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
+        IIcon mIcon = null;
         ViewHolder viewHolder;
         if (convertView == null){
             convertView = LayoutInflater.from(this.getContext()).inflate(R.layout.list_row,parent,false);
@@ -44,13 +53,31 @@ public class ResourceIconAdapter extends ArrayAdapter<Resource> {
         }
 
         Resource resource = resources.get(position);
+        String label = resource.getLabel();
+        ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
 
-        ResourceRole role = ResourceRole.otherwise;
-        if (resource.getResourceRole()!=null) {
-            role = resource.getResourceRole();
+        switch (resource.getResourceCategory()){
+            case vehicule:
+                mIcon = new Vehicle(label, role, resource.getState());
+                break;
+            case dragabledata:
+                if ("incident".equals(label)){
+                    mIcon = new IIcon() {
+                        @Override
+                        public void drawIcon(Canvas mCanvas) {
+                            Bitmap mBitmap = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.incident);
+                            mCanvas.drawBitmap(mBitmap,10,10,new Paint());
+                        }
+                    };
+                } else if ("danger".equals(label)) {
+                    mIcon = new Danger();
+                } else if ("sensitive".equals(label)) {
+                    mIcon = new Sensitive();
+                }
         }
-        Vehicle vehicle = new Vehicle(resource.getLabel(),role,resource.getState());
-        viewHolder.iconViewResource.setmVehicle(vehicle);
+        if (mIcon != null) {
+            viewHolder.iconViewResource.setIcon(mIcon);
+        }
 
         return convertView;
     }

@@ -130,6 +130,14 @@ public class InterventionActivity extends FragmentActivity
         interventionTab[oldLength] = intervention;
     }
 
+    public void updateIntervention(Intervention intervention) {
+        for(int i = 0; i < interventionTab.length; i++) {
+            if(interventionTab[i].getId() == intervention.getId()) {
+                interventionTab[i].setResources(intervention.getResources());
+            }
+        }
+    }
+
     public void updateInterventions() {
         ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
     }

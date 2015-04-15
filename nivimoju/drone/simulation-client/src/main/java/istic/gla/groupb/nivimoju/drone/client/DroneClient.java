@@ -17,7 +17,8 @@ import java.util.List;
 public class DroneClient {
     private static Logger logger = Logger.getLogger(DroneClient.class);
 
-    private String server = "http://37.59.58.42:5000/";
+    //private String server = "http://37.59.58.42:5000/"; // serveur kimsufi
+    private String server = "http://148.60.11.203:5000/"; //VM istic
     private RestTemplate rest;
     private HttpHeaders headers;
     private HttpStatus status;
