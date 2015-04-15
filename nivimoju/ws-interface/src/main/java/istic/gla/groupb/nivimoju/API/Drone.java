@@ -1,5 +1,6 @@
 package istic.gla.groupb.nivimoju.API;
 
+import dao.DroneDAO;
 import entity.Position;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
@@ -8,7 +9,10 @@ import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * Created by jeremy on 11/04/15.
@@ -39,5 +43,23 @@ public class Drone {
             e.printStackTrace();
         }
         return Response.ok().build();
+    }
+
+    /**
+     * Find all drone affect to intervention of id idIntervention
+     * @param idIntervention
+     * @return
+     */
+    @GET
+    @Path("/byIntervention/{idIntervention}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response connect(
+            @PathParam("idIntervention") Long idIntervention) {
+        DroneDAO droneDAO = new DroneDAO();
+        droneDAO.connect();
+
+        List<entity.Drone> droneList = droneDAO.getBy("idIntervention", idIntervention);
+        droneDAO.disconnect();
+        return Response.ok(droneList).build();
     }
 }
