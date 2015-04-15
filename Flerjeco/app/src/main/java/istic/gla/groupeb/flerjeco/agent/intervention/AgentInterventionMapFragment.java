@@ -80,7 +80,7 @@ public class AgentInterventionMapFragment extends Fragment {
             staticDataTab = myApp.getStaticDatas();
         }
 
-        mMapView.onResume();// needed to get the map to display immediately
+        mMapView.onResume();// needed to get the map to refresh immediately
 
         buttonValidateResources = (Button) v.findViewById(R.id.buttonValidateResources);
         buttonCancelResources = (Button) v.findViewById(R.id.buttonCancelResources);

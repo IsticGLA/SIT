@@ -45,7 +45,7 @@ public class MapListInterventionsFragment extends Fragment {
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
-        mMapView.onResume();// needed to get the map to display immediately
+        mMapView.onResume();// needed to get the map to refresh immediately
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
