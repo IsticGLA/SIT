@@ -23,16 +23,18 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
-import android.view.Display;
 import android.view.DragEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +44,6 @@ import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import util.ResourceCategory;
 import util.ResourceRole;
@@ -66,8 +67,6 @@ public class AgentInterventionActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
 
         intervention = new Intervention();
-
-
 
         /*Bundle extras = getIntent().getExtras();
 
@@ -214,14 +213,18 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
+    /**
+     * Update lists of resources and map
+     * @param intervention
+     */
+    public void updateIntervention(Intervention intervention) {
+        //TODO update lists of resources and map
+    }
+
     class MyDragListener implements View.OnDragListener {
-
-        float x, y;
-
 
         @Override
         public boolean onDrag(View v, DragEvent event) {
-            int action = event.getAction();
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED:
                     // do nothing
@@ -231,38 +234,24 @@ public class AgentInterventionActivity extends FragmentActivity
                 case DragEvent.ACTION_DRAG_EXITED:
                     break;
                 case DragEvent.ACTION_DROP:
-                    // Dropped, reassign View to ViewGroup
                     View view = (View) event.getLocalState();
-                    /*ViewGroup owner = (ViewGroup) view.getParent();
-                    owner.removeView(view);
-                    LinearLayout container = (LinearLayout) v;
-                    container.addView(view);
-                    view.setVisibility(View.VISIBLE);*/
-                    Log.i("DROP DROP DROP", ((LinearLayout) view).getChildAt(0).toString());
-                    Log.i("DROP DROP DROP", ((FrameLayout) v).getChildAt(0).toString());
-
                     MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
 
-                    Log.i("DROP DROP DROP", mapView.getMap().getCameraPosition().toString());
+                    GoogleMap googleMap = mapView.getMap();
 
-                    x = event.getX();
-                    y = event.getY();
+                    int x = (int) event.getX();
+                    int y = (int) event.getY();
 
-                    Display display = getWindowManager().getDefaultDisplay();
-                    Point size = new Point();
-                    display.getSize(size);
-                    int maxX = size.x;
-                    int maxY = size.y;
+                    Point point = new Point(x,y);
 
-                    int maxXMap = maxX - maxX / 5;
-                    int maxYMap = maxY - maxY / 5;
+                    LatLng latLng = mapView.getMap().getProjection().fromScreenLocation(point);
 
-                    Log.i("DROP DROP DROP", "x : " + x + ", y : " + y);
-                    Log.i("DROP DROP DROP", "maxX : " + maxX + ", maxY : " + maxY);
-                    Log.i("DROP DROP DROP", "maxX MAP : " + maxXMap + ", maxY MAP : " + maxYMap);
-
-                    view.setX(x);
-                    view.setY(y);
+                    MarkerOptions marker = new MarkerOptions().position(latLng).title("Hello Maps");
+                    // Changing marker icon
+                    marker.icon(BitmapDescriptorFactory
+                            .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                    // adding marker
+                    googleMap.addMarker(marker);
 
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
