@@ -47,9 +47,10 @@ public class PlanZoneMapFragment extends Fragment {
     private List<Polyline> polylines;
     private List<Marker> markers;
     int mCurrentPosition = -1;
+    boolean editPath = false;
 
     private List<Path> pathList;
-    private Path newPath;
+    public Path newPath;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -108,49 +109,7 @@ public class PlanZoneMapFragment extends Fragment {
         // clear the Google Map
         clearGoogleMap();
 
-        // Add clickListener on the map two save positions in new path
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                double latitude = latLng.latitude;
-                double longitude = latLng.longitude;
-                Log.i("Click on the map", "latitude : " + latitude + ", " + "longitude : " + longitude);
-
-                //if there are at least two polyline on the Google Map and newPath is closed, remove the last one
-                if (polylines.size() > 2 && newPath.isClosed()) {
-                    removeLine(polylines.size() - 1);
-                }
-
-                // create marker
-                MarkerOptions marker = new MarkerOptions().position(
-                        new LatLng(latitude, longitude)).title("new Path");
-                // Changing marker icon
-                marker.icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                // adding marker
-                Marker m = googleMap.addMarker(marker);
-
-                // add the marker on the markers list
-                markers.add(m);
-
-                // Set the Position on newPath
-                newPath.getPositions().add(new Position(latitude, longitude, 20));
-
-                int size = newPath.getPositions().size();
-                // draw line between two points if is not the first
-                if (size > 1) {
-                    Log.i(TAG, "Size > 1 " + size);
-                    LatLng previousLatLng = new LatLng(newPath.getPositions().get(size - 2).getLatitude(), newPath.getPositions().get(size - 2).getLongitude());
-                    drawLine(latLng, previousLatLng);
-                    // else if it the path is closed, draw line between first and last point
-                }
-                if (size > 2 && newPath.isClosed()) {
-                    Log.i(TAG, "Size > 2 and newPath.isClosed == true " + size);
-                    LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
-                    drawLine(firstLatLng, latLng);
-                }
-            }
-        });
+        addMapClickListener();
     }
 
     /**
@@ -166,13 +125,22 @@ public class PlanZoneMapFragment extends Fragment {
             // Set mCurrentPosition to future resume on fragment
             mCurrentPosition = position;
 
+            // set closed property on newPath
+            boolean b = pathList.get(position).isClosed();
+            newPath.setClosed(b);
+            ((PlanZoneActivity) getActivity()).checkCloseBox(b);
+
             List<Position> positions = pathList.get(position).getPositions();
 
             // Create LatLngBound to zoom on the set of positions in the path
             LatLngBounds.Builder bounds = new LatLngBounds.Builder();
             for (int i = 0; i < positions.size(); i++){
-                LatLng latLng = new LatLng(positions.get(i).getLatitude(), positions.get(i).getLongitude());
+                double latitude = positions.get(i).getLatitude();
+                double longitude = positions.get(i).getLongitude();
+                LatLng latLng = new LatLng(latitude, longitude);
                 bounds.include(latLng);
+
+                newPath.getPositions().add(new Position(latitude, longitude, 20));
 
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(latLng);
@@ -212,6 +180,8 @@ public class PlanZoneMapFragment extends Fragment {
 
     public void clearGoogleMap(){
         googleMap.clear();
+        editPath = false;
+        Log.i("EDITPATH", "SET TO FALSE CLEARGOOGLEMAP");
         this.polylines = new ArrayList<>();
         this.markers = new ArrayList<>();
         this.newPath = new Path();
@@ -223,14 +193,85 @@ public class PlanZoneMapFragment extends Fragment {
     public void sendPath(){
         resetMapListener();
         Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
-        inter.getWatchPath().add(newPath);
+        Log.i("EDITPATH", "" + editPath);
+        if (editPath){
+            inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
+            inter.getWatchPath().get(mCurrentPosition).setClosed(newPath.isClosed());
+        } else {
+            inter.getWatchPath().add(newPath);
+        }
         new SendPathToDrone().execute(inter);
     }
 
+    /**
+     * Remove path on the database
+     */
+    public void removePath(){
+        resetMapListener();
+        Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
+        inter.getWatchPath().remove(mCurrentPosition);
+        new SendPathToDrone().execute(inter);
+    }
+
+    /**
+     * Add Map Click listener on the Google Map
+     */
+    public void addMapClickListener(){
+        // Add clickListener on the map two save positions in new path
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+            double latitude = latLng.latitude;
+            double longitude = latLng.longitude;
+            Log.i("Click on the map", "latitude : " + latitude + ", " + "longitude : " + longitude);
+
+            //if there are at least two polyline on the Google Map and newPath is closed, remove the last one
+            if (polylines.size() > 2 && newPath.isClosed()) {
+                removeLine(polylines.size() - 1);
+            }
+
+            // create marker
+            MarkerOptions marker = new MarkerOptions().position(
+                    new LatLng(latitude, longitude)).title("new Path");
+            // Changing marker icon
+            marker.icon(BitmapDescriptorFactory
+                    .defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+            // adding marker
+            Marker m = googleMap.addMarker(marker);
+
+            // add the marker on the markers list
+            markers.add(m);
+
+            // Set the Position on newPath
+            newPath.getPositions().add(new Position(latitude, longitude, 20));
+
+            int size = newPath.getPositions().size();
+            // draw line between two points if is not the first
+            if (size > 1) {
+                Log.i(TAG, "Size > 1 " + size);
+                LatLng previousLatLng = new LatLng(newPath.getPositions().get(size - 2).getLatitude(), newPath.getPositions().get(size - 2).getLongitude());
+                drawLine(latLng, previousLatLng);
+                // else if it the path is closed, draw line between first and last point
+            }
+            if (size > 2 && newPath.isClosed()) {
+                Log.i(TAG, "Size > 2 and newPath.isClosed == true " + size);
+                LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
+                drawLine(firstLatLng, latLng);
+            }
+            }
+        });
+    }
+
+    /**
+     * Reset the MapClickListener on the Google Map
+     */
     public void resetMapListener(){
         googleMap.setOnMapClickListener(null);
     }
 
+    /**
+     * function called when we check or uncheck the checkbox checkbox_closed_path
+     */
     public void closePath(){
         if (!newPath.isClosed()) {
             Log.i(TAG, "Close the new path");
@@ -242,12 +283,15 @@ public class PlanZoneMapFragment extends Fragment {
             newPath.setClosed(false);
 
             // if there are at least three points in newPath
-            if (newPath.getPositions().size() > 3) {
+            if (newPath.getPositions().size() > 2) {
                 removeLine(polylines.size() - 1);
             }
         }
     }
 
+    /**
+     * Draw the polyline which close the path
+     */
     public void drawClosePolyline(){
         // if there are at least two points in the path
         if (newPath.getPositions().size() > 2) {
@@ -258,6 +302,11 @@ public class PlanZoneMapFragment extends Fragment {
         }
     }
 
+    /**
+     * Drw polyline on the Google Map from first and last LatLng
+     * @param first start point of the polyline to draw
+     * @param last last point of the polyline to draw
+     */
     public void drawLine(LatLng first, LatLng last){
         Polyline line = googleMap.addPolyline((new PolylineOptions())
                 .add(first, last).width(3).color(Color.BLUE)
@@ -265,18 +314,27 @@ public class PlanZoneMapFragment extends Fragment {
         polylines.add(line);
     }
 
+    /**
+     * Remove the polyline on the Google Map
+     * @param i indice of the polyline to remove in the polylines list
+     */
     public void removeLine(int i){
         Log.i(TAG, "Remove the polyline at the " + i + " position");
         polylines.get(i).remove();
         polylines.remove(i);
     }
 
+    /**
+     * Remove the last point of the new path
+     */
     public void removeLastPoint(){
         Log.i(TAG, "Remove the last position on the path");
+        // remove the last marker on the Google Map
         int i = markers.size()-1;
         markers.get(i).remove();
         markers.remove(i);
         newPath.getPositions().remove(i);
+
         // remove the last polyline if there is at least one polyline
         if (polylines.size() > 0) {
             removeLine(polylines.size() - 1);
@@ -325,7 +383,8 @@ public class PlanZoneMapFragment extends Fragment {
         protected Intervention doInBackground(Intervention... params) {
             try {
                 Log.i(TAG, "Update of the intervention with id : "+ params[0].getId());
-                Intervention intervention = new SpringService().updateIntervention(params[0]);
+                SpringService springService = new SpringService();
+                Intervention intervention = springService.updateIntervention(params[0]);
                 return intervention;
 
             } catch (HttpStatusCodeException e) {

@@ -1,4 +1,8 @@
 <resources>
+    <string name="state_validated">validated</string>
+    <string name="state_refused">refused</string>
+    <string name="state_waiting">waiting</string>
+
     <string name="app_name">Flerjeco</string>
     <string name="title_activity_second">Current Intervention</string>
     <string name="title_activity_list_interventions">List of Interventions</string>
