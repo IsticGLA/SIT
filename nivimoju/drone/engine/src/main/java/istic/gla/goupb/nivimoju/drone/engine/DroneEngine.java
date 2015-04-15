@@ -88,8 +88,8 @@ public class DroneEngine {
         DronesInfos infos = client.getDronesInfos();
         for(DroneInfo info : infos.getInfos()){
             String label = info.getLabel();
-            long x = info.getX();
-            long y = info.getY();
+            double x = info.getPosition().getX();
+            double y = info.getPosition().getY();
             LocalCoordinate local = new LocalCoordinate(x, y);
             Position dronePosition = converter.getLatLong(local);
             Drone drone = droneByLabel.get(label);
