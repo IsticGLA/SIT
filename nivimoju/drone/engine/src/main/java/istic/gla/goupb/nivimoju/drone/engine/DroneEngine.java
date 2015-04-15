@@ -1,3 +1,5 @@
+package istic.gla.goupb.nivimoju.drone.engine;
+
 import entity.Path;
 import entity.Position;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
@@ -9,19 +11,25 @@ import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by sacapuces on 13/04/15.
- */
 public class DroneEngine {
     private static final Logger logger = Logger.getLogger(DroneEngine.class);
     public static final LatLongConverter converter =
             new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
+    private static DroneEngine instance;
+
     private DroneClient client;
     private Path path;
     private LocalPath localPath;
 
-    public DroneEngine(){
+    private DroneEngine(){
         client = new DroneClient();
+    }
+
+    public static DroneEngine getInstance(){
+        if(instance==null){
+            instance = new DroneEngine();
+        }
+        return instance;
     }
 
     public void setPath(Path path){
@@ -31,7 +39,9 @@ public class DroneEngine {
         List<LocalCoordinate> localCoordinates = new ArrayList<>();
         for(Position latLong : path.getPositions()){
             try{
-                localCoordinates.add(converter.getLocal(latLong));
+                LocalCoordinate coord = converter.getLocal(latLong);
+                coord.setZ(20);
+                localCoordinates.add(coord);
             } catch (IllegalArgumentException e){
                 logger.error("could not transfer " + latLong + " to local coordinates");
             }
