@@ -364,7 +364,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         }
 
         if (null == address) {
-            Toast.makeText(InterventionDialogFragment.this.getActivity(), "L'adresse n'as pas été trouvé, veuillez renseigner une adresse plus précise", Toast.LENGTH_LONG);
+            Toast.makeText(InterventionDialogFragment.this.getActivity(), R.string.geocoder_failed, Toast.LENGTH_LONG);
             showProgress(true);
             return;
         }
