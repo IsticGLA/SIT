@@ -10,17 +10,18 @@ from logging.handlers import RotatingFileHandler
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Point
+import os
 
 app = Flask(__name__)
 
 class Controller:
     def __init__(self):
         # Souscris pour écouter la position du robot
-        self.pose_sub = rospy.Subscriber("/pose", PoseStamped, self.pose_callback)
+        self.pose_sub = rospy.Subscriber("/drone_1/pose", PoseStamped, self.pose_callback)
         # Publie pour setter le waypoint du robot
-        self.waypoint_pub = rospy.Publisher("/waypoint", Pose, queue_size=10, latch=False)
+        self.waypoint_pub = rospy.Publisher("/drone_1/waypoint", Pose, queue_size=10, latch=False)
         self.dest_tol=1 #tolérance de 1m
-        self.forward = true
+        self.forward = True
         self.currentIndex = 0
 
     def setWaypoint(self, x, y, z):
@@ -33,9 +34,9 @@ class Controller:
         self.path = path
         self.currentIndex = 0
         self.setWaypoint(path[0]["x"], path[0]["y"], path[0]["z"])
-        self.forward = true
+        self.forward = True
 
-    def setClose(self, closed):
+    def setClosed(self, closed):
         self.closed = closed
 
     def nextWaypointInPath(self):
@@ -46,12 +47,12 @@ class Controller:
                     self.currentIndex = 0
                 else:
                     self.currentIndex = len(self.path) - 1
-                    self.forward = false
+                    self.forward = False
         else:
             self.currentIndex = self.currentIndex - 1
             if self.currentIndex < 0:
                 self.currentIndex = 0
-                self.forward = true
+                self.forward = True
 
         point = self.path[self.currentIndex]
         self.setWaypoint(point["x"], point["y"], point["z"])
@@ -116,9 +117,9 @@ if __name__ == '__main__' :
     handler.setFormatter(formatter)
     app.logger.addHandler(handler)
     try:
-        app.logger.info("starting ros node")
-        rospy.init_node("flask")
-        app.logger.info("ros node started")
+        app.logger.info("starting ros node with ROS_IP:" + os.environ['ROS_IP'])
+        rospy.init_node("node_server")
+        app.logger.info("ros node started with ROS_IP:" + os.environ['ROS_IP'])
         app.run(debug=True, host='0.0.0.0', port=5000)
     except Exception as e:
         app.logger.error(traceback.format_exc())

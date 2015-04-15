@@ -33,6 +33,7 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
+import util.ResourceCategory;
 import util.State;
 
 public class AgentInterventionResourcesFragment extends Fragment {
@@ -40,8 +41,10 @@ public class AgentInterventionResourcesFragment extends Fragment {
 
     private ListView listViewResources;
     private ListView listViewRequests;
+    private ListView listViewAdditionalResources;
     private List<Resource> resourceList = new ArrayList<>();
     private List<Resource> requestList = new ArrayList<>();
+    private List<Resource> additionalResourceList = new ArrayList<>();
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -57,6 +60,7 @@ public class AgentInterventionResourcesFragment extends Fragment {
         View v = inflater.inflate(R.layout.resource_view, container,
                 false);
 
+        listViewAdditionalResources = (ListView) v.findViewById(R.id.listViewAditionalResources);
         listViewResources = (ListView) v.findViewById(R.id.listViewAgentResources);
         listViewRequests = (ListView) v.findViewById(R.id.listViewAgentRequests);
 
@@ -64,7 +68,11 @@ public class AgentInterventionResourcesFragment extends Fragment {
         for (Resource resource : interventionActivity.intervention.getResources()){
             State resourceState = resource.getState();
             if (State.validated.equals(resourceState)){
-                resourceList.add(resource);
+                if (resource.getResourceCategory() != null && resource.getResourceCategory() == ResourceCategory.dragabledata){
+                    additionalResourceList.add(resource);
+                } else {
+                    resourceList.add(resource);
+                }
             }else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) ){
                 requestList.add(resource);
             }
