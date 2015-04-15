@@ -77,7 +77,7 @@ public class AgentInterventionMapFragment extends Fragment {
             staticDataTab = myApp.getStaticDatas();
         }
 
-        mMapView.onResume();// needed to get the map to display immediately
+        mMapView.onResume();// needed to get the map to refresh immediately
 
         buttonValidateResources = (Button) v.findViewById(R.id.buttonValidateResources);
         buttonCancelResources = (Button) v.findViewById(R.id.buttonCancelResources);
@@ -232,7 +232,7 @@ public class AgentInterventionMapFragment extends Fragment {
                 Danger danger = new Danger();
                 bmp = Bitmap.createBitmap(60, 60, Bitmap.Config.ARGB_8888);
                 Canvas mCanvas = new Canvas(bmp);
-                danger.drawIcon(mCanvas);g
+                danger.drawIcon(mCanvas);
                 break;
             case incident:
                 bmp = BitmapFactory.decodeResource(getResources(), R.drawable.incident);

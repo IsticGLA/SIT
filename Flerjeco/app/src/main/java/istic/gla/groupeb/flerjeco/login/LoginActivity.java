@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -21,8 +20,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.springframework.web.client.HttpStatusCodeException;
-
 import entity.Intervention;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
@@ -33,7 +30,6 @@ import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActiv
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
-import istic.gla.groupeb.flerjeco.synch.SynchService;
 
 
 /**
@@ -66,7 +62,7 @@ public class LoginActivity extends Activity implements ISynchTool{
         DisplaySynch displaySynch = new DisplaySynch() {
             @Override
             public void ctrlDisplay() {
-                display();
+                refresh();
             }
         };
         i.putExtra("displaySynch", displaySynch);
@@ -75,13 +71,13 @@ public class LoginActivity extends Activity implements ISynchTool{
 
         this.startService(i);
 
-        display();
+        refresh();
     }
 
 
 
     @Override
-    public void display() {
+    public void refresh() {
 
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);

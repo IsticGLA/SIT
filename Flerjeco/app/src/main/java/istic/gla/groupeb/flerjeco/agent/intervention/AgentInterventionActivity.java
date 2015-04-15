@@ -45,13 +45,14 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.view.IconView;
 import util.ResourceCategory;
 import util.ResourceRole;
 import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
-        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener {
+        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool {
 
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
@@ -137,6 +138,10 @@ public class AgentInterventionActivity extends FragmentActivity
         actionBar.addTab(tab);
     }
 
+    @Override
+    public void refresh(){
+
+    }
     public void onResourceSelected(int position) {
 
         mapFragment = (AgentInterventionMapFragment)
