@@ -135,9 +135,8 @@ public class SpringService {
         Resource resource = (Resource)params[1];
         try {
             final String url = URL + "intervention/"+interventionId+"/resources/update";
-            ObjectWithDate objectWithDate = new ObjectWithDate(resource, new Timestamp(Calendar.getInstance().getTime().getTime()));
 
-            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, objectWithDate, Intervention.class);
+            ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, resource, Intervention.class);
 
             if (interventionResult == null) {
                 Log.i(TAG, "updateResourceIntervention interventionResult = null");
