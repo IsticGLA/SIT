@@ -76,7 +76,7 @@ public class Drone {
 
         List<entity.Drone> droneList = droneDAO.getBy("idIntervention", -1);
 
-        if (null != droneList && droneList.size() > 1) {
+        if (null != droneList && droneList.size() >= 1) {
             entity.Drone updateDrone = droneList.get(0);
             updateDrone.setIdIntervention(idIntervention);
             updateDrone.updateDate();
