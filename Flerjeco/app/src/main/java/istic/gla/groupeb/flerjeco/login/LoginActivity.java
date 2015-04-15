@@ -8,9 +8,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.os.Messenger;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -34,11 +31,12 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 import istic.gla.groupeb.flerjeco.synch.SynchService;
 
 
 /**
- * A login screen that offers login via email/password.
+ * A login screen that offers loginNO CONTENT via email/password.
  */
 public class LoginActivity extends Activity implements ISynchTool{
     private static final String TAG = LoginActivity.class.getSimpleName();
@@ -62,8 +60,7 @@ public class LoginActivity extends Activity implements ISynchTool{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Intent i=new Intent(this, SynchService.class);
-        i.putExtra("handler", new Messenger(this.handler));
+        Intent i= IntentWraper.getIntentInstance(this);
 
         DisplaySynch displaySynch = new DisplaySynch() {
             @Override
@@ -71,16 +68,10 @@ public class LoginActivity extends Activity implements ISynchTool{
                 display();
             }
         };
-
         i.putExtra("displaySynch", displaySynch);
+        String url = "notify/19";
+        i.putExtra("url", url);
 
-        Intervention intervention = new Intervention();
-        intervention.setId(19L);
-        intervention.updateDate();
-
-        i.putExtra("intervention", intervention);
-
-        Log.i("MAMH", i.toString());
         this.startService(i);
 
         display();
@@ -90,13 +81,6 @@ public class LoginActivity extends Activity implements ISynchTool{
 
     @Override
     public void display() {
-
-
-        Log.i("MAMH", "LoginActivity display");
-
-
-            new InterventionNotifyTask().execute(19L);
-
 
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);
@@ -124,56 +108,6 @@ public class LoginActivity extends Activity implements ISynchTool{
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
-
-
-    // Backgroud task to get notify
-    private class InterventionNotifyTask extends AsyncTask<Long, Void, Intervention> {
-
-        @Override
-        protected Intervention doInBackground(Long... params) {
-            try {
-
-                SpringService springService = new SpringService();
-
-                Intervention interventionResult = springService.getInterventionById(19L);
-                Log.i("MAMH", "Inter Name : "+interventionResult.getName());
-                return interventionResult;
-
-            } catch (HttpStatusCodeException e) {
-                Log.e("InterventionActivity", e.getMessage(), e);
-
-            }
-            return  null;
-
-        }
-
-        @Override
-        protected void onPostExecute(Intervention intervention) {
-
-            //TODO
-            Log.i("MAMH", "onPostExecute");
-
-        }
-
-    }
-
-
-
-    Handler handler=new Handler()
-    {
-        @Override
-        public void handleMessage(Message msg) {
-            //get data from msg
-
-
-            String result=msg.getData().getString("result");
-
-            Log.d("xxxxx", "get data " + result);
-
-
-            super.handleMessage(msg);
-        }
-    };
 
     /**
      * Attempts to sign in or register the account specified by the login form.

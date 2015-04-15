@@ -2,12 +2,15 @@ package istic.gla.groupeb.flerjeco.springRest;
 
 import android.util.Log;
 
+import org.apache.http.HttpStatus;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
+
+import java.sql.Timestamp;
 
 import entity.IncidentCode;
 import entity.Intervention;
@@ -21,24 +24,25 @@ public class SpringService {
 
     private static final String TAG = SpringService.class.getSimpleName();
     private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
-    private static final String URL_TEST  =  "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
+    private static final String URL_TEST = "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
     private static RestTemplate restTemplate = new RestTemplate();
 
 
-    public SpringService(){
+    public SpringService() {
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
     }
 
     /**
      * get resource by id
+     *
      * @param idRes id of the resource to get
      * @return the resource type retrieved
      */
-    public ResourceType getResourceTypeById(Long idRes){
+    public ResourceType getResourceTypeById(Long idRes) {
 
         //TODO modify URL_TEST -> URL
-        final String url = URL_TEST + "resource/"+idRes;
+        final String url = URL_TEST + "resource/" + idRes;
 
         ResponseEntity<ResourceType> resourcetype = restTemplate.getForEntity(url, ResourceType.class);
 
@@ -48,13 +52,14 @@ public class SpringService {
 
     /**
      * get intervention by id
+     *
      * @param idIntervention id of the resource to get
      * @return the intervention retrieved
      */
-    public Intervention getInterventionById(Long idIntervention){
+    public Intervention getInterventionById(Long idIntervention) {
 
         //TODO modify URL_TEST -> URL
-        final String url = URL_TEST + "intervention/"+idIntervention;
+        final String url = URL_TEST + "intervention/" + idIntervention;
 
         ResponseEntity<Intervention> interventionResult = restTemplate.getForEntity(url, Intervention.class);
 
@@ -64,6 +69,7 @@ public class SpringService {
 
     /**
      * Get incident codes
+     *
      * @return array of IncidentCode
      * @throws HttpStatusCodeException throw exception if status code is bad
      */
@@ -81,6 +87,7 @@ public class SpringService {
 
     /**
      * Create intervention
+     *
      * @param intervention intervention to be created
      * @return id of the intervention created
      */
@@ -114,7 +121,7 @@ public class SpringService {
                 Log.i("MAMH", "intervetionResult = null");
             } else
                 Log.i(TAG, intervetionResult.toString());
-                return intervetionResult.getBody();
+            return intervetionResult.getBody();
         } catch (HttpStatusCodeException e) {
             Log.i("MAMH", "Problème de l'update de l'intervention : " + e.getMessage());
         }
@@ -122,7 +129,6 @@ public class SpringService {
     }
 
     /**
-     *
      * @param id
      * @param password
      * @return
@@ -142,25 +148,33 @@ public class SpringService {
         return httpResult;
     }
 
+
     /**
      * get a notification from server
-     * @param intervention
-     * @return intervention to update
+     * @param url url already prepared to call the server
+     * @param timestamp lastUpdate timestamp
+     * @return the lastUpdate timestamp
      */
-    public String getNotify(Intervention intervention) {
-        String httpResult = "";
-        final String url = URL_TEST + "notify";
+    public Timestamp getNotify(String url, Timestamp timestamp) {
+        String httpCode = "";
+        Timestamp restTimestamp = timestamp;
+        url = URL_TEST+url;
+        Log.i("MAMH", "url  :  " + url);
         try {
-
-            intervention.updateDate();
-
-            ResponseEntity<String> entity = restTemplate.postForEntity(url, intervention, String.class);
-            httpResult = entity.getStatusCode().toString();
-
+            ResponseEntity<Timestamp> entity = restTemplate.postForEntity(url, timestamp, Timestamp.class);
+            httpCode = entity.getStatusCode().toString();
+            restTimestamp = entity.getBody();
+            Log.i("MAMH", "HttpCode  :  " + httpCode);
+            if ("200".equals(httpCode)) {
+                return timestamp;
+            } else if ("201".equals(httpCode)) {
+                return restTimestamp;
+            }
         } catch (HttpStatusCodeException e) {
-            httpResult = e.getStatusCode().toString();
+            httpCode = e.getStatusCode().toString();
+            return restTimestamp;
         }
-        return httpResult;
+        return restTimestamp;
     }
 
 
@@ -202,6 +216,7 @@ public class SpringService {
         ResponseEntity<Intervention> id = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
         return id.getBody();
     }
+
     public StaticData[] getAllStaticDatas() {
         Log.i(TAG, "getAllStaticDatas start");
         final String url = URL + "staticdata";
