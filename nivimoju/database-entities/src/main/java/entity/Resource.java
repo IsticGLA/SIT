@@ -24,6 +24,8 @@ public class Resource implements Serializable {
      */
     public Resource() {
         super();
+        this.resourceRole = ResourceRole.otherwise;
+        this.resourceCategory = ResourceCategory.vehicule;
     }
 
     /**
