@@ -3,6 +3,7 @@ package dao;
 import entity.IncidentCode;
 import entity.Intervention;
 import entity.Resource;
+import entity.ResourceType;
 import org.junit.*;
 import util.Constant;
 import util.State;
@@ -21,7 +22,7 @@ public class InterventionDAOTest {
     @BeforeClass
     public static void init(){
         interDAO = new InterventionDAO();
-        DAOManager.connectTest();
+        DAOManager.connect();
     }
 
     @AfterClass
@@ -38,7 +39,7 @@ public class InterventionDAOTest {
         interData.setResources(ressources);
     }
 
-    @Test
+    /*@Test
     public void createTest(){
         Intervention originalIntervention = interDAO.cloneEntity(interData);
         Intervention insertIntervention = interDAO.create(interData);
@@ -118,5 +119,15 @@ public class InterventionDAOTest {
             ok = ok && waiting;
         }
         Assert.assertTrue(ok);
+    }*/
+
+    @Test
+    public void updateResource(){
+        InterventionDAO interventionDAO = new InterventionDAO();
+        Intervention intervention = interventionDAO.getById(19L);
+        intervention.setName("COCOCHONE");
+        intervention.updateDate();
+
+        interventionDAO.update(intervention);
     }
 }

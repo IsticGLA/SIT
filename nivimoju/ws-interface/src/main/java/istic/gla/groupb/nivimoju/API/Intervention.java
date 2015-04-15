@@ -14,9 +14,6 @@ import java.util.List;
  */
 @Path("intervention")
 public class Intervention {
-
-
-
     /**
      * Gets all the interventions running
      * @return A list of interventions
@@ -32,6 +29,21 @@ public class Intervention {
         return  Response.ok(inters).build();
     }
 
+    /**
+     * Gets Intervention by ID
+     * @return An intervention
+     */
+    @Path("/{idintervention}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getInterventionById(
+            @PathParam("idintervention") long idintervention) {
+        InterventionDAO interventionDAO = new InterventionDAO();
+        interventionDAO.connect();
+        entity.Intervention intervention = interventionDAO.getById(idintervention);
+        interventionDAO.disconnect();
+        return Response.ok(intervention).build();
+    }
 
     /**
      * Creates a new intervention with a default list of vehicle in function of the sinister code
@@ -70,33 +82,6 @@ public class Intervention {
         return  Response.ok(result).build();
 
     }
-
-    /*
-
-    /**
-     * Creates a new intervention with a default list of vehicle in function of the sinister code
-     * @param lat The latitude of the intervention
-     * @param lng The longitude of the intervention
-     * @param code The ID of the sinister code of the intervention
-     * @return The id of the created intervention
-     */
-    /*
-    @Path("{lat}/{lng}/{code}")
-    @POST
-    public Response createIntervention(
-            @PathParam("lat") long lat,
-            @PathParam("lng") long lng,
-            @PathParam("code") int code) {
-
-
-        interventionDAO.connect();
-        entity.Intervention intervention = new entity.Intervention(code, lat, lng, null,null,null,null,null);
-        entity.Intervention resultat = interventionDAO.create(intervention);
-        System.out.println(resultat.getLatitude()+"/"+resultat.getLongitude());
-        interventionDAO.disconnect();
-
-        return Response.ok(resultat).build();
-    }*/
 
     /**
      * Stops the intervention

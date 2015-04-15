@@ -61,7 +61,7 @@
                     <url>http://37.59.58.42:8080/manager/text</url>
                     <username>root</username>
                     <password>projetgla</password>
-                    <path>/nivimoju</path>
+                    <path>/nivimo</path>
                 </configuration>
             </plugin>
         </plugins>
