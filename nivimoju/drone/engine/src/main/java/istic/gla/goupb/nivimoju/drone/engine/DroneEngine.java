@@ -33,12 +33,12 @@ public class DroneEngine {
         affectationByDroneLabel = new HashMap<>();
         dronesByIntervention = new HashMap<>();
         droneByLabel = new HashMap<>();
-        this.loadDronesFromDatabase();
     }
 
     public static DroneEngine getInstance(){
         if(instance==null){
             instance = new DroneEngine();
+            instance.loadDronesFromDatabase();
         }
         return instance;
     }
@@ -149,7 +149,7 @@ public class DroneEngine {
         path.addPosition(croisement2);
         List<Path> paths = new ArrayList<>();
         paths.add(path);
-        engine.setPathsForIntervention(1, paths);
-        engine.updateDroneInfoFromSimu();*/
+        engine.setPathsForIntervention(1, paths);*/
+        engine.updateDroneInfoFromSimu();
     }
 }

@@ -1,37 +1,13 @@
 package istic.gla.groupb.nivimoju.drone.client;
 
+import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
+
 /**
  * Created by sacapuces on 15/04/15.
  */
 public class DroneInfo {
     private String label;
-    private long x;
-    private long y;
-    private long z;
-
-    public long getX() {
-        return x;
-    }
-
-    public void setX(long x) {
-        this.x = x;
-    }
-
-    public long getY() {
-        return y;
-    }
-
-    public void setY(long y) {
-        this.y = y;
-    }
-
-    public long getZ() {
-        return z;
-    }
-
-    public void setZ(long z) {
-        this.z = z;
-    }
+    private LocalCoordinate position;
 
     public String getLabel() {
 
@@ -42,13 +18,19 @@ public class DroneInfo {
         this.label = label;
     }
 
+    public LocalCoordinate getPosition() {
+        return position;
+    }
+
+    public void setPosition(LocalCoordinate position) {
+        this.position = position;
+    }
+
     @Override
     public String toString() {
         return "DroneInfo{" +
                 "label='" + label + '\'' +
-                ", x=" + x +
-                ", y=" + y +
-                ", z=" + z +
+                ", position=" + position +
                 '}';
     }
 }
