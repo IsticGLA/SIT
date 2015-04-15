@@ -40,7 +40,8 @@
         <activity
             android:name=".agent.intervention.AgentInterventionActivity"
             android:exported="true"
-            android:label="@string/title_activity_second" >
+            android:label="@string/title_activity_second"
+            android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name=".codis.intervention.InterventionActivity"

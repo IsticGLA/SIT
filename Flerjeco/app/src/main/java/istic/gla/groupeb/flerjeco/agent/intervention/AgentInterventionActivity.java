@@ -115,7 +115,6 @@ public class AgentInterventionActivity extends FragmentActivity
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
 
-
             findViewById(R.id.fragment_container).setOnDragListener(new MyDragListener());
             findViewById(R.id.map_fragment).setOnDragListener(new MyDragListener());
         }
@@ -217,6 +216,8 @@ public class AgentInterventionActivity extends FragmentActivity
 
         @Override
         public boolean onDrag(View v, DragEvent event) {
+
+            View view = (View) event.getLocalState();
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED:
                     // do nothing
@@ -226,7 +227,17 @@ public class AgentInterventionActivity extends FragmentActivity
                 case DragEvent.ACTION_DRAG_EXITED:
                     break;
                 case DragEvent.ACTION_DROP:
-                    View view = (View) event.getLocalState();
+                    if(!(v instanceof FrameLayout)){
+                        view.setVisibility(View.VISIBLE);
+                        return false;
+                    }
+                    if(!(((FrameLayout) v).getChildAt(0) instanceof MapView)){
+                        view.setVisibility(View.VISIBLE);
+                        return false;
+                    }
+
+
+
                     MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
 
                     GoogleMap googleMap = mapView.getMap();
@@ -244,10 +255,16 @@ public class AgentInterventionActivity extends FragmentActivity
                             .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
                     // adding marker
                     googleMap.addMarker(marker);
-
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
+                    if (!event.getResult()){
+                        view.setVisibility(View.VISIBLE);
+                    }
+                    break;
                 default:
+                    if (!event.getResult()){
+                        v.setVisibility(View.VISIBLE);
+                    }
                     break;
             }
             return true;
