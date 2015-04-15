@@ -29,10 +29,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -45,6 +45,7 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.view.IconView;
 import util.ResourceCategory;
 import util.ResourceRole;
 import util.State;
@@ -226,6 +227,7 @@ public class AgentInterventionActivity extends FragmentActivity
         public boolean onDrag(View v, DragEvent event) {
 
             View view = (View) event.getLocalState();
+
             switch (event.getAction()) {
                 case DragEvent.ACTION_DRAG_STARTED:
                     // do nothing
@@ -244,8 +246,6 @@ public class AgentInterventionActivity extends FragmentActivity
                         return false;
                     }
 
-
-
                     MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
 
                     GoogleMap googleMap = mapView.getMap();
@@ -257,10 +257,13 @@ public class AgentInterventionActivity extends FragmentActivity
 
                     LatLng latLng = mapView.getMap().getProjection().fromScreenLocation(point);
 
-                    MarkerOptions marker = new MarkerOptions().position(latLng).title("Hello Maps");
+                    IconView iconView = (IconView) ((LinearLayout)view).getChildAt(0);
+
+                    Resource resource = iconView.getResource();
+
+                    MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
                     // Changing marker icon
-                    marker.icon(BitmapDescriptorFactory
-                            .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
+                    mapFragment.drawMarker(marker, resource);
                     // adding marker
                     googleMap.addMarker(marker);
                     break;

@@ -1,7 +1,6 @@
 package istic.gla.groupeb.flerjeco.adapter;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -78,6 +77,8 @@ public class ResourceIconAdapter extends ArrayAdapter<Resource> {
         if (mIcon != null) {
             viewHolder.iconViewResource.setIcon(mIcon);
         }
+
+        viewHolder.iconViewResource.setResource(resource);
 
         return convertView;
     }

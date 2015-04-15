@@ -2,19 +2,16 @@ package istic.gla.groupeb.flerjeco.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.DashPathEffect;
-import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
-import istic.gla.groupeb.flerjeco.icons.Danger;
+import entity.Resource;
 import istic.gla.groupeb.flerjeco.icons.IIcon;
-import istic.gla.groupeb.flerjeco.icons.Sensitive;
-import istic.gla.groupeb.flerjeco.icons.Vehicle;
 
 public class IconView extends View {
 
     private IIcon mIcon;
+    private Resource resource;
 
     /**
      * Default constructor, instantiate a default vehicle
@@ -29,9 +26,10 @@ public class IconView extends View {
      * @param context application context
      * @param mIcon the icon that will be drawn
      */
-    public IconView(Context context, IIcon mIcon) {
+    public IconView(Context context, IIcon mIcon, Resource resource) {
         super(context);
         this.mIcon = mIcon;
+        this.resource = resource;
     }
 
     public IconView(Context context, AttributeSet attributeSet){
@@ -64,5 +62,14 @@ public class IconView extends View {
      */
     public void setIcon(IIcon mIcon) {
         this.mIcon = mIcon;
+    }
+
+
+    public Resource getResource() {
+        return resource;
+    }
+
+    public void setResource(Resource resource) {
+        this.resource = resource;
     }
 }
