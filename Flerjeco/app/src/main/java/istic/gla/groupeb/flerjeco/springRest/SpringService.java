@@ -237,13 +237,22 @@ public class SpringService {
         return intervention.getBody();
     }
 
+    /**
+     * Gets all the interventions
+     * @return An array of interventions
+     */
     public Intervention[] getAllInterventions() {
         Log.i(TAG, "getAllInterventions start");
         final String url = URL + "intervention";
-
-        ResponseEntity<Intervention[]> entity = restTemplate.getForEntity(url, Intervention[].class);
-        Log.i(TAG, "getAllInterventions : " + entity.getBody().toString());
-        return entity.getBody();
+        ResponseEntity<Intervention[]> interventions;
+        try {
+            interventions = restTemplate.getForEntity(url, Intervention[].class);
+        } catch (HttpServerErrorException e) {
+            Log.e(TAG, e.getMessage());
+            return null;
+        }
+        Log.i(TAG, "getAllInterventions : " + interventions.getBody().toString());
+        return interventions.getBody();
     }
 
     public Long moveDrone(Object[] params) {
@@ -266,6 +275,7 @@ public class SpringService {
             intervention = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
         } catch (HttpServerErrorException e) {
             Log.e(TAG, e.getMessage());
+            return null;
         }
         Log.i("SpringService", intervention.getBody().getName());
         return intervention.getBody();
