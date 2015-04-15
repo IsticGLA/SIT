@@ -261,8 +261,6 @@ public class AgentInterventionMapFragment extends Fragment {
                     mVehicle.drawVehicle(mCanvas);
                     markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mBitmap));
                     break;
-                case drone:
-                    break;
             }
 
         }
