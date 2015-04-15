@@ -254,13 +254,27 @@ public class SpringService {
         return id.getBody();
     }
 
+    /**
+     * Change the state of a resource in parameters (waiting, planned, validated...)
+     * @param params The id of the intervention, the resource label and the new state
+     * @return The updated intervention
+     */
     public Intervention changeResourceState(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2];
-
-        ResponseEntity<Intervention> intervention = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
+        ResponseEntity<Intervention> intervention = null;
+        try {
+            intervention = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
+        } catch (HttpServerErrorException e) {
+            Log.e(TAG, e.getMessage());
+        }
         Log.i("SpringService", intervention.getBody().getName());
         return intervention.getBody();
     }
+
+    /**
+     * Gets all static data
+     * @return A list of static data
+     */
     public StaticData[] getAllStaticDatas() {
         Log.i(TAG, "getAllStaticDatas start");
         final String url = URL + "staticdata";
@@ -268,7 +282,7 @@ public class SpringService {
         try {
             entity = restTemplate.getForEntity(url, StaticData[].class);
         } catch (HttpServerErrorException e) {
-            Log.i(TAG, e.getMessage());
+            Log.e(TAG, e.getMessage());
             return null;
         }
         Log.i(TAG, "getAllStaticData : " + entity.getBody().toString());
