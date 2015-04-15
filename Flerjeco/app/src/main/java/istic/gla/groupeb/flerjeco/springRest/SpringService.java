@@ -103,7 +103,7 @@ public class SpringService {
                 Log.i(TAG, "interventionResult = null");
             } else {
                 // assignement of the drone for the intervention
-                final String urlDrone = URL + "/drone/assign/" + interventionResult.getBody().getId();
+                final String urlDrone = URL + "drone/assign/" + interventionResult.getBody().getId();
                 ResponseEntity<Drone> drone = restTemplate.getForEntity(urlDrone, Drone.class);
 
                 if (drone.getStatusCode() == HttpStatus.NOT_FOUND){
