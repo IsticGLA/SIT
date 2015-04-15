@@ -33,7 +33,6 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
-import util.ResourceCategory;
 import util.State;
 
 public class AgentInterventionResourcesFragment extends Fragment {
@@ -68,17 +67,17 @@ public class AgentInterventionResourcesFragment extends Fragment {
         for (Resource resource : interventionActivity.intervention.getResources()){
             State resourceState = resource.getState();
             if (State.validated.equals(resourceState)){
-                if (resource.getResourceCategory() != null && resource.getResourceCategory() == ResourceCategory.dragabledata){
+                /*if (resource.getResourceCategory() != null && resource.getResourceCategory() == ResourceCategory.dragabledata){
                     additionalResourceList.add(resource);
-                } else {
+                } else {*/
                     resourceList.add(resource);
-                }
+                //}
             }else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) ){
                 requestList.add(resource);
             }
         }
 
-        listViewResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.item_resource_agent_icon_view, resourceList));
+        listViewResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.list_row, resourceList));
         listViewRequests.setAdapter(new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList));
 
         listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
