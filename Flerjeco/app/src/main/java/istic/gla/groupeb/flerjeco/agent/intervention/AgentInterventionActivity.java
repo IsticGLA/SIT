@@ -47,6 +47,7 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 import istic.gla.groupeb.flerjeco.view.IconView;
@@ -77,6 +78,14 @@ public class AgentInterventionActivity extends FragmentActivity
 
         if (extras != null){
             intervention = (Intervention) extras.getSerializable("intervention");
+            DisplaySynch displaySynch = new DisplaySynch() {
+                @Override
+                public void ctrlDisplay() {
+                    refresh();
+                }
+            };
+            String url = "notify/"+intervention.getId();
+            IntentWraper.startService(url, displaySynch);
         }
 
         //List<Resource> resourceList = new ArrayList<>();

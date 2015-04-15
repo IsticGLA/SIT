@@ -60,7 +60,7 @@ public class SynchService extends IntentService {
             }
         };
 
-        t.schedule(timerTask, 100, 10000);
+        t.schedule(timerTask, 100, 2000);
 
     }
 
