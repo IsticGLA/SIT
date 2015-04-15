@@ -72,7 +72,7 @@ public class SynchService extends IntentService {
             try {
                 //Log.i("MAMH", "ID inter : "+params[0]);
                 return springService.getNotify(params[0], timestamp);
-            } catch (HttpStatusCodeException e) {
+            } catch (Exception e) {
                 //Log.e("InterventionActivity", e.getMessage(), e);
                 return null;
             }
