@@ -110,4 +110,22 @@ public class InterventionsNamesFragment extends Fragment {
                     + " must implement OnResourceSelectedListener");
         }
     }
+
+    public void updateList(){
+        // We need to use a different list item layout for devices older than Honeycomb
+        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
+                android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
+
+
+        List<String> labelsInterventions = new ArrayList<>();
+
+        ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
+        Intervention[] interventions = listInterventionsActivity.getInterventions();
+
+        for(Intervention inter : interventions) {
+            labelsInterventions.add(inter.getName());
+        }
+
+        listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
+    }
 }
