@@ -37,6 +37,7 @@ import android.widget.LinearLayout;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
@@ -306,7 +307,8 @@ public class AgentInterventionActivity extends FragmentActivity
                     // Changing marker icons
                     mapFragment.drawMarker(marker, resource);
                     // adding marker
-                    googleMap.addMarker(marker);
+                    Marker markerAdded = googleMap.addMarker(marker);
+                    mapFragment.getMarkers().put(resource.getLabel(),markerAdded);
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     view.setVisibility(View.VISIBLE);
