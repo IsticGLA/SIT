@@ -119,10 +119,10 @@ public class DroneEngine{
     private void getDroneInfoFromSimu(){
         DronesInfos infos = client.getDronesInfos();
         if(infos == null){
-            logger.info("could not get infos from flask");
+            logger.warn("could not get infos from flask");
             return;
         }
-        logger.info("got response from flask client : " + infos);
+        logger.trace("got response from flask client : " + infos);
         for(DroneInfo info : infos.getInfos()){
             if(info.getPosition() != null){
                 String label = info.getLabel();
@@ -148,11 +148,11 @@ public class DroneEngine{
      * get positions info from simulation then update database
      */
     public void updateDroneInfoFromSimu(){
-        logger.info("getting positions from simulation");
+        logger.trace("getting positions from simulation");
         getDroneInfoFromSimu();
-        logger.info("updating db with drones info");
+        logger.trace("updating db with drones info");
         updateDronesInDatabase();
-        logger.info("done refreshing info for drones");
+        logger.trace("done refreshing info for drones");
     }
 
     /**
