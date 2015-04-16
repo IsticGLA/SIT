@@ -143,16 +143,18 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
     private void fillResourcesAndRequests(){
 
         AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
-        for (Resource resource : interventionActivity.intervention.getResources()){
-            State resourceState = resource.getState();
-            if (State.validated.equals(resourceState)){
-                resourceList.add(resource);
-                String name = resource.getLabel()+" "+resource.getIdRes();
-                IIcon icon = new Vehicle(name, resource.getResourceRole(), resource.getState());
-                iconResourceList.add(icon);
-                Log.i("RESOURCELIST",resource.getLabel());
-            }else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) ){
-                requestList.add(resource);
+        if (null != interventionActivity && null != interventionActivity.intervention) {
+            for (Resource resource : interventionActivity.intervention.getResources()) {
+                State resourceState = resource.getState();
+                if (State.validated.equals(resourceState)) {
+                    resourceList.add(resource);
+                    String name = resource.getLabel() + " " + resource.getIdRes();
+                    IIcon icon = new Vehicle(name, resource.getResourceRole(), resource.getState());
+                    iconResourceList.add(icon);
+                    Log.i("RESOURCELIST", resource.getLabel());
+                } else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState)) {
+                    requestList.add(resource);
+                }
             }
         }
 

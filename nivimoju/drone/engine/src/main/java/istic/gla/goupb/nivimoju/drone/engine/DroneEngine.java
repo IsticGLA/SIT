@@ -2,7 +2,9 @@ package istic.gla.goupb.nivimoju.drone.engine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import dao.DroneDAO;
-import entity.*;
+import entity.Drone;
+import entity.Path;
+import entity.Position;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
 import istic.gla.groupb.nivimoju.drone.client.DroneInfo;
 import istic.gla.groupb.nivimoju.drone.client.DronesInfos;
@@ -205,7 +207,7 @@ public class DroneEngine{
      * @return
      */
     public boolean unasignDrone(final Drone drone){
-        if(drone == null || drone.getIdIntervention() < 0){
+        if(drone == null){
             logger.warn("cannot unassign it");
             return false;
         } else {
