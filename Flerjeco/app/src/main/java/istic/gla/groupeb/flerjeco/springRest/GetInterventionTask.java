@@ -41,10 +41,13 @@ public class GetInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
+        Log.i(TAG,"onPostExecute");
         if(success) {
+            Log.i(TAG,"onPostExecute Success");
             activity.updateIntervention(intervention);
         }
         else {
+            Log.i(TAG,"onPostExecute NOT Success");
             count++;
             if(count < 4) {
                 Log.i(TAG, "Count: " + count);
