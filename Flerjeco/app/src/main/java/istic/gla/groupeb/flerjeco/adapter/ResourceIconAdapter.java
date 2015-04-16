@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,7 @@ public class ResourceIconAdapter extends ArrayAdapter<Resource> {
         IIcon mIcon = null;
         ViewHolder viewHolder;
         if (convertView == null){
-            convertView = LayoutInflater.from(this.getContext()).inflate(R.layout.list_row,parent,false);
+            convertView = LayoutInflater.from(this.getContext()).inflate(R.layout.item_resource_agent_only_icon,parent,false);
             // configure view holder
             viewHolder = new ViewHolder();
             viewHolder.iconViewResource = (IconView) convertView.findViewById(R.id.icon_view);
@@ -53,6 +54,7 @@ public class ResourceIconAdapter extends ArrayAdapter<Resource> {
 
         Resource resource = resources.get(position);
         String label = resource.getLabel();
+        Log.i("Adapter, resource : ",label);
         ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
 
         switch (resource.getResourceCategory()){
