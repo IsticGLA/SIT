@@ -305,15 +305,16 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                     break;
                 case dragabledata:
                     String label = resource.getLabel();
+                    ResourceRole resourceRole = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
                     if ("incident".equals(label)){
                         mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
                     } else if ("danger".equals(label)) {
-                        Danger danger = new Danger();
+                        Danger danger = new Danger(resourceRole);
                         mBitmap = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888);
                         Canvas dCanvas = new Canvas(mBitmap);
                         danger.drawIcon(dCanvas);
                     } else if ("sensitive".equals(label)) {
-                        Sensitive sensitive = new Sensitive();
+                        Sensitive sensitive = new Sensitive(resourceRole);
                         mBitmap = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888);
                         Canvas sCanvas = new Canvas(mBitmap);
                         sensitive.drawIcon(sCanvas);
