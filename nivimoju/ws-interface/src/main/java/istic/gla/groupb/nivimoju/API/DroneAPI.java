@@ -8,6 +8,8 @@ import istic.gla.goupb.nivimoju.drone.engine.DroneEngine;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
+import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -19,6 +21,7 @@ import java.util.List;
  */
 @Path("drone")
 public class DroneAPI {
+    Logger logger = Logger.getLogger(DroneAPI.class);
 
     /**
      * Send a move request directly to the simulation (for debug)
@@ -130,16 +133,18 @@ public class DroneAPI {
      */
     @POST
     @Path("/alertengine/")
-    @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response alertEngine(Intervention intervention) {
+        logger.info("alertEngine : received engine alert");
         if(intervention != null){
-            DroneEngine.getInstance().setPathsForIntervention(intervention.getId(),
-                    intervention.getWatchPath());
+            logger.info("alertEngine : intervention = " + intervention.toString());
+            logger.info("alertEngine start : " + DateTime.now());
+                    DroneEngine.getInstance().setPathsForIntervention(intervention.getId(),
+                            intervention.getWatchPath());
+            logger.info("alertEngine end : " + DateTime.now());
             return Response.ok().build();
         }
         return Response.status(Response.Status.BAD_REQUEST)
-                .entity("bad intervention")
                 .build();
     }
 }
