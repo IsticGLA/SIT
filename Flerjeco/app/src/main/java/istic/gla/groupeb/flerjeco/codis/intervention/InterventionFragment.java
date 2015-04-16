@@ -25,17 +25,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import entity.Intervention;
-import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
-import util.State;
 
 public class InterventionFragment extends Fragment implements ISynchTool {
     OnResourceSelectedListener mCallback;
