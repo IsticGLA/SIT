@@ -190,6 +190,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                         // create marker
                         MarkerOptions marker = new MarkerOptions().position(
                                 new LatLng(resource.getLatitude(), resource.getLongitude())).title(resource.getLabel());
+
+                        marker.draggable(true);
                         // Changing marker icon
                         drawMarker(marker, resource);
                         // adding marker
