@@ -67,11 +67,13 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
     @Override
     public void refresh() {
         //TODO
-        intervention = ((AgentInterventionActivity)getActivity()).intervention;
-        // clear lists
-        clearData();
-        // fill lists
-        initMap();
+        if (null != (AgentInterventionActivity)getActivity()){
+            intervention = ((AgentInterventionActivity) getActivity()).intervention;
+            // clear lists
+            clearData();
+            // fill lists
+            initMap();
+        }
     }
 
     public void clearData(){
@@ -91,7 +93,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
         FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
         if (flerjecoApplication != null) {
-            staticDataTab = flerjecoApplication.getStaticDatas();
+            staticDataTab = flerjecoApplication.getStaticData();
         }
 
         mMapView.onResume();// needed to get the map to refresh immediately

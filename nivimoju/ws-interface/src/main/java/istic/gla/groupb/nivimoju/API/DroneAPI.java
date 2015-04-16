@@ -98,7 +98,7 @@ public class DroneAPI {
      * @param idDrone the id of the drone to unasign
      * @return ok
      */
-    @POST
+    @GET
     @Path("/unassign/{idDrone}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response unassign(

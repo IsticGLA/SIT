@@ -112,7 +112,7 @@ public class ListInterventionsActivity extends FragmentActivity
             mapFragment = new MapListInterventionsFragment();
             Bundle args = new Bundle();
             args.putInt(MapListInterventionsFragment.ARG_POSITION, position);
-            //args.putSerializable("staticdatas", getStaticDatas());
+            //args.putSerializable("staticdatas", getStaticData());
             mapFragment.setArguments(args);
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 

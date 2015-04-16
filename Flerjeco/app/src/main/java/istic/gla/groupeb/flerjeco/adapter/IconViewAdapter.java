@@ -38,7 +38,7 @@ public class IconViewAdapter extends ArrayAdapter<IconView> {
             row = inflater.inflate(R.layout.item_resource_agent_only_icon, parent, false);
             //row = LayoutInflater.from(context).inflate(R.layout.item_resource_agent_only_icon, null);
             holder = new IconHolder();
-            holder.iconView = (IconView)row.findViewById(R.id.icon_view);
+            holder.iconView = (IconView)row.findViewById(R.id.image_view);
             row.setTag(holder);
 
         } else {

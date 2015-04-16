@@ -23,22 +23,22 @@ import android.widget.Toast;
 
 import entity.Intervention;
 import entity.StaticData;
-import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
-import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
-import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
-import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
+import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
+import istic.gla.groupeb.flerjeco.springRest.GetAllStaticDataTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
+import istic.gla.groupeb.flerjeco.springRest.IStaticDataActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
 
 /**
  * A login screen that offers loginNO CONTENT via email/password.
  */
-public class LoginActivity extends Activity implements ISynchTool, IInterventionsActivity {
+public class LoginActivity extends Activity implements ISynchTool, IInterventionsActivity, IStaticDataActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
@@ -139,6 +139,10 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
             showProgress(true);
             mAuthTask = new UserLoginTask(login, password);
             mAuthTask.execute((Void) null);
+            isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
+            Log.i(TAG, "isCodis: " + isCodis);
+            if(!isCodis)
+                new GetAllStaticDataTask(this).execute();
         }
     }
 
@@ -201,6 +205,11 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
     }
 
     @Override
+    public void setStaticData(StaticData[] data) {
+        FlerjecoApplication.getInstance().setStaticData(data);
+    }
+
+    @Override
     public Context getContext() {
         return getContext();
     }
@@ -213,7 +222,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
         private final String mLogin;
         private final String mPassword;
-        private StaticData[] staticDatas;
 
         UserLoginTask(String login, String password) {
             mLogin = login;
@@ -226,7 +234,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
             SpringService service = new SpringService();
             String statusCode = service.login(mLogin, mPassword);
-            staticDatas = service.getAllStaticDatas();
 
             Log.i(TAG, "doInBackground end");
             return statusCode;
@@ -237,12 +244,9 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
             mAuthTask = null;
             showProgress(false);
             FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
-            isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
             flerjecoApplication.setCodisUser(isCodis);
             flerjecoApplication.setLogin(mLogin);
             flerjecoApplication.setPassword(mPassword);
-            if (!isCodis) flerjecoApplication.setStaticDatas(staticDatas);
-            Log.i(TAG, "isCodis "+isCodis);
 
             if (statusCode.equals("200")) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
