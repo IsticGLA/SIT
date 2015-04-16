@@ -2,12 +2,7 @@ package istic.gla.groupeb.flerjeco.springRest;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
-
-import org.springframework.web.client.HttpStatusCodeException;
-
-import java.util.HashMap;
 
 import entity.IncidentCode;
 import istic.gla.groupeb.flerjeco.R;

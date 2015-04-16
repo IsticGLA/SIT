@@ -4,11 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.os.Messenger;
-import android.util.Log;
-import android.widget.Toast;
-
-import org.springframework.web.client.HttpStatusCodeException;
 
 import java.sql.Timestamp;
 import java.util.Timer;

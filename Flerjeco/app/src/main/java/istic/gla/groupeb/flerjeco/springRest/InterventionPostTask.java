@@ -4,11 +4,9 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import org.springframework.web.client.HttpStatusCodeException;
 
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 
 /**
  * Created by corentin on 16/04/15.
