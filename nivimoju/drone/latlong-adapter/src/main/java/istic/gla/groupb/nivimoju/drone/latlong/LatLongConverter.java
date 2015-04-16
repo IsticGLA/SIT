@@ -106,6 +106,7 @@ public class LatLongConverter {
             }
         }
         localPath.setPositions(localCoordinates);
+        logger.info("converted local path : " + localPath.toString());
         return localPath;
     }
 

@@ -13,10 +13,10 @@ public class DronePositionRefresherJob implements Job{
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        logger.info("starting job to refresh drone positions");
+        logger.trace("starting job to refresh drone positions");
         DroneEngine engine = DroneEngine.getInstance();
         engine.updateDroneInfoFromSimu();
-        logger.info("ending job to refresh drone positions");
+        logger.trace("ending job to refresh drone positions");
     }
 
 }

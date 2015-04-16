@@ -31,7 +31,7 @@ public class JobInit implements ServletContextListener {
                 .newTrigger()
                 .withIdentity("dummyTriggerName", "group1")
                 .withSchedule(
-                        CronScheduleBuilder.cronSchedule("0/5 * * * * ?"))
+                        CronScheduleBuilder.cronSchedule("0/1 * * * * ?"))
                 .build();
 
         //schedule it

@@ -1,5 +1,6 @@
 package istic.gla.groupb.nivimoju.drone.latlong;
 
+import entity.Path;
 import entity.Position;
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -109,5 +110,19 @@ public class LatLongConverterTest extends TestCase {
         Position croisementArcheConverted = converter.getLatLong(expectedcroisementArcheLocal);
         logger.info("expected " + croisementArche);
         logger.info("actual " + croisementArcheConverted);
+    }
+
+    public void testPath(){
+        LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
+
+        Position croisement = new Position(48.11498, -1.63795);
+        Position croisement2 = new Position(48.114454, -1.639962);
+        Path path = new Path();
+        path.addPosition(croisement);
+        path.addPosition(croisement2);
+        path.setClosed(true);
+
+        LocalPath localPath = converter.getLocalPath(path);
+
     }
 }
