@@ -214,6 +214,6 @@ public class ListInterventionsActivity extends FragmentActivity
 
     @Override
     public Context getContext() {
-        return getContext();
+        return getApplicationContext();
     }
 }
