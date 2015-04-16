@@ -82,6 +82,32 @@ public class LatLongConverterTest extends TestCase {
         logger.info("delta corner1 : " + expectedcorner1Local.distanceInPlan(corner1Local));
         Assert.assertEquals(expectedcorner1Local.getX(), corner1Local.getX(), MAX_DEVIATION);
         Assert.assertEquals(expectedcorner1Local.getY(), corner1Local.getY(), MAX_DEVIATION);
+    }
 
+    public void testGetLatLong() throws Exception {
+        LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
+
+        Position center = new Position((48.1222+48.1119)/2, (-1.6428+-1.6337)/2);
+        LocalCoordinate expectedCenterLocal = new LocalCoordinate(0, 0, 0);
+
+        logger.info("converting center");
+        LocalCoordinate centerLocal = converter.getLocal(center);
+        logger.info("centerLocal " + centerLocal);
+        Assert.assertEquals(expectedCenterLocal.getX(), centerLocal.getX(), MAX_DEVIATION);
+        Assert.assertEquals(expectedCenterLocal.getY(), centerLocal.getY(), MAX_DEVIATION);
+
+        logger.info("converting croisementArche");
+        Position croisementArche = new Position(48.11721 , -1.63888);
+        LocalCoordinate croisementArcheLocal = converter.getLocal(croisementArche);
+        logger.info("croisementArcheLocal : " + croisementArcheLocal);
+        LocalCoordinate expectedcroisementArcheLocal = new LocalCoordinate(-46.733, 16.8795, 0);
+        logger.info("delta croisement : " + expectedcroisementArcheLocal.distanceInPlan(croisementArcheLocal));
+        Assert.assertEquals(expectedcroisementArcheLocal.getX(), croisementArcheLocal.getX(), MAX_DEVIATION);
+        Assert.assertEquals(expectedcroisementArcheLocal.getY(), croisementArcheLocal.getY(), MAX_DEVIATION);
+
+        logger.info("converting to latlong");
+        Position croisementArcheConverted = converter.getLatLong(expectedcroisementArcheLocal);
+        logger.info("expected " + croisementArche);
+        logger.info("actual " + croisementArcheConverted);
     }
 }

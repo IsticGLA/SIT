@@ -55,13 +55,21 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
     public void refresh() {
         // TODO
         // clear lists
+        clearData();
         // fill lists
+        fillResourcesAndRequests();
     }
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
         /** Called by HeadlinesFragment when a list item is selected */
         public void onResourceSelected(int position);
+    }
+
+    public void clearData(){
+        resourceList.clear();
+        iconResourceList.clear();
+        requestList.clear();
     }
 
     @Override
