@@ -428,7 +428,7 @@ public class PlanZoneMapFragment extends Fragment {
         DisplaySynch displaySynch = new DisplaySynch() {
             @Override
             public void ctrlDisplay() {
-                Log.i("zizi", "synchro classique");
+
             }
         };
 
@@ -438,7 +438,7 @@ public class PlanZoneMapFragment extends Fragment {
                 refreshDrone();
             }
         };
-        IntentWraper.startService("notify/intervention/10", displaySynch);
+        IntentWraper.startService("notify/intervention/10", displaySynch, displayDroneSynch);
     }
 
     @Override
@@ -462,7 +462,9 @@ public class PlanZoneMapFragment extends Fragment {
 
     public void refreshDrone() {
         Log.i(TAG, "REFRESH DRONE");
-        getPositionDrone.execute(((PlanZoneActivity) getActivity()).getIntervention().getId());
+        if(inter != null) {
+            getPositionDrone.execute(inter.getId());
+        }
     }
 
 
