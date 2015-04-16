@@ -64,9 +64,9 @@ public class ChangeStateDialogFragment extends DialogFragment {
 
         //init state spinner
         stateSpinner = (Spinner) v.findViewById(R.id.stateSpinner);
-        stateSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        stateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String roleName = stateSpinner.getSelectedItem().toString();
                 ResourceRole role = null;
                 switch (roleName){
@@ -93,6 +93,11 @@ public class ChangeStateDialogFragment extends DialogFragment {
                     changeResourceRole(role);
                 }
             }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
         });
 
         //Selection of registered claims codes in the database and the list of identifiers of resourceType
@@ -104,13 +109,13 @@ public class ChangeStateDialogFragment extends DialogFragment {
 
     public void validateResource(){
         resource.setState(State.active);
-        ((AgentInterventionActivity)getActivity()).refresh();
+        ((AgentInterventionActivity)getActivity()).resourceUpdated();
         dismiss();
     }
 
     public void changeResourceRole(ResourceRole role){
         resource.setResourceRole(role);
-        ((AgentInterventionActivity)getActivity()).refresh();
+        ((AgentInterventionActivity)getActivity()).resourceUpdated();
         dismiss();
     }
 
