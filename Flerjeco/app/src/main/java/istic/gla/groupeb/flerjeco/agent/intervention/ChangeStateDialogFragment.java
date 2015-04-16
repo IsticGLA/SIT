@@ -10,13 +10,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
 
 import entity.Intervention;
+import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import util.ResourceRole;
+import util.State;
 
 /**
  * Fragment used for change the state of a resource of firefighters
@@ -27,6 +31,7 @@ public class ChangeStateDialogFragment extends DialogFragment {
     private static final String TAG = ChangeStateDialogFragment.class.getSimpleName();
 
     Spinner stateSpinner;
+    Resource resource;
 
     //fields
     Button validateButton;
@@ -42,24 +47,71 @@ public class ChangeStateDialogFragment extends DialogFragment {
         View v = inflater.inflate(R.layout.fragment_change_resource, container, false);
         getDialog().setTitle(R.string.title_fragment_change_resource);
 
+        resource = (Resource)getArguments().getSerializable("resource");
+
         mCreateFormView = v.findViewById(R.id.intervention_scroll);
         mProgressView = v.findViewById(R.id.create_progress);
 
-
         //init fields
         validateButton = (Button) v.findViewById(R.id.validateButton);
+        validateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                validateResource();
+            }
+        });
         freeButton = (Button) v.findViewById(R.id.freeButton);
 
         //init state spinner
         stateSpinner = (Spinner) v.findViewById(R.id.stateSpinner);
-
-
+        stateSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String roleName = stateSpinner.getSelectedItem().toString();
+                ResourceRole role = null;
+                switch (roleName){
+                    case "Humain":
+                        role = ResourceRole.people;
+                        break;
+                    case "Feu":
+                        role = ResourceRole.fire;
+                        break;
+                    case "Eau":
+                        role = ResourceRole.water;
+                        break;
+                    case "Risque":
+                        role = ResourceRole.risks;
+                        break;
+                    case "Commande":
+                        role = ResourceRole.commands;
+                        break;
+                    default:
+                        role = ResourceRole.otherwise;
+                        break;
+                }
+                if (role != null) {
+                    changeResourceRole(role);
+                }
+            }
+        });
 
         //Selection of registered claims codes in the database and the list of identifiers of resourceType
-        showProgress(true);
+        //showProgress(true);
 
 
         return v;
+    }
+
+    public void validateResource(){
+        resource.setState(State.active);
+        ((AgentInterventionActivity)getActivity()).refresh();
+        dismiss();
+    }
+
+    public void changeResourceRole(ResourceRole role){
+        resource.setResourceRole(role);
+        ((AgentInterventionActivity)getActivity()).refresh();
+        dismiss();
     }
 
     /**

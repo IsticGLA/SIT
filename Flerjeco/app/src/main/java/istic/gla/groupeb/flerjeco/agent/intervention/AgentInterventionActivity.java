@@ -300,7 +300,7 @@ public class AgentInterventionActivity extends FragmentActivity
                     mapFragment.drawMarker(marker, resource);
                     // adding marker
                     Marker markerAdded = googleMap.addMarker(marker);
-                    mapFragment.getMarkers().put(resource.getLabel(),markerAdded);
+                    mapFragment.getMarkers().put(resource.getLabel(), markerAdded);
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     view.setVisibility(View.VISIBLE);
@@ -314,7 +314,11 @@ public class AgentInterventionActivity extends FragmentActivity
     }
 
     public void showManageResourceDialog(Resource resource){
-
+        ChangeStateDialogFragment fragment = new ChangeStateDialogFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("resource", resource);
+        fragment.setArguments(args);
+        fragment.show(getSupportFragmentManager(), "changeState_dialog");
     }
 
     @Override
@@ -340,7 +344,7 @@ public class AgentInterventionActivity extends FragmentActivity
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
     }
 
-    private class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
+    public class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
 
         @Override
         protected Intervention doInBackground(Intervention... intervention) {
