@@ -12,7 +12,6 @@ import istic.gla.groupb.nivimoju.drone.latlong.LocalPath;
 import org.apache.log4j.Logger;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 public class DroneEngine{
     private static final Logger logger = Logger.getLogger(DroneEngine.class);
@@ -206,14 +205,11 @@ public class DroneEngine{
             if(dronesByIntervention.get(idIntervention) == null){
                 logger.info("removing drone in list, size "
                         + dronesByIntervention.get(idIntervention).size());
-                dronesByIntervention.get(idIntervention).removeIf(
-                        new Predicate<Drone>() {
-                            @Override
-                            public boolean test(Drone d) {
-                                return d.getLabel().equals(drone.getLabel());
-                            }
-                        }
-                );
+                for(Drone droneToTest : dronesByIntervention.get(idIntervention)){
+                    if(droneToTest.getLabel().equals(drone.getLabel())){
+                        dronesByIntervention.remove(idIntervention);
+                    }
+                }
                 logger.info("removed drone in list, size "
                         + dronesByIntervention.get(idIntervention).size());
             }
