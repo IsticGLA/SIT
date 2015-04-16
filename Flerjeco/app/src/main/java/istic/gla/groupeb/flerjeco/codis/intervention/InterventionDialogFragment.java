@@ -8,7 +8,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Build;
 import android.support.v4.app.DialogFragment;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,7 +22,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import org.springframework.web.client.HttpStatusCodeException;
 
 import java.io.IOException;
 import java.util.ArrayList;

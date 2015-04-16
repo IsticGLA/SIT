@@ -14,7 +14,7 @@ import java.util.List;
  * Created by erwann on 13/04/15.
  */
 @Path("staticdata")
-public class StaticResource {
+public class StaticResourceAPI {
 
     /**
      * Get all the static datas
