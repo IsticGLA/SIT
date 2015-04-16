@@ -26,8 +26,13 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
 
     @Override
     protected IncidentCode[] doInBackground(Void... params) {
-        SpringService service = new SpringService();
-        return service.codeSinistreClient();
+        try {
+            SpringService service = new SpringService();
+            return service.codeSinistreClient();
+        } catch (Exception e){
+            Log.e(TAG, "ERROR " + e);
+        }
+        return null;
     }
 
     @Override

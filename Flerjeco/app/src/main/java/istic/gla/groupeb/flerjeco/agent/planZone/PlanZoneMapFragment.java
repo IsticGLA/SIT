@@ -45,9 +45,6 @@ public class PlanZoneMapFragment extends Fragment {
     private static final String TAG = PlanZoneMapFragment.class.getSimpleName();
     final static String ARG_POSITION = "position";
 
-    //ASync tool task for refresh position of drone
-    private GetPositionDrone getPositionDrone;
-
     // all variables for the Google Map
     MapView mMapView;
     private GoogleMap googleMap;
@@ -141,6 +138,9 @@ public class PlanZoneMapFragment extends Fragment {
         // clear the Google Map
         clearGoogleMap();
 
+        // get the intervention from the main activity
+        inter = ((PlanZoneActivity) getActivity()).getIntervention();
+
         // if path of the position position in the list is not null, we draw it on the map
         if (pathList.size() > 0 && position < pathList.size() && null != pathList.get(position)){
             // Set mCurrentPosition to future resume on fragment
@@ -203,8 +203,6 @@ public class PlanZoneMapFragment extends Fragment {
         this.markers = new ArrayList<>();
         this.drones = new ArrayList<>();
         this.newPath = new Path();
-        getPositionDrone = new GetPositionDrone();
-        //new GetPositionDrone().execute(((PlanZoneActivity) getActivity()).getIntervention().getId());
     }
 
     /**
@@ -215,6 +213,7 @@ public class PlanZoneMapFragment extends Fragment {
         this.polylines = new ArrayList<>();
         this.markers = new ArrayList<>();
         this.newPath = new Path();
+
     }
 
     /**
@@ -402,8 +401,15 @@ public class PlanZoneMapFragment extends Fragment {
      * Show the marker for the drone of the intervention
      */
     public void showDrones(Drone[] tab){
+        // remove the marker on the map
+        for (Pair p : drones){
+            ((Marker)p.second).remove();
+        }
+
+        // Repopulate with drone we get back from the sync service
         drones = new ArrayList<>();
         for (Drone d : tab){
+            Log.i(TAG, d.getLabel());
             showDrone(d);
         }
     }
@@ -415,10 +421,13 @@ public class PlanZoneMapFragment extends Fragment {
             latitude = ((PlanZoneActivity) getActivity()).getIntervention().getLatitude();
             longitude = ((PlanZoneActivity) getActivity()).getIntervention().getLongitude();
         }
-        drones.add(new Pair<Long, Marker>(d.getId(), googleMap.addMarker(new MarkerOptions()
+        Marker m = googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(latitude, longitude))
                 .title(d.getLabel())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_drone)))));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_drone)));
+
+        drones.add(new Pair<Long, Marker>(d.getId(), m));
+
     }
 
     @Override
@@ -438,7 +447,8 @@ public class PlanZoneMapFragment extends Fragment {
                 refreshDrone();
             }
         };
-        IntentWraper.startService("notify/intervention/10", displaySynch, displayDroneSynch);
+        long id = ((PlanZoneActivity)getActivity()).getIntervention().getId();
+        IntentWraper.startService("notify/intervention/"+id, displaySynch, displayDroneSynch);
     }
 
     @Override
@@ -462,8 +472,10 @@ public class PlanZoneMapFragment extends Fragment {
 
     public void refreshDrone() {
         Log.i(TAG, "REFRESH DRONE");
+        inter = ((PlanZoneActivity)getActivity()).getIntervention();
         if(inter != null) {
-            getPositionDrone.execute(inter.getId());
+            Log.i(TAG, "Call to the getPositionDrone");
+            new GetPositionDrone().execute(inter.getId());
         }
     }
 
@@ -599,10 +611,15 @@ public class PlanZoneMapFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(), "La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer", Toast.LENGTH_LONG).show();
             } else {
                 Log.i(TAG, "Intervention was updated !");
+
+                // alert the engine for the creation of the path
+                new AlertEngine().execute(intervention);
+
                 Toast.makeText(getActivity().getApplicationContext(), "Les modifications ont été enregistées", Toast.LENGTH_LONG).show();
                 pathList = intervention.getWatchPath();
                 updateMapView(intervention.getWatchPath().size()-1);
                 ((PlanZoneActivity) getActivity()).refreshList(intervention);
+
 
             }
         }
@@ -633,10 +650,40 @@ public class PlanZoneMapFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Drone[] drones) {
+            Log.i(TAG, "OnPostExecute on the getPositionDroneService");
             if (null != drones){
-                showDrones(drones);
                 Log.i(TAG, "CALLBACK DRONE");
+                showDrones(drones);
             }
+        }
+    }
+
+    /**
+     * Represents an asynchronous call for add new path for drone in the current intervention
+     * the user.
+     */
+    public class AlertEngine extends AsyncTask<Intervention, Void, String> {
+
+        private final String TAG = AlertEngine.class.getSimpleName();
+
+        @Override
+        protected String doInBackground(Intervention... params) {
+            try {
+                Log.i(TAG, "Alert the engine : "+ params[0]);
+                SpringService springService = new SpringService();
+                String s = springService.alertEngine(params[0]);
+                return s;
+
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            Log.i(TAG, "OnPostExecute on the alertEngine");
         }
     }
 }
