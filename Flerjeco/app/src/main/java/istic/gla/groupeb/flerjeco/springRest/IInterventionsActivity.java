@@ -1,5 +1,7 @@
 package istic.gla.groupeb.flerjeco.springRest;
 
+import android.content.Context;
+
 import entity.Intervention;
 
 /**
@@ -10,4 +12,6 @@ public interface IInterventionsActivity {
     void showProgress(final boolean show);
 
     void updateInterventions(Intervention[] interventions);
+
+    Context getContext();
 }
