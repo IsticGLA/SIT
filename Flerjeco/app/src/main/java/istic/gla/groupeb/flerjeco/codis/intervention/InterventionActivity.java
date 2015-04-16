@@ -206,7 +206,7 @@ public class InterventionActivity extends FragmentActivity
 
     @Override
     public Context getContext() {
-        return getContext();
+        return getApplicationContext();
     }
 
     @Override

@@ -211,7 +211,7 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
     @Override
     public Context getContext() {
-        return getContext();
+        return getApplicationContext();
     }
 
     /**

@@ -16,6 +16,7 @@
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.AsyncTask;
@@ -45,6 +46,8 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
@@ -52,7 +55,7 @@ import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
-        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool {
+        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool, IInterventionActivity {
 
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
@@ -65,12 +68,7 @@ public class AgentInterventionActivity extends FragmentActivity
 
     @Override
     public void refresh(){
-        if (firstFragment != null){
-            firstFragment.refresh();
-        }
-        if (mapFragment != null){
-            mapFragment.refresh();
-        }
+        new GetInterventionTask(this, intervention.getId());
     }
     /** Called when the activity is first created. */
     @Override
@@ -229,7 +227,17 @@ public class AgentInterventionActivity extends FragmentActivity
     public void updateIntervention(Intervention intervention) {
         this.intervention = intervention;
         //update lists of resources and map
-        refresh();
+        if (firstFragment != null){
+            firstFragment.refresh();
+        }
+        if (mapFragment != null){
+            mapFragment.refresh();
+        }
+    }
+
+    @Override
+    public Context getContext() {
+        return getApplicationContext();
     }
 
     class MyDragListener implements View.OnDragListener {
@@ -278,7 +286,6 @@ public class AgentInterventionActivity extends FragmentActivity
                         resource.setLatitude(latLng.latitude);
                         resource.setLongitude(latLng.longitude);
                         resource.setState(State.planned);
-                        resourceList.remove(resource);
                     }else{
                         resource = additionalResourceList.get(mCurrentPosition);
                         resource.setLatitude(latLng.latitude);
@@ -292,11 +299,10 @@ public class AgentInterventionActivity extends FragmentActivity
                     MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
                     marker.draggable(true);
 
-                    // Changing marker icong
+                    // Changing marker icons
                     mapFragment.drawMarker(marker, resource);
                     // adding marker
                     googleMap.addMarker(marker);
-                    refresh();
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     if (!event.getResult()){
