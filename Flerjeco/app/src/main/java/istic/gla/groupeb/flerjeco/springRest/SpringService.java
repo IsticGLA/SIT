@@ -94,8 +94,6 @@ public class SpringService {
     public Intervention postIntervention(Intervention intervention) {
         try {
 
-            intervention.updateDate();
-
             final String url = URL + "intervention/create";
             ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
 
@@ -127,7 +125,6 @@ public class SpringService {
      */
     public Intervention updateIntervention(Intervention intervention) {
         try {
-            intervention.updateDate();
             final String url = URL + "intervention/update";
 
             ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
