@@ -3,7 +3,6 @@ package istic.gla.groupeb.flerjeco.springRest;
 import android.util.Log;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -28,11 +27,12 @@ public class SpringService {
 
     private static final String TAG = SpringService.class.getSimpleName();
     private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
-    //private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
-    //private static final String URL_TEST = "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
     private static RestTemplate restTemplate = new RestTemplate();
 
-
+    /**
+     * @see istic.gla.groupeb.flerjeco.springRest.SpringService
+     * default constructor {@link SpringService}
+     */
     public SpringService(){
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -60,7 +60,7 @@ public class SpringService {
      * @return the intervention retrieved
      */
     public Intervention getInterventionById(Long idIntervention) {
-        //TODO modify URL_TEST -> URL
+
         final String url = URL + "intervention/" + idIntervention;
 
         ResponseEntity<Intervention> interventionResult = restTemplate.getForEntity(url, Intervention.class);
@@ -71,7 +71,7 @@ public class SpringService {
 
     /**
      * Get incident codes
-     * @return array of IncidentCode
+     * @return array of {@link entity.IncidentCode}
      * @throws HttpStatusCodeException throw exception if status code is bad
      */
     public IncidentCode[] codeSinistreClient() throws HttpStatusCodeException {

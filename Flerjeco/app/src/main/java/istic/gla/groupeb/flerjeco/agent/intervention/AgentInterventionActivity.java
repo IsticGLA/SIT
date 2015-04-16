@@ -359,31 +359,12 @@ public class AgentInterventionActivity extends FragmentActivity
     @Override
     protected void onStop() {
         super.onStop();
-        if(intervention != null) {
-            DisplaySynch displaySynch = new DisplaySynch() {
-                @Override
-                public void ctrlDisplay() {
-                    refresh();
-                }
-            };
-            String url = "notify/intervention/" + intervention.getId();
-            IntentWraper.stopService(url, displaySynch);
-        }
+        IntentWraper.stopService();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if(intervention != null) {
-            DisplaySynch displaySynch = new DisplaySynch() {
-                @Override
-                public void ctrlDisplay() {
-                    refresh();
-                }
-            };
-            String url = "notify/intervention/" + intervention.getId();
-            IntentWraper.stopService(url, displaySynch);
-        }
-
+        IntentWraper.stopService();
     }
 }
