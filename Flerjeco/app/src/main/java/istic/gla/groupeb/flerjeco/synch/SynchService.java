@@ -23,9 +23,13 @@ public class SynchService extends IntentService {
 
     private ISynchTool synchTool;
 
+    protected int timer;
+    protected int timerDrone;
+
     public SynchService() {
         super("synchServices");
-
+        timer = 5000;
+        timerDrone = 2000;
     }
 
     public void setSynchTool(ISynchTool synchTool) {
@@ -33,27 +37,40 @@ public class SynchService extends IntentService {
     }
 
     DisplaySynch displaySynch;
+    DisplaySynchDrone displaySynchDrone;
+
     String url;
     Timestamp timestamp = new Timestamp(0);
     //TODO SpringService
     SpringService springService = new SpringService();
     Messenger messenger;
     static Timer t = new Timer();
+    static Timer tDrone = new Timer();
     static TimerTask timerTask;
+    static TimerTask timerTaskDrone;
 
     public static void stopTimerTask() {
         timerTask.cancel();
+        if (timerTaskDrone != null) {
+            timerTaskDrone.cancel();
+            timerTaskDrone = null;
+        }
     }
 
 
     @Override
     protected void onHandleIntent(final Intent intent) {
         displaySynch = (DisplaySynch) intent.getExtras().get("displaySynch");
+        displaySynchDrone = (DisplaySynchDrone) intent.getExtras().get("displaySynchDrone");
         url = (String) intent.getExtras().get("url");
 
         t.cancel();
         t.purge();
         t = new Timer();
+
+        tDrone.cancel();
+        tDrone.purge();
+        tDrone = new Timer();
 
         final GetNotifyTask getNotifyTask = new GetNotifyTask();
 
@@ -64,8 +81,18 @@ public class SynchService extends IntentService {
                 new GetNotifyTask().execute(url);
             }
         };
+        t.schedule(timerTask, 100, timer);
 
-        t.schedule(timerTask, 100, 5000);
+        if (displaySynchDrone != null) {
+            timerTaskDrone = new TimerTask() {
+
+                @Override
+                public void run() {
+                    displaySynchDrone.ctrlDisplay();
+                }
+            };
+            tDrone.schedule(timerTaskDrone, 100, timerDrone);
+        }
 
     }
 
@@ -100,7 +127,7 @@ public class SynchService extends IntentService {
 //                Log.i("MAMH", "SynchService : l'intervention se mis à jour");
             } else if (displaySynch == null)
             {
-                //Log.i("MAMH", " displaySynch == null");
+                //Log.i("MAMH", " displaySynchDrone == null");
             }
         }
 
