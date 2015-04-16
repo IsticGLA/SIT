@@ -3,7 +3,8 @@ package istic.gla.goupb.nivimoju.drone.engine;
 import org.apache.log4j.Logger;
 import org.quartz.*;
 
-/**
+/**    public boolean assignDrone(Drone drone){
+
  * Job refreshing the database with positions from simulation
  */
 @DisallowConcurrentExecution
