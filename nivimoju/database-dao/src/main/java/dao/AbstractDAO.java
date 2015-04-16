@@ -52,12 +52,13 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * return the Newer LastUpdate from a type in the database
      * @return
      */
-    public List<T> getNewerLastUpdate() {
+    public Object getNewerLastUpdate() {
         try {
             createViewLastUpdate();
-            List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_lastupdate_" + type).stale(Stale.FALSE)).allRows();
-            System.out.println(result.get(0).key());
-            return viewRowsToEntities(result);
+            ViewResult result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_lastupdate_" + type).stale(Stale.FALSE));
+
+
+            return result;
         } catch (BucketClosedException e) {
             connect();
             getNewerLastUpdate();
@@ -141,12 +142,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final T update(T e) {
         try {
-            if(checkLastUpdate(e)) {
-                e.updateDate();
-                JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
-                return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
-            }
-            return null;
+            e.updateDate();
+            JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
+            return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
         } catch (DocumentDoesNotExistException ex){
             return null;
         } catch (BucketClosedException ex) {
@@ -285,7 +283,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
                             "   { emit(doc.id, doc);}\n" +
                             "}";
 
-            designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
+            designDoc.views().add(DefaultView.create(viewName, mapFunction, "_stats"));
             DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
         }
     }
@@ -321,9 +319,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             String mapFunction =
                     "function (doc, meta) {\n" +
                             " if(doc.type && doc.type == '" + type + "') \n" +
-                            "   { emit(doc.lastUpdate);}\n" +
+                            "   { emit(doc.id, doc.lastUpdate);}\n" +
                             "}";
-            designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
+            designDoc.views().add(DefaultView.create(viewName, mapFunction, "_stats"));
             DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
         }
     }
