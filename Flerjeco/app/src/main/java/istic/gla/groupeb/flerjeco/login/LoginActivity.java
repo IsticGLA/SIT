@@ -197,8 +197,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
             intent.putExtras(bundle);
             startActivity(intent);
-        } else {
-            Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_LONG).show();
         }
     }
 

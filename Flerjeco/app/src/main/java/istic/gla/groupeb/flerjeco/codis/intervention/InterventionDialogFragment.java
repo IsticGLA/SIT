@@ -3,6 +3,7 @@ package istic.gla.groupeb.flerjeco.codis.intervention;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Build;
@@ -35,6 +36,9 @@ import entity.Intervention;
 import entity.Resource;
 import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
+import istic.gla.groupeb.flerjeco.springRest.IResourceTypeActivity;
+import istic.gla.groupeb.flerjeco.springRest.InterventionPostTask;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import util.State;
 
@@ -43,7 +47,7 @@ import util.State;
  * @see  istic.gla.groupeb.flerjeco.codis.intervention.OnTaskCompleted
  * @see android.support.v4.app.DialogFragment
  */
-public class InterventionDialogFragment extends DialogFragment implements OnTaskCompleted{
+public class InterventionDialogFragment extends DialogFragment implements OnTaskCompleted, IInterventionActivity, IResourceTypeActivity{
     private static final String TAG = InterventionDialogFragment.class.getSimpleName();
 
     Spinner codeSinistreSpinner;
@@ -208,6 +212,60 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
             resourceGetTask.cancel(true);
     }
 
+    @Override
+    public void updateIntervention(Intervention intervention) {
+        showProgress(false);
+        if(intervention != null) {
+            ((InterventionActivity)getActivity()).addIntervention(intervention);
+            ((InterventionActivity)getActivity()).updateInterventions();
+            dismiss();
+        }
+    }
+
+    @Override
+    public void getResourceType(List<ResourceType> resourceTypes) {
+        //Intervention
+        entity.Intervention intervention;
+        //Address of the intervention
+        Address address = new Address(Locale.getDefault());
+
+        if(addressOrCoordinates) {
+            // Create intervention with Address
+            address = getCoordinates();
+        }
+        else {
+            // Create intervention with Coordinates
+            address.setLatitude(Double.parseDouble(latitudeEditText.getText().toString()));
+            address.setLongitude(Double.parseDouble(longitudeEditText.getText().toString()));
+        }
+
+        if (null == address) {
+            Toast.makeText(InterventionDialogFragment.this.getActivity(), R.string.geocoder_failed, Toast.LENGTH_LONG);
+            showProgress(true);
+            return;
+        }
+
+        //Les champs text sont toujours vérifié
+        intervention = new entity.Intervention(nameInterventionEditText.getText().toString(),
+                spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),
+                address.getLatitude(), address.getLongitude());
+        List<Resource> resources = convertResourcesTypeToResources(resourcesType);
+
+        Log.i(TAG, "Resource");
+        for (Resource res : resources){
+            Log.i(TAG, "Resource : "+res.getLabel());
+        }
+        Log.i(TAG, "Fin Resource");
+        //intervention.set
+        intervention.setResources(resources);
+        at = new InterventionPostTask(this).execute();
+    }
+
+    @Override
+    public Context getContext() {
+        return getContext();
+    }
+
     // Backgroud task to get sistre codes
     private class IncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]> {
 
@@ -240,7 +298,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
                         resourceTypeMap.put(code.getCode(), code.getresourceType());
                         i++;
                     }
-                    }
+                }
                 spinnerAdapter = new ArrayAdapter<String>(InterventionDialogFragment.this.getActivity(), android.R.layout.simple_spinner_item,spinnerArray);
                 spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 codeSinistreSpinner.setAdapter(spinnerAdapter);
@@ -249,31 +307,6 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
     }
 
-
-    // Backgroud task to post intervention
-    private class InterventionPostTask extends AsyncTask<entity.Intervention, Void, entity.Intervention> {
-
-        @Override
-        protected entity.Intervention doInBackground(entity.Intervention... params) {
-            try {
-                return springService.postIntervention(params[0]);
-            } catch (HttpStatusCodeException e) {
-                Log.e("InterventionActivity", e.getMessage(), e);
-                return null;
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(entity.Intervention resultPost) {
-            Log.i(TAG, "InterventionPostTask onPostExecute");
-            showProgress(false);
-            ((InterventionActivity)getActivity()).addIntervention(resultPost);
-            ((InterventionActivity)getActivity()).updateInterventions();
-            dismiss();
-        }
-
-    }
 
     // Backgroud task to post intervention
     private class ResourceGetTask extends AsyncTask<List<Long>, Void, List<ResourceType>> {
@@ -374,7 +407,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         Log.i(TAG, "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
 
 
-        List<Resource> resources = covertResourcesTypeToResources(resourcesType);
+        List<Resource> resources = convertResourcesTypeToResources(resourcesType);
 
         Log.i(TAG, "Resource");
         for (Resource res : resources){
@@ -383,13 +416,11 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         Log.i(TAG, "Fin Resource");
         //intervention.set
         intervention.setResources(resources);
-        at = new InterventionPostTask().execute(intervention);
+        at = new InterventionPostTask(this).execute();
     }
 
-    public List<Resource> covertResourcesTypeToResources(List<ResourceType> resourcesType){
-
-        List<Resource> resourcesResult;
-        resourcesResult = new ArrayList<Resource>();
+    public List<Resource> convertResourcesTypeToResources(List<ResourceType> resourcesType){
+        List<Resource> resourcesResult= new ArrayList<>();
 
         for(ResourceType rt : resourcesType){
             if(rt != null) {

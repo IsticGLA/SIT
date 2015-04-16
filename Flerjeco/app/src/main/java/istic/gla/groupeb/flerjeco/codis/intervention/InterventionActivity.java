@@ -155,6 +155,7 @@ public class InterventionActivity extends FragmentActivity
 
     public void updateInterventions() {
         ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
+        ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).listViewInterventions.setItemChecked(position,true);
     }
 
     public void updateCurrentIntervention() {
@@ -196,6 +197,7 @@ public class InterventionActivity extends FragmentActivity
 
     @Override
     public void updateInterventions(Intervention[] interventions) {
+        interventionTab = interventions;
         updateInterventions();
         updateCurrentIntervention();
     }
