@@ -16,6 +16,7 @@
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -32,11 +33,13 @@ import java.util.List;
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
 public class InterventionActivity extends FragmentActivity
-        implements InterventionFragment.OnResourceSelectedListener, ISynchTool {
+        implements InterventionFragment.OnResourceSelectedListener, ISynchTool, IInterventionsActivity {
 
     private static final String TAG = InterventionActivity.class.getSimpleName();
     protected Intervention[] interventionTab;
@@ -143,6 +146,10 @@ public class InterventionActivity extends FragmentActivity
         ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
     }
 
+    public void updateCurrentIntervention() {
+        ((ResourcesFragment) getSupportFragmentManager().getFragments().get(1)).updateResources(interventionTab[position]);
+    }
+
     public void showDialogIntervention(View view) {
         // Create the fragment and show it as a dialog.
         DialogFragment newFragment = new InterventionDialogFragment();
@@ -173,6 +180,17 @@ public class InterventionActivity extends FragmentActivity
 
     @Override
     public void refresh() {
+        new GetAllInterventionsTask(InterventionActivity.this).execute();
+    }
 
+    @Override
+    public void updateInterventions(Intervention[] interventions) {
+        updateInterventions();
+        updateCurrentIntervention();
+    }
+
+    @Override
+    public Context getContext() {
+        return getContext();
     }
 }

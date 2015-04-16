@@ -34,9 +34,10 @@ import java.util.List;
 import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import util.State;
 
-public class InterventionFragment extends Fragment {
+public class InterventionFragment extends Fragment implements ISynchTool {
     OnResourceSelectedListener mCallback;
 
     private static final String TAG = InterventionFragment.class.getSimpleName();
@@ -126,5 +127,10 @@ public class InterventionFragment extends Fragment {
         }
 
         listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
+    }
+
+    @Override
+    public void refresh() {
+
     }
 }

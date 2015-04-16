@@ -163,7 +163,8 @@ public class VehicleRequestDialog extends DialogFragment {
         protected void onPostExecute(ResourceType[] resources) {
             showProgress(false);
             if(null == resources) {
-                Log.e(TAG, "resources null !!!!");
+                Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
+                dismiss();
                 cancel(true);
                 return;
             }
@@ -202,6 +203,7 @@ public class VehicleRequestDialog extends DialogFragment {
             if(null == intervention) {
                 Toast.makeText(getActivity(), "Update impossible", Toast.LENGTH_SHORT).show();
                 this.cancel(true);
+                return;
             }
             Log.i(TAG, "Resource requested for intervention: " + intervention.getName());
             for(Resource res : intervention.getResources()) {

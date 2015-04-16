@@ -41,7 +41,6 @@ public class GetAllInterventionsTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(final Boolean success) {
         if(success) {
-            activity.showProgress(false);
             activity.updateInterventions(interventionTab);
         }
         else {
@@ -51,7 +50,7 @@ public class GetAllInterventionsTask extends AsyncTask<Void, Void, Boolean> {
                 new GetAllInterventionsTask(activity, count).execute();
             }
             else {
-                activity.showProgress(false);
+                activity.updateInterventions(null);
                 Toast.makeText(activity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
             }
         }
