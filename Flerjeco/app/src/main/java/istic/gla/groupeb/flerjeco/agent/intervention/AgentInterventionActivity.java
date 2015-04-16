@@ -340,12 +340,15 @@ public class AgentInterventionActivity extends FragmentActivity
 
         @Override
         protected Intervention doInBackground(Object... params) {
+            Log.i(TAG, "Start doInbackground updateIntervention");
             return new SpringService().updateResourceIntervention(params);
         }
 
         @Override
         protected void onPostExecute(Intervention intervention){
+            Log.i(TAG, "Start onPostExecute updateIntervention");
             updateIntervention(intervention);
+            Log.i(TAG, "End update intervention");
         }
     }
 

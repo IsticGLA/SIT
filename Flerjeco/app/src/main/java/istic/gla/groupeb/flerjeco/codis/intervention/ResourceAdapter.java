@@ -1,6 +1,7 @@
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,6 +73,7 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
             @Override
             public void onClick(View v) {
                 if(_viewHolder.interventionId >= 0) {
+                    ((LinearLayout) v.getParent()).setBackgroundColor(Color.GRAY);
                     new ResourceRequestTask().execute(
                             "" + interventionId,
                             "" + resource.getIdRes(),
@@ -81,10 +84,12 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
         viewHolder.refuseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(interventionId >= 0)
+                if(interventionId >= 0) {
+                    ((LinearLayout) v.getParent()).setBackgroundColor(Color.GRAY);
                     new ResourceRequestTask().execute("" + interventionId,
                             "" + resource.getIdRes(),
                             State.refused.name());
+                }
             }
         });
 

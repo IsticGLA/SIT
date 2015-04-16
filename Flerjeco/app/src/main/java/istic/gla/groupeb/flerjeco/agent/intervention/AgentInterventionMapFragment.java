@@ -92,7 +92,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
         FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
         if (flerjecoApplication != null) {
-            staticDataTab = flerjecoApplication.getStaticDatas();
+            staticDataTab = flerjecoApplication.getStaticData();
         }
 
         mMapView.onResume();// needed to get the map to refresh immediately

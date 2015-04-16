@@ -23,22 +23,22 @@ import android.widget.Toast;
 
 import entity.Intervention;
 import entity.StaticData;
-import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
-import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
-import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
-import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
+import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
+import istic.gla.groupeb.flerjeco.springRest.GetAllStaticDataTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
+import istic.gla.groupeb.flerjeco.springRest.IStaticDataActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
 
 /**
  * A login screen that offers loginNO CONTENT via email/password.
  */
-public class LoginActivity extends Activity implements ISynchTool, IInterventionsActivity {
+public class LoginActivity extends Activity implements ISynchTool, IInterventionsActivity, IStaticDataActivity {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
@@ -137,8 +137,12 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(login, password);
+            mAuthTask = new UserLoginTask(this, login, password);
             mAuthTask.execute((Void) null);
+            isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
+            Log.i(TAG, "isCodis: " + isCodis);
+            if(!isCodis)
+                new GetAllStaticDataTask(this).execute();
         }
     }
 
@@ -146,7 +150,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    @Override
     public void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
@@ -181,22 +184,29 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
     @Override
     public void updateInterventions(Intervention[] interventions) {
-        Intent intent;
-        if(isCodis) {
-            intent = new Intent(LoginActivity.this, InterventionActivity.class);
+        showProgress(false);
+        if(interventions != null) {
+            Intent intent;
+            if (isCodis) {
+                intent = new Intent(LoginActivity.this, InterventionActivity.class);
+            } else {
+                intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
+            }
+
+            Bundle bundle = new Bundle();
+            for (int i = 0; i < interventions.length; i++)
+                Log.d("LoginAct", interventions[i].getName() + " - " + interventions[i].getId());
+
+            bundle.putSerializable("interventions", interventions);
+
+            intent.putExtras(bundle);
+            startActivity(intent);
         }
-        else {
-            intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
-        }
+    }
 
-        Bundle bundle = new Bundle();
-        for(int i = 0; i < interventions.length; i++)
-            Log.d("LoginAct", interventions[i].getName() + " - " + interventions[i].getId());
-
-        bundle.putSerializable("interventions", interventions);
-
-        intent.putExtras(bundle);
-        startActivity(intent);
+    @Override
+    public void setStaticData(StaticData[] data) {
+        FlerjecoApplication.getInstance().setStaticData(data);
     }
 
     @Override
@@ -212,11 +222,20 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
         private final String mLogin;
         private final String mPassword;
-        private StaticData[] staticDatas;
+        private int count = 0;
+        private LoginActivity activity;
 
-        UserLoginTask(String login, String password) {
+        public UserLoginTask(LoginActivity activity, String login, String password) {
+            this.activity = activity;
             mLogin = login;
             mPassword = password;
+        }
+
+        public UserLoginTask(LoginActivity activity, int count, String mLogin, String mPassword) {
+            this.activity = activity;
+            this.count = count;
+            this.mLogin = mLogin;
+            this.mPassword = mPassword;
         }
 
         @Override
@@ -225,7 +244,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
             SpringService service = new SpringService();
             String statusCode = service.login(mLogin, mPassword);
-            staticDatas = service.getAllStaticDatas();
 
             Log.i(TAG, "doInBackground end");
             return statusCode;
@@ -236,22 +254,30 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
             mAuthTask = null;
             showProgress(false);
             FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
-            isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
             flerjecoApplication.setCodisUser(isCodis);
             flerjecoApplication.setLogin(mLogin);
             flerjecoApplication.setPassword(mPassword);
-            if (!isCodis) flerjecoApplication.setStaticDatas(staticDatas);
-            Log.i(TAG, "isCodis "+isCodis);
 
             if (statusCode.equals("200")) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
                 showProgress(true);
                 new GetAllInterventionsTask(LoginActivity.this).execute();
             } else if(statusCode.equals("401")) {
-                Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                count++;
+                if(count < 4) {
+                    Log.i(TAG, "Count: " + count);
+                    new UserLoginTask(activity, count, mLogin, mPassword).execute();
+                } else {
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }
             } else {
+                count++;
+                if(count < 4) {
+                    Log.i(TAG, "Count: " + count);
+                    new UserLoginTask(activity, count, mLogin, mPassword).execute();
+                }
                 Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_LONG).show();
             }
         }

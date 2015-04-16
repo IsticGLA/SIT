@@ -281,6 +281,8 @@ public class SpringService {
             interventions = entity.getBody();
         } catch (ResourceAccessException e) {
             Log.i(TAG, "getAllInterventions : " + e.getLocalizedMessage());
+        } catch (HttpServerErrorException e) {
+            Log.i(TAG, "getAllInterventions : " + e.getLocalizedMessage());
         }
         Log.i(TAG, "getAllInterventions end");
         return interventions;
