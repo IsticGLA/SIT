@@ -130,7 +130,6 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                 ClipData data = ClipData.newPlainText("", "");
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
                 view.startDrag(data, shadowBuilder, view, 0);
-                view.setVisibility(View.VISIBLE);
                 return true;
             }
         });
@@ -243,5 +242,9 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
 
     public RequestAdapter getRequestAdapter() {
         return requestAdapter;
+    }
+
+    public List<Bitmap> getIconBitmapResourceList() {
+        return iconBitmapResourceList;
     }
 }
