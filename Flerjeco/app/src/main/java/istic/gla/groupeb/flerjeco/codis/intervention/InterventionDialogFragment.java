@@ -92,7 +92,7 @@ public class InterventionDialogFragment extends DialogFragment
 
         //Set up code sinistre list
         codeSinistreSpinner = (Spinner) v.findViewById(R.id.CodeSinistreSpinner);
-        nameInterventionEditText = (EditText) v.findViewById(R.id.validateButton);
+        nameInterventionEditText = (EditText) v.findViewById(R.id.nameInterventionEditText);
         addressEditText = (EditText) v.findViewById(R.id.address);
         latitudeEditText = (EditText) v.findViewById(R.id.latitude);
         longitudeEditText = (EditText) v.findViewById(R.id.longitude);
