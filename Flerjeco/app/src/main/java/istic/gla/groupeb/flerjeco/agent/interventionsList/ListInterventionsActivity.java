@@ -169,6 +169,49 @@ public class ListInterventionsActivity extends FragmentActivity
 
     @Override
     public void refresh() {
+    Log.i(TAG, "refresh");
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG, "onResume");
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.startService(url, displaySynch);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "onStop");
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.stopService(url, displaySynch);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG, "onPause");
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.stopService(url, displaySynch);
     }
 }

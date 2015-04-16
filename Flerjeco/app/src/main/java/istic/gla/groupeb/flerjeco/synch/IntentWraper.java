@@ -23,14 +23,20 @@ public class IntentWraper {
 
     public static void startService(String url, DisplaySynch displaySynch){
         getIntentInstance();
-        context.stopService(intent);
-
-        intent.removeExtra("displaySynch");
-        intent.removeExtra("url");
 
         intent.putExtra("displaySynch", displaySynch);
         intent.putExtra("url", url);
 
         context.startService(intent);
+    }
+
+    public static void stopService(String url, DisplaySynch displaySynch){
+        getIntentInstance();
+        SynchService.stopTimerTask();
+        context.stopService(intent);
+
+        intent.removeExtra("displaySynch");
+        intent.removeExtra("url");
+
     }
 }
