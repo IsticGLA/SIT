@@ -106,7 +106,7 @@ public class SpringService {
                 final String urlDrone = URL + "drone/assign/" + interventionResult.getBody().getId();
                 ResponseEntity<Drone> drone = restTemplate.getForEntity(urlDrone, Drone.class);
 
-                if (drone.getStatusCode() == HttpStatus.NOT_FOUND){
+                if (null == drone){
                     Log.i(TAG, "drone = null");
                 }// else {
                 // we return the intervention even if drone is null

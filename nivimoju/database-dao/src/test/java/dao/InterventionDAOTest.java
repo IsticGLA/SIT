@@ -2,8 +2,10 @@ package dao;
 
 import entity.Intervention;
 import entity.Resource;
-import entity.ResourceType;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import util.State;
 
 import java.util.ArrayList;

@@ -76,16 +76,16 @@ public class Drone {
 
         List<entity.Drone> droneList = droneDAO.getBy("idIntervention", -1);
 
-        if (null != droneList && droneList.size() > 1) {
+        if (null != droneList && droneList.size() >= 1) {
             entity.Drone updateDrone = droneList.get(0);
             updateDrone.setIdIntervention(idIntervention);
+            updateDrone.updateDate();
             droneDAO.update(updateDrone);
-
             droneDAO.disconnect();
             return Response.ok(droneList.get(0)).build();
         } else {
             droneDAO.disconnect();
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.ok().build();
         }
     }
 

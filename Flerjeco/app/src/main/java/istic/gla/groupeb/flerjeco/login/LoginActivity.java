@@ -63,7 +63,7 @@ public class LoginActivity extends Activity implements ISynchTool{
                 refresh();
             }
         };
-        String url = "notify/19";
+        String url = "notify/10";
 
         IntentWraper.startService(url, displaySynch);
 
