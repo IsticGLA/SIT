@@ -30,4 +30,17 @@ public class LocalPath {
     public void setClosed(boolean closed) {
         this.closed = closed;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("LocalPath{")
+                .append("positions=[");
+        for(LocalCoordinate pos : positions){
+            builder.append(pos.toString());
+        }
+        builder.append("], closed=" + closed +
+                '}');
+        return builder.toString();
+    }
 }

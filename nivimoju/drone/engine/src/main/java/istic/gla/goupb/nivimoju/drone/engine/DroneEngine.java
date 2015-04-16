@@ -59,8 +59,12 @@ public class DroneEngine{
     public void setPathsForIntervention(long idIntervention, Collection<Path> paths){
         Collection<LocalPath> localPaths = new ArrayList<>();
         for(Path path : paths){
-            localPaths.add(converter.getLocalPath(path));
+            logger.info("converting path " + path.toString());
+            LocalPath pathConverted = converter.getLocalPath(path);
+            localPaths.add(pathConverted);
+            logger.info("conversion : " + pathConverted);
         }
+        logger.info("adding " + localPaths.size() + "paths for intervention " + idIntervention);
         localPathsByIntervention.put(idIntervention, localPaths);
         reaffectDronesForIntervention(idIntervention);
         sendOrdersForIntervention(idIntervention);
@@ -105,6 +109,7 @@ public class DroneEngine{
         if(dronesAffected != null) {
             for (Drone drone : dronesAffected) {
                 LocalPath pathForDrone = affectationByDroneLabel.get(drone.getLabel());
+                logger.info("sending order for drone " + drone.getLabel() + " path : " + pathForDrone);
                 if(pathForDrone != null){
                     try {
                         client.postPath(drone.getLabel(), pathForDrone);

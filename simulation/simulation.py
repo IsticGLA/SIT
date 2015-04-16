@@ -47,6 +47,7 @@ class Drone:
                     app.logger.info("robot " + self.label + " will stay there")
 
     def set_path(self, path, closed):
+        app.logger.info("the path has " + str(len(path)) + " waypoints")
         self.path = path
         self.forward = True
         self.closed = closed
@@ -135,6 +136,7 @@ def set_path_for_drone(drone_label):
     try:
         # Get the JSON data sent from the form
         path = request.json['positions']  # list<dict<x,y,z>>
+        app.logger.info("path received "+str(path))
         closed = request.json['closed']
         controller.set_path(drone_label, path, closed)
     except:
