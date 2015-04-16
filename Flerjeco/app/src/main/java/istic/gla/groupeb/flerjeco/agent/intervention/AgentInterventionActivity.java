@@ -88,7 +88,7 @@ public class AgentInterventionActivity extends FragmentActivity
         resourceList.add(new Resource("VSAP", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource7", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource8", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        resourceList.add(new Resource("Resource9", State.refused, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
 
         intervention.setResources(resourceList);
 

@@ -18,7 +18,6 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
@@ -93,7 +92,7 @@ public class AgentInterventionMapFragment extends Fragment {
         AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
         initMap(interventionActivity.intervention);
 
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        /*googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 double latitude = latLng.latitude;
@@ -122,7 +121,7 @@ public class AgentInterventionMapFragment extends Fragment {
                 buttonValidateResources.setVisibility(View.VISIBLE);
                 buttonCancelResources.setVisibility(View.VISIBLE);
             }
-        });
+        });*/
         return v;
     }
 
@@ -232,7 +231,7 @@ public class AgentInterventionMapFragment extends Fragment {
                 Danger danger = new Danger();
                 bmp = Bitmap.createBitmap(60, 60, Bitmap.Config.ARGB_8888);
                 Canvas mCanvas = new Canvas(bmp);
-                danger.drawIcon(mCanvas);g
+                danger.drawIcon(mCanvas);
                 break;
             case incident:
                 bmp = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
