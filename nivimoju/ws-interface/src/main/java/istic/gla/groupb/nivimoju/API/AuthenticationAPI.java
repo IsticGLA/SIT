@@ -13,7 +13,7 @@ import java.util.List;
  * Created by jules on 08/04/15.
  */
 @Path("authentication")
-public class Authentication {
+public class AuthenticationAPI {
 
     /**
      * Request connection validation from the server
