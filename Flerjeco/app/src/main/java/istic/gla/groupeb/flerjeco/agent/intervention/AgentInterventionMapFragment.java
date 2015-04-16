@@ -60,6 +60,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
     private StaticData[] staticDataTab;
     private Set<Resource> resources = new HashSet<>();
     private Map<String, com.google.android.gms.maps.model.Marker> markers = new HashMap<>();
+    private Map<String, Resource> resourcesMap = new HashMap<>();
 
     @Override
     public void refresh() {
@@ -78,6 +79,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
             }
         }
         resources.clear();
+        resourcesMap.clear();
     }
 
     @Override
@@ -151,6 +153,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
             }
         }
         resources.clear();
+        resourcesMap.clear();
         buttonValidateResources.setVisibility(View.GONE);
         buttonCancelResources.setVisibility(View.GONE);
     }
@@ -199,6 +202,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                         markers.put(resource.getLabel(), markerAdded);
 
                         resources.add(resource);
+                        resourcesMap.put(resource.getLabel(),resource);
                     }
                 }
             }
@@ -221,6 +225,28 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                     }
                 });
             }
+
+            googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+                @Override
+                public void onMarkerDragStart(Marker marker) {
+
+                }
+
+                @Override
+                public void onMarkerDrag(Marker marker) {
+
+                }
+
+                @Override
+                public void onMarkerDragEnd(Marker marker) {
+                    String label = marker.getTitle();
+                    LatLng latLng = marker.getPosition();
+                    Resource resource = resourcesMap.get(label);
+                    resource.setLatitude(latLng.latitude);
+                    resource.setLongitude(latLng.longitude);
+                    Log.i(TAG, resource.getLabel() + resource.getState());
+                }
+            });
         }
 
 
