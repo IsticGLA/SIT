@@ -242,7 +242,7 @@ public class InterventionDialogFragment extends DialogFragment
         }
 
         if (null == address) {
-            Toast.makeText(getContext(), R.string.geocoder_failed, Toast.LENGTH_LONG);
+            Toast.makeText(getActivity(), R.string.geocoder_failed, Toast.LENGTH_LONG);
             showProgress(false);
             return;
         }
@@ -285,7 +285,7 @@ public class InterventionDialogFragment extends DialogFragment
 
     @Override
     public Context getContext() {
-        return getContext();
+        return getActivity().getBaseContext();
     }
 
     public Address getCoordinates() {
