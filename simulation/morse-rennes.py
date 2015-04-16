@@ -32,8 +32,8 @@ for drone in drones:
     drone.add_default_interface('ros')
 
 env = Environment('simulation/map/rennes1.blend')
-env.set_camera_location([109.6937, -240.998, 60])
-env.set_camera_rotation([70 / 180 * 3.14, 0 / 180 * 3.14, 60 / 180 * 3.14])
+env.set_camera_location([9.5, -240.998, 60])
+env.set_camera_rotation([45 / 180 * 3.14, 0 / 180 * 3.14, 0 / 180 * 3.14])
 env.set_camera_clip(clip_start=1, clip_end=500)
 
 env.select_display_camera(camera)

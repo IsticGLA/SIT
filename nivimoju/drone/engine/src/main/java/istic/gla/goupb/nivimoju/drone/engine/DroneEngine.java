@@ -10,12 +10,11 @@ import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalPath;
 import org.apache.log4j.Logger;
-import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 
 import java.util.*;
+import java.util.function.Predicate;
 
-public class DroneEngine {
+public class DroneEngine{
     private static final Logger logger = Logger.getLogger(DroneEngine.class);
     public static final LatLongConverter converter =
             new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
@@ -38,6 +37,10 @@ public class DroneEngine {
         droneByLabel = new HashMap<>();
     }
 
+    /**
+     * get the DroneEngine instance
+     * @return the instance
+     */
     public static DroneEngine getInstance(){
         if(instance==null){
             instance = new DroneEngine();
@@ -46,6 +49,12 @@ public class DroneEngine {
         return instance;
     }
 
+    /**
+     * Set l'ensemble des chemins à suivre pour une intervention
+     * puis réaffecte les drones pour les parcourir et renvois les ordres à la simu
+     * @param idIntervention l'id de l'intervention
+     * @param paths les chemins demandés
+     */
     public void setPathsForIntervention(long idIntervention, Collection<Path> paths){
         Collection<LocalPath> localPaths = new ArrayList<>();
         for(Path path : paths){
@@ -80,6 +89,10 @@ public class DroneEngine {
         }
     }
 
+    /**
+     * send order to the simulation for all the drones in an intervention
+     * @param idIntervention the id of the intervention
+     */
     private void sendOrdersForIntervention(long idIntervention){
         Collection<Drone> drones = dronesByIntervention.get(idIntervention);
         if(drones != null) {
@@ -96,10 +109,7 @@ public class DroneEngine {
         }
     }
 
-    /**
-     * get positions info from simulation and update database
-     */
-    public void updateDroneInfoFromSimu(){
+    private void getDroneInfoFromSimu(){
         logger.info("getting positions from simulation");
         DronesInfos infos = client.getDronesInfos();
         if(infos == null){
@@ -108,25 +118,39 @@ public class DroneEngine {
         }
         logger.info("got response from flask client : " + infos);
         for(DroneInfo info : infos.getInfos()){
-            String label = info.getLabel();
-            double x = info.getPosition().getX();
-            double y = info.getPosition().getY();
-            LocalCoordinate local = new LocalCoordinate(x, y);
-            Position dronePosition = converter.getLatLong(local);
-            Drone drone = droneByLabel.get(label);
-            if(drone != null) {
-                drone.setLatitude(dronePosition.getLatitude());
-                drone.setLongitude(dronePosition.getLongitude());
+            if(info.getPosition() != null){
+                String label = info.getLabel();
+                double x = info.getPosition().getX();
+                double y = info.getPosition().getY();
+                LocalCoordinate local = new LocalCoordinate(x, y);
+                Position dronePosition = converter.getLatLong(local);
+                Drone drone = droneByLabel.get(label);
+                if(drone != null) {
+                    drone.setLatitude(dronePosition.getLatitude());
+                    drone.setLongitude(dronePosition.getLongitude());
+                } else{
+                    logger.error("We got info for drone [" + label +
+                            "] but it does not seem to exist (existing labels : " + droneByLabel.keySet() + ")");
+                }
             } else{
-                logger.error("We got info for drone [" + label +
-                        "] but it does not seem to exist (existing labels : " + droneByLabel.keySet() + ")");
+                logger.error("got no position from flask");
             }
         }
+    }
+
+    /**
+     * get positions info from simulation then update database
+     */
+    public void updateDroneInfoFromSimu(){
+        getDroneInfoFromSimu();
         logger.info("updating db with drones info");
         updateDronesInDatabase();
         logger.info("done refreshing info for drones");
     }
 
+    /**
+     * update the drones information in database (for position)
+     */
     private void updateDronesInDatabase(){
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();
@@ -137,6 +161,9 @@ public class DroneEngine {
         droneDAO.disconnect();
     }
 
+    /**
+     * set all drones from the db
+     */
     public void loadDronesFromDatabase(){
         logger.info("updating drones from database");
         DroneDAO droneDAO = new DroneDAO();
@@ -146,7 +173,61 @@ public class DroneEngine {
         loadDrones(drones);
     }
 
-    public void loadDrones(List<Drone> drones){
+    /**
+     * associe un drone à une intervention en interne
+     * @param drone
+     * @return
+     */
+    public boolean assignDrone(Drone drone){
+        if(drone == null || drone.getIdIntervention() != -1) {
+            return false;
+        } else {
+            long idIntervention = drone.getIdIntervention();
+            if(dronesByIntervention.get(idIntervention) == null){
+                dronesByIntervention.put(idIntervention, new ArrayList<Drone>());
+            }
+            dronesByIntervention.get(idIntervention).add(drone);
+            droneByLabel.put(drone.getLabel(), drone);
+            affectationByDroneLabel.put(drone.getLabel(), null);
+            return true;
+        }
+    }
+
+    /**
+     * retire l'assignetion d'un drone en interne
+     * @param drone
+     * @return
+     */
+    public boolean unasignDrone(final Drone drone){
+        if(drone == null || drone.getIdIntervention() < 0){
+            return false;
+        } else {
+            long idIntervention = drone.getIdIntervention();
+            if(dronesByIntervention.get(idIntervention) == null){
+                logger.info("removing drone in list, size "
+                        + dronesByIntervention.get(idIntervention).size());
+                dronesByIntervention.get(idIntervention).removeIf(
+                        new Predicate<Drone>() {
+                            @Override
+                            public boolean test(Drone d) {
+                                return d.getLabel().equals(drone.getLabel());
+                            }
+                        }
+                );
+                logger.info("removed drone in list, size "
+                        + dronesByIntervention.get(idIntervention).size());
+            }
+            droneByLabel.put(drone.getLabel(), drone);
+            affectationByDroneLabel.put(drone.getLabel(), null);
+            return true;
+        }
+    }
+
+    /**
+     * charge une liste de drone et prépare les maps interne
+     * @param drones
+     */
+    private void loadDrones(List<Drone> drones){
         droneByLabel.clear();
         affectationByDroneLabel.clear();
         dronesByIntervention.clear();
@@ -159,13 +240,20 @@ public class DroneEngine {
             }
             dronesByIntervention.get(idIntervention).add(drone);
         }
-        logger.info("got " + droneByLabel.size() + " drones from database : " + droneByLabel.keySet());
+        logger.info("loaded " + droneByLabel.size() + " drones : " + droneByLabel.keySet());
     }
 
 
 
     public static void main(String[] args) throws Exception{
         DroneEngine engine = new DroneEngine();
+        List<Drone> drones = new ArrayList<>();
+        drones.add(new Drone("drone_1", 1, 2, -1));
+        drones.add(new Drone("drone_2", 1, 2, -1));
+        drones.add(new Drone("drone_3", 1, 2, -1));
+        drones.add(new Drone("drone_4", 1, 2, -1));
+        drones.add(new Drone("drone_5", 1, 2, -1));
+        engine.loadDrones(drones);
 /*        Position piscine = new Position(48.115367,-1.63781);
         Position croisement = new Position(48.11498, -1.63795);
         Position croisement2 = new Position(48.114454, -1.639962);
@@ -175,6 +263,7 @@ public class DroneEngine {
         List<Path> paths = new ArrayList<>();
         paths.add(path);
         engine.setPathsForIntervention(1, paths);*/
-        engine.updateDroneInfoFromSimu();
+        engine.getDroneInfoFromSimu();
+        logger.info(drones.get(0).getLatitude() + "; " + drones.get(0).getLongitude());
     }
 }
