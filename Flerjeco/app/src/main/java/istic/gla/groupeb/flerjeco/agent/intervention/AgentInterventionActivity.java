@@ -295,6 +295,7 @@ public class AgentInterventionActivity extends FragmentActivity
                         resource.setLongitude(latLng.longitude);
                         resource.setState(State.active);
                     }
+
                     UpdateIntervention mUpdateIntervention = new UpdateIntervention();
                     mUpdateIntervention.execute(intervention);
 
