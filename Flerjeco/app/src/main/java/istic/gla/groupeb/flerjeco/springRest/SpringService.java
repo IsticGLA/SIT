@@ -3,6 +3,7 @@ package istic.gla.groupeb.flerjeco.springRest;
 import android.util.Log;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -104,6 +105,30 @@ public class SpringService {
             }
         } catch (HttpStatusCodeException e) {
             Log.i(TAG, "Problème de la création de l'intervention : " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * call to alert engine
+     * @param intervention intervention updated
+     * @return The intervention
+     */
+    public String alertEngine(Intervention intervention) {
+        try {
+
+            final String url = URL + "drone/alertengine";
+            Log.i(TAG, url);
+            ResponseEntity res = restTemplate.postForEntity(url, intervention, ResponseEntity.class);
+
+            if (res.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                Log.i(TAG, "Engine not alerted");
+            } else {
+                Log.i(TAG, "OK for the engine");
+                return "Ok";
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Engine not alerted : " + e);
         }
         return null;
     }
