@@ -212,7 +212,7 @@ public class DroneEngine{
             return false;
         } else {
             long idIntervention = drone.getIdIntervention();
-            if(dronesByIntervention.get(idIntervention) == null){
+            if(dronesByIntervention.get(idIntervention) != null){
                 logger.info("removing drone in list, size "
                         + dronesByIntervention.get(idIntervention).size());
                 for(Drone droneToTest : dronesByIntervention.get(idIntervention)){
