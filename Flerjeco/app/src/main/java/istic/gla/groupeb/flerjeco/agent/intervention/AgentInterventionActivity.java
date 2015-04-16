@@ -321,6 +321,10 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
+    public void showManageResourceDialog(Resource resource){
+
+    }
+
     @Override
     public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
         if(tab.getText().toString().equals("Drone")) {
