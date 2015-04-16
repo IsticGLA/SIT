@@ -89,7 +89,7 @@ public class AgentInterventionActivity extends FragmentActivity
                     refresh();
                 }
             };
-            String url = "notify/"+intervention.getId();
+            String url = "notify/intervention/"+intervention.getId();
             IntentWraper.startService(url, displaySynch);
         }
 
