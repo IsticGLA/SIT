@@ -222,9 +222,16 @@ public class SpringService {
      */
     public ResourceType[] resourceTypes() {
         final String url = URL + "resource";
+        ResourceType[] resourceTypes = null;
 
-        ResponseEntity<ResourceType[]> resourceTypes = restTemplate.getForEntity(url, ResourceType[].class);
-        return resourceTypes.getBody();
+        try {
+            ResponseEntity<ResourceType[]> resourceTypesEntity = restTemplate.getForEntity(url, ResourceType[].class);
+            resourceTypes = resourceTypesEntity.getBody();
+            Log.i(TAG, "resourceTypes StatusCode : " + resourceTypesEntity.getStatusCode().toString());
+        } catch (HttpServerErrorException e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return resourceTypes;
     }
 
     /**
@@ -234,10 +241,17 @@ public class SpringService {
      */
     public Intervention requestVehicle(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
+        Log.i(TAG, "requestVehicle : "+url);
+        Intervention intervention = null;
+        try {
+            ResponseEntity<Intervention> interventionEntity = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
+            intervention = interventionEntity.getBody();
+            Log.i(TAG, "requestVehicle StatusCode "+interventionEntity.getStatusCode());
+        } catch (HttpServerErrorException e) {
+            Log.e(TAG, e.getMessage());
+        }
 
-        ResponseEntity<Intervention> intervention = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
-
-        return intervention.getBody();
+        return intervention;
     }
 
     /**
