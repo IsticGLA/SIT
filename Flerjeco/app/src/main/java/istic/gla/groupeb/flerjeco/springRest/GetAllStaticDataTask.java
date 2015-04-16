@@ -43,7 +43,7 @@ public class GetAllStaticDataTask extends AsyncTask<Void, Void, StaticData[]> {
                 new GetAllStaticDataTask(activity, count).execute();
             }
             else {
-                Toast.makeText(activity.getContext(), R.string.fail_get_staticdata, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity.getContext(), R.string.fail_get_static_data, Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "Fail to get static data");
             }
         }
