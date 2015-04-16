@@ -51,14 +51,18 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
     private List<Bitmap> iconBitmapResourceList = new ArrayList<>();
     private List<Resource> requestList = new ArrayList<>();
     private List<Resource> additionalResourceList = new ArrayList<>();
+    private ResourceIconAdapter resourceIconAdapter;
+    private ResourceImageAdapter resourceImageAdapter;
+    private RequestAdapter requestAdapter;
 
     @Override
     public void refresh() {
-        // TODO
         // clear lists
         clearData();
         // fill lists
         fillResourcesAndRequests();
+        // notify adapters
+        notifyAdapters();
     }
 
     // The container Activity must implement this interface so the frag can deliver messages
@@ -81,18 +85,26 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         View v = inflater.inflate(R.layout.resource_view, container,
                 false);
 
-        fillAdditionalResources();
-
+        // get listView by id
         listViewAdditionalResources = (ListView) v.findViewById(R.id.listViewAditionalResources);
         listViewResources = (ListView) v.findViewById(R.id.listViewAgentResources);
         listViewRequests = (ListView) v.findViewById(R.id.listViewAgentRequests);
 
+        // fill Lists
+        fillAdditionalResources();
         fillResourcesAndRequests();
 
-        listViewAdditionalResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.item_resource_agent_only_icon, additionalResourceList));
-        listViewResources.setAdapter(new ResourceImageAdapter(getActivity(), R.layout.item_resource_agent_only_icon, resourceList, iconBitmapResourceList));
-        listViewRequests.setAdapter(new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList));
+        // initialize adapters
+        resourceIconAdapter = new ResourceIconAdapter(getActivity(), R.layout.item_resource_agent_only_icon, additionalResourceList);
+        resourceImageAdapter = new ResourceImageAdapter(getActivity(), R.layout.item_resource_agent_only_icon, resourceList, iconBitmapResourceList);
+        requestAdapter = new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList);
 
+        // associate adapters to listViews
+        listViewAdditionalResources.setAdapter(resourceIconAdapter);
+        listViewResources.setAdapter(resourceImageAdapter);
+        listViewRequests.setAdapter(requestAdapter);
+
+        // Add Listeners on listViews
         listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -100,7 +112,6 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                 listViewResources.setItemChecked(position,true);
             }
         });
-
         listViewResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -112,7 +123,6 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                 return true;
             }
         });
-
         listViewAdditionalResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -128,6 +138,9 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         return v;
     }
 
+    /**
+     * Fill Additional Resources List (Static Data)
+     */
     private void fillAdditionalResources(){
 
         Resource incident = new Resource("incident", State.validated, 0, 0);
@@ -142,6 +155,9 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         additionalResourceList.add(sensitive);
     }
 
+    /**
+     * Fill Resources List and Request List thanks to Intervention
+     */
     private void fillResourcesAndRequests(){
         AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
         if (null != interventionActivity && null != interventionActivity.intervention) {
@@ -163,6 +179,12 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
             }
         }
 
+    }
+
+    private void notifyAdapters(){
+        requestAdapter.notifyDataSetChanged();
+        resourceImageAdapter.notifyDataSetChanged();
+        resourceIconAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -195,11 +217,31 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         }
     }
 
+    /*
+     *  Getters
+     */
+
     public List<Resource> getResourceList() {
         return resourceList;
     }
 
     public List<Resource> getAdditionalResourceList() {
         return additionalResourceList;
+    }
+
+    public List<Resource> getRequestList() {
+        return requestList;
+    }
+
+    public ResourceIconAdapter getResourceIconAdapter() {
+        return resourceIconAdapter;
+    }
+
+    public ResourceImageAdapter getResourceImageAdapter() {
+        return resourceImageAdapter;
+    }
+
+    public RequestAdapter getRequestAdapter() {
+        return requestAdapter;
     }
 }

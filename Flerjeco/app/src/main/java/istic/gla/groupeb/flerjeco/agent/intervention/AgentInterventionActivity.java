@@ -39,7 +39,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.List;
-import java.util.Set;
 
 import entity.Intervention;
 import entity.Resource;
@@ -50,6 +49,7 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
         implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool {
@@ -194,13 +194,6 @@ public class AgentInterventionActivity extends FragmentActivity
         vehicleDialog.show(getSupportFragmentManager(), "vehicle_dialog");
     }
 
-    public void validateResources(View v){
-        Set<Resource> resourceSet = mapFragment.getResourcesPutOnMap();
-        for (Resource resource : resourceSet){
-            Log.i(getClass().getSimpleName(),resource.getLabel());
-        }
-    }
-
     public void cancelResources(View v){
         mapFragment.cancelResources();
     }
@@ -234,8 +227,8 @@ public class AgentInterventionActivity extends FragmentActivity
      * @param intervention
      */
     public void updateIntervention(Intervention intervention) {
-        //TODO update lists of resources and map
         this.intervention = intervention;
+        //update lists of resources and map
         refresh();
     }
 
@@ -284,27 +277,28 @@ public class AgentInterventionActivity extends FragmentActivity
                         resource = resourceList.get(mCurrentPosition);
                         resource.setLatitude(latLng.latitude);
                         resource.setLongitude(latLng.longitude);
+                        resource.setState(State.planned);
                         resourceList.remove(resource);
                     }else{
                         resource = additionalResourceList.get(mCurrentPosition);
                         resource.setLatitude(latLng.latitude);
                         resource.setLongitude(latLng.longitude);
+                        resource.setState(State.active);
                     }
-
-                    // TODO
-                    // update listResource Adapter
 
                     UpdateIntervention mUpdateIntervention = new UpdateIntervention();
                     mUpdateIntervention.execute(intervention.getId(), resource);
 
                     MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
+                    marker.draggable(true);
+
                     // Changing marker icong
                     mapFragment.drawMarker(marker, resource);
                     // adding marker
                     googleMap.addMarker(marker);
+                    refresh();
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
-                    view.setVisibility(View.VISIBLE);
                     if (!event.getResult()){
                         view.setVisibility(View.VISIBLE);
                     }
