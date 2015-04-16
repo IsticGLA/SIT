@@ -179,7 +179,7 @@ public class DroneEngine{
      */
     public boolean assignDrone(Drone drone){
         logger.info("assigning drone");
-        if(drone == null || drone.getIdIntervention() != -1) {
+        if(drone == null || drone.getIdIntervention() == -1) {
             logger.info("cannot assign it");
             return false;
         } else {
@@ -205,6 +205,7 @@ public class DroneEngine{
      */
     public boolean unasignDrone(final Drone drone){
         if(drone == null || drone.getIdIntervention() < 0){
+            logger.warn("cannot unassign it");
             return false;
         } else {
             long idIntervention = drone.getIdIntervention();
