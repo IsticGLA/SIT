@@ -19,7 +19,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
@@ -37,6 +36,7 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import util.ResourceCategory;
 import util.ResourceRole;
 import util.State;
@@ -44,7 +44,7 @@ import util.State;
 /**
  * A fragment that launches other parts of the demo application.
  */
-public class AgentInterventionMapFragment extends Fragment {
+public class AgentInterventionMapFragment extends Fragment implements ISynchTool {
 
     final static String ARG_POSITION = "position";
     private static final String TAG = AgentInterventionMapFragment.class.getSimpleName();
@@ -64,6 +64,12 @@ public class AgentInterventionMapFragment extends Fragment {
     private Set<Resource> resourcesPutOnMap = new HashSet<>();
     private Map<String, com.google.android.gms.maps.model.Marker> markers = new HashMap<>();
 
+    @Override
+    public void refresh() {
+        //TODO
+        // clear lists
+        // fill lists
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -96,7 +102,7 @@ public class AgentInterventionMapFragment extends Fragment {
         AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
         initMap(interventionActivity.intervention);
 
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        /*googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
                 double latitude = latLng.latitude;
@@ -125,7 +131,7 @@ public class AgentInterventionMapFragment extends Fragment {
                 buttonValidateResources.setVisibility(View.VISIBLE);
                 buttonCancelResources.setVisibility(View.VISIBLE);
             }
-        });
+        });*/
         return v;
     }
 
@@ -312,4 +318,6 @@ public class AgentInterventionMapFragment extends Fragment {
     public Set<Resource> getResourcesPutOnMap() {
         return resourcesPutOnMap;
     }
+
+
 }
