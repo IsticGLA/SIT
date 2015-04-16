@@ -10,6 +10,7 @@
     <string name="buttonCancelResources">Enlever les moyens positionnés</string>
     <string name="buttonValidateResources">Valider la position des moyens</string>
     <string name="cancel">Annuler</string>
+    <string name="validateButton">valider</string>
     <string name="closed_path">Fermer le trajet</string>
     <string name="createInterventionButton">Créer intervention</string>
     <string name="create_by_address">Adresse</string>
@@ -46,4 +47,19 @@
     <string name="title_activity_list_interventions">Liste des Interventions</string>
     <string name="vehicle_fragment_text">Sélectionnez le type de véhicule dont vous avez besoin :</string>
     <string name="button_request_resource">Demander</string>
+    <string name="change">changer</string>
+    <string name="freeButton">libérer</string>
+    <string name="title_fragment_change_resource">changer l\'état de la resource</string>
+    <string-array name="state">
+        <item>Humain</item>
+        <item>Risque</item>
+        <item>Commande</item>
+        <item>Feu</item>
+        <item>Eau</item>
+    </string-array>
+    <string-array name="code">
+        <item>SAP</item>
+        <item>AVP</item>
+        <item>FHA</item>
+    </string-array>
 </resources>

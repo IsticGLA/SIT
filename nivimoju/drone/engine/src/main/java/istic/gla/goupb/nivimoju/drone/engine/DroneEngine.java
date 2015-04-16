@@ -59,8 +59,12 @@ public class DroneEngine{
     public void setPathsForIntervention(long idIntervention, Collection<Path> paths){
         Collection<LocalPath> localPaths = new ArrayList<>();
         for(Path path : paths){
-            localPaths.add(converter.getLocalPath(path));
+            logger.info("converting path " + path.toString());
+            LocalPath pathConverted = converter.getLocalPath(path);
+            localPaths.add(pathConverted);
+            logger.info("conversion : " + pathConverted);
         }
+        logger.info("adding " + localPaths.size() + "paths for intervention " + idIntervention);
         localPathsByIntervention.put(idIntervention, localPaths);
         reaffectDronesForIntervention(idIntervention);
         sendOrdersForIntervention(idIntervention);
@@ -105,6 +109,7 @@ public class DroneEngine{
         if(dronesAffected != null) {
             for (Drone drone : dronesAffected) {
                 LocalPath pathForDrone = affectationByDroneLabel.get(drone.getLabel());
+                logger.info("sending order for drone " + drone.getLabel() + " path : " + pathForDrone);
                 if(pathForDrone != null){
                     try {
                         client.postPath(drone.getLabel(), pathForDrone);
@@ -119,10 +124,10 @@ public class DroneEngine{
     private void getDroneInfoFromSimu(){
         DronesInfos infos = client.getDronesInfos();
         if(infos == null){
-            logger.info("could not get infos from flask");
+            logger.warn("could not get infos from flask");
             return;
         }
-        logger.info("got response from flask client : " + infos);
+        logger.trace("got response from flask client : " + infos);
         for(DroneInfo info : infos.getInfos()){
             if(info.getPosition() != null){
                 String label = info.getLabel();
@@ -148,11 +153,11 @@ public class DroneEngine{
      * get positions info from simulation then update database
      */
     public void updateDroneInfoFromSimu(){
-        logger.info("getting positions from simulation");
+        logger.trace("getting positions from simulation");
         getDroneInfoFromSimu();
-        logger.info("updating db with drones info");
+        logger.trace("updating db with drones info");
         updateDronesInDatabase();
-        logger.info("done refreshing info for drones");
+        logger.trace("done refreshing info for drones");
     }
 
     /**
@@ -221,15 +226,17 @@ public class DroneEngine{
         } else {
             long idIntervention = drone.getIdIntervention();
             if(dronesByIntervention.get(idIntervention) != null){
+                Collection<Drone> dronesOfIntervention = dronesByIntervention.get(idIntervention);
                 logger.info("removing drone in list, size "
-                        + dronesByIntervention.get(idIntervention).size());
-                for(Drone droneToTest : dronesByIntervention.get(idIntervention)){
+                        + dronesOfIntervention.size());
+                for(Drone droneToTest : dronesOfIntervention){
                     if(droneToTest.getLabel().equals(drone.getLabel())) {
-                        dronesByIntervention.remove(idIntervention);
+                        //on retire le drone de la liste de drone existante
+                        dronesOfIntervention.remove(drone);
                     }
                 }
                 logger.info("removed drone in list, size "
-                        + dronesByIntervention.get(idIntervention).size());
+                        + dronesOfIntervention.size());
             }
             droneByLabel.put(drone.getLabel(), drone);
             affectationByDroneLabel.put(drone.getLabel(), null);

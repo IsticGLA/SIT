@@ -31,6 +31,7 @@ public class GetInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
+        Log.i(TAG,"doInBackground, id :"+id);
         SpringService service = new SpringService();
         intervention = service.getInterventionById(id);
         if(intervention ==  null) {
@@ -42,9 +43,11 @@ public class GetInterventionTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(final Boolean success) {
         if(success) {
+            Log.i(TAG,"onPostExecute Success");
             activity.updateIntervention(intervention);
         }
         else {
+            Log.i(TAG,"onPostExecute NOT Success");
             count++;
             if(count < 4) {
                 Log.i(TAG, "Count: " + count);

@@ -69,7 +69,7 @@ public class AgentInterventionActivity extends FragmentActivity
 
     @Override
     public void refresh(){
-        new GetInterventionTask(this, intervention.getId());
+        new GetInterventionTask(this, intervention.getId()).execute();
     }
     /** Called when the activity is first created. */
     @Override
@@ -98,7 +98,7 @@ public class AgentInterventionActivity extends FragmentActivity
         resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
         intervention.setResources(resourceList);*/
 
-        setContentView(R.layout.activity_second);
+        setContentView(R.layout.activity_intervention_agent);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -213,6 +213,12 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
+    public void resourceUpdated(){
+        UpdateIntervention updateIntervention = new UpdateIntervention();
+        updateIntervention.execute(intervention);
+        refresh();
+    }
+
     /**
      * Update lists of resources and map
      * @param intervention
@@ -300,7 +306,7 @@ public class AgentInterventionActivity extends FragmentActivity
                     mapFragment.drawMarker(marker, resource);
                     // adding marker
                     Marker markerAdded = googleMap.addMarker(marker);
-                    mapFragment.getMarkers().put(resource.getLabel(),markerAdded);
+                    mapFragment.getMarkers().put(resource.getLabel(), markerAdded);
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     view.setVisibility(View.VISIBLE);
@@ -311,6 +317,14 @@ public class AgentInterventionActivity extends FragmentActivity
             }
             return true;
         }
+    }
+
+    public void showManageResourceDialog(Resource resource){
+        ChangeStateDialogFragment fragment = new ChangeStateDialogFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("resource", resource);
+        fragment.setArguments(args);
+        fragment.show(getSupportFragmentManager(), "changeState_dialog");
     }
 
     @Override
@@ -336,7 +350,7 @@ public class AgentInterventionActivity extends FragmentActivity
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
     }
 
-    private class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
+    public class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
 
         @Override
         protected Intervention doInBackground(Intervention... intervention) {
