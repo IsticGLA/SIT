@@ -15,6 +15,7 @@ import entity.AbstractEntity;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -55,7 +56,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     public Object getNewerLastUpdate() {
         try {
             createViewLastUpdate();
-            ViewResult result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_lastupdate_" + type).stale(Stale.FALSE));
+            ViewRow result = (ViewRow) DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_lastupdate_" + type).stale(Stale.FALSE));
 
 
             return result;
@@ -283,7 +284,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
                             "   { emit(doc.id, doc);}\n" +
                             "}";
 
-            designDoc.views().add(DefaultView.create(viewName, mapFunction, "_stats"));
+            designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
             DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
         }
     }

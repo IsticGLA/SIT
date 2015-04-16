@@ -22,7 +22,7 @@ public class Notify {
      * Gets all the interventions running
      * @return A list of interventions
      */
-    @Path("/{idIntervention}")
+    @Path("intervention/{idIntervention}")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -43,6 +43,7 @@ public class Notify {
      * Gets all the interventions running
      * @return A list of interventions
      */
+    @Path("intervention")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
