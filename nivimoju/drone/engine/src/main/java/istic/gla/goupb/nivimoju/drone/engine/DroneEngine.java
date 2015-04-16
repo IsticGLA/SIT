@@ -109,7 +109,6 @@ public class DroneEngine{
     }
 
     private void getDroneInfoFromSimu(){
-        logger.info("getting positions from simulation");
         DronesInfos infos = client.getDronesInfos();
         if(infos == null){
             logger.info("could not get infos from flask");
@@ -141,6 +140,7 @@ public class DroneEngine{
      * get positions info from simulation then update database
      */
     public void updateDroneInfoFromSimu(){
+        logger.info("getting positions from simulation");
         getDroneInfoFromSimu();
         logger.info("updating db with drones info");
         updateDronesInDatabase();
@@ -168,6 +168,7 @@ public class DroneEngine{
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();
         List<Drone> drones = droneDAO.getAll();
+        logger.info("got " + drones.size() +" drones from database");
         droneDAO.disconnect();
         loadDrones(drones);
     }
@@ -178,17 +179,23 @@ public class DroneEngine{
      * @return
      */
     public boolean assignDrone(Drone drone){
-        if(drone == null || drone.getIdIntervention() != -1) {
+        logger.info("assigning drone");
+        if(drone == null || drone.getIdIntervention() == -1) {
+            logger.info("cannot assign it");
             return false;
         } else {
+            logger.info("drone to assign : " + drone);
             long idIntervention = drone.getIdIntervention();
             if(dronesByIntervention.get(idIntervention) == null){
                 dronesByIntervention.put(idIntervention, new ArrayList<Drone>());
             }
             dronesByIntervention.get(idIntervention).add(drone);
+            logger.info("old drone in dronesByLabel : " + droneByLabel.get(drone.getLabel()));
             droneByLabel.put(drone.getLabel(), drone);
+            logger.info("new drone in dronesByLabel : " + droneByLabel.get(drone.getLabel()));
             affectationByDroneLabel.put(drone.getLabel(), null);
             return true;
+
         }
     }
 
@@ -199,6 +206,7 @@ public class DroneEngine{
      */
     public boolean unasignDrone(final Drone drone){
         if(drone == null || drone.getIdIntervention() < 0){
+            logger.warn("cannot unassign it");
             return false;
         } else {
             long idIntervention = drone.getIdIntervention();
@@ -206,7 +214,7 @@ public class DroneEngine{
                 logger.info("removing drone in list, size "
                         + dronesByIntervention.get(idIntervention).size());
                 for(Drone droneToTest : dronesByIntervention.get(idIntervention)){
-                    if(droneToTest.getLabel().equals(drone.getLabel())){
+                    if(droneToTest.getLabel().equals(drone.getLabel())) {
                         dronesByIntervention.remove(idIntervention);
                     }
                 }
@@ -224,10 +232,12 @@ public class DroneEngine{
      * @param drones
      */
     private void loadDrones(List<Drone> drones){
+        logger.info("loading drones internally");
         droneByLabel.clear();
         affectationByDroneLabel.clear();
         dronesByIntervention.clear();
         for(Drone drone : drones) {
+            logger.info("loading drone[" + drone.getLabel() +"]");
             //update des listes interne
             droneByLabel.put(drone.getLabel(), drone);
             long idIntervention = drone.getIdIntervention();

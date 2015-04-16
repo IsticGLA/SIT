@@ -33,9 +33,12 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 public class ListInterventionsActivity extends FragmentActivity
-        implements InterventionsNamesFragment.OnResourceSelectedListener {
+        implements InterventionsNamesFragment.OnResourceSelectedListener , ISynchTool{
 
     private static final String TAG = SpringService.class.getSimpleName();
     protected Intervention[] interventionTab;
@@ -47,6 +50,15 @@ public class ListInterventionsActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.startService(url, displaySynch);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -153,5 +165,53 @@ public class ListInterventionsActivity extends FragmentActivity
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void refresh() {
+    Log.i(TAG, "refresh");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG, "onResume");
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.startService(url, displaySynch);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "onStop");
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.stopService(url, displaySynch);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.i(TAG, "onPause");
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.stopService(url, displaySynch);
     }
 }

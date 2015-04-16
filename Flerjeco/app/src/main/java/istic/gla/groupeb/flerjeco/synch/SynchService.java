@@ -2,6 +2,7 @@ package istic.gla.groupeb.flerjeco.synch;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Messenger;
 import android.util.Log;
@@ -38,7 +39,11 @@ public class SynchService extends IntentService {
     SpringService springService = new SpringService();
     Messenger messenger;
     static Timer t = new Timer();
-    TimerTask timerTask;
+    static TimerTask timerTask;
+
+    public static void stopTimerTask() {
+        timerTask.cancel();
+    }
 
 
     @Override
@@ -90,6 +95,8 @@ public class SynchService extends IntentService {
             }else
             if(resultPost.equals(timestamp)){
 //                Log.i("MAMH", "SynchService : l'intervention est à jour");
+                //TODO tempraire à enlever
+                displaySynch.ctrlDisplay();
             }
             else if (displaySynch != null && timestamp.before(resultPost)) {
                 timestamp = resultPost;
@@ -103,4 +110,8 @@ public class SynchService extends IntentService {
 
     }
 
+    @Override
+    public SQLiteDatabase openOrCreateDatabase(String name, int mode, SQLiteDatabase.CursorFactory factory) {
+        return super.openOrCreateDatabase(name, mode, factory);
+    }
 }
