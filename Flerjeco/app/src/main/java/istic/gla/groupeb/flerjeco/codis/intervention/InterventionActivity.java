@@ -105,7 +105,7 @@ public class InterventionActivity extends FragmentActivity
         if (resourcesFragment != null) {
             // If article frag is available, we're in two-pane layout...
 
-            //save the current position
+            //save tsuper.onStop();he current position
             this.position = position;
 
             // Call a method in the ArticleFragment to update its content
@@ -206,4 +206,31 @@ public class InterventionActivity extends FragmentActivity
     public Context getContext() {
         return getContext();
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.startService(url, displaySynch);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        IntentWraper.stopService();
+    }
+
+    @Override
+        protected void onStop() {
+        super.onStop();
+        IntentWraper.stopService();
+    }
+
+
 }
