@@ -16,6 +16,7 @@
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -32,13 +33,15 @@ import java.util.List;
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 public class InterventionActivity extends FragmentActivity
-        implements InterventionFragment.OnResourceSelectedListener, ISynchTool {
+        implements InterventionFragment.OnResourceSelectedListener, ISynchTool, IInterventionsActivity {
 
     private static final String TAG = InterventionActivity.class.getSimpleName();
     protected Intervention[] interventionTab;
@@ -152,6 +155,11 @@ public class InterventionActivity extends FragmentActivity
 
     public void updateInterventions() {
         ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
+        ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).listViewInterventions.setItemChecked(position,true);
+    }
+
+    public void updateCurrentIntervention() {
+        ((ResourcesFragment) getSupportFragmentManager().getFragments().get(1)).updateResources(interventionTab[position]);
     }
 
     public void showDialogIntervention(View view) {
@@ -184,6 +192,21 @@ public class InterventionActivity extends FragmentActivity
 
     @Override
     public void refresh() {
+        new GetAllInterventionsTask(InterventionActivity.this).execute();
+    }
+
+    @Override
+    public void updateInterventions(Intervention[] interventions) {
+        if(interventions != null) {
+            interventionTab = interventions;
+            updateInterventions();
+            updateCurrentIntervention();
+        }
+    }
+
+    @Override
+    public Context getContext() {
+        return getContext();
     }
 
     @Override

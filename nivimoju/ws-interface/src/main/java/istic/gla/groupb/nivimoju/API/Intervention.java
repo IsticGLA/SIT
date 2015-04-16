@@ -183,7 +183,6 @@ public class Intervention {
         }
         id++;
         intervention.getResources().add(new Resource(id, vehicle + id, State.waiting));
-        intervention.updateDate();
         intervention = interventionDAO.update(intervention);
         interventionDAO.disconnect();
         return Response.ok(intervention).build();
