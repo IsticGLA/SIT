@@ -336,7 +336,7 @@ public class AgentInterventionActivity extends FragmentActivity
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
     }
 
-    public class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
+    private class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
 
         @Override
         protected Intervention doInBackground(Intervention... intervention) {
