@@ -1,5 +1,6 @@
 package istic.gla.goupb.nivimoju.drone.engine;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import dao.DroneDAO;
 import entity.*;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
@@ -9,6 +10,8 @@ import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalPath;
 import org.apache.log4j.Logger;
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
 
 import java.util.*;
 
@@ -50,13 +53,14 @@ public class DroneEngine {
         }
         localPathsByIntervention.put(idIntervention, localPaths);
         reaffectDronesForIntervention(idIntervention);
+        sendOrdersForIntervention(idIntervention);
     }
 
     /**
      * sélectionne un drone parmis ceux disponible pour l'intervention pour chaque chemin
      * @param idIntervention l'id de l'intervention
      */
-    public void reaffectDronesForIntervention(long idIntervention){
+    private void reaffectDronesForIntervention(long idIntervention){
         Collection<Drone> availableDrones = dronesByIntervention.get(idIntervention);
         if(availableDrones == null || availableDrones.size() == 0){
             logger.warn("there is no drone available for intervention " + idIntervention);
@@ -76,16 +80,33 @@ public class DroneEngine {
         }
     }
 
-    public void sendOrdersForIntervention(long idIntervention){
-
+    private void sendOrdersForIntervention(long idIntervention){
+        Collection<Drone> drones = dronesByIntervention.get(idIntervention);
+        if(drones != null) {
+            for (Drone drone : drones) {
+                LocalPath pathForDrone = affectationByDroneLabel.get(drone.getLabel());
+                if(pathForDrone != null){
+                    try {
+                        client.postPath(drone.getLabel(), pathForDrone);
+                    } catch (JsonProcessingException e) {
+                        logger.error(e);
+                    }
+                }
+            }
+        }
     }
 
     /**
      * get positions info from simulation and update database
      */
     public void updateDroneInfoFromSimu(){
-        //TODO requete à flask, maj en bdd des positions des drones
+        logger.info("getting positions from simulation");
         DronesInfos infos = client.getDronesInfos();
+        if(infos == null){
+            logger.info("could not get infos from flask");
+            return;
+        }
+        logger.info("got response from flask client : " + infos);
         for(DroneInfo info : infos.getInfos()){
             String label = info.getLabel();
             double x = info.getPosition().getX();
@@ -101,7 +122,9 @@ public class DroneEngine {
                         "] but it does not seem to exist (existing labels : " + droneByLabel.keySet() + ")");
             }
         }
+        logger.info("updating db with drones info");
         updateDronesInDatabase();
+        logger.info("done refreshing info for drones");
     }
 
     private void updateDronesInDatabase(){
@@ -138,6 +161,8 @@ public class DroneEngine {
         }
         logger.info("got " + droneByLabel.size() + " drones from database : " + droneByLabel.keySet());
     }
+
+
 
     public static void main(String[] args) throws Exception{
         DroneEngine engine = new DroneEngine();

@@ -35,7 +35,8 @@ public class DroneClient {
 
     public String get(String uri) {
         HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
+        ResponseEntity<String> responseEntity =
+                rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
         this.setStatus(responseEntity.getStatusCode());
         return responseEntity.getBody();
     }
@@ -93,7 +94,7 @@ public class DroneClient {
         try {
             return reader.readValue(res);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         return null;
     }
