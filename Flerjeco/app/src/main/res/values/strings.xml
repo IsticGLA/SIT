@@ -13,6 +13,9 @@
     <string name="login_successful">Login Successful</string>
     <string name="login_failed">Login Failed</string>
     <string name="logout_summary">Log out from the application</string>
+    <string name="validateButton">validate</string>
+    <string name="change">change</string>
+    <string name="freeButton">free</string>
 
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_server_down">The server is unavailable</string>
@@ -34,6 +37,7 @@
     <string name="nameInterventionHint">Intervention name</string>
     <string name="createInterventionButton">Create Intervention</string>
     <string name="action_create_intervention">Create Intervention</string>
+    <string name="title_fragment_change_resource">change state of resource</string>
     <string name="intervention_address">Intervention address</string>
     <string name="error_required_field">This field is required</string>
     <string name="create_by_address">Address</string>
@@ -44,6 +48,13 @@
         <item>SAP</item>
         <item>AVP</item>
         <item>FHA</item>
+    </string-array>
+    <string-array name="state">
+        <item>Humain</item>
+        <item>Risque</item>
+        <item>Commande</item>
+        <item>Feu</item>
+        <item>Eau</item>
     </string-array>
     <string name="buttonValidateResources">Validate the position of resources</string>
     <string name="create_path">Create path</string>
