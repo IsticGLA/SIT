@@ -187,19 +187,6 @@ public class InterventionActivity extends FragmentActivity
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        DisplaySynch displaySynch = new DisplaySynch() {
-            @Override
-            public void ctrlDisplay() {
-                refresh();
-            }
-        };
-        String url = "notify/intervention";
-        IntentWraper.stopService(url, displaySynch);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         DisplaySynch displaySynch = new DisplaySynch() {
@@ -215,14 +202,14 @@ public class InterventionActivity extends FragmentActivity
     @Override
     protected void onPause() {
         super.onPause();
-        Log.i(TAG, "onPause");
-        DisplaySynch displaySynch = new DisplaySynch() {
-            @Override
-            public void ctrlDisplay() {
-                refresh();
-            }
-        };
-        String url = "notify/intervention";
-        IntentWraper.stopService(url, displaySynch);
+        IntentWraper.stopService();
     }
+
+    @Override
+        protected void onStop() {
+        super.onStop();
+        IntentWraper.stopService();
+    }
+
+
 }

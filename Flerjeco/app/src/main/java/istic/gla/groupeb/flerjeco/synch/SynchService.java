@@ -86,17 +86,13 @@ public class SynchService extends IntentService {
 
         @Override
         protected void onPostExecute(Timestamp resultPost) {
-            //Log.i("MAMH", "onPostExecute Synch");
-            //Log.i("MAMH", "resultPost : "+resultPost);
-            //Log.i("MAMH", "timestamp : "+timestamp);
+
             // just call the handler every 3 Seconds
             if(resultPost == null){
 //                Log.i("MAMH", "resultPost est null ");
             }else
             if(resultPost.equals(timestamp)){
 //                Log.i("MAMH", "SynchService : l'intervention est à jour");
-                //TODO tempraire à enlever
-                displaySynch.ctrlDisplay();
             }
             else if (displaySynch != null && timestamp.before(resultPost)) {
                 timestamp = resultPost;
