@@ -137,7 +137,7 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(login, password);
+            mAuthTask = new UserLoginTask(this, login, password);
             mAuthTask.execute((Void) null);
             isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
             Log.i(TAG, "isCodis: " + isCodis);
@@ -221,10 +221,20 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
         private final String mLogin;
         private final String mPassword;
+        private int count = 0;
+        private LoginActivity activity;
 
-        UserLoginTask(String login, String password) {
+        public UserLoginTask(LoginActivity activity, String login, String password) {
+            this.activity = activity;
             mLogin = login;
             mPassword = password;
+        }
+
+        public UserLoginTask(LoginActivity activity, int count, String mLogin, String mPassword) {
+            this.activity = activity;
+            this.count = count;
+            this.mLogin = mLogin;
+            this.mPassword = mPassword;
         }
 
         @Override
@@ -256,6 +266,11 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
             } else {
+                count++;
+                if(count < 4) {
+                    Log.i(TAG, "Count: " + count);
+                    new UserLoginTask(activity, count, mLogin, mPassword).execute();
+                }
                 Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_LONG).show();
             }
         }
