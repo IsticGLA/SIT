@@ -203,7 +203,9 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                     googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                         @Override
                         public boolean onMarkerClick(Marker marker) {
-                            ((AgentInterventionActivity) getActivity()).showManageResourceDialog(resource);
+                            if (!"incident".equals(resource.getLabel())) {
+                                ((AgentInterventionActivity) getActivity()).showManageResourceDialog(resource);
+                            }
                             return false;
                         }
                     });
