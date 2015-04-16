@@ -318,5 +318,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         }
     }
 
-
+    public Map<String, Marker> getMarkers() {
+        return markers;
+    }
 }

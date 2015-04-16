@@ -33,6 +33,9 @@ import entity.Path;
 import entity.Position;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynchDrone;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 /**
  * A fragment that launches other parts of the demo application.
@@ -41,6 +44,9 @@ public class PlanZoneMapFragment extends Fragment {
 
     private static final String TAG = PlanZoneMapFragment.class.getSimpleName();
     final static String ARG_POSITION = "position";
+
+    //ASync tool task for refresh position of drone
+    private GetPositionDrone getPositionDrone;
 
     // all variables for the Google Map
     MapView mMapView;
@@ -197,7 +203,8 @@ public class PlanZoneMapFragment extends Fragment {
         this.markers = new ArrayList<>();
         this.drones = new ArrayList<>();
         this.newPath = new Path();
-        new GetPositionDrone().execute(((PlanZoneActivity) getActivity()).getIntervention().getId());
+        getPositionDrone = new GetPositionDrone();
+        //new GetPositionDrone().execute(((PlanZoneActivity) getActivity()).getIntervention().getId());
     }
 
     /**
@@ -395,6 +402,7 @@ public class PlanZoneMapFragment extends Fragment {
      * Show the marker for the drone of the intervention
      */
     public void showDrones(Drone[] tab){
+        drones = new ArrayList<>();
         for (Drone d : tab){
             showDrone(d);
         }
@@ -410,19 +418,34 @@ public class PlanZoneMapFragment extends Fragment {
         drones.add(new Pair<Long, Marker>(d.getId(), googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(latitude, longitude))
                 .title(d.getLabel())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_sitistic_drone)))));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_drone)))));
     }
 
     @Override
     public void onResume() {
         super.onResume();
         mMapView.onResume();
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+
+            }
+        };
+
+        DisplaySynchDrone displayDroneSynch = new DisplaySynchDrone() {
+            @Override
+            public void ctrlDisplay() {
+                refreshDrone();
+            }
+        };
+        IntentWraper.startService("notify/intervention/10", displaySynch, displayDroneSynch);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mMapView.onPause();
+        IntentWraper.stopService();
     }
 
     @Override
@@ -435,6 +458,13 @@ public class PlanZoneMapFragment extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    public void refreshDrone() {
+        Log.i(TAG, "REFRESH DRONE");
+        if(inter != null) {
+            getPositionDrone.execute(inter.getId());
+        }
     }
 
 
@@ -603,11 +633,9 @@ public class PlanZoneMapFragment extends Fragment {
 
         @Override
         protected void onPostExecute(Drone[] drones) {
-            if (null == drones){
-                Toast.makeText(getActivity().getApplicationContext(), "Aucun drone pour cette intervention", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(getActivity().getApplicationContext(), "Le/s drone/s ont été récupérés", Toast.LENGTH_LONG).show();
+            if (null != drones){
                 showDrones(drones);
+                Log.i(TAG, "CALLBACK DRONE");
             }
         }
     }
