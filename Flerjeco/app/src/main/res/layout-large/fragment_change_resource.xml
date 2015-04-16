@@ -69,6 +69,13 @@
                     android:entries="@array/state"
                     android:layout_weight="0.5"
                     android:spinnerMode="dialog" />
+
+                <Button
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/buton_change_role"
+                    android:layout_weight="0.5"
+                    android:text="Ok"/>
             </LinearLayout>
 
 

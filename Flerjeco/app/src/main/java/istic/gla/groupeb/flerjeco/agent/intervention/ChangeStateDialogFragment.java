@@ -32,10 +32,12 @@ public class ChangeStateDialogFragment extends DialogFragment {
 
     Spinner stateSpinner;
     Resource resource;
+    private ResourceRole role;
 
     //fields
     Button validateButton;
     Button freeButton;
+    Button changeRoleButton;
 
     private View mProgressView;
     private View mCreateFormView;
@@ -51,6 +53,14 @@ public class ChangeStateDialogFragment extends DialogFragment {
 
         mCreateFormView = v.findViewById(R.id.intervention_scroll);
         mProgressView = v.findViewById(R.id.create_progress);
+
+        changeRoleButton = (Button) v.findViewById(R.id.buton_change_role);
+        changeRoleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                changeResourceRole(role);
+            }
+        });
 
         //init fields
         validateButton = (Button) v.findViewById(R.id.validateButton);
@@ -68,8 +78,7 @@ public class ChangeStateDialogFragment extends DialogFragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String roleName = stateSpinner.getSelectedItem().toString();
-                ResourceRole role = null;
-                switch (roleName){
+                switch (roleName) {
                     case "Humain":
                         role = ResourceRole.people;
                         break;
@@ -89,9 +98,6 @@ public class ChangeStateDialogFragment extends DialogFragment {
                         role = ResourceRole.otherwise;
                         break;
                 }
-                if (role != null) {
-                    changeResourceRole(role);
-                }
             }
 
             @Override
@@ -109,14 +115,14 @@ public class ChangeStateDialogFragment extends DialogFragment {
 
     public void validateResource(){
         resource.setState(State.active);
-        ((AgentInterventionActivity)getActivity()).resourceUpdated();
+        ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
         dismiss();
     }
 
     public void changeResourceRole(ResourceRole role){
         resource.setResourceRole(role);
-        ((AgentInterventionActivity)getActivity()).resourceUpdated();
-        //dismiss();
+        ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
+        dismiss();
     }
 
     /**

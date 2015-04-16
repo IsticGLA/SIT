@@ -40,6 +40,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import entity.Intervention;
@@ -213,10 +214,17 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
-    public void resourceUpdated(){
+    public void resourceUpdated(Resource resource){
+        List<Resource> resList = intervention.getResources();
+        for (Resource res : resList){
+            if (res.getIdRes() == resource.getIdRes()){
+                resList.remove(res);
+                resList.add(resource);
+            }
+        }
         UpdateIntervention updateIntervention = new UpdateIntervention();
         updateIntervention.execute(intervention);
-        refresh();
+        //refresh();
     }
 
     /**
