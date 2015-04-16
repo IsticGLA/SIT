@@ -15,10 +15,12 @@
  */
 package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,12 +30,14 @@ import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 public class ListInterventionsActivity extends FragmentActivity
-        implements InterventionsNamesFragment.OnResourceSelectedListener , ISynchTool{
+        implements InterventionsNamesFragment.OnResourceSelectedListener , ISynchTool, IInterventionsActivity{
 
     private static final String TAG = ListInterventionsActivity.class.getSimpleName();
     protected Intervention[] interventionTab;
@@ -164,6 +168,14 @@ public class ListInterventionsActivity extends FragmentActivity
 
     @Override
     public void refresh() {
+        MapListInterventionsFragment mapFragment = (MapListInterventionsFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+
+        Log.i(TAG, "refresh");
+        // Call a method in the ArticleFragment to update its content
+        mapFragment.updateMapView(this.position);
+        ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
+        new GetAllInterventionsTask(ListInterventionsActivity.this).execute();
 
     }
 
@@ -191,5 +203,20 @@ public class ListInterventionsActivity extends FragmentActivity
     protected void onPause() {
         super.onPause();
         IntentWraper.stopService();
+    }
+
+    @Override
+    public void showProgress(boolean show) {
+
+    }
+
+    @Override
+    public void updateInterventions(Intervention[] interventions) {
+        this.interventionTab = interventions;
+    }
+
+    @Override
+    public Context getContext() {
+        return getContext();
     }
 }
