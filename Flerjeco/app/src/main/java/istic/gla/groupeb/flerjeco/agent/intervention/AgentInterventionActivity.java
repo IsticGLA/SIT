@@ -287,7 +287,7 @@ public class AgentInterventionActivity extends FragmentActivity
                     }
 
                     UpdateIntervention mUpdateIntervention = new UpdateIntervention();
-                    mUpdateIntervention.execute(intervention.getId(), resource);
+                    mUpdateIntervention.execute(intervention);
 
                     MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
                     marker.draggable(true);
@@ -336,12 +336,12 @@ public class AgentInterventionActivity extends FragmentActivity
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
     }
 
-    private class UpdateIntervention extends AsyncTask<Object, Void, Intervention> {
+    private class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
 
         @Override
-        protected Intervention doInBackground(Object... params) {
+        protected Intervention doInBackground(Intervention... intervention) {
             Log.i(TAG, "Start doInbackground updateIntervention");
-            return new SpringService().updateResourceIntervention(params);
+            return new SpringService().updateIntervention(intervention[0]);
         }
 
         @Override
