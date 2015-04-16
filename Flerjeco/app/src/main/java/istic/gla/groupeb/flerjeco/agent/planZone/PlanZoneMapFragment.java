@@ -618,9 +618,9 @@ public class PlanZoneMapFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(), "Les modifications ont été enregistées", Toast.LENGTH_LONG).show();
                 pathList = intervention.getWatchPath();
                 updateMapView(intervention.getWatchPath().size()-1);
-                ((PlanZoneActivity) getActivity()).refreshList(intervention);
-
-
+                PlanZoneActivity p = ((PlanZoneActivity) getActivity());
+                p.refreshList(intervention);
+                p.editModeOff();
             }
         }
     }
