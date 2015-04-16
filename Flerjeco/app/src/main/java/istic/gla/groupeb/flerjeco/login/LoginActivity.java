@@ -150,7 +150,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    @Override
     public void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
@@ -185,22 +184,24 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
     @Override
     public void updateInterventions(Intervention[] interventions) {
-        Intent intent;
-        if(isCodis) {
-            intent = new Intent(LoginActivity.this, InterventionActivity.class);
+        showProgress(false);
+        if(interventions != null) {
+            Intent intent;
+            if (isCodis) {
+                intent = new Intent(LoginActivity.this, InterventionActivity.class);
+            } else {
+                intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
+            }
+
+            Bundle bundle = new Bundle();
+            for (int i = 0; i < interventions.length; i++)
+                Log.d("LoginAct", interventions[i].getName() + " - " + interventions[i].getId());
+
+            bundle.putSerializable("interventions", interventions);
+
+            intent.putExtras(bundle);
+            startActivity(intent);
         }
-        else {
-            intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
-        }
-
-        Bundle bundle = new Bundle();
-        for(int i = 0; i < interventions.length; i++)
-            Log.d("LoginAct", interventions[i].getName() + " - " + interventions[i].getId());
-
-        bundle.putSerializable("interventions", interventions);
-
-        intent.putExtras(bundle);
-        startActivity(intent);
     }
 
     @Override

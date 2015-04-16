@@ -50,6 +50,7 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
         implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool {
@@ -284,6 +285,7 @@ public class AgentInterventionActivity extends FragmentActivity
                         resource = resourceList.get(mCurrentPosition);
                         resource.setLatitude(latLng.latitude);
                         resource.setLongitude(latLng.longitude);
+                        resource.setState(State.planned);
                         resourceList.remove(resource);
                     }else{
                         resource = additionalResourceList.get(mCurrentPosition);
@@ -346,12 +348,15 @@ public class AgentInterventionActivity extends FragmentActivity
 
         @Override
         protected Intervention doInBackground(Object... params) {
+            Log.i(TAG, "Start doInbackground updateIntervention");
             return new SpringService().updateResourceIntervention(params);
         }
 
         @Override
         protected void onPostExecute(Intervention intervention){
+            Log.i(TAG, "Start onPostExecute updateIntervention");
             updateIntervention(intervention);
+            Log.i(TAG, "End update intervention");
         }
     }
 

@@ -30,9 +30,10 @@ import java.util.List;
 import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import util.State;
 
-public class ResourcesFragment extends Fragment {
+public class ResourcesFragment extends Fragment implements ISynchTool {
 
     private ListView listViewResources;
     private ListView listViewRequests;
@@ -91,5 +92,10 @@ public class ResourcesFragment extends Fragment {
 
         listViewResources.setAdapter(new ArrayAdapter(getActivity(), layout, labelsResources));
         listViewRequests.setAdapter(new ResourceAdapter(getActivity(), layout, requests, intervention.getId(), this));
+    }
+
+    @Override
+    public void refresh() {
+
     }
 }
