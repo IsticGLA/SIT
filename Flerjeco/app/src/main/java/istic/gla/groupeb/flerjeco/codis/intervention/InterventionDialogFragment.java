@@ -38,9 +38,13 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import util.State;
 
-
+/**
+ * Fragment used for the creation of the intervention of firefighters
+ * @see  istic.gla.groupeb.flerjeco.codis.intervention.OnTaskCompleted
+ * @see android.support.v4.app.DialogFragment
+ */
 public class InterventionDialogFragment extends DialogFragment implements OnTaskCompleted{
-    private static final String TAG = SpringService.class.getSimpleName();
+    private static final String TAG = InterventionDialogFragment.class.getSimpleName();
 
     Spinner codeSinistreSpinner;
 
@@ -67,7 +71,7 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
 
 
     boolean data_local = false, addressOrCoordinates=true;
-    private HttpRequestTask httpRequestTask;
+    private IncidentCodeTask incidentCodesTask;
     private AsyncTask<Intervention, Void, Intervention> at;
     private ResourceGetTask resourceGetTask;
 
@@ -89,14 +93,15 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         latLongLinearLayout = (LinearLayout) v.findViewById(R.id.lat_long);
 
 
-        // Set up Button of intervention creation
+        //  Set up Button of intervention creation
         intervention_creation_button = (Button) v.findViewById(R.id.intervention_button);
 
-        httpRequestTask = new HttpRequestTask();
-        httpRequestTask.execute();
+        //Selection of registered claims codes in the database and the list of identifiers of resourceType
+        incidentCodesTask = new IncidentCodeTask();
+        incidentCodesTask.execute();
 
 
-        // add button listener
+        //  add button listener
         intervention_creation_button.setOnClickListener(new View.OnClickListener() {
 
             public boolean validate() {
@@ -126,21 +131,11 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
             @Override
             public void onClick(View v) {
                 if (validate()) {
-                    //String idIncidentCode, double latitude, double longitude, String name
+
                     Log.i(TAG, spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()) + "");
 
-
-                   /* //Intervetion
-                    entity.Intervention intervention;
-
-                    intervention = new entity.Intervention(nameIntervetionEditText.getText().toString(), spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(), Double.valueOf(latitudeEditText.getText().toString()), Double.valueOf(longitudeEditText.getText().toString()));
-
-                    Log.i("MAMH", "Lat : " + intervention.getLatitude() + ", Lng : " + intervention.getLongitude());
-
-                    List<Resource> resources;
-
-                    AsyncTask at = new InterventionPostTask().execute(intervention);*/
-
+                    //  Selecting sinister code selected resources from the list of identifiers of resourceType already recovered
+                    //  Note: at the end of this task in the background, it creates intervention
                     resourceGetTask = new ResourceGetTask(InterventionDialogFragment.this);
                     resourceGetTask.execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
 
@@ -207,14 +202,14 @@ public class InterventionDialogFragment extends DialogFragment implements OnTask
         super.onPause();
         if(at != null)
             at.cancel(true);
-        else if (httpRequestTask != null)
-            httpRequestTask.cancel(true);
+        else if (incidentCodesTask != null)
+            incidentCodesTask.cancel(true);
         else if (resourceGetTask != null)
             resourceGetTask.cancel(true);
     }
 
     // Backgroud task to get sistre codes
-    private class HttpRequestTask extends AsyncTask<Void, Void, IncidentCode[]> {
+    private class IncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]> {
 
         @Override
         protected IncidentCode[] doInBackground(Void... params) {

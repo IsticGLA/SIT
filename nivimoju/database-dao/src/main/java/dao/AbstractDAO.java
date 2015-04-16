@@ -15,6 +15,7 @@ import entity.AbstractEntity;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -52,13 +53,21 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      * return the Newer LastUpdate from a type in the database
      * @return
      */
-    public Object getNewerLastUpdate() {
+    public Timestamp getNewerLastUpdate() {
         try {
             createViewLastUpdate();
-            ViewResult result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_lastupdate_" + type).stale(Stale.FALSE));
+            List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_lastupdate_" + type).stale(Stale.FALSE)).allRows();
 
-
-            return result;
+            Timestamp maxTimestamp = new Timestamp(0);
+            Timestamp timestamp = null;
+            // Iterate through the returned ViewRows
+            for (ViewRow row : result) {
+                timestamp= new Timestamp((long) row.value());
+                if(maxTimestamp.before(timestamp)) {
+                    maxTimestamp = timestamp;
+                }
+            }
+            return maxTimestamp;
         } catch (BucketClosedException e) {
             connect();
             getNewerLastUpdate();
@@ -283,7 +292,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
                             "   { emit(doc.id, doc);}\n" +
                             "}";
 
-            designDoc.views().add(DefaultView.create(viewName, mapFunction, "_stats"));
+            designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
             DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
         }
     }
@@ -321,7 +330,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
                             " if(doc.type && doc.type == '" + type + "') \n" +
                             "   { emit(doc.id, doc.lastUpdate);}\n" +
                             "}";
-            designDoc.views().add(DefaultView.create(viewName, mapFunction, "_stats"));
+            designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
             DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
         }
     }

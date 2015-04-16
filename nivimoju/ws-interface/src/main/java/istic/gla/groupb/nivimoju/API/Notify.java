@@ -22,7 +22,7 @@ public class Notify {
      * Gets all the interventions running
      * @return A list of interventions
      */
-    @Path("/{idIntervention}")
+    @Path("intervention/{idIntervention}")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
@@ -43,11 +43,12 @@ public class Notify {
      * Gets all the interventions running
      * @return A list of interventions
      */
+    @Path("intervention")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response notifyAllIntervention(Timestamp timestamp) {
-        /*InterventionDAO interventionDAO = new InterventionDAO();
+        InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
         Timestamp databaseLastUpdate = interventionDAO.getNewerLastUpdate();
         interventionDAO.disconnect();
@@ -56,7 +57,6 @@ public class Notify {
             return Response.status(201).entity(databaseLastUpdate).build();
         } else {
             return Response.ok().build();
-        }*/
-        return Response.ok().build();
+        }
     }
 }
