@@ -2,6 +2,7 @@ package istic.gla.groupb.nivimoju.API;
 
 import dao.DroneDAO;
 import entity.Drone;
+import entity.Intervention;
 import entity.Position;
 import istic.gla.goupb.nivimoju.drone.engine.DroneEngine;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
@@ -121,5 +122,24 @@ public class DroneAPI {
             droneDAO.disconnect();
             return Response.ok().build();
         }
+    }
+
+    /**
+     * alerte le droneEngine qu'une intervention a eu ses chemins mis à jours
+     * @return
+     */
+    @POST
+    @Path("/alertengine/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response alertEngine(Intervention intervention) {
+        if(intervention != null){
+            DroneEngine.getInstance().setPathsForIntervention(intervention.getId(),
+                    intervention.getWatchPath());
+            return Response.ok().build();
+        }
+        return Response.status(Response.Status.BAD_REQUEST)
+                .entity("bad intervention")
+                .build();
     }
 }

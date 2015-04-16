@@ -1,6 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
 import dao.InterventionDAO;
+import entity.Intervention;
 import entity.Resource;
 import util.State;
 
@@ -13,7 +14,7 @@ import java.util.List;
  * Created by jules on 08/04/15.
  */
 @Path("intervention")
-public class Intervention {
+public class InterventionAPI {
     /**
      * Gets all the interventions running
      * @return A list of interventions
@@ -24,7 +25,7 @@ public class Intervention {
         InterventionDAO interventionDAO = new InterventionDAO();
 
         interventionDAO.connect();
-        List<entity.Intervention> inters = interventionDAO.getAll();
+        List<Intervention> inters = interventionDAO.getAll();
         interventionDAO.disconnect();
         return  Response.ok(inters).build();
     }
@@ -40,7 +41,7 @@ public class Intervention {
             @PathParam("idintervention") long idintervention) {
         InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
-        entity.Intervention intervention = interventionDAO.getById(idintervention);
+        Intervention intervention = interventionDAO.getById(idintervention);
         interventionDAO.disconnect();
         return Response.ok(intervention).build();
     }
@@ -55,10 +56,10 @@ public class Intervention {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createIntervention(
-            entity.Intervention intervention) {
+            Intervention intervention) {
         InterventionDAO interventionDAO= new InterventionDAO();
         interventionDAO.connect();
-        entity.Intervention resultat = interventionDAO.create(intervention);
+        Intervention resultat = interventionDAO.create(intervention);
         interventionDAO.disconnect();
         return  Response.ok(resultat).build();
 
@@ -74,10 +75,10 @@ public class Intervention {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateIntervention(
-            entity.Intervention intervention) {
+            Intervention intervention) {
         InterventionDAO interventionDAO= new InterventionDAO();
         interventionDAO.connect();
-        entity.Intervention result = interventionDAO.update(intervention);
+        Intervention result = interventionDAO.update(intervention);
         interventionDAO.disconnect();
         return  Response.ok(result).build();
 
@@ -145,9 +146,9 @@ public class Intervention {
             @PathParam("state") String state) {
         InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
-        entity.Intervention intervention = interventionDAO.getById(inter);
+        Intervention intervention = interventionDAO.getById(inter);
         try {
-            for (entity.Resource resource : intervention.getResources()) {
+            for (Resource resource : intervention.getResources()) {
                 if (resource.getIdRes() == res) {
                     resource.setState(State.valueOf(state));
                     break;
@@ -174,7 +175,7 @@ public class Intervention {
             @PathParam("vehicle") String vehicle) {
         InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
-        entity.Intervention intervention = interventionDAO.getById(inter);
+        Intervention intervention = interventionDAO.getById(inter);
         Long id = Long.valueOf(0);
         for(Resource resource : intervention.getResources()) {
             if(resource.getIdRes() >= id) {
@@ -204,7 +205,7 @@ public class Intervention {
         boolean found = false;
         InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
-        entity.Intervention intervention = interventionDAO.getById(inter);
+        Intervention intervention = interventionDAO.getById(inter);
         for (Resource resource : intervention.getResources()) {
             if (resource.getIdRes() == newResource.getIdRes()) {
                 resource = newResource;
