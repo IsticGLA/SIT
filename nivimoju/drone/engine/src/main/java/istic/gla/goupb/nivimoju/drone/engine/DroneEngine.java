@@ -71,6 +71,7 @@ public class DroneEngine{
      * @param idIntervention l'id de l'intervention
      */
     private void reaffectDronesForIntervention(long idIntervention){
+        logger.info("reaffecting drone for intervention [" + idIntervention + "]");
         Collection<Drone> availableDrones = dronesByIntervention.get(idIntervention);
         if(availableDrones == null || availableDrones.size() == 0){
             logger.warn("there is no drone available for intervention " + idIntervention);
@@ -86,6 +87,10 @@ public class DroneEngine{
             if(droneIterator.hasNext()) {
                 Drone drone = droneIterator.next();
                 affectationByDroneLabel.put(drone.getLabel(), path);
+                logger.info("affecting drone " + drone.getLabel() +" to path " + path.toString());
+            } else{
+                logger.warn("there is not enough drones for intervention : " + availableDrones.size()
+                + " drones, " + paths.size() + " paths");
             }
         }
     }
@@ -95,9 +100,10 @@ public class DroneEngine{
      * @param idIntervention the id of the intervention
      */
     private void sendOrdersForIntervention(long idIntervention){
-        Collection<Drone> drones = dronesByIntervention.get(idIntervention);
-        if(drones != null) {
-            for (Drone drone : drones) {
+        logger.info("sending orders for intervention " + idIntervention);
+        Collection<Drone> dronesAffected = dronesByIntervention.get(idIntervention);
+        if(dronesAffected != null) {
+            for (Drone drone : dronesAffected) {
                 LocalPath pathForDrone = affectationByDroneLabel.get(drone.getLabel());
                 if(pathForDrone != null){
                     try {
@@ -170,15 +176,17 @@ public class DroneEngine{
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();
         List<Drone> drones = droneDAO.getAll();
-        logger.info("got " + drones.size() +" drones from database");
+        if(drones != null) {
+            logger.info("got " + drones.size() + " drones from database");
+        }
         droneDAO.disconnect();
         loadDrones(drones);
     }
 
     /**
      * associe un drone à une intervention en interne
-     * @param drone
-     * @return
+     * @param drone the drone to assign internally
+     * @return vrai si l'opération a réussi
      */
     public boolean assignDrone(Drone drone){
         logger.info("assigning drone");
@@ -203,8 +211,8 @@ public class DroneEngine{
 
     /**
      * retire l'assignetion d'un drone en interne
-     * @param drone
-     * @return
+     * @param drone le drone à unassign
+     * @return vrai si l'opération a réussi
      */
     public boolean unasignDrone(final Drone drone){
         if(drone == null){
@@ -231,8 +239,8 @@ public class DroneEngine{
 
     /**
      * charge une liste de drone et prépare les maps interne
-     * @param drones
-     */
+     * @param drones la liste de drones à charger
+     **/
     private void loadDrones(List<Drone> drones){
         logger.info("loading drones internally");
         droneByLabel.clear();

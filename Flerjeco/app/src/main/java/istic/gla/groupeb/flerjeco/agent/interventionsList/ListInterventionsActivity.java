@@ -28,6 +28,7 @@ import android.view.View;
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
+import istic.gla.groupeb.flerjeco.codis.intervention.InterventionFragment;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
@@ -207,6 +208,7 @@ public class ListInterventionsActivity extends FragmentActivity
             // Call a method in the ArticleFragment to update its content
             mapFragment.updateMapView(this.position);
             ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
+            ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).listViewInterventions.setItemChecked(position,true);
         }
     }
 
