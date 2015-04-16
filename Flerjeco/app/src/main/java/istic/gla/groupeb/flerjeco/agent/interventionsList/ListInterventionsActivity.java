@@ -31,6 +31,7 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
@@ -168,13 +169,6 @@ public class ListInterventionsActivity extends FragmentActivity
 
     @Override
     public void refresh() {
-        MapListInterventionsFragment mapFragment = (MapListInterventionsFragment)
-                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-
-        Log.i(TAG, "refresh");
-        // Call a method in the ArticleFragment to update its content
-        mapFragment.updateMapView(this.position);
-        ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
         new GetAllInterventionsTask(ListInterventionsActivity.this).execute();
 
     }
@@ -205,14 +199,17 @@ public class ListInterventionsActivity extends FragmentActivity
         IntentWraper.stopService();
     }
 
-    @Override
-    public void showProgress(boolean show) {
-
-    }
 
     @Override
     public void updateInterventions(Intervention[] interventions) {
-        this.interventionTab = interventions;
+        if(interventions != null) {
+            this.interventionTab = interventions;
+            MapListInterventionsFragment mapFragment = (MapListInterventionsFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+            // Call a method in the ArticleFragment to update its content
+            mapFragment.updateMapView(this.position);
+            ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
+        }
     }
 
     @Override
