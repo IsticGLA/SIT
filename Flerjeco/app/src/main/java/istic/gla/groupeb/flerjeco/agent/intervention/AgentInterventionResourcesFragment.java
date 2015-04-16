@@ -17,6 +17,8 @@ package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.app.Activity;
 import android.content.ClipData;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -32,9 +34,7 @@ import java.util.List;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
-import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
-import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapterIIcon;
-import istic.gla.groupeb.flerjeco.icons.IIcon;
+import istic.gla.groupeb.flerjeco.adapter.ResourceImageAdapter;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import util.ResourceCategory;
@@ -47,7 +47,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
     private ListView listViewRequests;
     private ListView listViewAdditionalResources;
     private List<Resource> resourceList = new ArrayList<>();
-    private List<IIcon> iconResourceList = new ArrayList<>();
+    private List<Bitmap> iconBitmapResourceList = new ArrayList<>();
     private List<Resource> requestList = new ArrayList<>();
     private List<Resource> additionalResourceList = new ArrayList<>();
 
@@ -80,8 +80,8 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
 
         fillResourcesAndRequests();
 
-        listViewAdditionalResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.item_resource_agent_only_icon, additionalResourceList));
-        listViewResources.setAdapter(new ResourceIconAdapterIIcon(getActivity(), R.layout.item_resource_agent_only_icon, resourceList, iconResourceList));
+        //listViewAdditionalResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.item_resource_agent_only_icon, additionalResourceList));
+        listViewResources.setAdapter(new ResourceImageAdapter(getActivity(), R.layout.item_resource_agent_only_icon, resourceList, iconBitmapResourceList));
         listViewRequests.setAdapter(new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList));
 
         listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -139,9 +139,13 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
             State resourceState = resource.getState();
             if (State.validated.equals(resourceState)){
                 resourceList.add(resource);
-                String name = resource.getLabel()+" "+resource.getIdRes();
-                IIcon icon = new Vehicle(name, resource.getResourceRole(), resource.getState());
-                iconResourceList.add(icon);
+                Vehicle mVehicle = new Vehicle(resource.getLabel(), resource.getResourceRole(), resource.getState());
+                int width = mVehicle.getRect().width();
+                int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
+                Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                Canvas mCanvas = new Canvas(mBitmap);
+                mVehicle.drawIcon(mCanvas);
+                iconBitmapResourceList.add(mBitmap);
                 Log.i("RESOURCELIST",resource.getLabel());
             }else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) ){
                 requestList.add(resource);
@@ -179,4 +183,9 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                     + " must implement OnHeadlineSelectedListener");
         }
     }
+
+    public List<Resource> getResourceList() {
+        return resourceList;
+    }
+
 }
