@@ -4,11 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
-import android.os.Messenger;
-import android.util.Log;
-import android.widget.Toast;
-
-import org.springframework.web.client.HttpStatusCodeException;
 
 import java.sql.Timestamp;
 import java.util.Timer;
@@ -41,9 +36,7 @@ public class SynchService extends IntentService {
 
     String url;
     Timestamp timestamp = new Timestamp(0);
-    //TODO SpringService
     SpringService springService = new SpringService();
-    Messenger messenger;
     static Timer t = new Timer();
     static Timer tDrone = new Timer();
     static TimerTask timerTask;
@@ -102,7 +95,6 @@ public class SynchService extends IntentService {
         @Override
         protected Timestamp doInBackground(String... params) {
             try {
-                //Log.i("MAMH", "ID inter : "+params[0]);
                 return springService.getNotify(params[0], timestamp);
             } catch (Exception e) {
                 //Log.e("InterventionActivity", e.getMessage(), e);

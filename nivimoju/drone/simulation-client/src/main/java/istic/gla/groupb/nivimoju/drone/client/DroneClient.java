@@ -109,6 +109,7 @@ public class DroneClient {
         Path path = new Path();
         path.addPosition(croisement);
         path.addPosition(croisement2);
+        path.setClosed(true);
         LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
         try {
             client.postPath("drone_1", converter.getLocalPath(path));

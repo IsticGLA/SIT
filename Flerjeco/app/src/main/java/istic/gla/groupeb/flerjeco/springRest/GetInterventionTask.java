@@ -10,18 +10,21 @@ import istic.gla.groupeb.flerjeco.R;
 /**
  * Represents an asynchronous task used to get interventions
  */
-public class GetAllInterventionsTask extends AsyncTask<Void, Void, Boolean> {
+public class GetInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
-    private static final String TAG = GetAllInterventionsTask.class.getSimpleName();
+    private static final String TAG = GetInterventionTask.class.getSimpleName();
     private int count = 0;
-    private Intervention[] interventionTab;
-    private IInterventionsActivity activity;
+    private Intervention intervention;
+    private IInterventionActivity activity;
+    private Long id;
 
-    public GetAllInterventionsTask(IInterventionsActivity activity) {
+    public GetInterventionTask(IInterventionActivity activity, Long id) {
         this.activity = activity;
+        this.id = id;
     }
 
-    public GetAllInterventionsTask(IInterventionsActivity activity, int count) {
+    public GetInterventionTask(IInterventionActivity activity, Long id, int count) {
+        this.id = id;
         this.count = count;
         this.activity = activity;
     }
@@ -29,28 +32,26 @@ public class GetAllInterventionsTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         SpringService service = new SpringService();
-        interventionTab = service.getAllInterventions();
-        if(interventionTab ==  null) {
+        intervention = service.getInterventionById(id);
+        if(intervention ==  null) {
             return false;
         }
-        Log.i(TAG, "interventionTab size : " + interventionTab.length);
-        Log.i(TAG, "doInBackground end");
         return true;
     }
 
     @Override
     protected void onPostExecute(final Boolean success) {
         if(success) {
-            activity.updateInterventions(interventionTab);
+            activity.updateIntervention(intervention);
         }
         else {
             count++;
             if(count < 4) {
                 Log.i(TAG, "Count: " + count);
-                new GetAllInterventionsTask(activity, count).execute();
+                new GetInterventionTask(activity, id, count).execute();
             }
             else {
-                activity.updateInterventions(null);
+                activity.updateIntervention(null);
                 Toast.makeText(activity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
             }
         }

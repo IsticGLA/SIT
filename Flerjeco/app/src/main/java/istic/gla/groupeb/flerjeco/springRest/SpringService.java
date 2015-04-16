@@ -211,6 +211,7 @@ public class SpringService {
         String httpCode = "";
         Timestamp restTimestamp = timestamp;
         url = URL+url;
+        Log.i(TAG, url);
         try {
             ResponseEntity<Timestamp> entity = restTemplate.postForEntity(url, timestamp, Timestamp.class);
             httpCode = entity.getStatusCode().toString();
@@ -280,6 +281,8 @@ public class SpringService {
             ResponseEntity<Intervention[]> entity = restTemplate.getForEntity(url, Intervention[].class);
             interventions = entity.getBody();
         } catch (ResourceAccessException e) {
+            Log.i(TAG, "getAllInterventions : " + e.getLocalizedMessage());
+        } catch (HttpServerErrorException e) {
             Log.i(TAG, "getAllInterventions : " + e.getLocalizedMessage());
         }
         Log.i(TAG, "getAllInterventions end");

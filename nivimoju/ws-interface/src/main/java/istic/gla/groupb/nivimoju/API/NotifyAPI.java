@@ -11,7 +11,7 @@ import java.sql.Timestamp;
  * Created by vivien on 13/04/15.
  */
 @Path("notify")
-public class Notify {
+public class NotifyAPI {
 
     /**
      * Gets all the interventions running

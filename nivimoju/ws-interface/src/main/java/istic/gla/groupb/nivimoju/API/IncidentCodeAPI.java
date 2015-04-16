@@ -1,6 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
 import dao.IncidentCodeDAO;
+import entity.IncidentCode;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -11,7 +12,7 @@ import java.util.List;
  * Created by amhachi on 09/04/15.
  */
 @Path("incidentcode")
-public class IncidentCode {
+public class IncidentCodeAPI {
 
     IncidentCodeDAO incidentCodeDAO ;
 
@@ -24,7 +25,7 @@ public class IncidentCode {
     public Response getIncidentCodes() {
         incidentCodeDAO = new IncidentCodeDAO();
         incidentCodeDAO.connect();
-        List<entity.IncidentCode> listCodes = incidentCodeDAO.getAll();
+        List<IncidentCode> listCodes = incidentCodeDAO.getAll();
         incidentCodeDAO.disconnect();
         return Response.ok(listCodes).build();
     }

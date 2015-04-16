@@ -1,17 +1,19 @@
 package istic.gla.groupeb.flerjeco;
 
 import android.app.Application;
+import android.content.Context;
 
 import entity.StaticData;
+import istic.gla.groupeb.flerjeco.springRest.IStaticDataActivity;
 
 /**
  * Created by corentin on 09/04/15.
  */
-public class FlerjecoApplication extends Application {
+public class FlerjecoApplication extends Application implements IStaticDataActivity {
 
     private boolean isCodisUser; //make getter and setter
     private String login, password;
-    private StaticData[] staticDatas;
+    private StaticData[] staticData;
     private static FlerjecoApplication singleInstance = null;
 
     public static FlerjecoApplication getInstance()
@@ -49,11 +51,14 @@ public class FlerjecoApplication extends Application {
         this.login = login;
     }
 
-    public StaticData[] getStaticDatas() {
-        return staticDatas;
+    public StaticData[] getStaticData() {
+        return staticData;
     }
 
-    public void setStaticDatas(StaticData[] staticDatas) {
-        this.staticDatas = staticDatas;
+    public void setStaticData(StaticData[] staticData) {
+        this.staticData = staticData;
     }
+
+    @Override
+    public Context getContext() { return getContext(); }
 }
