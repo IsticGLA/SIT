@@ -67,8 +67,16 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
     @Override
     public void refresh() {
         //TODO
+        intervention = ((AgentInterventionActivity)getActivity()).intervention;
         // clear lists
+        clearData();
         // fill lists
+        initMap();
+    }
+
+    public void clearData(){
+        resources.clear();
+        resourcesToPutOnMap.clear();
     }
 
     @Override
@@ -100,7 +108,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         googleMap = mMapView.getMap();
 
         AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
-        initMap(interventionActivity.intervention);
+        intervention = interventionActivity.intervention;
+        initMap();
 
         /*googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -157,8 +166,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         }
     }
 
-    public void initMap(Intervention intervention){
-        this.intervention = intervention;
+    public void initMap(){
         // Create LatLngBound to zoom on the set of positions in the path
         bounds = new LatLngBounds.Builder();
         boolean isPositionResource = false;

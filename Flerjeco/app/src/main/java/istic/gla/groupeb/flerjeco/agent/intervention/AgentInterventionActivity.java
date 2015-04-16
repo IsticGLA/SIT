@@ -234,7 +234,8 @@ public class AgentInterventionActivity extends FragmentActivity
      */
     public void updateIntervention(Intervention intervention) {
         //TODO update lists of resources and map
-
+        this.intervention = intervention;
+        refresh();
     }
 
     class MyDragListener implements View.OnDragListener {
