@@ -82,6 +82,8 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
             Long newId = globalId.content();
 
+            e.updateDate();
+
             JsonDocument res = DAOManager.getCurrentBucket().insert(JsonDocument.create(Long.toString(newId), entityToJsonDocument(e)));
 
             return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
@@ -111,6 +113,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     public final T update(T e) {
         try {
             if(checkLastUpdate(e)) {
+                e.updateDate();
                 JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
                 return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
             }

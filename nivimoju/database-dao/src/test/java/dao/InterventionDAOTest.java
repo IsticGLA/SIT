@@ -123,7 +123,7 @@ public class InterventionDAOTest {
     public void updateResource(){
         InterventionDAO interventionDAO = new InterventionDAO();
         Intervention intervention = interventionDAO.getById(19L);
-        intervention.setName("C'EST_MIEUX_COMME_CA_?");
+        intervention.setName("COCOCHONE");
         intervention.updateDate();
 
         interventionDAO.update(intervention);
