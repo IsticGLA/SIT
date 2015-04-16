@@ -2,4 +2,5 @@
 <resources>
     <string name="title_activity_main">MainActivity</string>
     <string name="action_create">Create Intervention</string>
+    <string name="fail_get_staticdata">Fail to get static data. Please, try again.</string>
 </resources>

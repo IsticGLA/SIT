@@ -1,16 +1,8 @@
 <resources>
-    <string name="state_validated">validated</string>
-    <string name="state_refused">refused</string>
-    <string name="state_waiting">waiting</string>
-
     <string name="app_name">Flerjeco</string>
     <string name="title_activity_second">Current Intervention</string>
     <string name="title_activity_list_interventions">List of Interventions</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
 
-<!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="vehicle_fragment_text">Select the type of vehicle you need :</string>
     <string name="title_activity_display_intervention">DisplayIntervention</string>
     <string name="title_activity_plan_zone">Drone Management</string>
