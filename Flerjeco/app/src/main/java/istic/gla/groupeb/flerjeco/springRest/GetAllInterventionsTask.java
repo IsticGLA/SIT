@@ -1,19 +1,18 @@
 package istic.gla.groupeb.flerjeco.springRest;
 
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import entity.Intervention;
-import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
+import istic.gla.groupeb.flerjeco.R;
 
 /**
  * Represents an asynchronous task used to get interventions
  */
 public class GetAllInterventionsTask extends AsyncTask<Void, Void, Boolean> {
 
+    private static final String TAG = GetAllInterventionsTask.class.getSimpleName();
     private int count = 0;
     private Intervention[] interventionTab;
     private IInterventionsActivity activity;
@@ -34,19 +33,27 @@ public class GetAllInterventionsTask extends AsyncTask<Void, Void, Boolean> {
         if(interventionTab ==  null) {
             return false;
         }
-        Log.i("GetAllInterventionsTask", "interventionTab size : " + interventionTab.length);
-        Log.i("GetAllInterventionsTask", "doInBackground end");
+        Log.i(TAG, "interventionTab size : " + interventionTab.length);
+        Log.i(TAG, "doInBackground end");
         return true;
     }
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        if(success)
+        if(success) {
+            activity.showProgress(false);
             activity.updateInterventions(interventionTab);
+        }
         else {
             count++;
-            if(count < 4)
+            if(count < 4) {
+                Log.i(TAG, "Count: " + count);
                 new GetAllInterventionsTask(activity, count);
+            }
+            else {
+                activity.showProgress(false);
+                Toast.makeText(activity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

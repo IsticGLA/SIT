@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -38,8 +39,8 @@ import istic.gla.groupeb.flerjeco.synch.IntentWraper;
  * A login screen that offers loginNO CONTENT via email/password.
  */
 public class LoginActivity extends Activity implements ISynchTool, IInterventionsActivity {
-    private static final String TAG = LoginActivity.class.getSimpleName();
 
+    private static final String TAG = LoginActivity.class.getSimpleName();
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -190,8 +191,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
     @Override
     public void updateInterventions(Intervention[] interventions) {
-
-        showProgress(false);
         Intent intent;
         if(isCodis) {
             intent = new Intent(LoginActivity.this, InterventionActivity.class);
@@ -208,6 +207,11 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
         intent.putExtras(bundle);
         startActivity(intent);
+    }
+
+    @Override
+    public Context getContext() {
+        return getContext();
     }
 
     /**
