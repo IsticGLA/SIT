@@ -3,7 +3,6 @@ package istic.gla.groupeb.flerjeco.springRest;
 import android.util.Log;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -28,11 +27,12 @@ public class SpringService {
 
     private static final String TAG = SpringService.class.getSimpleName();
     private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
-    //private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
-    //private static final String URL_TEST = "http://ns3002211.ip-37-59-58.eu:8080/nivimo/rest/";
     private static RestTemplate restTemplate = new RestTemplate();
 
-
+    /**
+     * @see istic.gla.groupeb.flerjeco.springRest.SpringService
+     * default constructor {@link SpringService}
+     */
     public SpringService(){
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
@@ -60,7 +60,7 @@ public class SpringService {
      * @return the intervention retrieved
      */
     public Intervention getInterventionById(Long idIntervention) {
-        //TODO modify URL_TEST -> URL
+
         final String url = URL + "intervention/" + idIntervention;
 
         ResponseEntity<Intervention> interventionResult = restTemplate.getForEntity(url, Intervention.class);
@@ -71,7 +71,7 @@ public class SpringService {
 
     /**
      * Get incident codes
-     * @return array of IncidentCode
+     * @return array of {@link entity.IncidentCode}
      * @throws HttpStatusCodeException throw exception if status code is bad
      */
     public IncidentCode[] codeSinistreClient() throws HttpStatusCodeException {
@@ -100,22 +100,40 @@ public class SpringService {
             if (interventionResult == null) {
                 Log.i(TAG, "interventionResult = null");
             } else {
-                // assignement of the drone for the intervention
-                final String urlDrone = URL + "drone/assign/" + interventionResult.getBody().getId();
-                ResponseEntity<Drone> drone = restTemplate.getForEntity(urlDrone, Drone.class);
-
-                if (null == drone){
-                    Log.i(TAG, "drone = null");
-                }// else {
-                // we return the intervention even if drone is null
-
                 return interventionResult.getBody();
-                //}
             }
         } catch (HttpStatusCodeException e) {
             Log.i(TAG, "Problème de la création de l'intervention : " + e.getMessage());
         }
         return null;
+    }
+
+    /**
+     * Assign a drone on an intervention
+     * @param id
+     * @return
+     */
+    public Drone assignDrone(Long id){
+
+        // assignement of the drone for the intervention
+        final String urlDrone = URL + "drone/assign/" + id;
+        Log.i(TAG, urlDrone);
+        ResponseEntity<Drone> drone = restTemplate.getForEntity(urlDrone, Drone.class);
+        return drone.getBody();
+    }
+
+    /**
+     * Unassign a drone on an intervention
+     * @param id
+     * @return
+     */
+    public Drone unAssignDrone(Long id){
+
+        // unassignement of the drone for the intervention
+        final String urlDrone = URL + "drone/unassign/" + id;
+        Log.i(TAG, urlDrone);
+        ResponseEntity<Drone> drone = restTemplate.getForEntity(urlDrone, Drone.class);
+        return drone.getBody();
     }
 
     /**
@@ -267,6 +285,26 @@ public class SpringService {
         Log.i(TAG, "getAllInterventions end");
         return interventions;
     }
+
+    /**
+     * Gets all the drone for the intervention
+     * @return An array of drones
+     */
+    public Drone[] getAllDroneByIntervention(Object[] params) {
+        Log.i(TAG, "getAllDroneByIntervention start");
+        final String url = URL + "drone/byIntervention/" + params[0];
+        Drone[] drones = null;
+        Log.i(TAG, url);
+        try {
+            ResponseEntity<Drone[]> entity = restTemplate.getForEntity(url, Drone[].class);
+            drones = entity.getBody();
+        } catch (ResourceAccessException e) {
+            Log.i(TAG, "getAllDroneByIntervention : " + e.getLocalizedMessage());
+        }
+        Log.i(TAG, "getAllDroneByIntervention end");
+        return drones;
+    }
+
 
     public Long moveDrone(Object[] params) {
         Log.i(TAG, "move drone to : " + params[0] + ", " + params[1]);

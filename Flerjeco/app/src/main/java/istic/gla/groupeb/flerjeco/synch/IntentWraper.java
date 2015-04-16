@@ -30,7 +30,7 @@ public class IntentWraper {
         context.startService(intent);
     }
 
-    public static void stopService(String url, DisplaySynch displaySynch){
+    public static void stopService(){
         getIntentInstance();
         SynchService.stopTimerTask();
         context.stopService(intent);
