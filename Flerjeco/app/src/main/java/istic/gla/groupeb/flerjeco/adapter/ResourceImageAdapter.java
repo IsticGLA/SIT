@@ -35,7 +35,7 @@ public class ResourceImageAdapter extends ArrayAdapter<Resource> {
     public View getView(int position, View convertView, ViewGroup parent){
         ViewHolder viewHolder;
         if (convertView == null){
-            convertView = LayoutInflater.from(this.getContext()).inflate(R.layout.item_resource_agent_only_icon,parent,false);
+            convertView = LayoutInflater.from(this.getContext()).inflate(R.layout.item_resource_agent_only_image,parent,false);
             // configure view holder
             viewHolder = new ViewHolder();
             viewHolder.imageViewResource = (ImageView) convertView.findViewById(R.id.image_view);

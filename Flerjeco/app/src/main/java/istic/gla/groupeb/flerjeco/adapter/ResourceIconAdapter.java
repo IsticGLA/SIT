@@ -46,7 +46,7 @@ public class ResourceIconAdapter extends ArrayAdapter<Resource> {
             convertView = LayoutInflater.from(this.getContext()).inflate(R.layout.item_resource_agent_only_icon,parent,false);
             // configure view holder
             viewHolder = new ViewHolder();
-            viewHolder.iconViewResource = (IconView) convertView.findViewById(R.id.image_view);
+            viewHolder.iconViewResource = (IconView) convertView.findViewById(R.id.icon_view);
             convertView.setTag(viewHolder);
         }else{
             viewHolder = (ViewHolder) convertView.getTag();

@@ -34,6 +34,7 @@ import java.util.List;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
+import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceImageAdapter;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
@@ -80,7 +81,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
 
         fillResourcesAndRequests();
 
-        //listViewAdditionalResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.item_resource_agent_only_icon, additionalResourceList));
+        listViewAdditionalResources.setAdapter(new ResourceIconAdapter(getActivity(), R.layout.item_resource_agent_only_icon, additionalResourceList));
         listViewResources.setAdapter(new ResourceImageAdapter(getActivity(), R.layout.item_resource_agent_only_icon, resourceList, iconBitmapResourceList));
         listViewRequests.setAdapter(new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList));
 
@@ -107,6 +108,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         listViewAdditionalResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                mCallback.onResourceSelected(position);
                 ClipData data = ClipData.newPlainText("", "");
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
                 view.startDrag(data, shadowBuilder, view, 0);
@@ -188,4 +190,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         return resourceList;
     }
 
+    public List<Resource> getAdditionalResourceList() {
+        return additionalResourceList;
+    }
 }
