@@ -58,6 +58,6 @@ public class Notify {
         } else {
             return Response.ok().build();
         }*/
-        return Response.ok().build();
+        return Response.status(201).entity(timestamp).build();
     }
 }

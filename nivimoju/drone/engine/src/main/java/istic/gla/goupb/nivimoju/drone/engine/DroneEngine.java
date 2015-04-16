@@ -168,6 +168,7 @@ public class DroneEngine{
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();
         List<Drone> drones = droneDAO.getAll();
+        logger.info("got " + drones.size() +" drones from database");
         droneDAO.disconnect();
         loadDrones(drones);
     }
@@ -224,10 +225,12 @@ public class DroneEngine{
      * @param drones
      */
     private void loadDrones(List<Drone> drones){
+        logger.info("loading drones internally");
         droneByLabel.clear();
         affectationByDroneLabel.clear();
         dronesByIntervention.clear();
         for(Drone drone : drones) {
+            logger.info("loading drone[" + drone.getLabel() +"]");
             //update des listes interne
             droneByLabel.put(drone.getLabel(), drone);
             long idIntervention = drone.getIdIntervention();
