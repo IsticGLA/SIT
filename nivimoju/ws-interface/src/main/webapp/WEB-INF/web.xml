@@ -4,6 +4,34 @@
         "http://java.sun.com/dtd/web-app_2_3.dtd" >
 
 <web-app>
+    <context-param>
+        <param-name>quartz:config-file</param-name>
+        <param-value>quartz.properties</param-value>
+    </context-param>
+    <context-param>
+        <param-name>quartz:shutdown-on-unload</param-name>
+        <param-value>true</param-value>
+    </context-param>
+    <context-param>
+        <param-name>quartz:wait-on-shutdown</param-name>
+        <param-value>false</param-value>
+    </context-param>
+    <context-param>
+        <param-name>quartz:start-scheduler-on-load</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>
+            org.quartz.ee.servlet.QuartzInitializerListener
+        </listener-class>
+    </listener>
+    <listener>
+        <listener-class>
+            istic.gla.groupb.nivimoju.init.JobInit
+        </listener-class>
+    </listener>
+
     <servlet>
         <servlet-name>nivimoju-servlet</servlet-name>
         <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
@@ -21,6 +49,8 @@
         <servlet-name>nivimoju-servlet</servlet-name>
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
+
+
 
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
