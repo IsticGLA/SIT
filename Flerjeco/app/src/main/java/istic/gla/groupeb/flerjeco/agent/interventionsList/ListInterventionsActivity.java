@@ -188,7 +188,6 @@ public class ListInterventionsActivity extends FragmentActivity
     @Override
     protected void onStop() {
         super.onStop();
-        IntentWraper.stopService();
     }
 
 
