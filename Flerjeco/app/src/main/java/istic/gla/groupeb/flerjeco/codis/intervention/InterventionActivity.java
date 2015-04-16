@@ -197,9 +197,11 @@ public class InterventionActivity extends FragmentActivity
 
     @Override
     public void updateInterventions(Intervention[] interventions) {
-        interventionTab = interventions;
-        updateInterventions();
-        updateCurrentIntervention();
+        if(interventions != null) {
+            interventionTab = interventions;
+            updateInterventions();
+            updateCurrentIntervention();
+        }
     }
 
     @Override
