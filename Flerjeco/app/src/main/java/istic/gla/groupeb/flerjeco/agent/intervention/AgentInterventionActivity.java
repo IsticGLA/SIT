@@ -69,7 +69,7 @@ public class AgentInterventionActivity extends FragmentActivity
 
     @Override
     public void refresh(){
-        new GetInterventionTask(this, intervention.getId());
+        new GetInterventionTask(this, intervention.getId()).execute();
     }
     /** Called when the activity is first created. */
     @Override
@@ -98,7 +98,7 @@ public class AgentInterventionActivity extends FragmentActivity
         resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
         intervention.setResources(resourceList);*/
 
-        setContentView(R.layout.activity_second);
+        setContentView(R.layout.activity_intervention_agent);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
