@@ -286,7 +286,6 @@ public class AgentInterventionActivity extends FragmentActivity
                         resource.setLatitude(latLng.latitude);
                         resource.setLongitude(latLng.longitude);
                         resource.setState(State.planned);
-                        resourceList.remove(resource);
                     }else{
                         resource = additionalResourceList.get(mCurrentPosition);
                         resource.setLatitude(latLng.latitude);
@@ -300,11 +299,10 @@ public class AgentInterventionActivity extends FragmentActivity
                     MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
                     marker.draggable(true);
 
-                    // Changing marker icong
+                    // Changing marker icons
                     mapFragment.drawMarker(marker, resource);
                     // adding marker
                     googleMap.addMarker(marker);
-                    refresh();
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     if (!event.getResult()){
