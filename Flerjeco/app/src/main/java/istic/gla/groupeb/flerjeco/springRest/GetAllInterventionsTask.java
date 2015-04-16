@@ -48,7 +48,7 @@ public class GetAllInterventionsTask extends AsyncTask<Void, Void, Boolean> {
             count++;
             if(count < 4) {
                 Log.i(TAG, "Count: " + count);
-                new GetAllInterventionsTask(activity, count);
+                new GetAllInterventionsTask(activity, count).execute();
             }
             else {
                 activity.showProgress(false);
