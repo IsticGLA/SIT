@@ -19,12 +19,11 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,26 +58,26 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
     private Intervention intervention;
     private LatLngBounds.Builder bounds;
     private StaticData[] staticDataTab;
-    private List<Resource> resources = new ArrayList<>();
-    private List<Resource> resourcesToPutOnMap = new ArrayList<>();
-    private Set<Resource> resourcesPutOnMap = new HashSet<>();
+    private Set<Resource> resources = new HashSet<>();
     private Map<String, com.google.android.gms.maps.model.Marker> markers = new HashMap<>();
 
     @Override
     public void refresh() {
-        //TODO
-        if (null != (AgentInterventionActivity)getActivity()){
-            intervention = ((AgentInterventionActivity) getActivity()).intervention;
+        if (null != getActivity()){
             // clear lists
-            clearData();
+            clearMapData();
             // fill lists
             initMap();
         }
     }
 
-    public void clearData(){
+    private void clearMapData(){
+        for (Resource resource : resources){
+            if (markers.get(resource.getLabel()) != null) {
+                markers.get(resource.getLabel()).remove();
+            }
+        }
         resources.clear();
-        resourcesToPutOnMap.clear();
     }
 
     @Override
@@ -98,7 +97,6 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
         mMapView.onResume();// needed to get the map to refresh immediately
 
-        buttonValidateResources = (Button) v.findViewById(R.id.buttonValidateResources);
         buttonCancelResources = (Button) v.findViewById(R.id.buttonCancelResources);
 
         try {
@@ -147,90 +145,84 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
     }
 
     public void cancelResources(){
-        for (Resource resource : resourcesPutOnMap){
+        for (Resource resource : resources){
             if (markers.get(resource.getLabel()) != null) {
                 markers.get(resource.getLabel()).remove();
             }
         }
-        resourcesPutOnMap.clear();
+        resources.clear();
         buttonValidateResources.setVisibility(View.GONE);
         buttonCancelResources.setVisibility(View.GONE);
     }
 
-    public void updateMapView(int position) {
-        Resource resource = resources.get(position);
-        if (resource.getState() == State.planned || resource.getState() == State.active) {
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(new LatLng(resource.getLatitude(), resource.getLongitude())).zoom(16).build();
-            googleMap.animateCamera(CameraUpdateFactory
-                    .newCameraPosition(cameraPosition));
-            this.position = position;
-        }
-    }
-
     public void initMap(){
-        // Create LatLngBound to zoom on the set of positions in the path
-        bounds = new LatLngBounds.Builder();
-        boolean isPositionResource = false;
+        // get intervention
+        intervention = ((AgentInterventionActivity) getActivity()).intervention;
 
-        if (staticDataTab != null && staticDataTab.length > 0){
-            for (StaticData data : staticDataTab){
-                MarkerOptions marker = new MarkerOptions().position(
-                        new LatLng(data.getLatitude(), data.getLongitude()));
-                drawStaticMarker(marker, data);
-                googleMap.addMarker(marker);
-            }
-        }
+        if (null != intervention){
+            // Create LatLngBound to zoom on the set of positions in the path
+            bounds = new LatLngBounds.Builder();
+            boolean isPositionResource = false;
 
-        if (intervention.getResources().size()>0){
-
-            for (Resource resource : intervention.getResources()){
-                double latitude = resource.getLatitude();
-                double longitude = resource .getLongitude();
-                if(latitude != 0 && longitude != 0) {
-                    Log.i(TAG, "Latitude : "+latitude+" Longitude : "+longitude);
-                    isPositionResource = true;
-                    LatLng latLng = new LatLng(latitude, longitude);
-                    bounds.include(latLng);
-                }
-
-                State resourceState = resource.getState();
-                if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
-                    // create marker
+            if (staticDataTab != null && staticDataTab.length > 0){
+                for (StaticData data : staticDataTab){
                     MarkerOptions marker = new MarkerOptions().position(
-                            new LatLng(resource.getLatitude(), resource.getLongitude())).title(resource.getLabel());
-                    // Changing marker icon
-
-                    drawMarker(marker, resource);
-                    // adding marker
+                            new LatLng(data.getLatitude(), data.getLongitude()));
+                    drawStaticMarker(marker, data);
                     googleMap.addMarker(marker);
-
-                    resources.add(resource);
-                }else if (State.validated.equals(resourceState)){
-                    resourcesToPutOnMap.add(resource);
-                    Log.i(getClass().getSimpleName(), "Adding " + resource.getLabel() + " to resourcesToPutOnMap");
                 }
+            }
+
+            if (intervention.getResources().size()>0){
+
+                for (Resource resource : intervention.getResources()){
+                    double latitude = resource.getLatitude();
+                    double longitude = resource .getLongitude();
+                    if(latitude != 0 && longitude != 0) {
+                        Log.i(TAG, "Latitude : "+latitude+" Longitude : "+longitude);
+                        isPositionResource = true;
+                        LatLng latLng = new LatLng(latitude, longitude);
+                        bounds.include(latLng);
+                    }
+
+                    State resourceState = resource.getState();
+                    if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+                        // create marker
+                        MarkerOptions marker = new MarkerOptions().position(
+                                new LatLng(resource.getLatitude(), resource.getLongitude())).title(resource.getLabel());
+                        // Changing marker icon
+
+                        drawMarker(marker, resource);
+                        // adding marker
+                        Marker markerAdded = googleMap.addMarker(marker);
+                        markers.put(resource.getLabel(), markerAdded);
+
+                        resources.add(resource);
+                    }
+                }
+            }
+
+            if(!isPositionResource) {
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
+
+                googleMap.animateCamera(CameraUpdateFactory
+                        .newCameraPosition(cameraPosition));
+            } else {
+                googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+
+                    @Override
+                    public void onCameraChange(CameraPosition arg0) {
+                        // Move camera.
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                        // Remove listener to prevent position reset on camera move.
+                        googleMap.setOnCameraChangeListener(null);
+                    }
+                });
             }
         }
 
-        if(!isPositionResource) {
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
 
-            googleMap.animateCamera(CameraUpdateFactory
-                    .newCameraPosition(cameraPosition));
-        } else {
-            googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-
-                @Override
-                public void onCameraChange(CameraPosition arg0) {
-                    // Move camera.
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
-                    // Remove listener to prevent position reset on camera move.
-                    googleMap.setOnCameraChangeListener(null);
-                }
-            });
-        }
     }
 
     public int getPosition() {
@@ -323,10 +315,6 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
             }
 
         }
-    }
-
-    public Set<Resource> getResourcesPutOnMap() {
-        return resourcesPutOnMap;
     }
 
 

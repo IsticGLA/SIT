@@ -244,8 +244,8 @@ public class InterventionDialogFragment extends DialogFragment
         }
 
         if (null == address) {
-            Toast.makeText(InterventionDialogFragment.this.getActivity(), R.string.geocoder_failed, Toast.LENGTH_LONG);
-            showProgress(true);
+            Toast.makeText(getContext(), R.string.geocoder_failed, Toast.LENGTH_LONG);
+            showProgress(false);
             return;
         }
 
@@ -296,7 +296,8 @@ public class InterventionDialogFragment extends DialogFragment
         List<Address> addressList = new ArrayList<>();
         try {
             addressList = geocoder.getFromLocationName(addressEditText.getText().toString(),1);
-            while (addressList.size()==0 || nbTry<10) {
+            while (addressList.size()==0 && nbTry<10) {
+                Log.i(TAG, "Try number : "+nbTry);
                 addressList = geocoder.getFromLocationName(addressEditText.getText().toString(), 1);
                 nbTry++;
             }
