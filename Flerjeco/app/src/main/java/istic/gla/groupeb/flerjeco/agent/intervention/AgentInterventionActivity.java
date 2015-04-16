@@ -37,8 +37,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import entity.Intervention;
@@ -51,9 +49,6 @@ import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 import istic.gla.groupeb.flerjeco.view.IconView;
-import util.ResourceCategory;
-import util.ResourceRole;
-import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
         implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool {
@@ -67,6 +62,15 @@ public class AgentInterventionActivity extends FragmentActivity
 
     int mCurrentPosition = -1;
 
+    @Override
+    public void refresh(){
+        if (firstFragment != null){
+            firstFragment.refresh();
+        }
+        if (mapFragment != null){
+            mapFragment.refresh();
+        }
+    }
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -146,10 +150,7 @@ public class AgentInterventionActivity extends FragmentActivity
         actionBar.addTab(tab);
     }
 
-    @Override
-    public void refresh(){
 
-    }
     public void onResourceSelected(int position) {
 
         mapFragment = (AgentInterventionMapFragment)

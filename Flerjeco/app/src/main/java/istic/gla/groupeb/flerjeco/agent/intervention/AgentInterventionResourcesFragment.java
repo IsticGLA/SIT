@@ -36,10 +36,11 @@ import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapterIIcon;
 import istic.gla.groupeb.flerjeco.icons.IIcon;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import util.ResourceCategory;
 import util.State;
 
-public class AgentInterventionResourcesFragment extends Fragment {
+public class AgentInterventionResourcesFragment extends Fragment implements ISynchTool {
     OnResourceSelectedListener mCallback;
 
     private ListView listViewResources;
@@ -49,6 +50,13 @@ public class AgentInterventionResourcesFragment extends Fragment {
     private List<IIcon> iconResourceList = new ArrayList<>();
     private List<Resource> requestList = new ArrayList<>();
     private List<Resource> additionalResourceList = new ArrayList<>();
+
+    @Override
+    public void refresh() {
+        // TODO
+        // clear lists
+        // fill lists
+    }
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
