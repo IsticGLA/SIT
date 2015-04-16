@@ -178,7 +178,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
             if (intervention.getResources().size()>0){
 
-                for (Resource resource : intervention.getResources()){
+                for (final Resource resource : intervention.getResources()){
                     double latitude = resource.getLatitude();
                     double longitude = resource .getLongitude();
                     if(latitude != 0 && longitude != 0) {
@@ -204,6 +204,15 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                         resources.add(resource);
                         resourcesMap.put(resource.getLabel(),resource);
                     }
+                    googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker) {
+                            if (!"incident".equals(resource.getLabel())) {
+                                ((AgentInterventionActivity) getActivity()).showManageResourceDialog(resource);
+                            }
+                            return false;
+                        }
+                    });
                 }
             }
 
