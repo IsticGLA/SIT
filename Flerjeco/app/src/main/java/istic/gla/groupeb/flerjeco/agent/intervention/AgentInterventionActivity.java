@@ -308,14 +308,10 @@ public class AgentInterventionActivity extends FragmentActivity
                     googleMap.addMarker(marker);
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
-                    if (!event.getResult()){
-                        view.setVisibility(View.VISIBLE);
-                    }
+                    view.setVisibility(View.VISIBLE);
                     break;
                 default:
-                    if (!event.getResult()){
-                        v.setVisibility(View.VISIBLE);
-                    }
+                    v.setVisibility(View.VISIBLE);
                     break;
             }
             return true;
