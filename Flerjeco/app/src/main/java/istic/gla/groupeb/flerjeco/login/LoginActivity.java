@@ -60,16 +60,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        DisplaySynch displaySynch = new DisplaySynch() {
-            @Override
-            public void ctrlDisplay() {
-                refresh();
-            }
-        };
-        String url = "notify/10";
-
-        IntentWraper.startService(url, displaySynch);
-
         refresh();
     }
 
