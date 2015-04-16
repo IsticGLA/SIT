@@ -83,14 +83,6 @@ public class AgentInterventionActivity extends FragmentActivity
         if (extras != null){
             Log.i(TAG, "getExtras not null");
             intervention = (Intervention) extras.getSerializable("intervention");
-            DisplaySynch displaySynch = new DisplaySynch() {
-                @Override
-                public void ctrlDisplay() {
-                    refresh();
-                }
-            };
-            String url = "notify/intervention/"+intervention.getId();
-            IntentWraper.startService(url, displaySynch);
         }
 
         /*List<Resource> resourceList = new ArrayList<>();
@@ -382,7 +374,6 @@ public class AgentInterventionActivity extends FragmentActivity
     @Override
     protected void onStop() {
         super.onStop();
-        IntentWraper.stopService();
     }
 
     @Override
