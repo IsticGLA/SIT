@@ -4,13 +4,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -23,21 +20,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.springframework.web.client.HttpStatusCodeException;
-
 import entity.Intervention;
-import entity.ResourceType;
 import entity.StaticData;
-import istic.gla.groupeb.flerjeco.ISynchTool;
-import istic.gla.groupeb.flerjeco.MyApp;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 
 /**
- * A login screen that offers login via email/password.
+ * A login screen that offers loginNO CONTENT via email/password.
  */
 public class LoginActivity extends Activity implements ISynchTool{
     private static final String TAG = LoginActivity.class.getSimpleName();
@@ -47,6 +43,8 @@ public class LoginActivity extends Activity implements ISynchTool{
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+
+
 
     // UI references.
     private EditText mLoginView;
@@ -59,33 +57,23 @@ public class LoginActivity extends Activity implements ISynchTool{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-       /* Intent i=new Intent(this, SynchService.class);
-        i.putExtra("handler", new Messenger(this.handler));
-
         DisplaySynch displaySynch = new DisplaySynch() {
             @Override
             public void ctrlDisplay() {
-                display();
+                refresh();
             }
         };
+        String url = "notify/10";
 
-        i.putExtra("displaySynch", displaySynch);
+        IntentWraper.startService(url, displaySynch);
 
-        Log.i("MAMH", i.toString());
-        this.startService(i);*/
-
-        display();
+        refresh();
     }
 
 
 
     @Override
-    public void display() {
-
-
-        Log.i("MAMH", "LoginActivity display");
-
-        new ResourceTypeSynch().execute();
+    public void refresh() {
 
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);
@@ -113,55 +101,6 @@ public class LoginActivity extends Activity implements ISynchTool{
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
-
-
-    // Backgroud task to get notify
-    private class ResourceTypeSynch extends AsyncTask<entity.Intervention, Void, ResourceType> {
-
-        @Override
-        protected ResourceType doInBackground(entity.Intervention... params) {
-            try {
-
-                SpringService springService = new SpringService();
-
-                return  springService.getResourceTypeById(1L);
-            } catch (HttpStatusCodeException e) {
-                Log.e("InterventionActivity", e.getMessage(), e);
-
-            }
-            return  null;
-
-        }
-
-        @Override
-        protected void onPostExecute(ResourceType resultPost) {
-
-            //TODO
-           /* if(resultPost != null)
-                Toast.makeText(LoginActivity.this, "Label est "+resultPost.getLabel(), Toast.LENGTH_LONG).show();
-            else Toast.makeText(LoginActivity.this, "Label est null", Toast.LENGTH_LONG).show();*/
-
-        }
-
-    }
-
-
-
-    Handler handler=new Handler()
-    {
-        @Override
-        public void handleMessage(Message msg) {
-            //get data from msg
-
-
-            String result=msg.getData().getString("result");
-
-            Log.d("xxxxx", "get data " + result);
-
-
-            super.handleMessage(msg);
-        }
-    };
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -276,12 +215,12 @@ public class LoginActivity extends Activity implements ISynchTool{
         protected void onPostExecute(String statusCode) {
             mAuthTask = null;
             showProgress(false);
-            MyApp myApp = MyApp.getInstance();
+            FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
             boolean isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
-            myApp.setCodisUser(isCodis);
-            myApp.setLogin(mLogin);
-            myApp.setPassword(mPassword);
-            if (!isCodis) myApp.setStaticDatas(staticDatas);
+            flerjecoApplication.setCodisUser(isCodis);
+            flerjecoApplication.setLogin(mLogin);
+            flerjecoApplication.setPassword(mPassword);
+            if (!isCodis) flerjecoApplication.setStaticDatas(staticDatas);
             Log.i(TAG, "isCodis "+isCodis);
 
             if (statusCode.equals("200")) {
@@ -307,8 +246,7 @@ public class LoginActivity extends Activity implements ISynchTool{
     }
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * Represents an asynchronous task used to get interventions
      */
     public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
 

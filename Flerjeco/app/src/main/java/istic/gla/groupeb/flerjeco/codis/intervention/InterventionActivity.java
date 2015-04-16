@@ -33,9 +33,10 @@ import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
 public class InterventionActivity extends FragmentActivity
-        implements InterventionFragment.OnResourceSelectedListener {
+        implements InterventionFragment.OnResourceSelectedListener, ISynchTool {
 
     private static final String TAG = InterventionActivity.class.getSimpleName();
     protected Intervention[] interventionTab;
@@ -168,5 +169,10 @@ public class InterventionActivity extends FragmentActivity
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void refresh() {
+        
     }
 }

@@ -96,6 +96,17 @@ public class AgentInterventionResourcesFragment extends Fragment {
             }
         });
 
+        listViewAdditionalResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                view.setVisibility(View.VISIBLE);
+                return true;
+            }
+        });
+
         return v;
     }
 

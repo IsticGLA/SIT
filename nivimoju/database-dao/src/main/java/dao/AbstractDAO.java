@@ -12,6 +12,7 @@ import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,32 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     }
 
     /**
+     * return the LastUpdate from the base
+     * @param timestamp
+     * @return
+     */
+    public Timestamp getNewerLastUpdate(Timestamp timestamp) {
+        return null;
+    }
+
+    /**
+     * return the LastUpdate from the base
+     * @param timestamp
+     * @return
+     */
+    public Timestamp getLastUpdate(long id, Timestamp timestamp) {
+        return this.getById(id).getLastUpdate();
+    }
+
+    public boolean checkLastUpdate(T e) {
+        Timestamp databaseDate = this.getById(e.getId()).getLastUpdate();
+        if(databaseDate.before(e.getLastUpdate())) {
+            return  true;
+        }
+        return false;
+    }
+
+    /**
      * Create an entity
      * @param e entity to create
      */
@@ -54,6 +81,8 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         try {
             JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
             Long newId = globalId.content();
+
+            e.updateDate();
 
             JsonDocument res = DAOManager.getCurrentBucket().insert(JsonDocument.create(Long.toString(newId), entityToJsonDocument(e)));
 
@@ -83,8 +112,12 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final T update(T e) {
         try {
-            JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
-            return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+            if(checkLastUpdate(e)) {
+                e.updateDate();
+                JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
+                return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
+            }
+            return null;
         } catch (DocumentDoesNotExistException ex){
             return null;
         }
@@ -126,13 +159,13 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         ViewQuery query = null;
         if (value instanceof Long){
             Long v = (Long) value;
-            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(v).stale(Stale.FALSE);
+            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
         } else if (value instanceof Integer){
             Integer v = (Integer) value;
-            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(v).stale(Stale.FALSE);
+            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
         } else {
             String v = (String) value;
-            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(v).stale(Stale.FALSE);
+            query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
         }
         List<ViewRow> result = DAOManager.getCurrentBucket().query(query).allRows();
         return viewRowsToEntities(result);

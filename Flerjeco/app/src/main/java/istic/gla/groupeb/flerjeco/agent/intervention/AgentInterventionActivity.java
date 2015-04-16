@@ -18,6 +18,7 @@ package istic.gla.groupeb.flerjeco.agent.intervention;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.graphics.Point;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -45,13 +46,17 @@ import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 import istic.gla.groupeb.flerjeco.view.IconView;
 import util.ResourceCategory;
 import util.ResourceRole;
 import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
-        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener {
+        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool {
 
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
@@ -69,28 +74,32 @@ public class AgentInterventionActivity extends FragmentActivity
 
         intervention = new Intervention();
 
-        /*Bundle extras = getIntent().getExtras();
+        Bundle extras = getIntent().getExtras();
 
         if (extras != null){
             intervention = (Intervention) extras.getSerializable("intervention");
-        }*/
+            DisplaySynch displaySynch = new DisplaySynch() {
+                @Override
+                public void ctrlDisplay() {
+                    refresh();
+                }
+            };
+            String url = "notify/"+intervention.getId();
+            IntentWraper.startService(url, displaySynch);
+        }
 
-
-        intervention.setLatitude(48.117749);
-        intervention.setLongitude(-1.677297);
-        List<Resource> resourceList = new ArrayList<>();
-        resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource1", State.validated, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
-        resourceList.add(new Resource("Resource2", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
-        resourceList.add(new Resource("Resource3", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 48.107749, -1.687297));
-        resourceList.add(new Resource("Resource4", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource5", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("VSAP", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource7", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource8", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource9", State.refused, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-
-        intervention.setResources(resourceList);
+        //List<Resource> resourceList = new ArrayList<>();
+        //resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        //resourceList.add(new Resource("Resource1", State.validated, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
+        //resourceList.add(new Resource("Resource2", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
+        //resourceList.add(new Resource("Resource3", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 48.107749, -1.687297));
+        //resourceList.add(new Resource("Resource4", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
+        //resourceList.add(new Resource("Resource5", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        //resourceList.add(new Resource("VSAP", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
+        //resourceList.add(new Resource("Resource7", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
+        ///resourceList.add(new Resource("Resource8", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
+        //resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        //intervention.setResources(resourceList);
 
         setContentView(R.layout.activity_second);
 
@@ -137,6 +146,10 @@ public class AgentInterventionActivity extends FragmentActivity
         actionBar.addTab(tab);
     }
 
+    @Override
+    public void refresh(){
+
+    }
     public void onResourceSelected(int position) {
 
         mapFragment = (AgentInterventionMapFragment)
@@ -219,6 +232,7 @@ public class AgentInterventionActivity extends FragmentActivity
      */
     public void updateIntervention(Intervention intervention) {
         //TODO update lists of resources and map
+
     }
 
     class MyDragListener implements View.OnDragListener {
@@ -260,6 +274,12 @@ public class AgentInterventionActivity extends FragmentActivity
                     IconView iconView = (IconView) ((LinearLayout)view).getChildAt(0);
 
                     Resource resource = iconView.getResource();
+
+                    resource.setLatitude(latLng.latitude);
+                    resource.setLongitude(latLng.longitude);
+
+                    UpdateIntervention mUpdateIntervention = new UpdateIntervention();
+                    mUpdateIntervention.execute(intervention.getId(), resource);
 
                     MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
                     // Changing marker icon
@@ -303,5 +323,18 @@ public class AgentInterventionActivity extends FragmentActivity
 
     @Override
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
+    }
+
+    private class UpdateIntervention extends AsyncTask<Object, Void, Intervention> {
+
+        @Override
+        protected Intervention doInBackground(Object... params) {
+            return new SpringService().updateResourceIntervention(params);
+        }
+
+        @Override
+        protected void onPostExecute(Intervention intervention){
+            updateIntervention(intervention);
+        }
     }
 }
