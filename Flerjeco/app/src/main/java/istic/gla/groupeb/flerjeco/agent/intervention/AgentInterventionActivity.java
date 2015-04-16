@@ -216,6 +216,7 @@ public class AgentInterventionActivity extends FragmentActivity
     public void resourceUpdated(){
         UpdateIntervention updateIntervention = new UpdateIntervention();
         updateIntervention.execute(intervention);
+        refresh();
     }
 
     /**

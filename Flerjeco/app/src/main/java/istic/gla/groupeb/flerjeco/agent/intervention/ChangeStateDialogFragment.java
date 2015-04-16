@@ -116,7 +116,7 @@ public class ChangeStateDialogFragment extends DialogFragment {
     public void changeResourceRole(ResourceRole role){
         resource.setResourceRole(role);
         ((AgentInterventionActivity)getActivity()).resourceUpdated();
-        dismiss();
+        //dismiss();
     }
 
     /**
