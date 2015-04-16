@@ -69,7 +69,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
 
     public void clearData(){
         resourceList.clear();
-        iconResourceList.clear();
+        iconBitmapResourceList.clear();
         requestList.clear();
     }
 
@@ -143,22 +143,23 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
     }
 
     private void fillResourcesAndRequests(){
-
         AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
-        for (Resource resource : interventionActivity.intervention.getResources()){
-            State resourceState = resource.getState();
-            if (State.validated.equals(resourceState)){
-                resourceList.add(resource);
-                Vehicle mVehicle = new Vehicle(resource.getLabel(), resource.getResourceRole(), resource.getState());
-                int width = mVehicle.getRect().width();
-                int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
-                Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-                Canvas mCanvas = new Canvas(mBitmap);
-                mVehicle.drawIcon(mCanvas);
-                iconBitmapResourceList.add(mBitmap);
-                Log.i("RESOURCELIST",resource.getLabel());
-            }else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) ){
-                requestList.add(resource);
+        if (null != interventionActivity && null != interventionActivity.intervention) {
+            for (Resource resource : interventionActivity.intervention.getResources()) {
+                State resourceState = resource.getState();
+                if (State.validated.equals(resourceState)) {
+                    resourceList.add(resource);
+                    Vehicle mVehicle = new Vehicle(resource.getLabel(), resource.getResourceRole(), resource.getState());
+                    int width = mVehicle.getRect().width();
+                    int height = mVehicle.getRect().height() + mVehicle.getRect2().height() + 10;
+                    Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                    Canvas mCanvas = new Canvas(mBitmap);
+                    mVehicle.drawIcon(mCanvas);
+                    iconBitmapResourceList.add(mBitmap);
+                    Log.i("RESOURCELIST", resource.getLabel());
+                } else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState)) {
+                    requestList.add(resource);
+                }
             }
         }
 

@@ -1,15 +1,10 @@
 package istic.gla.groupb.nivimoju.API;
 
 import dao.InterventionDAO;
-import entity.*;
-import entity.Intervention;
 
-import javax.swing.text.html.parser.Entity;
 import javax.ws.rs.*;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.awt.*;
 import java.sql.Timestamp;
 
 /**

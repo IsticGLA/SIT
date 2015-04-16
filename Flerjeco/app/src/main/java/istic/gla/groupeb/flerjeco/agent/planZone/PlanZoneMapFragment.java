@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.ArrayList;
 import java.util.List;
 
+import entity.Drone;
 import entity.Intervention;
 import entity.Path;
 import entity.Position;
@@ -45,6 +47,7 @@ public class PlanZoneMapFragment extends Fragment {
     private GoogleMap googleMap;
     private List<Polyline> polylines;
     private List<Marker> markers;
+    private List<Pair<Long, Marker>> drones;
 
     // list of all the path of the intervention
     private List<Path> pathList;
@@ -54,6 +57,9 @@ public class PlanZoneMapFragment extends Fragment {
     public Path newPath;
     // save the path when we edit it to future restore (request to database failed)
     private Path savePath;
+    // current intervention
+    private Intervention inter;
+    // list all drone of the intevervention
 
     // indicate if we want to remove a path in the intervention
     public boolean removePath = false;
@@ -189,7 +195,9 @@ public class PlanZoneMapFragment extends Fragment {
         this.pathList = pathList;
         this.polylines = new ArrayList<>();
         this.markers = new ArrayList<>();
+        this.drones = new ArrayList<>();
         this.newPath = new Path();
+        new GetPositionDrone().execute(((PlanZoneActivity) getActivity()).getIntervention().getId());
     }
 
     /**
@@ -209,18 +217,24 @@ public class PlanZoneMapFragment extends Fragment {
         // remove Click listener
         resetMapListener();
 
-        Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
+        inter = ((PlanZoneActivity)getActivity()).getIntervention();
 
         // if we are in edition mode, we set the new path in the intervention we get back from the main activity
         if (editPath){
             inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
             inter.getWatchPath().get(mCurrentPosition).setClosed(newPath.isClosed());
+
+            // send to the database
+            new SendPathToDrone().execute(inter);
+
         // else, we add the new path
         } else {
             inter.getWatchPath().add(newPath);
+
+            // send to the database
+            new AssignDrone().execute(inter.getId());
         }
-        // send to the database
-        new SendPathToDrone().execute(inter);
+
     }
 
     /**
@@ -233,11 +247,14 @@ public class PlanZoneMapFragment extends Fragment {
         resetMapListener();
 
         // get back the intervention from the main activity
-        Intervention inter = ((PlanZoneActivity)getActivity()).getIntervention();
+        inter = ((PlanZoneActivity)getActivity()).getIntervention();
         // remove of the path we want to remove
-        inter.getWatchPath().remove(mCurrentPosition);
-        // send to the database
-        new SendPathToDrone().execute(inter);
+        if (inter.getWatchPath().size() >= mCurrentPosition) {
+            inter.getWatchPath().remove(mCurrentPosition);
+            // send to the database
+            Pair p = drones.get(drones.size()-1);
+            new UnAssignDrone().execute((Long)p.first);
+        }
     }
 
     /**
@@ -374,6 +391,28 @@ public class PlanZoneMapFragment extends Fragment {
         }
     }
 
+    /**
+     * Show the marker for the drone of the intervention
+     */
+    public void showDrones(Drone[] tab){
+        for (Drone d : tab){
+            showDrone(d);
+        }
+    }
+
+    public void showDrone(Drone d){
+        double latitude = d.getLatitude();
+        double longitude = d.getLongitude();
+        if (latitude == 0 || longitude == 0){
+            latitude = ((PlanZoneActivity) getActivity()).getIntervention().getLatitude();
+            longitude = ((PlanZoneActivity) getActivity()).getIntervention().getLongitude();
+        }
+        drones.add(new Pair<Long, Marker>(d.getId(), googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                .title(d.getLabel())
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_sitistic_drone)))));
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -397,6 +436,89 @@ public class PlanZoneMapFragment extends Fragment {
         super.onLowMemory();
         mMapView.onLowMemory();
     }
+
+
+    /**
+     * Represents an asynchronous call for add new path for drone in the current intervention
+     * the user.
+     */
+    public class AssignDrone extends AsyncTask<Long, Void, Drone> {
+
+        private final String TAG = AssignDrone.class.getSimpleName();
+
+        @Override
+        protected Drone doInBackground(Long... params) {
+            try {
+                Log.i(TAG, "Get a drone for the current path we create : "+ params[0]);
+                SpringService springService = new SpringService();
+                Drone drone = springService.assignDrone(params[0]);
+                return drone;
+
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Drone drones) {
+            if (null == drones){
+                Toast.makeText(getActivity().getApplicationContext(), "Il n'y a plus assez de drone pour l'instant", Toast.LENGTH_LONG).show();
+                // update doesn't work
+                if (editPath && !removePath){
+                    Log.i("TEST", "Update");
+                    pathList.set(mCurrentPosition, savePath);
+                    updateMapView(mCurrentPosition);
+
+                    // create doesn't work
+                } else {
+                    Log.i("TEST", "Create");
+                    pathList.remove(pathList.size()-1);
+                    clearGoogleMap();
+                }
+            } else {
+                new SendPathToDrone().execute(inter);
+                Toast.makeText(getActivity().getApplicationContext(), "Drone affecté", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    /**
+     * Represents an asynchronous call for add new path for drone in the current intervention
+     * the user.
+     */
+    public class UnAssignDrone extends AsyncTask<Long, Void, Drone> {
+
+        private final String TAG = UnAssignDrone.class.getSimpleName();
+
+        @Override
+        protected Drone doInBackground(Long... params) {
+            try {
+                Log.i(TAG, "Get a drone for the current path we create : "+ params[0]);
+                SpringService springService = new SpringService();
+                Drone drone = springService.unAssignDrone(params[0]);
+                return drone;
+
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Drone drone) {
+            if (null == drone){
+                Toast.makeText(getActivity().getApplicationContext(), "Le drone n'as pas pu être liberé", Toast.LENGTH_LONG).show();
+                Log.i("TEST", "Delete " + savePath.toString() + "  " + mCurrentPosition);
+                pathList.add(mCurrentPosition, savePath);
+                updateMapView(mCurrentPosition);
+            } else {
+                new SendPathToDrone().execute(inter);
+                Toast.makeText(getActivity().getApplicationContext(), "Drone libéré", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
 
     /**
      * Represents an asynchronous call for add new path for drone in the current intervention
@@ -425,7 +547,6 @@ public class PlanZoneMapFragment extends Fragment {
         protected void onPostExecute(Intervention intervention) {
             if (null == intervention){
                 Log.i(TAG, "La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer");
-                Intervention i = ((PlanZoneActivity) getActivity()).getIntervention();
 
                 // update doesn't work
                 if (editPath && !removePath){
@@ -453,6 +574,40 @@ public class PlanZoneMapFragment extends Fragment {
                 updateMapView(intervention.getWatchPath().size()-1);
                 ((PlanZoneActivity) getActivity()).refreshList(intervention);
 
+            }
+        }
+    }
+
+    /**
+     * Represents an asynchronous call for add new path for drone in the current intervention
+     * the user.
+     */
+    public class GetPositionDrone extends AsyncTask<Long, Void, Drone[]> {
+
+        private final String TAG = GetPositionDrone.class.getSimpleName();
+
+        @Override
+        protected Drone[] doInBackground(Long... params) {
+            try {
+                Log.i(TAG, "Get the position of the drone for the intervention with id : "+ params[0]);
+                SpringService springService = new SpringService();
+                Drone[] drones = springService.getAllDroneByIntervention(params);
+                return drones;
+
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Drone[] drones) {
+            if (null == drones){
+                Toast.makeText(getActivity().getApplicationContext(), "Aucun drone pour cette intervention", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getActivity().getApplicationContext(), "Le/s drone/s ont été récupérés", Toast.LENGTH_LONG).show();
+                showDrones(drones);
             }
         }
     }

@@ -38,7 +38,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -48,10 +47,9 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
-import util.ResourceCategory;
-import util.ResourceRole;
-import util.State;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 public class AgentInterventionActivity extends FragmentActivity
         implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool {
@@ -83,7 +81,7 @@ public class AgentInterventionActivity extends FragmentActivity
 
         Bundle extras = getIntent().getExtras();
 
-        /*if (extras != null){
+        if (extras != null){
             Log.i(TAG, "getExtras not null");
             intervention = (Intervention) extras.getSerializable("intervention");
             DisplaySynch displaySynch = new DisplaySynch() {
@@ -94,9 +92,9 @@ public class AgentInterventionActivity extends FragmentActivity
             };
             String url = "notify/intervention/"+intervention.getId();
             IntentWraper.startService(url, displaySynch);
-        }*/
+        }
 
-        List<Resource> resourceList = new ArrayList<>();
+        /*List<Resource> resourceList = new ArrayList<>();
         resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource1", State.validated, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
         resourceList.add(new Resource("Resource2", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
@@ -107,7 +105,7 @@ public class AgentInterventionActivity extends FragmentActivity
         resourceList.add(new Resource("Resource7", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource8", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        intervention.setResources(resourceList);
+        intervention.setResources(resourceList);*/
 
         setContentView(R.layout.activity_second);
 
@@ -296,11 +294,11 @@ public class AgentInterventionActivity extends FragmentActivity
                     // TODO
                     // update listResource Adapter
 
-                    /*UpdateIntervention mUpdateIntervention = new UpdateIntervention();
-                    mUpdateIntervention.execute(intervention.getId(), resource);*/
+                    UpdateIntervention mUpdateIntervention = new UpdateIntervention();
+                    mUpdateIntervention.execute(intervention.getId(), resource);
 
                     MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
-                    // Changing marker icon
+                    // Changing marker icong
                     mapFragment.drawMarker(marker, resource);
                     // adding marker
                     googleMap.addMarker(marker);
