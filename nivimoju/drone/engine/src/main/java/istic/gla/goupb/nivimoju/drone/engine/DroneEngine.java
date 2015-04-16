@@ -226,15 +226,17 @@ public class DroneEngine{
         } else {
             long idIntervention = drone.getIdIntervention();
             if(dronesByIntervention.get(idIntervention) != null){
+                Collection<Drone> dronesOfIntervention = dronesByIntervention.get(idIntervention);
                 logger.info("removing drone in list, size "
-                        + dronesByIntervention.get(idIntervention).size());
-                for(Drone droneToTest : dronesByIntervention.get(idIntervention)){
+                        + dronesOfIntervention.size());
+                for(Drone droneToTest : dronesOfIntervention){
                     if(droneToTest.getLabel().equals(drone.getLabel())) {
-                        dronesByIntervention.remove(idIntervention);
+                        //on retire le drone de la liste de drone existante
+                        dronesOfIntervention.remove(drone);
                     }
                 }
                 logger.info("removed drone in list, size "
-                        + dronesByIntervention.get(idIntervention).size());
+                        + dronesOfIntervention.size());
             }
             droneByLabel.put(drone.getLabel(), drone);
             affectationByDroneLabel.put(drone.getLabel(), null);
