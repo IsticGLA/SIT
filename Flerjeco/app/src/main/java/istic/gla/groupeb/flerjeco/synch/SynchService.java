@@ -90,6 +90,8 @@ public class SynchService extends IntentService {
             }else
             if(resultPost.equals(timestamp)){
 //                Log.i("MAMH", "SynchService : l'intervention est à jour");
+                //TODO tempraire à enlever
+                displaySynch.ctrlDisplay();
             }
             else if (displaySynch != null && timestamp.before(resultPost)) {
                 timestamp = resultPost;

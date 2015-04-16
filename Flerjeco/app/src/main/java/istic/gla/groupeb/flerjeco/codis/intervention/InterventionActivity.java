@@ -36,7 +36,9 @@ import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 public class InterventionActivity extends FragmentActivity
         implements InterventionFragment.OnResourceSelectedListener, ISynchTool, IInterventionsActivity {
@@ -50,6 +52,15 @@ public class InterventionActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.startService(url, displaySynch);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
