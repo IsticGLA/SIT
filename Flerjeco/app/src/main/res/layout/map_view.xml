@@ -12,18 +12,6 @@
 
     <Button
         android:visibility="gone"
-        android:id="@+id/buttonValidateResources"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:text="@string/buttonValidateResources"
-        android:padding="10dp"
-        android:layout_marginTop="5dp"
-        android:paddingRight="10dp"
-        android:onClick="validateResources"/>
-
-    <Button
-        android:visibility="gone"
         android:id="@+id/buttonCancelResources"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

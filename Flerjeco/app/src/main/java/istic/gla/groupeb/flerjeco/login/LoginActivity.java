@@ -263,9 +263,15 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
                 showProgress(true);
                 new GetAllInterventionsTask(LoginActivity.this).execute();
             } else if(statusCode.equals("401")) {
-                Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                count++;
+                if(count < 4) {
+                    Log.i(TAG, "Count: " + count);
+                    new UserLoginTask(activity, count, mLogin, mPassword).execute();
+                } else {
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }
             } else {
                 count++;
                 if(count < 4) {
