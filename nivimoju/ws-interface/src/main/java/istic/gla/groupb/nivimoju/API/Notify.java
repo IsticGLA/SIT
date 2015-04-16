@@ -29,7 +29,7 @@ public class Notify {
     public Response notifyIntervention(@PathParam("idIntervention") long idIntervention, Timestamp timestamp) {
         InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
-        Timestamp databaseLastUpdate = interventionDAO.getLastUpdate(idIntervention, timestamp);
+        Timestamp databaseLastUpdate = interventionDAO.getLastUpdate(idIntervention);
         interventionDAO.disconnect();
         if (databaseLastUpdate.after(timestamp)) {
             // Content Different client / server
@@ -47,15 +47,16 @@ public class Notify {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response notifyAllIntervention(Timestamp timestamp) {
-        InterventionDAO interventionDAO = new InterventionDAO();
+        /*InterventionDAO interventionDAO = new InterventionDAO();
         interventionDAO.connect();
-        Timestamp databaseLastUpdate = interventionDAO.getNewerLastUpdate(timestamp);
+        Timestamp databaseLastUpdate = interventionDAO.getNewerLastUpdate();
         interventionDAO.disconnect();
         if (databaseLastUpdate.after(timestamp)) {
             // Content Different client / server
             return Response.status(201).entity(databaseLastUpdate).build();
         } else {
             return Response.ok().build();
-        }
+        }*/
+        return Response.ok().build();
     }
 }

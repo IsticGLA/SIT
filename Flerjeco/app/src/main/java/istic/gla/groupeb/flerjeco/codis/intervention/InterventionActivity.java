@@ -173,6 +173,6 @@ public class InterventionActivity extends FragmentActivity
 
     @Override
     public void refresh() {
-        
+
     }
 }

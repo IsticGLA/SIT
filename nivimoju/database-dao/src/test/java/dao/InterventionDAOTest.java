@@ -124,10 +124,14 @@ public class InterventionDAOTest {
     @Test
     public void updateResource(){
         InterventionDAO interventionDAO = new InterventionDAO();
+
+        /*
         Intervention intervention = interventionDAO.getById(19L);
         intervention.setName("COCOCHONE");
         intervention.updateDate();
-
         interventionDAO.update(intervention);
+        */
+
+        interventionDAO.getNewerLastUpdate();
     }
 }

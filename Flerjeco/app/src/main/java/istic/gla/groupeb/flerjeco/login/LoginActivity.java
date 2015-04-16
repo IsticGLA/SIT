@@ -22,6 +22,8 @@ import android.widget.Toast;
 
 import entity.Intervention;
 import entity.StaticData;
+import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
@@ -35,7 +37,7 @@ import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 /**
  * A login screen that offers loginNO CONTENT via email/password.
  */
-public class LoginActivity extends Activity implements ISynchTool{
+public class LoginActivity extends Activity implements ISynchTool, IInterventionsActivity {
     private static final String TAG = LoginActivity.class.getSimpleName();
 
 
@@ -44,6 +46,7 @@ public class LoginActivity extends Activity implements ISynchTool{
      */
     private UserLoginTask mAuthTask = null;
 
+    private boolean isCodis;
 
 
     // UI references.
@@ -152,6 +155,7 @@ public class LoginActivity extends Activity implements ISynchTool{
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    @Override
     public void showProgress(final boolean show) {
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
@@ -182,6 +186,28 @@ public class LoginActivity extends Activity implements ISynchTool{
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
+    }
+
+    @Override
+    public void updateInterventions(Intervention[] interventions) {
+
+        showProgress(false);
+        Intent intent;
+        if(isCodis) {
+            intent = new Intent(LoginActivity.this, InterventionActivity.class);
+        }
+        else {
+            intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
+        }
+
+        Bundle bundle = new Bundle();
+        for(int i = 0; i < interventions.length; i++)
+            Log.d("LoginAct", interventions[i].getName() + " - " + interventions[i].getId());
+
+        bundle.putSerializable("interventions", interventions);
+
+        intent.putExtras(bundle);
+        startActivity(intent);
     }
 
     /**
@@ -216,7 +242,7 @@ public class LoginActivity extends Activity implements ISynchTool{
             mAuthTask = null;
             showProgress(false);
             FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
-            boolean isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
+            isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
             flerjecoApplication.setCodisUser(isCodis);
             flerjecoApplication.setLogin(mLogin);
             flerjecoApplication.setPassword(mPassword);
@@ -225,9 +251,8 @@ public class LoginActivity extends Activity implements ISynchTool{
 
             if (statusCode.equals("200")) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
-                Intent intent;
                 showProgress(true);
-                GetAllInterventionTask mGetAllTask = new GetAllInterventionTask(isCodis);
+                GetAllInterventionsTask mGetAllTask = new GetAllInterventionsTask(LoginActivity.this);
                 mGetAllTask.execute((Void) null);
             } else if(statusCode.equals("401")) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
@@ -242,49 +267,6 @@ public class LoginActivity extends Activity implements ISynchTool{
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
-        }
-    }
-
-    /**
-     * Represents an asynchronous task used to get interventions
-     */
-    public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
-
-        private Intervention[] interventionTab;
-        private boolean isCodis;
-
-        public GetAllInterventionTask(boolean isCodis) {
-            this.isCodis = isCodis;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            SpringService service = new SpringService();
-            interventionTab = service.getAllInterventions();
-            Log.i(TAG, "interventionTab size : "+interventionTab.length);
-            Log.i(TAG, "doInBackground end");
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            showProgress(false);
-            Intent intent;
-            if(isCodis) {
-                intent = new Intent(LoginActivity.this, InterventionActivity.class);
-            }
-            else {
-                intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
-            }
-
-            Bundle bundle = new Bundle();
-            for(int i = 0; i < interventionTab.length; i++)
-                Log.d("LoginAct", interventionTab[i].getName() + " - " + interventionTab[i].getId());
-
-            bundle.putSerializable("interventions", interventionTab);
-
-            intent.putExtras(bundle);
-            startActivity(intent);
         }
     }
 }

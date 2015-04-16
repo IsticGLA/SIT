@@ -81,6 +81,7 @@ public class AgentInterventionActivity extends FragmentActivity
         Bundle extras = getIntent().getExtras();
 
         if (extras != null){
+            Log.i(TAG, "getExtras not null");
             intervention = (Intervention) extras.getSerializable("intervention");
             DisplaySynch displaySynch = new DisplaySynch() {
                 @Override
@@ -187,7 +188,7 @@ public class AgentInterventionActivity extends FragmentActivity
         // Create the fragment and show it as a dialog.
         DialogFragment vehicleDialog = new VehicleRequestDialog();
         Bundle bundle = new Bundle();
-        bundle.putLong(VehicleRequestDialog.INTERVENTION,10);
+        bundle.putLong(VehicleRequestDialog.INTERVENTION,intervention.getId());
         vehicleDialog.setArguments(bundle);
         vehicleDialog.show(getSupportFragmentManager(), "vehicle_dialog");
     }

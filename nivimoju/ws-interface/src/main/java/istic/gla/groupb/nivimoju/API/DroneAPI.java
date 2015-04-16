@@ -1,6 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
 import dao.DroneDAO;
+import entity.Drone;
 import entity.Position;
 import istic.gla.goupb.nivimoju.drone.engine.DroneEngine;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
@@ -13,10 +14,10 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
- * Created by jeremy on 11/04/15.
+ * API to manipulate drones
  */
 @Path("drone")
-public class Drone {
+public class DroneAPI {
 
     /**
      * Send a move request directly to the simulation (for debug)
@@ -44,9 +45,9 @@ public class Drone {
     }
 
     /**
-     * Find all drone affect to intervention of id idIntervention
-     * @param idIntervention
-     * @return
+     * Find all drone affected to intervention of id idIntervention
+     * @param idIntervention the id of the intervention
+     * @return a response with all the drones affected
      */
     @GET
     @Path("/byIntervention/{idIntervention}")
@@ -56,15 +57,15 @@ public class Drone {
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();
 
-        List<entity.Drone> droneList = droneDAO.getBy("idIntervention", idIntervention);
+        List<Drone> droneList = droneDAO.getBy("idIntervention", idIntervention);
         droneDAO.disconnect();
         return Response.ok(droneList).build();
     }
 
     /**
      * Assign a drone to an intervention of id idIntervention
-     * @param idIntervention
-     * @return
+     * @param idIntervention the intervention that need a drone
+     * @return OK everytime, with a body iff the assignation succeded
      */
     @GET
     @Path("/assign/{idIntervention}")
@@ -74,14 +75,17 @@ public class Drone {
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();
 
-        List<entity.Drone> droneList = droneDAO.getBy("idIntervention", -1);
+        // on cherche un drone libre
+        List<Drone> droneList = droneDAO.getBy("idIntervention", -1);
 
         if (null != droneList && droneList.size() >= 1) {
-            entity.Drone updateDrone = droneList.get(0);
+            Drone updateDrone = droneList.get(0);
             updateDrone.setIdIntervention(idIntervention);
             updateDrone.updateDate();
             droneDAO.update(updateDrone);
             droneDAO.disconnect();
+            //notification au droneEngine
+            DroneEngine.getInstance().assignDrone(updateDrone);
             return Response.ok(droneList.get(0)).build();
         } else {
             droneDAO.disconnect();
@@ -89,12 +93,33 @@ public class Drone {
         }
     }
 
+    /**
+     * Unassign a drone from an intervention
+     * @param idDrone the id of the drone to unasign
+     * @return ok
+     */
     @POST
-    @Path("/status/{droneNumber}")
-    public Response move(
-            @PathParam("droneNumber") int droneNumber) {
-        DroneEngine engine = DroneEngine.getInstance();
+    @Path("/unassign/{idDrone}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response unassign(
+            @PathParam("idDrone") Long idDrone) {
+        DroneDAO droneDAO = new DroneDAO();
+        droneDAO.connect();
 
-        return Response.ok().build();
+        // on cherche le drone
+        Drone drone = droneDAO.getById(idDrone);
+
+        if (null != drone) {
+            drone.setIdIntervention(-1);
+            drone.updateDate();
+            droneDAO.update(drone);
+            droneDAO.disconnect();
+            //notification au droneEngine
+            DroneEngine.getInstance().unasignDrone(drone);
+            return Response.ok(drone).build();
+        } else {
+            droneDAO.disconnect();
+            return Response.ok().build();
+        }
     }
 }
