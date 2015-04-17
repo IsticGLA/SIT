@@ -233,6 +233,11 @@ public class DroneEngine{
                     if(droneToTest.getLabel().equals(drone.getLabel())) {
                         //on retire le drone de la liste de drone existante
                         dronesOfIntervention.remove(drone);
+                        try {
+                            client.postStop(drone.getLabel());
+                        } catch (JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 logger.info("removed drone in list, size "

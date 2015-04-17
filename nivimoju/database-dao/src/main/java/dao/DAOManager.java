@@ -43,7 +43,7 @@ public class DAOManager {
     public static void disconnect() {
         if(currentCluster != null)
         {
-            if (currentBucket.close()){
+            if (currentBucket != null && currentBucket.close()){
                 currentBucket = null;
             }
         }
