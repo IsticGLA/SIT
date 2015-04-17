@@ -70,7 +70,9 @@ public class AgentInterventionActivity extends FragmentActivity
 
     @Override
     public void refresh(){
-        new GetInterventionTask(this, intervention.getId()).execute();
+        if (null != intervention) {
+            new GetInterventionTask(this, intervention.getId()).execute();
+        }
     }
     /** Called when the activity is first created. */
     @Override
