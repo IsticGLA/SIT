@@ -254,12 +254,15 @@ public class PlanZoneMapFragment extends Fragment {
 
         // get back the intervention from the main activity
         inter = ((PlanZoneActivity)getActivity()).getIntervention();
+
         // remove of the path we want to remove
-        if (inter.getWatchPath().size() >= mCurrentPosition) {
+        if (mCurrentPosition >= 0 && inter.getWatchPath().size() > mCurrentPosition) {
             inter.getWatchPath().remove(mCurrentPosition);
             // send to the database
-            Pair p = drones.get(drones.size()-1);
-            new UnAssignDrone().execute((Long)p.first);
+            if (drones.size() > 0) {
+                Pair p = drones.get(drones.size() - 1);
+                new UnAssignDrone().execute((Long) p.first);
+            }
         }
     }
 

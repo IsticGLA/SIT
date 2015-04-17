@@ -182,6 +182,7 @@ public class ListInterventionsActivity extends FragmentActivity
         };
         String url = "notify/intervention";
         IntentWraper.startService(url, displaySynch);
+        ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).listViewInterventions.setItemChecked(position,true);
     }
 
     @Override

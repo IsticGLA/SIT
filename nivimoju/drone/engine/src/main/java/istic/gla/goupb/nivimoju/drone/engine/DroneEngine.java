@@ -121,11 +121,11 @@ public class DroneEngine{
         }
     }
 
-    private void getDroneInfoFromSimu(){
+    private boolean getDroneInfoFromSimu(){
         DronesInfos infos = client.getDronesInfos();
         if(infos == null){
             logger.warn("could not get infos from flask");
-            return;
+            return false;
         }
         logger.trace("got response from flask client : " + infos);
         for(DroneInfo info : infos.getInfos()){
@@ -145,8 +145,10 @@ public class DroneEngine{
                 }
             } else{
                 logger.error("got no position from flask");
+                return false;
             }
         }
+        return true;
     }
 
     /**
@@ -154,10 +156,12 @@ public class DroneEngine{
      */
     public void updateDroneInfoFromSimu(){
         logger.trace("getting positions from simulation");
-        getDroneInfoFromSimu();
-        logger.trace("updating db with drones info");
-        updateDronesInDatabase();
-        logger.trace("done refreshing info for drones");
+        boolean gotInfos = getDroneInfoFromSimu();
+        if(gotInfos){
+            logger.trace("updating db with drones info");
+            updateDronesInDatabase();
+            logger.trace("done refreshing info for drones");
+        }
     }
 
     /**
