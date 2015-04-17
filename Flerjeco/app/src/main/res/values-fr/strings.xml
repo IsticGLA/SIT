@@ -62,4 +62,8 @@
         <item>AVP</item>
         <item>FHA</item>
     </string-array>
+    <string name="manage_changeResourceRole">Changer le role : </string>
+    <string name="manage_activateResource">Activer la ressource</string>
+    <string name="manage_freeResource">Libérer la ressource</string>
+    <string name="title_dialog_change_resource">Gestion de la ressource</string>
 </resources>
