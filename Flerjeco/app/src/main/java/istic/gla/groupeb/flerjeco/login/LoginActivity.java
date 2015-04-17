@@ -61,14 +61,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        refresh();
-    }
-
-
-
-    @Override
-    public void refresh() {
-
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);
 
@@ -94,6 +86,12 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+    }
+
+
+
+    @Override
+    public void refresh() {
     }
 
     /**
