@@ -106,7 +106,6 @@ public class InterventionDialogFragment extends DialogFragment
         incidentCodesTask = new GetAllIncidentCodeTask(this);
         incidentCodesTask.execute();
 
-        resourceGetTask = new GetResourceTypeTask(this);
         //  add button listener
         intervention_creation_button.setOnClickListener(new View.OnClickListener() {
 
@@ -141,7 +140,7 @@ public class InterventionDialogFragment extends DialogFragment
 
                     //  Selecting sinister code selected resources from the list of identifiers of resourceType already recovered
                     //  Note: at the end of this task in the background, it creates intervention
-                    resourceGetTask.execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
+                    new GetResourceTypeTask(InterventionDialogFragment.this).execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
 
                 }
             }
@@ -204,12 +203,6 @@ public class InterventionDialogFragment extends DialogFragment
     @Override
     public void onPause() {
         super.onPause();
-        if(interventionPostTask != null)
-            interventionPostTask.cancel(true);
-        else if (incidentCodesTask != null)
-            incidentCodesTask.cancel(true);
-        else if (resourceGetTask != null)
-            resourceGetTask.cancel(true);
     }
 
     @Override
@@ -241,7 +234,8 @@ public class InterventionDialogFragment extends DialogFragment
         }
 
         if (null == address) {
-            Toast.makeText(getActivity(), R.string.geocoder_failed, Toast.LENGTH_LONG);
+            //Toast.makeText(getActivity(), R.string.geocoder_failed, Toast.LENGTH_LONG);
+            addressEditText.setError(getString(R.string.geocoder_failed));
             showProgress(false);
             return;
         }
