@@ -75,6 +75,11 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
                             "" + interventionId,
                             "" + resource.getIdRes(),
                             State.validated.name());
+                    _viewHolder.acceptButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    });
                 }
             }
         });
@@ -86,6 +91,11 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
                     new ResourceRequestTask().execute("" + interventionId,
                             "" + resource.getIdRes(),
                             State.refused.name());
+                    _viewHolder.refuseButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    });
                 }
             }
         });
