@@ -24,7 +24,6 @@ import util.State;
 
 /**
  * Fragment used for change the state of a resource of firefighters
- * @see  istic.gla.groupeb.flerjeco.codis.intervention.OnTaskCompleted
  * @see android.support.v4.app.DialogFragment
  */
 public class ChangeStateDialogFragment extends DialogFragment {

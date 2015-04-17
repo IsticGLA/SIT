@@ -445,7 +445,7 @@ public class SpringService {
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
-        
+
         Log.i(TAG, "getAllStaticData success");
         return datas;
     }
