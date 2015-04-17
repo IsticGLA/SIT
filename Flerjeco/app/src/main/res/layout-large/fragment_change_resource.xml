@@ -58,8 +58,10 @@
                     android:layout_width="155dp"
                     android:layout_height="match_parent"
                     android:layout_gravity=""
+                    android:textSize="20sp"
                     android:layout_weight="0.5"
                     android:singleLine="true"
+                    android:paddingLeft="10dp"
                     android:text="@string/change" />
 
                 <Spinner
