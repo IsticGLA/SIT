@@ -106,6 +106,7 @@ public class LatLongConverter {
             }
         }
         localPath.setPositions(localCoordinates);
+        logger.info("converted local path : " + localPath.toString());
         return localPath;
     }
 
@@ -116,14 +117,17 @@ public class LatLongConverter {
      * @return les coordonnées dans le système latlong
      */
     public Position getLatLong(LocalCoordinate local){
-        //interpolation linéaire sur x puis y
-        double maxX = width - offsetX;
-        double maxY = height - offsetY;
-        double longitude = (longitudeRight - longitudeLeft) * (local.getX() - maxX) / (maxX - offsetX) + longitudeLeft;
-        double latitude = (latitudeTop - latitudeBottom) * (local.getY() - maxY) / (maxY - offsetY) + latitudeBottom;
+        //prise en compte de la déviation
+        double x = local.getX()/(1+deltaXFactor);
+        double y = local.getY()/(1+deltaYFactor);
 
+        double deltaLat = latitudeTop - latitudeBottom;
+        double convertedLatitude = (deltaLat * (offsetY + y) + height * latitudeBottom) / height;
 
-        return new Position(longitude,  latitude);
+        double deltaLong = longitudeRight - longitudeLeft;
+        double convertedLongitude = (deltaLong * (offsetX + x) + width * longitudeLeft) / width;
+
+        return new Position(convertedLatitude,  convertedLongitude);
     }
 
     @Override

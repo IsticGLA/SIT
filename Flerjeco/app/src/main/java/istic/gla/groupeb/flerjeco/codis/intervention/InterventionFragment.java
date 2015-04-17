@@ -25,22 +25,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import entity.Intervention;
-import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
-import util.State;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
-public class InterventionFragment extends Fragment {
+public class InterventionFragment extends Fragment implements ISynchTool {
     OnResourceSelectedListener mCallback;
 
     private static final String TAG = InterventionFragment.class.getSimpleName();
-    private ListView listViewInterventions;
+    protected ListView listViewInterventions;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -119,12 +117,19 @@ public class InterventionFragment extends Fragment {
         List<String> labelsInterventions = new ArrayList<>();
 
         InterventionActivity interventionActivity = (InterventionActivity) getActivity();
-        for (Intervention intervention : interventionActivity.getInterventions()){
-            if(intervention != null) {
-                labelsInterventions.add(intervention.getName());
+        if(interventionActivity != null) {
+            for (Intervention intervention : interventionActivity.getInterventions()) {
+                if (intervention != null) {
+                    labelsInterventions.add(intervention.getName());
+                }
             }
         }
 
         listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
+    }
+
+    @Override
+    public void refresh() {
+
     }
 }

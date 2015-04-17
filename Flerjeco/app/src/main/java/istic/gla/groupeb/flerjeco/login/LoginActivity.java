@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -22,28 +23,31 @@ import android.widget.Toast;
 
 import entity.Intervention;
 import entity.StaticData;
-import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
-import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.interventionsList.ListInterventionsActivity;
 import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
+import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
+import istic.gla.groupeb.flerjeco.springRest.GetAllStaticDataTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
+import istic.gla.groupeb.flerjeco.springRest.IStaticDataActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
 
 /**
  * A login screen that offers loginNO CONTENT via email/password.
  */
-public class LoginActivity extends Activity implements ISynchTool{
-    private static final String TAG = LoginActivity.class.getSimpleName();
+public class LoginActivity extends Activity implements ISynchTool, IInterventionsActivity, IStaticDataActivity {
 
+    private static final String TAG = LoginActivity.class.getSimpleName();
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
 
+    private boolean isCodis;
 
 
     // UI references.
@@ -56,16 +60,6 @@ public class LoginActivity extends Activity implements ISynchTool{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        DisplaySynch displaySynch = new DisplaySynch() {
-            @Override
-            public void ctrlDisplay() {
-                refresh();
-            }
-        };
-        String url = "notify/19";
-
-        IntentWraper.startService(url, displaySynch);
 
         refresh();
     }
@@ -143,8 +137,12 @@ public class LoginActivity extends Activity implements ISynchTool{
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(login, password);
+            mAuthTask = new UserLoginTask(this, login, password);
             mAuthTask.execute((Void) null);
+            isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
+            Log.i(TAG, "isCodis: " + isCodis);
+            if(!isCodis)
+                new GetAllStaticDataTask(this).execute();
         }
     }
 
@@ -184,6 +182,38 @@ public class LoginActivity extends Activity implements ISynchTool{
         }
     }
 
+    @Override
+    public void updateInterventions(Intervention[] interventions) {
+        showProgress(false);
+        if(interventions != null) {
+            Intent intent;
+            if (isCodis) {
+                intent = new Intent(LoginActivity.this, InterventionActivity.class);
+            } else {
+                intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
+            }
+
+            Bundle bundle = new Bundle();
+            for (int i = 0; i < interventions.length; i++)
+                Log.d("LoginAct", interventions[i].getName() + " - " + interventions[i].getId());
+
+            bundle.putSerializable("interventions", interventions);
+
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public void setStaticData(StaticData[] data) {
+        FlerjecoApplication.getInstance().setStaticData(data);
+    }
+
+    @Override
+    public Context getContext() {
+        return getApplicationContext();
+    }
+
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
@@ -192,11 +222,20 @@ public class LoginActivity extends Activity implements ISynchTool{
 
         private final String mLogin;
         private final String mPassword;
-        private StaticData[] staticDatas;
+        private int count = 0;
+        private LoginActivity activity;
 
-        UserLoginTask(String login, String password) {
+        public UserLoginTask(LoginActivity activity, String login, String password) {
+            this.activity = activity;
             mLogin = login;
             mPassword = password;
+        }
+
+        public UserLoginTask(LoginActivity activity, int count, String mLogin, String mPassword) {
+            this.activity = activity;
+            this.count = count;
+            this.mLogin = mLogin;
+            this.mPassword = mPassword;
         }
 
         @Override
@@ -205,7 +244,6 @@ public class LoginActivity extends Activity implements ISynchTool{
 
             SpringService service = new SpringService();
             String statusCode = service.login(mLogin, mPassword);
-            staticDatas = service.getAllStaticDatas();
 
             Log.i(TAG, "doInBackground end");
             return statusCode;
@@ -216,25 +254,31 @@ public class LoginActivity extends Activity implements ISynchTool{
             mAuthTask = null;
             showProgress(false);
             FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
-            boolean isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
             flerjecoApplication.setCodisUser(isCodis);
             flerjecoApplication.setLogin(mLogin);
             flerjecoApplication.setPassword(mPassword);
-            if (!isCodis) flerjecoApplication.setStaticDatas(staticDatas);
-            Log.i(TAG, "isCodis "+isCodis);
 
             if (statusCode.equals("200")) {
-                Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
-                Intent intent;
+                Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_SHORT).show();
                 showProgress(true);
-                GetAllInterventionTask mGetAllTask = new GetAllInterventionTask(isCodis);
-                mGetAllTask.execute((Void) null);
+                new GetAllInterventionsTask(LoginActivity.this).execute();
             } else if(statusCode.equals("401")) {
-                Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                count++;
+                if(count < 4) {
+                    Log.i(TAG, "Count: " + count);
+                    new UserLoginTask(activity, count, mLogin, mPassword).execute();
+                } else {
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }
             } else {
-                Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_LONG).show();
+                count++;
+                if(count < 4) {
+                    Log.i(TAG, "Count: " + count);
+                    new UserLoginTask(activity, count, mLogin, mPassword).execute();
+                }
+                Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -242,49 +286,6 @@ public class LoginActivity extends Activity implements ISynchTool{
         protected void onCancelled() {
             mAuthTask = null;
             showProgress(false);
-        }
-    }
-
-    /**
-     * Represents an asynchronous task used to get interventions
-     */
-    public class GetAllInterventionTask extends AsyncTask<Void, Void, Boolean> {
-
-        private Intervention[] interventionTab;
-        private boolean isCodis;
-
-        public GetAllInterventionTask(boolean isCodis) {
-            this.isCodis = isCodis;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            SpringService service = new SpringService();
-            interventionTab = service.getAllInterventions();
-            Log.i(TAG, "interventionTab size : "+interventionTab.length);
-            Log.i(TAG, "doInBackground end");
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            showProgress(false);
-            Intent intent;
-            if(isCodis) {
-                intent = new Intent(LoginActivity.this, InterventionActivity.class);
-            }
-            else {
-                intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
-            }
-
-            Bundle bundle = new Bundle();
-            for(int i = 0; i < interventionTab.length; i++)
-                Log.d("LoginAct", interventionTab[i].getName() + " - " + interventionTab[i].getId());
-
-            bundle.putSerializable("interventions", interventionTab);
-
-            intent.putExtras(bundle);
-            startActivity(intent);
         }
     }
 }

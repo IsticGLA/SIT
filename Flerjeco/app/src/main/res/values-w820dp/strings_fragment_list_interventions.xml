@@ -1,7 +1,0 @@
-<resources>
-
-    <!-- Strings related to login -->
-    <string name="action_select">Select this Intervention</string>
-    <string name="action_sign_in_short">Sign in</string>
-
-</resources>

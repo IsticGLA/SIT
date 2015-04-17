@@ -36,4 +36,17 @@ public class Path implements Serializable {
     public void setClosed(boolean closed) {
         this.closed = closed;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Path{")
+                .append("positions=[");
+        for(Position pos : positions){
+            builder.append(pos.toString());
+        }
+        builder.append("], closed=" + closed +
+                '}');
+        return builder.toString();
+    }
 }

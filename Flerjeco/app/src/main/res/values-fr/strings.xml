@@ -10,6 +10,7 @@
     <string name="buttonCancelResources">Enlever les moyens positionnés</string>
     <string name="buttonValidateResources">Valider la position des moyens</string>
     <string name="cancel">Annuler</string>
+    <string name="validateButton">valider</string>
     <string name="closed_path">Fermer le trajet</string>
     <string name="createInterventionButton">Créer intervention</string>
     <string name="create_by_address">Adresse</string>
@@ -32,16 +33,37 @@
     <string name="prompt_password">Mot de passe</string>
     <string name="remove_marker">Supprimer le dernier point</string>
     <string name="remove_path">Supprimer le trajet</string>
-    <string name="state_refused">Refusé</string>
-    <string name="state_validated">Validé</string>
-    <string name="state_waiting">En attente</string>
     <string name="title_activity_display_intervention">DisplayIntervention</string>
     <string name="title_activity_intervention">Intervention en cours</string>
     <string name="title_activity_plan_zone">Gestion du drone</string>
     <string name="title_fragment_create_intervention">Création de l\'intervention</string>
     <string name="app_name">Flerjeco</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="geocoder_failed">L\'adresse n\'as pas été trouvée</string>
+    <string name="fail_get_static_data">Impossible de récupérer les données statiques. Essayez encore s\'il vous plait.</string>
+    <string name="fail_get_interventions">Impossible de récupérer l\'ensemble des interventions. Essayez encore s\'il vous plait.</string>
+    <string name="resource_request_dialog_title">Demande de moyen</string>
+    <string name="title_activity_second">Intervention en cours</string>
+    <string name="title_activity_list_interventions">Liste des Interventions</string>
+    <string name="vehicle_fragment_text">Sélectionnez le type de véhicule dont vous avez besoin :</string>
+    <string name="button_request_resource">Demander</string>
+    <string name="change">changer</string>
+    <string name="freeButton">libérer</string>
+    <string name="title_fragment_change_resource">changer l\'état de la resource</string>
+    <string-array name="state">
+        <item>Humain</item>
+        <item>Risque</item>
+        <item>Commande</item>
+        <item>Feu</item>
+        <item>Eau</item>
+    </string-array>
+    <string-array name="code">
+        <item>SAP</item>
+        <item>AVP</item>
+        <item>FHA</item>
+    </string-array>
+    <string name="manage_changeResourceRole">Changer le role : </string>
+    <string name="manage_activateResource">Activer la ressource</string>
+    <string name="manage_freeResource">Libérer la ressource</string>
+    <string name="title_dialog_change_resource">Gestion de la ressource</string>
 </resources>

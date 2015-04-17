@@ -10,8 +10,8 @@ import istic.gla.groupeb.flerjeco.FlerjecoApplication;
  */
 public class IntentWraper {
 
-    private static Intent intent ;
-    private static Context context;
+    protected static Intent intent ;
+    protected static Context context;
 
     public static Intent getIntentInstance(){
         if(intent == null) {
@@ -23,14 +23,32 @@ public class IntentWraper {
 
     public static void startService(String url, DisplaySynch displaySynch){
         getIntentInstance();
-        context.stopService(intent);
-
-        intent.removeExtra("displaySynch");
-        intent.removeExtra("url");
 
         intent.putExtra("displaySynch", displaySynch);
         intent.putExtra("url", url);
 
         context.startService(intent);
+    }
+
+    public static void startService(String url, DisplaySynch displaySynch, DisplaySynchDrone displaySynchDrone){
+        getIntentInstance();
+
+        intent.putExtra("displaySynch", displaySynch);
+        intent.putExtra("url", url);
+
+        intent.putExtra("displaySynchDrone", displaySynchDrone);
+
+        context.startService(intent);
+    }
+
+    public static void stopService(){
+        getIntentInstance();
+        SynchService.stopTimerTask();
+        context.stopService(intent);
+
+        intent.removeExtra("displaySynch");
+        intent.removeExtra("url");
+
+        intent.removeExtra("displaySynchDrone");
     }
 }

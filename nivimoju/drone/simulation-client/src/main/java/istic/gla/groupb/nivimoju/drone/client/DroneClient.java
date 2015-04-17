@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import entity.Drone;
+import entity.Path;
 import entity.Position;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
@@ -14,6 +16,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +38,8 @@ public class DroneClient {
 
     public String get(String uri) {
         HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
+        ResponseEntity<String> responseEntity =
+                rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
         this.setStatus(responseEntity.getStatusCode());
         return responseEntity.getBody();
     }
@@ -85,6 +89,11 @@ public class DroneClient {
         String res = post(droneLabel+"/path", json);
     }
 
+    public void postStop(String droneLabel) throws JsonProcessingException {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String res = post(droneLabel+"/stop", null);
+    }
+
     public DronesInfos getDronesInfos() {
         String res = get("drones/info");
         //map label localposition
@@ -93,9 +102,25 @@ public class DroneClient {
         try {
             return reader.readValue(res);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         return null;
+    }
+
+    public static void main(String[] args) {
+        DroneClient client = new DroneClient();
+        Position croisement = new Position(48.11498, -1.63795);
+        Position croisement2 = new Position(48.114454, -1.639962);
+        Path path = new Path();
+        path.addPosition(croisement);
+        path.addPosition(croisement2);
+        path.setClosed(true);
+        LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
+        try {
+            client.postPath("drone_1", converter.getLocalPath(path));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
 

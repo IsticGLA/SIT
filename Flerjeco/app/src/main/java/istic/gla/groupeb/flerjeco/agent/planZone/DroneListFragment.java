@@ -85,12 +85,6 @@ public class DroneListFragment extends Fragment {
             }
         });
 
-        // set the list on the first item if not null
-        if (labelsPath.size() > 0){
-            mCallback.onResourceSelected(0);
-            listViewPath.setItemChecked(0, true);
-        }
-
         return v;
     }
 
@@ -100,8 +94,10 @@ public class DroneListFragment extends Fragment {
 
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
-        if (getFragmentManager().findFragmentById(R.id.map_fragment) != null) {
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
+        if (mapFragment != null) {
             listViewPath.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            listViewPath.setItemChecked(0,true);
         }
     }
 
