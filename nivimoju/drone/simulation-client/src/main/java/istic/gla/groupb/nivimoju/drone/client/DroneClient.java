@@ -89,6 +89,11 @@ public class DroneClient {
         String res = post(droneLabel+"/path", json);
     }
 
+    public void postStop(String droneLabel) throws JsonProcessingException {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        String res = post(droneLabel+"/stop", null);
+    }
+
     public DronesInfos getDronesInfos() {
         String res = get("drones/info");
         //map label localposition
