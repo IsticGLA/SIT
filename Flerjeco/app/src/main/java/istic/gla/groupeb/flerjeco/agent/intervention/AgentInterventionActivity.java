@@ -216,11 +216,15 @@ public class AgentInterventionActivity extends FragmentActivity
 
     public void resourceUpdated(Resource resource){
         List<Resource> resList = intervention.getResources();
+        Resource temp = null;
         for (Resource res : resList){
             if (res.getIdRes() == resource.getIdRes()){
-                resList.remove(res);
-                resList.add(resource);
+                temp = res;
             }
+        }
+        if (temp != null){
+            resList.remove(temp);
+            resList.add(resource);
         }
         UpdateIntervention updateIntervention = new UpdateIntervention();
         updateIntervention.execute(intervention);

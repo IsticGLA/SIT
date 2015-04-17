@@ -108,4 +108,14 @@ public class Drone extends AbstractEntity {
         result = 31 * result + (int) (idIntervention ^ (idIntervention >>> 32));
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Drone{" +
+                "label='" + label + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", idIntervention=" + idIntervention +
+                '}';
+    }
 }
