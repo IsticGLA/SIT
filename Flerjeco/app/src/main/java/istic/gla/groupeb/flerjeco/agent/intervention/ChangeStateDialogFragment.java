@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
@@ -66,6 +67,11 @@ public class ChangeStateDialogFragment extends DialogFragment {
 
         //init state spinner
         stateSpinner = (Spinner) v.findViewById(R.id.stateSpinner);
+        int position = getStatePosition();
+        if (position != -1) {
+            stateSpinner.setSelection(position);
+        }
+
         stateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -111,6 +117,38 @@ public class ChangeStateDialogFragment extends DialogFragment {
         resource.setResourceRole(role);
         ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
         dismiss();
+    }
+
+    public int getStatePosition(){
+        String toCompare = "";
+        switch (resource.getResourceRole()){
+            case people:
+                toCompare = "Humain";
+                break;
+            case fire:
+                toCompare = "Feu";
+                break;
+            case water:
+                toCompare = "Eau";
+                break;
+            case risks:
+                toCompare = "Risque";
+                break;
+            case commands:
+                toCompare = "Commande";
+                break;
+            default:
+                break;
+        }
+        if (stateSpinner != null){
+            for (int i = 0; i < stateSpinner.getAdapter().getCount(); i++) {
+                String state = stateSpinner.getAdapter().getItem(i).toString();
+                if (toCompare.equals(state)){
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 
     @Override
