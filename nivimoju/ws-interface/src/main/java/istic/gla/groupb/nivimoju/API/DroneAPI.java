@@ -147,4 +147,24 @@ public class DroneAPI {
         return Response.status(Response.Status.BAD_REQUEST)
                 .build();
     }
+
+    /**
+     * alerte le droneEngine qu'une intervention a eu ses chemins mis à jours
+     * @return
+     */
+    @GET
+    @Path("/sendorders/{idIntervention}")
+    public Response sendOrders(
+            @PathParam("idIntervention") Long idIntervention) {
+        logger.info("sending orders for " + idIntervention);
+        if(idIntervention != null){
+            try {
+                DroneEngine.getInstance().sendOrdersForIntervention(idIntervention);
+            } catch (Exception e){
+                logger.error("raté");
+            }
+        }
+        return Response.status(Response.Status.BAD_REQUEST)
+                .build();
+    }
 }
