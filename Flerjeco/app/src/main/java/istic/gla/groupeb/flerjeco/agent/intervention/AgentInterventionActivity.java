@@ -37,10 +37,7 @@ import android.widget.LinearLayout;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import entity.Intervention;
@@ -238,6 +235,7 @@ public class AgentInterventionActivity extends FragmentActivity
      * @param intervention
      */
     public void updateIntervention(Intervention intervention) {
+        Log.i(TAG, "updateIntervention");
         this.intervention = intervention;
         //update lists of resources and map
         if (firstFragment != null){
@@ -307,20 +305,22 @@ public class AgentInterventionActivity extends FragmentActivity
                         resource.setLatitude(latLng.latitude);
                         resource.setLongitude(latLng.longitude);
                         resource.setState(State.active);
-                        intervention.getResources().add(resource);
+                        List<Resource> resources = intervention.getResources();
+                        resources.add(resource);
                     }
 
                     UpdateIntervention mUpdateIntervention = new UpdateIntervention();
                     mUpdateIntervention.execute(intervention);
 
-                    MarkerOptions marker = new MarkerOptions().position(latLng).title(resource.getLabel());
+                    /*MarkerOptions marker = new MarkerOptions().position(latLng).title(label);
                     marker.draggable(true);
 
                     // Changing marker icons
                     mapFragment.drawMarker(marker, resource);
                     // adding marker
                     Marker markerAdded = googleMap.addMarker(marker);
-                    mapFragment.getMarkers().put(resource.getLabel(), markerAdded);
+                    mapFragment.getMarkers().put(label, markerAdded);
+                    mapFragment.getResourcesMap().put(label, resource);*/
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     view.setVisibility(View.VISIBLE);
