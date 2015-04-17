@@ -86,12 +86,20 @@ public class DroneClient {
     public void postPath(String droneLabel, LocalPath path) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(path);
-        String res = post(droneLabel+"/path", json);
+        try {
+            String res = post(droneLabel + "/path", json);
+        } catch (Exception e){
+            logger.error(e);
+        }
     }
 
     public void postStop(String droneLabel) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String res = post(droneLabel+"/stop", null);
+        try {
+            String res = post(droneLabel + "/stop", null);
+        } catch (Exception e){
+            logger.error(e);
+        }
     }
 
     public DronesInfos getDronesInfos() {
