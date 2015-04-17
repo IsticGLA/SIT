@@ -6,6 +6,8 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="action_create">Create Intervention</string>
     <string name="fail_get_static_data">Fail to get static data. Please, try again.</string>
+    <string name="fail_get_incident_code">Fail to get incident code. Please, try again.</string>
+    <string name="fail_get_resource_type">Fail to get resource type. Please, try again.</string>
     <string name="prompt_login">Login</string>
     <string name="prompt_password">Password</string>
     <string name="action_log_in">Log In</string>
@@ -21,6 +23,7 @@
     <string name="error_server_down">The server is unavailable</string>
     <string name="error_field_required">This field is required</string>
     <string name="fail_get_interventions">Fail getting interventions from the server. Please, try again.</string>
+    <string name="fail_post_interventions">Fail posting intervention to the server. Please, try again.</string>
     <string name="app_name">Flerjeco</string>
     <string name="title_activity_second">Current Intervention</string>
     <string name="title_activity_list_interventions">List of Interventions</string>
@@ -64,5 +67,9 @@
     <string name="remove_marker">Delete the last point</string>
     <string name="remove_path">Delete the path</string>
     <string name="action_settings">Settings</string>
-    <string name="buttonCancelResources">Remove positionned resources</string>
+    <string name="buttonCancelResources">Remove positioned resources</string>
+    <string name="changeResourceRole">Change the resource role</string>
+    <string name="activateResource">Activate the resource</string>
+    <string name="freeResource">Free the resource</string>
+    <string name="title_dialog_change_resource">Manage the resource</string>
 </resources>

@@ -52,7 +52,7 @@ public class SpringService {
         try {
             ResponseEntity<ResourceType> resourcetype = restTemplate.getForEntity(url, ResourceType.class);
             rt = resourcetype.getBody();
-            Log.i(TAG, resourcetype.getStatusCode().toString());
+            Log.i(TAG, "getResourceTypeById : "+resourcetype.getStatusCode().toString());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -73,7 +73,7 @@ public class SpringService {
         try {
             ResponseEntity<Intervention> interventionResult = restTemplate.getForEntity(url, Intervention.class);
             intervention = interventionResult.getBody();
-            Log.i(TAG, interventionResult.getStatusCode().toString());
+            Log.i(TAG, "getInterventionById : "+interventionResult.getStatusCode().toString());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -93,7 +93,7 @@ public class SpringService {
         try {
             ResponseEntity<IncidentCode[]> incidentCode = restTemplate.getForEntity(url, IncidentCode[].class);
             codes = incidentCode.getBody();
-            Log.i(TAG, incidentCode.getStatusCode().toString());
+            Log.i(TAG, "codeSinistreClient : "+incidentCode.getStatusCode().toString());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -113,7 +113,7 @@ public class SpringService {
         try {
             ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
             inter = interventionResult.getBody();
-            Log.i(TAG, interventionResult.getStatusCode().toString());
+            Log.i(TAG, "postIntervention : "+interventionResult.getStatusCode().toString());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -159,7 +159,7 @@ public class SpringService {
             Log.i(TAG, urlDrone);
             ResponseEntity<Drone> droneEntity = restTemplate.getForEntity(urlDrone, Drone.class);
             drone = droneEntity.getBody();
-            Log.i(TAG, droneEntity.getStatusCode().toString());
+            Log.i(TAG, "assignDrone : "+droneEntity.getStatusCode().toString());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -181,7 +181,7 @@ public class SpringService {
             Log.i(TAG, urlDrone);
             ResponseEntity<Drone> droneEntity = restTemplate.getForEntity(urlDrone, Drone.class);
             drone = droneEntity.getBody();
-            Log.i(TAG, droneEntity.getStatusCode().toString());
+            Log.i(TAG, "unAssignDrone : "+droneEntity.getStatusCode().toString());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -205,7 +205,7 @@ public class SpringService {
             if (interventionResult == null) {
                 Log.i(TAG, "interventionResult = null");
             } else
-                Log.i(TAG, interventionResult.toString());
+                Log.i(TAG, "interventionResult : "+interventionResult.toString());
                 return inter;
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
@@ -222,7 +222,7 @@ public class SpringService {
         try {
             ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, resource, Intervention.class);
             intervention = interventionResult.getBody();
-            Log.i(TAG, interventionResult.getStatusCode().toString());
+            Log.i(TAG, "updateResourceIntervention : "+interventionResult.getStatusCode().toString());
             if (interventionResult == null) {
                 Log.i(TAG, "updateResourceIntervention interventionResult = null");
             } else {
@@ -250,7 +250,7 @@ public class SpringService {
             ResponseEntity<String> entity = restTemplate.getForEntity(url, String.class);
             httpResult = entity.getStatusCode().toString();
         } catch (HttpStatusCodeException e) {
-            httpResult = e.getStatusCode().toString();
+            httpResult = "login : "+e.getStatusCode().toString();
         } catch (ResourceAccessException e) {
             httpResult = "500";
         } catch (Throwable e) {
@@ -445,7 +445,7 @@ public class SpringService {
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
-        
+
         Log.i(TAG, "getAllStaticData success");
         return datas;
     }

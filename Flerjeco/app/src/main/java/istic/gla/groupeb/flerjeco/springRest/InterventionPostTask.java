@@ -47,7 +47,7 @@ public class InterventionPostTask extends AsyncTask<Intervention, Void, Interven
             }
             else {
                 activity.updateIntervention(null);
-                Toast.makeText(activity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity.getContext(), R.string.fail_post_interventions, Toast.LENGTH_SHORT).show();
             }
         }
     }
