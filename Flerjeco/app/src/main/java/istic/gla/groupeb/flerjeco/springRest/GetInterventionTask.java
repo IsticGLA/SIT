@@ -31,9 +31,15 @@ public class GetInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        Log.i(TAG,"doInBackground, id :"+id);
-        SpringService service = new SpringService();
-        intervention = service.getInterventionById(id);
+        try {
+            Log.i(TAG, "doInBackground, id :" + id);
+            SpringService service = new SpringService();
+            intervention = service.getInterventionById(id);
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            return false;
+        }
+
         if(intervention ==  null) {
             return false;
         }
