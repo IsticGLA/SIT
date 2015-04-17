@@ -65,13 +65,16 @@ class Drone:
                     target_index = i
         else:
             app.logger.info("drone had no destination before, going to the start of path")
-        app.logger.info("going to waypoint number " + str(target_index))
-        self.currentIndex = target_index
-        self.goto(self.path[self.currentIndex])
+        if len(self.path) < 1:
+            app.logger.warn("the path has no waypoint to go to : " + str(path))
+        else:
+            app.logger.info("going to waypoint number " + str(target_index))
+            self.currentIndex = target_index
+            self.goto(self.path[self.currentIndex])
 
     def next_waypoint_in_path(self):
         app.logger.info("setting next waypoint for robot " +
-                        self.label + "("+str(self.currentIndex)+"/"+str(len(self.path))+")")
+                        self.label + "("+str(self.currentIndex+1)+"/"+str(len(self.path))+")")
         if self.forward:
             self.currentIndex += 1
             if self.currentIndex >= len(self.path):
@@ -85,6 +88,11 @@ class Drone:
             if self.currentIndex < 0:
                 self.currentIndex = 0
                 self.forward = True
+        app.logger.info("new waypoint " +
+                        self.label + "("+str(self.currentIndex+1)+"/"+str(len(self.path))+")")
+        app.logger.debug("current index " + str(self.currentIndex+1) +
+                         " forward : " + str(self.forward) +
+                         " current destination : " + str(self.dest))
         self.goto(self.path[self.currentIndex])
 
     def goto(self, position):
@@ -146,8 +154,11 @@ def set_path_for_drone(drone_label):
         # Get the JSON data sent from the form
         path = request.json['positions']  # list<dict<x,y,z>>
         app.logger.info("path received "+str(path))
-        closed = request.json['closed']
-        controller.set_path(drone_label, path, closed)
+        if len(path) < 1:
+            app.logger.warn("cannot use this path")
+        else:
+            closed = request.json['closed']
+            controller.set_path(drone_label, path, closed)
     except:
         app.logger.error(traceback.format_exc())
         abort(400)

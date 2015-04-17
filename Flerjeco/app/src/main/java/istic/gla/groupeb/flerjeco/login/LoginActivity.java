@@ -259,7 +259,7 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
             flerjecoApplication.setPassword(mPassword);
 
             if (statusCode.equals("200")) {
-                Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_SHORT).show();
                 showProgress(true);
                 new GetAllInterventionsTask(LoginActivity.this).execute();
             } else if(statusCode.equals("401")) {
@@ -268,7 +268,7 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
                     Log.i(TAG, "Count: " + count);
                     new UserLoginTask(activity, count, mLogin, mPassword).execute();
                 } else {
-                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
                     mPasswordView.setError(getString(R.string.error_incorrect_password));
                     mPasswordView.requestFocus();
                 }
@@ -278,7 +278,7 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
                     Log.i(TAG, "Count: " + count);
                     new UserLoginTask(activity, count, mLogin, mPassword).execute();
                 }
-                Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_SHORT).show();
             }
         }
 

@@ -103,7 +103,7 @@ public class DroneEngine{
      * send order to the simulation for all the drones in an intervention
      * @param idIntervention the id of the intervention
      */
-    private void sendOrdersForIntervention(long idIntervention){
+    public void sendOrdersForIntervention(long idIntervention){
         logger.info("sending orders for intervention " + idIntervention);
         Collection<Drone> dronesAffected = dronesByIntervention.get(idIntervention);
         if(dronesAffected != null) {

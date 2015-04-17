@@ -49,9 +49,12 @@
                     android:layout_width="155dp"
                     android:layout_height="match_parent"
                     android:layout_gravity=""
+                    android:textSize="20sp"
                     android:layout_weight="0.5"
                     android:singleLine="true"
                     android:text="@string/manage_changeResourceRole" />
+                    android:paddingLeft="10dp"
+                    android:text="@string/change" />
 
                 <Spinner
                     android:id="@+id/stateSpinner"
@@ -86,5 +89,9 @@
                     android:layout_marginBottom="15dp" />
             </LinearLayout>
         </LinearLayout>
+
     </ScrollView>
+
+
+
 </LinearLayout>
