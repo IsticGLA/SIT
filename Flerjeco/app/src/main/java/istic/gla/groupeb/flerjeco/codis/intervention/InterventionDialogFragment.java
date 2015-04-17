@@ -236,6 +236,7 @@ public class InterventionDialogFragment extends DialogFragment
         if (null == address) {
             //Toast.makeText(getActivity(), R.string.geocoder_failed, Toast.LENGTH_LONG);
             addressEditText.setError(getString(R.string.geocoder_failed));
+            addressEditText.requestFocus();
             showProgress(false);
             return;
         }
