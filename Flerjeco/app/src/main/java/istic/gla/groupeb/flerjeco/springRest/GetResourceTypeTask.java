@@ -55,7 +55,7 @@ public class GetResourceTypeTask extends AsyncTask<List<Long>, Void, List<Resour
             }
             else {
                 resourceTypeActivity.getResourceType(null);
-                Toast.makeText(resourceTypeActivity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
+                Toast.makeText(resourceTypeActivity.getContext(), R.string.fail_get_resource_type, Toast.LENGTH_SHORT).show();
             }
         }
     }

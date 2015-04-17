@@ -47,7 +47,7 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
             }
             else {
                 activity.getIncidentCode(null);
-                Toast.makeText(activity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity.getContext(), R.string.fail_get_incident_code, Toast.LENGTH_SHORT).show();
             }
         }
     }
