@@ -64,5 +64,9 @@
     <string name="remove_marker">Delete the last point</string>
     <string name="remove_path">Delete the path</string>
     <string name="action_settings">Settings</string>
-    <string name="buttonCancelResources">Remove positionned resources</string>
+    <string name="buttonCancelResources">Remove positioned resources</string>
+    <string name="changeResourceRole">Change the resource role</string>
+    <string name="activateResource">Activate the resource</string>
+    <string name="freeResource">Free the resource</string>
+    <string name="title_dialog_change_resource">Manage the resource</string>
 </resources>
