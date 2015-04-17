@@ -85,7 +85,7 @@ public class ResourcesFragment extends Fragment implements ISynchTool {
             State resourceState = resource.getState();
             if (State.active.equals(resourceState) || State.planned.equals(resourceState) || State.validated.equals(resourceState)){
                 labelsResources.add(resource.getLabel());
-            }else{
+            } else if (State.waiting.equals(resourceState)) {
                 requests.add(resource);
             }
         }
