@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,14 +31,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import entity.Intervention;
-import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
-import util.State;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
-public class InterventionFragment extends Fragment {
+public class InterventionFragment extends Fragment implements ISynchTool {
     OnResourceSelectedListener mCallback;
 
-    private ListView listViewInterventions;
+    private static final String TAG = InterventionFragment.class.getSimpleName();
+    protected ListView listViewInterventions;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -53,15 +54,26 @@ public class InterventionFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_list_interventions_codis, container,
                 false);
 
-        listViewInterventions = (ListView) v.findViewById(R.id.listViewInterventions);
+        listViewInterventions = (ListView) v.findViewById(R.id.listViewInterventions_codis);
 
-        updateList();
+        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
+                android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
+
+        List<String> labelsInterventions = new ArrayList<>();
+
+        InterventionActivity interventionActivity = (InterventionActivity) getActivity();
+        for (Intervention intervention : interventionActivity.getInterventions()){
+            labelsInterventions.add(intervention.getName());
+        }
+
+        listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
 
         listViewInterventions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
                 listViewInterventions.setItemChecked(position,true);
+                Log.i(TAG, "setOnItemClickListener : " + position);
             }
         });
 
@@ -74,8 +86,10 @@ public class InterventionFragment extends Fragment {
 
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
-        if (getFragmentManager().findFragmentById(R.id.map_fragment) != null) {
+        if (getFragmentManager().findFragmentById(R.id.resources_fragment) != null) {
             listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            listViewInterventions.setItemChecked(0, true);
+            Log.i(TAG, "onStart setItemChecked");
         }
     }
 
@@ -94,6 +108,7 @@ public class InterventionFragment extends Fragment {
     }
 
     public void updateList() {
+        Log.i(TAG, "updateList start");
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
@@ -102,10 +117,19 @@ public class InterventionFragment extends Fragment {
         List<String> labelsInterventions = new ArrayList<>();
 
         InterventionActivity interventionActivity = (InterventionActivity) getActivity();
-        for (Intervention intervention : interventionActivity.getInterventions()){
-            labelsInterventions.add(intervention.getName());
+        if(interventionActivity != null) {
+            for (Intervention intervention : interventionActivity.getInterventions()) {
+                if (intervention != null) {
+                    labelsInterventions.add(intervention.getName());
+                }
+            }
         }
 
         listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
+    }
+
+    @Override
+    public void refresh() {
+
     }
 }

@@ -21,9 +21,12 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.HashMap;
 
+import entity.Intervention;
+import entity.Resource;
 import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import util.ResourceCategory;
 
 /**
  * Created by jules on 09/04/15.
@@ -47,9 +50,10 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
  */
 public class VehicleRequestDialog extends DialogFragment {
 
+    private static final String TAG = VehicleRequestDialog.class.getSimpleName();
     private Spinner spinner;
     private HashMap<String, Long> spinnerMap;
-    private Long intervention;
+    private Long interventionId;
     public final static String INTERVENTION = "intervention";
     private View mProgressView;
     private View mVehicleFormView;
@@ -61,7 +65,7 @@ public class VehicleRequestDialog extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_resource_request, container, false);
-        intervention = getArguments().getLong(INTERVENTION);
+        interventionId = getArguments().getLong(INTERVENTION);
         spinner = (Spinner)v.findViewById(R.id.vehicle_fragment_spinner);
 
         mVehicleFormView = v.findViewById(R.id.vehicle_form);
@@ -90,10 +94,9 @@ public class VehicleRequestDialog extends DialogFragment {
     }
 
     public void validate(String vehicle) {
-        this.dismiss();
         Toast.makeText(getActivity(), vehicle, Toast.LENGTH_SHORT).show();
         resourceRequestTask = new ResourceRequestTask();
-        resourceRequestTask.execute(intervention, vehicle);
+        resourceRequestTask.execute(interventionId, vehicle);
     }
 
     @Override
@@ -150,7 +153,7 @@ public class VehicleRequestDialog extends DialogFragment {
                 return resourceTypes;
 
             } catch (HttpStatusCodeException e) {
-                Log.e("VehicleRequestDialog", e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
 
             return null;
@@ -159,13 +162,19 @@ public class VehicleRequestDialog extends DialogFragment {
         @Override
         protected void onPostExecute(ResourceType[] resources) {
             showProgress(false);
+            if(null == resources) {
+                Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
+                dismiss();
+                cancel(true);
+                return;
+            }
             String[] spinnerArray = new String[resources.length];
             spinnerMap = new HashMap();
             if(resources != null && resources.length > 0 ) {
                 for (int i = 0; i < resources.length; i++) {
                     spinnerMap.put(resources[i].getLabel(), resources[i].getId());
-                    //TODO if(resources[i].getCategorie().equals(Categorie.vehicle)
-                    spinnerArray[i] = resources[i].getLabel();
+                    if(resources[i].getCategory() != null && resources[i].getCategory().equals(ResourceCategory.vehicule));
+                        spinnerArray[i] = resources[i].getLabel();
                 }
             }
 
@@ -176,25 +185,35 @@ public class VehicleRequestDialog extends DialogFragment {
         }
     }
 
-    private class ResourceRequestTask extends AsyncTask<Object, Void, Long> {
+    private class ResourceRequestTask extends AsyncTask<Object, Void, Intervention> {
 
         @Override
-        protected Long doInBackground(Object... params) {
+        protected Intervention doInBackground(Object... params) {
             try {
-                Long id = new SpringService().requestVehicle(params);
-                return id;
-
+                return new SpringService().requestVehicle(params);
             } catch (HttpStatusCodeException e) {
-                Log.e("VehicleRequestDialog", e.getMessage(), e);
+                Log.e(TAG, e.getMessage(), e);
             }
 
             return null;
         }
 
         @Override
-        protected void onPostExecute(Long id) {
-            Log.i("VehicleRequestDialog", "Request posted");
+        protected void onPostExecute(Intervention intervention) {
+            if(null == intervention) {
+                Toast.makeText(getActivity(), "Update impossible", Toast.LENGTH_SHORT).show();
+                this.cancel(true);
+                return;
+            }
+            Log.i(TAG, "Resource requested for intervention: " + intervention.getName());
+            for(Resource res : intervention.getResources()) {
+                Log.i(TAG, "Resource : "+res.getLabel());
+            }
+            if(getActivity() != null) {
+                Log.i(TAG, "getActivity not null");
+                ((AgentInterventionActivity) getActivity()).updateIntervention(intervention);
+            }
+            dismiss();
         }
-
     }
 }

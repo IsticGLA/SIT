@@ -16,6 +16,7 @@
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -32,12 +33,17 @@ import java.util.List;
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 public class InterventionActivity extends FragmentActivity
-        implements InterventionFragment.OnResourceSelectedListener {
+        implements InterventionFragment.OnResourceSelectedListener, ISynchTool, IInterventionsActivity {
 
-    private static final String TAG = SpringService.class.getSimpleName();
+    private static final String TAG = InterventionActivity.class.getSimpleName();
     protected Intervention[] interventionTab;
     private int position=0;
     private InterventionFragment firstFragment;
@@ -46,6 +52,15 @@ public class InterventionActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.startService(url, displaySynch);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -90,7 +105,7 @@ public class InterventionActivity extends FragmentActivity
         if (resourcesFragment != null) {
             // If article frag is available, we're in two-pane layout...
 
-            //save the current position
+            //save tsuper.onStop();he current position
             this.position = position;
 
             // Call a method in the ArticleFragment to update its content
@@ -130,8 +145,23 @@ public class InterventionActivity extends FragmentActivity
         interventionTab[oldLength] = intervention;
     }
 
+    public void updateIntervention(Intervention intervention) {
+        if(intervention != null) {
+            for (int i = 0; i < interventionTab.length; i++) {
+                if (interventionTab[i].getId() == intervention.getId()) {
+                    interventionTab[i].setResources(intervention.getResources());
+                }
+            }
+        }
+    }
+
     public void updateInterventions() {
         ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
+        ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).listViewInterventions.setItemChecked(position,true);
+    }
+
+    public void updateCurrentIntervention() {
+        ((ResourcesFragment) getSupportFragmentManager().getFragments().get(1)).updateResources(interventionTab[position]);
     }
 
     public void showDialogIntervention(View view) {
@@ -161,4 +191,50 @@ public class InterventionActivity extends FragmentActivity
                 return super.onOptionsItemSelected(item);
         }
     }
+
+    @Override
+    public void refresh() {
+        new GetAllInterventionsTask(InterventionActivity.this).execute();
+    }
+
+    @Override
+    public void updateInterventions(Intervention[] interventions) {
+        if(interventions != null) {
+            interventionTab = interventions;
+            updateInterventions();
+            updateCurrentIntervention();
+        }
+    }
+
+    @Override
+    public Context getContext() {
+        return getApplicationContext();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        DisplaySynch displaySynch = new DisplaySynch() {
+            @Override
+            public void ctrlDisplay() {
+                refresh();
+            }
+        };
+        String url = "notify/intervention";
+        IntentWraper.startService(url, displaySynch);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        IntentWraper.stopService();
+    }
+
+    @Override
+        protected void onStop() {
+        super.onStop();
+        IntentWraper.stopService();
+    }
+
+
 }

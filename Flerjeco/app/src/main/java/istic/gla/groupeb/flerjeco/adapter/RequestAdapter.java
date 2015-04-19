@@ -55,7 +55,7 @@ public class RequestAdapter extends ArrayAdapter<Resource> {
             role = resource.getResourceRole();
         }
         Vehicle vehicle = new Vehicle(resource.getLabel(),role,resource.getState());
-        viewHolder.iconViewResource.setmVehicle(vehicle);
+        viewHolder.iconViewResource.setIcon(vehicle);
 
         Drawable drawable;
 

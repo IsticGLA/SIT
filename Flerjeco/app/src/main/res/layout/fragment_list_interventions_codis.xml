@@ -6,7 +6,7 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:id="@+id/listViewInterventions"
+        android:id="@+id/listViewInterventions_codis"
         android:layout_gravity="center_horizontal"
         android:layout_weight="1" />
 
@@ -18,8 +18,8 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="@string/action_create"
-        android:id="@+id/buttonAskResource"
+        android:text="@string/action_create_intervention"
+        android:id="@+id/button_create_intervention"
         android:layout_gravity="center_horizontal"
         android:onClick="showDialogIntervention"/>
 </LinearLayout>

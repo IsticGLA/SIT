@@ -1,5 +1,6 @@
 package dao;
 
+import com.couchbase.client.core.BucketClosedException;
 import com.couchbase.client.deps.com.fasterxml.jackson.core.JsonProcessingException;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectMapper;
 import com.couchbase.client.deps.com.fasterxml.jackson.databind.ObjectWriter;
@@ -12,7 +13,9 @@ import com.couchbase.client.java.view.*;
 import entity.AbstractEntity;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -47,6 +50,61 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
     }
 
     /**
+     * return the Newer LastUpdate from a type in the database
+     * @return
+     */
+    public Timestamp getNewerLastUpdate() {
+        try {
+            createViewLastUpdate();
+            List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_lastupdate_" + type).stale(Stale.FALSE)).allRows();
+
+            Timestamp maxTimestamp = new Timestamp(0);
+            Timestamp timestamp = null;
+            // Iterate through the returned ViewRows
+            for (ViewRow row : result) {
+                timestamp= new Timestamp((long) row.value());
+                if(maxTimestamp.before(timestamp)) {
+                    maxTimestamp = timestamp;
+                }
+            }
+            return maxTimestamp;
+        } catch (BucketClosedException e) {
+            connect();
+            getNewerLastUpdate();
+        }
+        return null;
+    }
+
+    /**
+     * return the LastUpdate from the database
+     * @param id
+     * @return
+     */
+    public Timestamp getLastUpdate(long id) {
+        try {
+            return this.getById(id).getLastUpdate();
+        } catch (BucketClosedException e) {
+            connect();
+            getLastUpdate(id);
+        }
+        return null;
+    }
+
+    public boolean checkLastUpdate(T e) {
+        try {
+            Timestamp databaseDate = this.getById(e.getId()).getLastUpdate();
+            if (databaseDate.before(e.getLastUpdate())) {
+                return true;
+            }
+            return false;
+        } catch (BucketClosedException ex) {
+            connect();
+            checkLastUpdate(e);
+        }
+        return false;
+    }
+
+    /**
      * Create an entity
      * @param e entity to create
      */
@@ -55,12 +113,18 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             JsonLongDocument globalId = DAOManager.getCurrentBucket().counter("globalId", 1);
             Long newId = globalId.content();
 
+            e.updateDate();
+
             JsonDocument res = DAOManager.getCurrentBucket().insert(JsonDocument.create(Long.toString(newId), entityToJsonDocument(e)));
 
             return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
-        } catch (DocumentAlreadyExistsException ex){
+        } catch (DocumentAlreadyExistsException ex) {
             return null;
+        } catch (BucketClosedException ex) {
+        connect();
+        create(e);
         }
+        return null;
     }
 
     /**
@@ -73,7 +137,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             return Long.valueOf(res.id());
         } catch (DocumentDoesNotExistException ex){
             return -1;
+        } catch (BucketClosedException ex) {
+            connect();
+            delete(e);
         }
+        return -1;
     }
 
     /**
@@ -83,11 +151,16 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final T update(T e) {
         try {
+            e.updateDate();
             JsonDocument res = DAOManager.getCurrentBucket().replace(JsonDocument.create(Long.toString(e.getId()), entityToJsonDocument(e)));
             return jsonDocumentToEntity(Long.valueOf(res.id()), res.content());
         } catch (DocumentDoesNotExistException ex){
             return null;
+        } catch (BucketClosedException ex) {
+            connect();
+            update(e);
         }
+        return null;
     }
 
     /**
@@ -96,10 +169,15 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final List<T> getAll()
     {
-        long begin = System.currentTimeMillis();
-        createViewAll();
-        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_type_" + type).stale(Stale.FALSE)).allRows();
-        return viewRowsToEntities(result);
+        try {
+            createViewAll();
+            List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_type_" + type).stale(Stale.FALSE)).allRows();
+            return viewRowsToEntities(result);
+        } catch (BucketClosedException ex) {
+            connect();
+            getAll();
+        }
+        return null;
     }
 
     /**
@@ -118,13 +196,34 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             }
         } catch (DocumentDoesNotExistException ex){
             return null;
+        } catch (BucketClosedException ex) {
+            connect();
+            getById(id);
         }
+        return null;
     }
 
-    public final List<T> getBy(String key, String value){
-        createViewBy(key);
-        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_" + key + "_" + type).startKey(value).stale(Stale.FALSE)).allRows();
-        return viewRowsToEntities(result);
+    public final List<T> getBy(String key, Object value){
+        try {
+            createViewBy(key);
+            ViewQuery query = null;
+            if (value instanceof Long) {
+                Long v = (Long) value;
+                query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
+            } else if (value instanceof Integer) {
+                Integer v = (Integer) value;
+                query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
+            } else {
+                String v = (String) value;
+                query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
+            }
+            List<ViewRow> result = DAOManager.getCurrentBucket().query(query).allRows();
+            return viewRowsToEntities(result);
+        } catch (BucketClosedException ex) {
+            connect();
+            getBy(key, value);
+        }
+        return null;
     }
 
     protected List<T> viewRowsToEntities(List<ViewRow> list){
@@ -211,6 +310,25 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
                     "function (doc, meta) {\n" +
                             " if(doc.type && doc.type == '" + type + "') \n" +
                             "   { emit(doc." + key + ", doc);}\n" +
+                            "}";
+            designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
+            DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
+        }
+    }
+
+    private void createViewLastUpdate()
+    {
+        DesignDocument designDoc = DAOManager.getCurrentBucket().bucketManager().getDesignDocument("designDoc");
+        if (null == designDoc){
+            designDoc = createDesignDocument();
+        }
+
+        String viewName = "by_lastupdate_" + type;
+        if (!designDoc.toString().contains(viewName)) {
+            String mapFunction =
+                    "function (doc, meta) {\n" +
+                            " if(doc.type && doc.type == '" + type + "') \n" +
+                            "   { emit(doc.id, doc.lastUpdate);}\n" +
                             "}";
             designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
             DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);

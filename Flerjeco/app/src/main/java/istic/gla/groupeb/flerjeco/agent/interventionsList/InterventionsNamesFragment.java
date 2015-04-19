@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,12 +32,12 @@ import java.util.List;
 
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
 
 public class InterventionsNamesFragment extends Fragment {
     OnResourceSelectedListener mCallback;
 
-    private ListView listViewInterventions;
+    private static final String TAG = InterventionsNamesFragment.class.getSimpleName();
+    protected ListView listViewInterventions;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -75,6 +76,7 @@ public class InterventionsNamesFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
                 listViewInterventions.setItemChecked(position, true);
+                Log.i(TAG, "setOnItemClickListener : "+position);
             }
         });
 
@@ -87,8 +89,9 @@ public class InterventionsNamesFragment extends Fragment {
 
         // When in two-pane layout, set the listview to highlight the selected list item
         // (We do this during onStart because at the point the listview is available.)
-        if (getFragmentManager().findFragmentById(R.id.map_fragment) != null) {
+        if (getFragmentManager().findFragmentById(R.id.resources_fragment) != null) {
             listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            listViewInterventions.setItemChecked(0,true);
         }
     }
 
@@ -104,5 +107,23 @@ public class InterventionsNamesFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement OnResourceSelectedListener");
         }
+    }
+
+    public void updateList(){
+        // We need to use a different list item layout for devices older than Honeycomb
+        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
+                android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
+
+
+        List<String> labelsInterventions = new ArrayList<>();
+
+        ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
+        Intervention[] interventions = listInterventionsActivity.getInterventions();
+
+        for(Intervention inter : interventions) {
+            labelsInterventions.add(inter.getName());
+        }
+
+        listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
     }
 }

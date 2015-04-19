@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="buttonValidateResources">Valider la position des moyens</string>
-    <string name="buttonCancelResources">Enlever les moyens positionnés</string>
-</resources>

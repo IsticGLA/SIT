@@ -30,9 +30,10 @@ import java.util.List;
 import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import util.State;
 
-public class ResourcesFragment extends Fragment {
+public class ResourcesFragment extends Fragment implements ISynchTool {
 
     private ListView listViewResources;
     private ListView listViewRequests;
@@ -79,16 +80,22 @@ public class ResourcesFragment extends Fragment {
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
                 android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
 
+        ((InterventionActivity)getActivity()).updateIntervention(intervention);
         for (Resource resource : intervention.getResources()){
             State resourceState = resource.getState();
             if (State.active.equals(resourceState) || State.planned.equals(resourceState) || State.validated.equals(resourceState)){
                 labelsResources.add(resource.getLabel());
-            }else{
+            } else if (State.waiting.equals(resourceState)) {
                 requests.add(resource);
             }
         }
 
         listViewResources.setAdapter(new ArrayAdapter(getActivity(), layout, labelsResources));
         listViewRequests.setAdapter(new ResourceAdapter(getActivity(), layout, requests, intervention.getId(), this));
+    }
+
+    @Override
+    public void refresh() {
+
     }
 }

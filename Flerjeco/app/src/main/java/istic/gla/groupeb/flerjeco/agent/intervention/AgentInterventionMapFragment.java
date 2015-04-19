@@ -18,23 +18,24 @@ import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import entity.Intervention;
 import entity.Resource;
 import entity.StaticData;
-import istic.gla.groupeb.flerjeco.MyApp;
+import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
+import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import util.ResourceCategory;
 import util.ResourceRole;
 import util.State;
@@ -42,9 +43,10 @@ import util.State;
 /**
  * A fragment that launches other parts of the demo application.
  */
-public class AgentInterventionMapFragment extends Fragment {
+public class AgentInterventionMapFragment extends Fragment implements ISynchTool {
 
     final static String ARG_POSITION = "position";
+    private static final String TAG = AgentInterventionMapFragment.class.getSimpleName();
 
     MapView mMapView;
     Button buttonValidateResources;
@@ -54,12 +56,33 @@ public class AgentInterventionMapFragment extends Fragment {
     int position = -1;
 
     private Intervention intervention;
+    private LatLngBounds.Builder bounds;
     private StaticData[] staticDataTab;
     private List<Resource> resources = new ArrayList<>();
-    private List<Resource> resourcesToPutOnMap = new ArrayList<>();
-    private Set<Resource> resourcesPutOnMap = new HashSet<>();
     private Map<String, com.google.android.gms.maps.model.Marker> markers = new HashMap<>();
+    private Map<String, Resource> resourcesMap = new HashMap<>();
 
+    @Override
+    public void refresh() {
+        if (null != getActivity()){
+
+            Log.i(TAG, "refresh, clearMapData");
+            // clear lists
+            clearMapData();
+            // fill lists
+            initMap();
+        }
+    }
+
+    private void clearMapData(){
+        for (Resource resource : resources){
+            if (markers.get(resource.getLabel()+resource.getIdRes()) != null) {
+                markers.get(resource.getLabel()+resource.getIdRes()).remove();
+            }
+        }
+        resources.clear();
+        resourcesMap.clear();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,14 +94,13 @@ public class AgentInterventionMapFragment extends Fragment {
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
-        MyApp myApp = MyApp.getInstance();
-        if (myApp != null) {
-            staticDataTab = myApp.getStaticDatas();
+        FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
+        if (flerjecoApplication != null) {
+            staticDataTab = flerjecoApplication.getStaticData();
         }
 
-        mMapView.onResume();// needed to get the map to display immediately
+        mMapView.onResume();// needed to get the map to refresh immediately
 
-        buttonValidateResources = (Button) v.findViewById(R.id.buttonValidateResources);
         buttonCancelResources = (Button) v.findViewById(R.id.buttonCancelResources);
 
         try {
@@ -90,103 +112,130 @@ public class AgentInterventionMapFragment extends Fragment {
         googleMap = mMapView.getMap();
 
         AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
-        initMap(interventionActivity.intervention);
-
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                double latitude = latLng.latitude;
-                double longitude = latLng.longitude;
-                Log.i(getActivity().getLocalClassName(), "Click on the Map at " + latitude + ", " + longitude + " for item " + position);
-
-                Resource resourceToPut = resourcesToPutOnMap.get(position);
-
-                // create marker
-                MarkerOptions marker = new MarkerOptions().position(
-                        new LatLng(latitude, longitude)).title(resourceToPut.getLabel());
-                // Changing marker icon
-                drawMarker(marker, resourceToPut);
-
-                if (markers.get(resourceToPut.getLabel()) != null) {
-                    markers.get(resourceToPut.getLabel()).remove();
-                }
-                // adding marker
-                Marker markerAdded = googleMap.addMarker(marker);
-                markers.put(resourceToPut.getLabel(), markerAdded);
-
-                Log.d(getClass().getSimpleName(), "resource : " + resourceToPut.getLabel());
-
-                resourcesPutOnMap.add(resourceToPut);
-
-                buttonValidateResources.setVisibility(View.VISIBLE);
-                buttonCancelResources.setVisibility(View.VISIBLE);
-            }
-        });
+        intervention = interventionActivity.intervention;
+        initMap();
         return v;
     }
 
     public void cancelResources(){
-        for (Resource resource : resourcesPutOnMap){
+        for (Resource resource : resources){
             if (markers.get(resource.getLabel()) != null) {
                 markers.get(resource.getLabel()).remove();
             }
         }
-        resourcesPutOnMap.clear();
+        resources.clear();
+        resourcesMap.clear();
         buttonValidateResources.setVisibility(View.GONE);
         buttonCancelResources.setVisibility(View.GONE);
     }
 
-    public void updateMapView(int position) {
-        Resource resource = resources.get(position);
-        if (resource.getState() == State.planned || resource.getState() == State.active) {
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(new LatLng(resource.getLatitude(), resource.getLongitude())).zoom(16).build();
-            googleMap.animateCamera(CameraUpdateFactory
-                    .newCameraPosition(cameraPosition));
-            this.position = position;
-        }
-    }
+    public void initMap(){
+        // get intervention
+        intervention = ((AgentInterventionActivity) getActivity()).intervention;
 
-    public void initMap(Intervention intervention){
-        this.intervention = intervention;
+        if (null != intervention){
+            // Create LatLngBound to zoom on the set of positions in the path
+            bounds = new LatLngBounds.Builder();
+            boolean isPositionResource = false;
 
-        if (staticDataTab != null && staticDataTab.length > 0){
-            for (StaticData data : staticDataTab){
-                MarkerOptions marker = new MarkerOptions().position(
-                        new LatLng(data.getLatitude(), data.getLongitude()));
-                drawStaticMarker(marker, data);
-                googleMap.addMarker(marker);
-            }
-        }
-
-        if (intervention.getResources().size()>0){
-
-            for (Resource resource : intervention.getResources()){
-                State resourceState = resource.getState();
-                if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
-                    // create marker
+            if (staticDataTab != null && staticDataTab.length > 0){
+                for (StaticData data : staticDataTab){
                     MarkerOptions marker = new MarkerOptions().position(
-                            new LatLng(resource.getLatitude(), resource.getLongitude())).title(resource.getLabel());
-                    // Changing marker icon
-
-                    drawMarker(marker, resource);
-                    // adding marker
+                            new LatLng(data.getLatitude(), data.getLongitude()));
+                    drawStaticMarker(marker, data);
                     googleMap.addMarker(marker);
+                }
+            }
 
-                    resources.add(resource);
-                }else if (State.validated.equals(resourceState)){
-                    resourcesToPutOnMap.add(resource);
-                    Log.i(getClass().getSimpleName(), "Adding " + resource.getLabel() + " to resourcesToPutOnMap");
+            if (intervention.getResources().size()>0){
+
+                for (final Resource resource : intervention.getResources()){
+                    double latitude = resource.getLatitude();
+                    double longitude = resource .getLongitude();
+                    if(latitude != 0 && longitude != 0) {
+                        Log.i(TAG, "Latitude : "+latitude+" Longitude : "+longitude);
+                        isPositionResource = true;
+                        LatLng latLng = new LatLng(latitude, longitude);
+                        bounds.include(latLng);
+                    }
+
+                    State resourceState = resource.getState();
+                    if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+                        // create marker
+                        MarkerOptions marker = new MarkerOptions().position(
+                                new LatLng(resource.getLatitude(), resource.getLongitude())).title(resource.getLabel());
+
+                        marker.draggable(true);
+                        // Changing marker icon
+                        drawMarker(marker, resource);
+                        // adding marker
+                        Marker markerAdded = googleMap.addMarker(marker);
+                        String title = resource.getLabel()+resource.getIdRes();
+                        markerAdded.setTitle(title);
+
+                        markers.put(title, markerAdded);
+                        resources.add(resource);
+                        resourcesMap.put(title,resource);
+                    }
+                }
+            }
+
+            if(!isPositionResource) {
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
+
+                googleMap.animateCamera(CameraUpdateFactory
+                        .newCameraPosition(cameraPosition));
+            } else {
+                googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+
+                    @Override
+                    public void onCameraChange(CameraPosition arg0) {
+                        // Move camera.
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                        // Remove listener to prevent position reset on camera move.
+                        googleMap.setOnCameraChangeListener(null);
+                    }
+                });
+            }
+
+            googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    Resource resource = resourcesMap.get(marker.getTitle());
+                    if (resource != null && !resource.getLabel().contains("incident")) {
+                        ((AgentInterventionActivity) getActivity()).showManageResourceDialog(resource);
+                    }
+                    return false;
+                }
+            });
+
+            googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+                @Override
+                public void onMarkerDragStart(Marker marker) {
+
                 }
 
-            }
+                @Override
+                public void onMarkerDrag(Marker marker) {
+
+                }
+
+                @Override
+                public void onMarkerDragEnd(Marker marker) {
+                    /*String title = marker.getTitle();
+                    LatLng latLng = marker.getPosition();
+                    Resource resource = resourcesMap.get(title);
+                    resource.setLatitude(latLng.longitude);
+                    resource.setLongitude(latLng.longitude);
+                    if (null != getActivity()){
+                        ((AgentInterventionActivity) getActivity()).resourceUpdated(resource);
+                    }*/
+                }
+            });
         }
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
 
-        googleMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
     }
 
     public int getPosition() {
@@ -231,7 +280,7 @@ public class AgentInterventionMapFragment extends Fragment {
                 Danger danger = new Danger();
                 bmp = Bitmap.createBitmap(60, 60, Bitmap.Config.ARGB_8888);
                 Canvas mCanvas = new Canvas(bmp);
-                danger.drawDanger(mCanvas);
+                danger.drawIcon(mCanvas);
                 break;
             case incident:
                 bmp = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
@@ -244,31 +293,48 @@ public class AgentInterventionMapFragment extends Fragment {
 
     public void drawMarker(MarkerOptions markerOptions, Resource resource){
         ResourceCategory category = resource.getResourceCategory();
+        Bitmap mBitmap = null;
         if (category!=null){
-
-            switch (resource.getResourceCategory()){
+            switch (category){
                 case vehicule:
-                    ResourceRole role = ResourceRole.otherwise;
-                    if (resource.getResourceRole()!=null) {
-                        role = resource.getResourceRole();
-                    }
-                    String name = resource.getLabel()+" "+resource.getIdRes();
+                    ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
+                    String name = resource.getLabel();
                     Vehicle mVehicle = new Vehicle(name, role, resource.getState());
                     int width = mVehicle.getRect().width();
                     int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
-                    Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                    mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
                     Canvas mCanvas = new Canvas(mBitmap);
-                    mVehicle.drawVehicle(mCanvas);
-                    markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mBitmap));
+                    mVehicle.drawIcon(mCanvas);
                     break;
-                case drone:
+                case dragabledata:
+                    String label = resource.getLabel();
+                    ResourceRole resourceRole = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
+                    if (label.contains("incident")){
+                        mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
+                    } else if (label.contains("danger")) {
+                        Danger danger = new Danger(resourceRole);
+                        mBitmap = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888);
+                        Canvas dCanvas = new Canvas(mBitmap);
+                        danger.drawIcon(dCanvas);
+                    } else if (label.contains("sensitive")) {
+                        Sensitive sensitive = new Sensitive(resourceRole);
+                        mBitmap = Bitmap.createBitmap(40, 40, Bitmap.Config.ARGB_8888);
+                        Canvas sCanvas = new Canvas(mBitmap);
+                        sensitive.drawIcon(sCanvas);
+                    }
                     break;
+            }
+            if (mBitmap != null){
+                markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mBitmap));
             }
 
         }
     }
 
-    public Set<Resource> getResourcesPutOnMap() {
-        return resourcesPutOnMap;
+    public Map<String, Marker> getMarkers() {
+        return markers;
+    }
+    public Map<String, Resource> getResourcesMap() {
+        return resourcesMap;
     }
 }

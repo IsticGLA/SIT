@@ -1,7 +1,11 @@
 package istic.gla.groupb.nivimoju.drone.latlong;
 
+import entity.Path;
 import entity.Position;
 import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Classe de convertissage entre un système géodesique (latlong) et des coordonnées dans un repère local
@@ -88,6 +92,24 @@ public class LatLongConverter {
         return new LocalCoordinate(x, y, 0);
     }
 
+    public LocalPath getLocalPath(Path path){
+        LocalPath localPath = new LocalPath();
+        localPath.setClosed(path.isClosed());
+        List<LocalCoordinate> localCoordinates = new ArrayList<>();
+        for(Position latLong : path.getPositions()){
+            try{
+                LocalCoordinate coord = getLocal(latLong);
+                coord.setZ(20);
+                localCoordinates.add(coord);
+            } catch (IllegalArgumentException e){
+                logger.error("could not transfer " + latLong + " to local coordinates");
+            }
+        }
+        localPath.setPositions(localCoordinates);
+        logger.info("converted local path : " + localPath.toString());
+        return localPath;
+    }
+
 
     /**
      * Retourne les coordonnées latlong correspondantes à une coordonnée locale
@@ -95,14 +117,17 @@ public class LatLongConverter {
      * @return les coordonnées dans le système latlong
      */
     public Position getLatLong(LocalCoordinate local){
-        //interpolation linéaire sur x puis y
-        double maxX = width - offsetX;
-        double maxY = height - offsetY;
-        double longitude = (longitudeRight - longitudeLeft) * (local.getX() - maxX) / (maxX - offsetX) + longitudeLeft;
-        double latitude = (latitudeTop - latitudeBottom) * (local.getY() - maxY) / (maxY - offsetY) + latitudeBottom;
+        //prise en compte de la déviation
+        double x = local.getX()/(1+deltaXFactor);
+        double y = local.getY()/(1+deltaYFactor);
 
+        double deltaLat = latitudeTop - latitudeBottom;
+        double convertedLatitude = (deltaLat * (offsetY + y) + height * latitudeBottom) / height;
 
-        return new Position(longitude,  latitude);
+        double deltaLong = longitudeRight - longitudeLeft;
+        double convertedLongitude = (deltaLong * (offsetX + x) + width * longitudeLeft) / width;
+
+        return new Position(convertedLatitude,  convertedLongitude);
     }
 
     @Override

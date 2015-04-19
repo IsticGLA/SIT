@@ -2,7 +2,10 @@ package istic.gla.groupb.nivimoju.drone.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import entity.Drone;
+import entity.Path;
 import entity.Position;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
@@ -14,9 +17,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.MissingResourceException;
 import java.util.Properties;
+import java.util.Map;
 
 public class DroneClient {
     private static Logger logger = Logger.getLogger(DroneClient.class);
@@ -69,7 +72,8 @@ public class DroneClient {
 
     public String get(String uri) {
         HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
+        ResponseEntity<String> responseEntity =
+                rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
         this.setStatus(responseEntity.getStatusCode());
         return responseEntity.getBody();
     }
@@ -113,14 +117,51 @@ public class DroneClient {
         String res = post("robot/waypoint", json);
     }
 
-    public void postPath(LocalPath path) throws JsonProcessingException {
+    public void postPath(String droneLabel, LocalPath path) throws JsonProcessingException {
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ow.writeValueAsString(path);
-        String res = post("robot/path", json);
+        try {
+            String res = post(droneLabel + "/path", json);
+        } catch (Exception e){
+            logger.error(e);
+        }
     }
 
-    public static void main( String[] args ){
-        new DroneClient();
+    public void postStop(String droneLabel) throws JsonProcessingException {
+        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        try {
+            String res = post(droneLabel + "/stop", null);
+        } catch (Exception e){
+            logger.error(e);
+        }
     }
 
+    public DronesInfos getDronesInfos() {
+        String res = get("drones/info");
+        //map label localposition
+        Map<String, LocalCoordinate> infos;
+        ObjectReader reader = new ObjectMapper().reader(DronesInfos.class);
+        try {
+            return reader.readValue(res);
+        } catch (IOException e) {
+            logger.error(e);
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        DroneClient client = new DroneClient();
+        Position croisement = new Position(48.11498, -1.63795);
+        Position croisement2 = new Position(48.114454, -1.639962);
+        Path path = new Path();
+        path.addPosition(croisement);
+        path.addPosition(croisement2);
+        path.setClosed(true);
+        LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
+        try {
+            client.postPath("drone_1", converter.getLocalPath(path));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+    }
 }

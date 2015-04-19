@@ -16,8 +16,12 @@
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,21 +34,47 @@ import java.util.List;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
-import istic.gla.groupeb.flerjeco.adapter.ResourceAdapter;
+import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
+import istic.gla.groupeb.flerjeco.adapter.ResourceImageAdapter;
+import istic.gla.groupeb.flerjeco.icons.Vehicle;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import util.ResourceCategory;
 import util.State;
 
-public class AgentInterventionResourcesFragment extends Fragment {
+public class AgentInterventionResourcesFragment extends Fragment implements ISynchTool {
     OnResourceSelectedListener mCallback;
 
     private ListView listViewResources;
     private ListView listViewRequests;
+    private ListView listViewAdditionalResources;
     private List<Resource> resourceList = new ArrayList<>();
+    private List<Bitmap> iconBitmapResourceList = new ArrayList<>();
     private List<Resource> requestList = new ArrayList<>();
+    private List<Resource> additionalResourceList = new ArrayList<>();
+    private ResourceIconAdapter resourceIconAdapter;
+    private ResourceImageAdapter resourceImageAdapter;
+    private RequestAdapter requestAdapter;
+
+    @Override
+    public void refresh() {
+        // clear lists
+        clearData();
+        // fill lists
+        fillResourcesAndRequests();
+        // notify adapters
+        notifyAdapters();
+    }
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
         /** Called by HeadlinesFragment when a list item is selected */
         public void onResourceSelected(int position);
+    }
+
+    public void clearData(){
+        resourceList.clear();
+        iconBitmapResourceList.clear();
+        requestList.clear();
     }
 
     @Override
@@ -55,22 +85,26 @@ public class AgentInterventionResourcesFragment extends Fragment {
         View v = inflater.inflate(R.layout.resource_view, container,
                 false);
 
+        // get listView by id
+        listViewAdditionalResources = (ListView) v.findViewById(R.id.listViewAditionalResources);
         listViewResources = (ListView) v.findViewById(R.id.listViewAgentResources);
         listViewRequests = (ListView) v.findViewById(R.id.listViewAgentRequests);
 
-        AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
-        for (Resource resource : interventionActivity.intervention.getResources()){
-            State resourceState = resource.getState();
-            if (State.validated.equals(resourceState)){
-                resourceList.add(resource);
-            }else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) ){
-                requestList.add(resource);
-            }
-        }
+        // fill Lists
+        fillAdditionalResources();
+        fillResourcesAndRequests();
 
-        listViewResources.setAdapter(new ResourceAdapter(getActivity(), R.layout.item_resource_agent, resourceList));
-        listViewRequests.setAdapter(new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList));
+        // initialize adapters
+        resourceIconAdapter = new ResourceIconAdapter(getActivity(), R.layout.item_resource_agent_only_icon, additionalResourceList);
+        resourceImageAdapter = new ResourceImageAdapter(getActivity(), R.layout.item_resource_agent_only_icon, resourceList, iconBitmapResourceList);
+        requestAdapter = new RequestAdapter(getActivity(), R.layout.item_request_agent, requestList);
 
+        // associate adapters to listViews
+        listViewAdditionalResources.setAdapter(resourceIconAdapter);
+        listViewResources.setAdapter(resourceImageAdapter);
+        listViewRequests.setAdapter(requestAdapter);
+
+        // Add Listeners on listViews
         listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -78,8 +112,78 @@ public class AgentInterventionResourcesFragment extends Fragment {
                 listViewResources.setItemChecked(position,true);
             }
         });
+        listViewResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
+                mCallback.onResourceSelected(position);
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                view.setVisibility(View.INVISIBLE);
+                return true;
+            }
+        });
+        listViewAdditionalResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                mCallback.onResourceSelected(position);
+                ClipData data = ClipData.newPlainText("", "");
+                View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                view.startDrag(data, shadowBuilder, view, 0);
+                return true;
+            }
+        });
 
         return v;
+    }
+
+    /**
+     * Fill Additional Resources List (Static Data)
+     */
+    private void fillAdditionalResources(){
+
+        Resource incident = new Resource("incident", State.validated, 0, 0);
+        incident.setResourceCategory(ResourceCategory.dragabledata);
+        Resource danger = new Resource("danger", State.validated, 0, 0);
+        danger.setResourceCategory(ResourceCategory.dragabledata);
+        Resource sensitive = new Resource("sensitive", State.validated, 0, 0);
+        sensitive.setResourceCategory(ResourceCategory.dragabledata);
+
+        additionalResourceList.add(incident);
+        additionalResourceList.add(danger);
+        additionalResourceList.add(sensitive);
+    }
+
+    /**
+     * Fill Resources List and Request List thanks to Intervention
+     */
+    private void fillResourcesAndRequests(){
+        AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
+        if (null != interventionActivity && null != interventionActivity.intervention) {
+            for (Resource resource : interventionActivity.intervention.getResources()) {
+                State resourceState = resource.getState();
+                if (State.validated.equals(resourceState)) {
+                    resourceList.add(resource);
+                    Vehicle mVehicle = new Vehicle(resource.getLabel(), resource.getResourceRole(), resource.getState());
+                    int width = mVehicle.getRect().width();
+                    int height = mVehicle.getRect().height() + mVehicle.getRect2().height() + 10;
+                    Bitmap mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+                    Canvas mCanvas = new Canvas(mBitmap);
+                    mVehicle.drawIcon(mCanvas);
+                    iconBitmapResourceList.add(mBitmap);
+                    Log.i("RESOURCELIST", resource.getLabel());
+                } else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState)) {
+                    requestList.add(resource);
+                }
+            }
+        }
+
+    }
+
+    private void notifyAdapters(){
+        requestAdapter.notifyDataSetChanged();
+        resourceImageAdapter.notifyDataSetChanged();
+        resourceIconAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -110,5 +214,37 @@ public class AgentInterventionResourcesFragment extends Fragment {
             throw new ClassCastException(activity.toString()
                     + " must implement OnHeadlineSelectedListener");
         }
+    }
+
+    /*
+     *  Getters
+     */
+
+    public List<Resource> getResourceList() {
+        return resourceList;
+    }
+
+    public List<Resource> getAdditionalResourceList() {
+        return additionalResourceList;
+    }
+
+    public List<Resource> getRequestList() {
+        return requestList;
+    }
+
+    public ResourceIconAdapter getResourceIconAdapter() {
+        return resourceIconAdapter;
+    }
+
+    public ResourceImageAdapter getResourceImageAdapter() {
+        return resourceImageAdapter;
+    }
+
+    public RequestAdapter getRequestAdapter() {
+        return requestAdapter;
+    }
+
+    public List<Bitmap> getIconBitmapResourceList() {
+        return iconBitmapResourceList;
     }
 }

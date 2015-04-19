@@ -10,7 +10,6 @@ import android.widget.ArrayAdapter;
 import java.util.List;
 
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.view.IconView;
 
 /**
@@ -36,10 +35,10 @@ public class IconViewAdapter extends ArrayAdapter<IconView> {
 
         if (row == null) {
             LayoutInflater inflater = ((Activity)context).getLayoutInflater();
-            row = inflater.inflate(R.layout.list_row, parent, false);
-            //row = LayoutInflater.from(context).inflate(R.layout.list_row, null);
+            row = inflater.inflate(R.layout.item_resource_agent_only_icon, parent, false);
+            //row = LayoutInflater.from(context).inflate(R.layout.item_resource_agent_only_icon, null);
             holder = new IconHolder();
-            holder.iconView = (IconView)row.findViewById(R.id.icon_view);
+            holder.iconView = (IconView)row.findViewById(R.id.image_view);
             row.setTag(holder);
 
         } else {
@@ -47,7 +46,7 @@ public class IconViewAdapter extends ArrayAdapter<IconView> {
         }
 
         IconView iconView = iconViewList.get(position);
-        holder.iconView.setmVehicle(iconView.getVehicle());
+        holder.iconView.setIcon(iconView.getIcon());
         return row;
     }
 

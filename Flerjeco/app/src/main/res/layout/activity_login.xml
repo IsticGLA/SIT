@@ -23,7 +23,7 @@
                 android:id="@+id/imageView_logo"
                 android:baselineAlignBottom="false"
                 android:layout_gravity="center"
-                android:src="@drawable/istic" />
+                android:src="@drawable/sitistic" />
 
             <EditText android:id="@+id/editText_login" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:hint="@string/prompt_login"

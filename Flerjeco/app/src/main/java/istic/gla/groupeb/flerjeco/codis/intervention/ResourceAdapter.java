@@ -1,17 +1,16 @@
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.graphics.Color;
 import android.os.AsyncTask;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.springframework.web.client.HttpStatusCodeException;
 
@@ -71,20 +70,33 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
             @Override
             public void onClick(View v) {
                 if(_viewHolder.interventionId >= 0) {
+                    ((LinearLayout) v.getParent()).setBackgroundColor(Color.GRAY);
                     new ResourceRequestTask().execute(
                             "" + interventionId,
                             "" + resource.getIdRes(),
                             State.validated.name());
+                    _viewHolder.acceptButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    });
                 }
             }
         });
         viewHolder.refuseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(interventionId >= 0)
+                if(interventionId >= 0) {
+                    ((LinearLayout) v.getParent()).setBackgroundColor(Color.GRAY);
                     new ResourceRequestTask().execute("" + interventionId,
                             "" + resource.getIdRes(),
                             State.refused.name());
+                    _viewHolder.refuseButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    });
+                }
             }
         });
 
