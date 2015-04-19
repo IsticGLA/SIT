@@ -21,6 +21,9 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Map;
 
+/**
+ * Client for a restservice to manipulate drones
+ */
 public class DroneClient {
     private static Logger logger = Logger.getLogger(DroneClient.class);
 
@@ -29,6 +32,10 @@ public class DroneClient {
     private HttpHeaders headers;
     private HttpStatus status;
 
+    /**
+     * Initialize the restclient
+     * @throws IllegalStateException if oncfiguration file is missing or incomplete
+     */
     public DroneClient() throws IllegalStateException{
         this.rest = new RestTemplate();
         this.headers = new HttpHeaders();
@@ -66,85 +73,93 @@ public class DroneClient {
                 }
             }
         }
-
-
     }
 
-    public String get(String uri) {
+    /**
+     * simple get method
+     * @param uri the end of the uri
+     * @return a String with the body of the response
+     * @throws RestClientException
+     */
+    private String get(String uri) throws RestClientException{
         HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
         ResponseEntity<String> responseEntity =
                 rest.exchange(server + uri, HttpMethod.GET, requestEntity, String.class);
-        this.setStatus(responseEntity.getStatusCode());
+        status = responseEntity.getStatusCode();
         return responseEntity.getBody();
     }
 
-    public String post(String uri, String json) {
+    /**
+     * simple post method
+     * @param uri the end of the uri
+     * @param json the json to post in the body
+     * @return a String with the body of the response
+     * @throws RestClientException
+     */
+    public String post(String uri, String json) throws RestClientException{
         HttpEntity<String> requestEntity = new HttpEntity<>(json, headers);
+        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.POST, requestEntity, String.class);
+        status = responseEntity.getStatusCode();
+        return responseEntity.getBody();
+    }
+
+    /**
+     * Donne un nouveau chemin � parcourir � un drone
+     * @param droneLabel le label du drone � commander
+     * @param path le chemin � suivre
+     * @return true si l'ordre a �t� correctement envoy�
+     */
+    public boolean postPath(String droneLabel, LocalPath path) {
         try {
-            ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.POST, requestEntity, String.class);
-            this.setStatus(responseEntity.getStatusCode());
-            return responseEntity.getBody();
-        } catch (RestClientException e){
-            logger.error("failed to post message", e);
-        }
-        return null;
-    }
-
-    public void put(String uri, String json) {
-        HttpEntity<String> requestEntity = new HttpEntity<>(json, headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.PUT, requestEntity, null);
-        this.setStatus(responseEntity.getStatusCode());
-    }
-
-    public void delete(String uri) {
-        HttpEntity<String> requestEntity = new HttpEntity<>("", headers);
-        ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.DELETE, requestEntity, null);
-        this.setStatus(responseEntity.getStatusCode());
-    }
-
-    public HttpStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(HttpStatus status) {
-        this.status = status;
-    }
-
-    public void postWaypoint(LocalCoordinate local) throws Exception {
-        local.setZ(20);
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(local);
-        String res = post("robot/waypoint", json);
-    }
-
-    public void postPath(String droneLabel, LocalPath path) throws JsonProcessingException {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        String json = ow.writeValueAsString(path);
-        try {
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+            String json = ow.writeValueAsString(path);
             String res = post(droneLabel + "/path", json);
-        } catch (Exception e){
-            logger.error(e);
+            if(status.equals(HttpStatus.OK)){
+                return true;
+            } else{
+                logger.warn("request failed. status code " + status + " body : " + res);
+            }
+        } catch (JsonProcessingException e){
+            logger.error("faile to parse path : " + path);
         }
+        return false;
     }
 
-    public void postStop(String droneLabel) throws JsonProcessingException {
-        ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+    /**
+     * Ordonne � un drone de s'arr�ter
+     * @param droneLabel le label du drone que l'on souhaite stopper
+     * @return true si l'ordre a �t� pris en compte
+     */
+    public boolean postStop(String droneLabel) throws JsonProcessingException {
         try {
+            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
             String res = post(droneLabel + "/stop", null);
+            if(status.equals(HttpStatus.OK)){
+                return true;
+            } else{
+                logger.warn("request failed. status code " + status + " body : " + res);
+            }
         } catch (Exception e){
             logger.error(e);
         }
+        return false;
     }
 
+    /**
+     * R�cup�re les informations des drones
+     * @return un objet DroneInfos ou null en cas d'erreur
+     */
     public DronesInfos getDronesInfos() {
         String res = get("drones/info");
-        //map label localposition
-        Map<String, LocalCoordinate> infos;
-        ObjectReader reader = new ObjectMapper().reader(DronesInfos.class);
-        try {
-            return reader.readValue(res);
-        } catch (IOException e) {
-            logger.error(e);
+        if(status.equals(HttpStatus.OK)) {
+            ObjectReader reader = new ObjectMapper().reader(DronesInfos.class);
+            try {
+                return reader.readValue(res);
+            } catch (IOException e) {
+                logger.error(e);
+            }
+        } else{
+            logger.warn("request failed. status code " + status + " body : " + res);
         }
         return null;
     }
@@ -158,10 +173,6 @@ public class DroneClient {
         path.addPosition(croisement2);
         path.setClosed(true);
         LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
-        try {
-            client.postPath("drone_1", converter.getLocalPath(path));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        client.postPath("drone_12/c/", converter.getLocalPath(path));
     }
 }

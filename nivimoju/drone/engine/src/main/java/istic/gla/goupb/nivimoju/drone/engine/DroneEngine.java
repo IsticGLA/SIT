@@ -111,11 +111,7 @@ public class DroneEngine{
                 LocalPath pathForDrone = affectationByDroneLabel.get(drone.getLabel());
                 logger.info("sending order for drone " + drone.getLabel() + " path : " + pathForDrone);
                 if(pathForDrone != null){
-                    try {
-                        client.postPath(drone.getLabel(), pathForDrone);
-                    } catch (JsonProcessingException e) {
-                        logger.error(e);
-                    }
+                    client.postPath(drone.getLabel(), pathForDrone);
                 }
             }
         }

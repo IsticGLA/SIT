@@ -24,31 +24,6 @@ public class DroneAPI {
     Logger logger = Logger.getLogger(DroneAPI.class);
 
     /**
-     * Send a move request directly to the simulation (for debug)
-     * @param latitude The latitude of the position
-     * @param longitude The longitude of the position
-     * @return OK if authenticated
-     */
-    @GET
-    @Path("/move/{lat}/{long}")
-    public Response move(
-            @PathParam("lat") double latitude,
-            @PathParam("long") double longitude) {
-        DroneClient client = new DroneClient();
-        LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
-        Position position = new Position(latitude,longitude);
-
-        LocalCoordinate local = converter.getLocal(position);
-        local.setZ(20);
-        try {
-            client.postWaypoint(local);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return Response.ok().build();
-    }
-
-    /**
      * Find all drone affected to intervention of id idIntervention
      * @param idIntervention the id of the intervention
      * @return a response with all the drones affected
@@ -60,7 +35,6 @@ public class DroneAPI {
             @PathParam("idIntervention") Long idIntervention) {
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();
-
         List<Drone> droneList = droneDAO.getBy("idIntervention", idIntervention);
         droneDAO.disconnect();
         return Response.ok(droneList).build();
@@ -143,26 +117,6 @@ public class DroneAPI {
                             intervention.getWatchPath());
             logger.info("alertEngine end : " + DateTime.now());
             return Response.ok().build();
-        }
-        return Response.status(Response.Status.BAD_REQUEST)
-                .build();
-    }
-
-    /**
-     * alerte le droneEngine qu'une intervention a eu ses chemins mis à jours
-     * @return
-     */
-    @GET
-    @Path("/sendorders/{idIntervention}")
-    public Response sendOrders(
-            @PathParam("idIntervention") Long idIntervention) {
-        logger.info("sending orders for " + idIntervention);
-        if(idIntervention != null){
-            try {
-                DroneEngine.getInstance().sendOrdersForIntervention(idIntervention);
-            } catch (Exception e){
-                logger.error("raté");
-            }
         }
         return Response.status(Response.Status.BAD_REQUEST)
                 .build();
