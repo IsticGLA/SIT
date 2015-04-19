@@ -4,11 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import entity.Drone;
 import entity.Path;
 import entity.Position;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
-import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalPath;
 import org.apache.log4j.Logger;
 import org.springframework.http.*;
@@ -19,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.MissingResourceException;
 import java.util.Properties;
-import java.util.Map;
 
 /**
  * Client for a restservice to manipulate drones
@@ -96,7 +93,7 @@ public class DroneClient {
      * @return a String with the body of the response
      * @throws RestClientException
      */
-    public String post(String uri, String json) throws RestClientException{
+    private String post(String uri, String json) throws RestClientException{
         HttpEntity<String> requestEntity = new HttpEntity<>(json, headers);
         ResponseEntity<String> responseEntity = rest.exchange(server + uri, HttpMethod.POST, requestEntity, String.class);
         status = responseEntity.getStatusCode();
@@ -104,10 +101,10 @@ public class DroneClient {
     }
 
     /**
-     * Donne un nouveau chemin � parcourir � un drone
-     * @param droneLabel le label du drone � commander
-     * @param path le chemin � suivre
-     * @return true si l'ordre a �t� correctement envoy�
+     * order a specific drone to follow a new path
+     * @param droneLabel the name of the drone
+     * @param path the path to follow
+     * @return true if the command was successful
      */
     public boolean postPath(String droneLabel, LocalPath path) {
         try {
@@ -126,28 +123,23 @@ public class DroneClient {
     }
 
     /**
-     * Ordonne � un drone de s'arr�ter
-     * @param droneLabel le label du drone que l'on souhaite stopper
-     * @return true si l'ordre a �t� pris en compte
+     * Command a specific drone to stop
+     * @param droneLabel the drone name
+     * @return true if the command was succesfull
      */
-    public boolean postStop(String droneLabel) throws JsonProcessingException {
-        try {
-            ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-            String res = post(droneLabel + "/stop", null);
-            if(status.equals(HttpStatus.OK)){
-                return true;
-            } else{
-                logger.warn("request failed. status code " + status + " body : " + res);
-            }
-        } catch (Exception e){
-            logger.error(e);
+    public boolean postStop(String droneLabel){
+        String res = post(droneLabel + "/stop", null);
+        if(status.equals(HttpStatus.OK)){
+            return true;
+        } else{
+            logger.warn("request failed. status code " + status + " body : " + res);
         }
         return false;
     }
 
     /**
-     * R�cup�re les informations des drones
-     * @return un objet DroneInfos ou null en cas d'erreur
+     * Get informations about all drones in simulation (positions)
+     * @return all information in a DronesInfos object
      */
     public DronesInfos getDronesInfos() {
         String res = get("drones/info");
@@ -173,6 +165,6 @@ public class DroneClient {
         path.addPosition(croisement2);
         path.setClosed(true);
         LatLongConverter converter = new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
-        client.postPath("drone_12/c/", converter.getLocalPath(path));
+        client.postPath("drone_1", converter.getLocalPath(path));
     }
 }
