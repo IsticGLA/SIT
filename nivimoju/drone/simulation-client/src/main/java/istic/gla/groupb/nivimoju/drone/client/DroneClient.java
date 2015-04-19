@@ -12,21 +12,59 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.MissingResourceException;
+import java.util.Properties;
 
 public class DroneClient {
     private static Logger logger = Logger.getLogger(DroneClient.class);
 
-    private String server = "http://37.59.58.42:5000/";
+    private final String server;
     private RestTemplate rest;
     private HttpHeaders headers;
     private HttpStatus status;
 
-    public DroneClient() {
+    public DroneClient() throws IllegalStateException{
         this.rest = new RestTemplate();
         this.headers = new HttpHeaders();
         headers.add("Content-Type", "application/json");
         headers.add("Accept", "*/*");
+
+        Properties prop = new Properties();
+        InputStream input = null;
+        try {
+            String filename = "config.properties";
+            input = DroneClient.class.getClassLoader().getResourceAsStream(filename);
+            if(input==null){
+                logger.error("Could not find property file for drone-simulation-client : " + filename);
+                throw new MissingResourceException("Could not find property file for drone-simulation-client : ", DroneClient.class.getName(), "config.properties");
+            }
+            //load a properties file from class path, inside static method
+            prop.load(input);
+            if (prop.getProperty("flask_ip") == null) {
+                throw new MissingResourceException("could not find property 'flask_ip', unable to initialize client", DroneClient.class.getName(), "flask_ip");
+            }
+            if (prop.getProperty("flask_port") == null) {
+                throw new MissingResourceException("could not find property 'flask_port', unable to initialize client", DroneClient.class.getName(), "flask_port");
+            }
+            server = "http://"+prop.getProperty("flask_ip") + ":" + prop.getProperty("flask_port") +"/";
+            logger.info("initialized flask server client at " + server);
+        } catch (IOException e) {
+            logger.error("Could not read property file for drone-simulation-client : ", e);
+            throw new MissingResourceException("Could not read property file for drone-simulation-client : ", DroneClient.class.getName(), "config.properties");
+        } finally{
+            if(input!=null){
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    logger.error(e);
+                }
+            }
+        }
+
+
     }
 
     public String get(String uri) {
@@ -81,5 +119,8 @@ public class DroneClient {
         String res = post("robot/path", json);
     }
 
+    public static void main( String[] args ){
+        new DroneClient();
+    }
 
 }

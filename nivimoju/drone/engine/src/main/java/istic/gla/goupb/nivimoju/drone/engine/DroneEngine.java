@@ -66,7 +66,7 @@ public class DroneEngine {
         Path path = new Path();
         path.addPosition(croisement);
         path.addPosition(croisement2);
-        engine.setPath(path);
-        engine.updateDrone();
+        //engine.setPath(path);
+        //engine.updateDrone();
     }
 }
