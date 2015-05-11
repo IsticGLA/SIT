@@ -9,7 +9,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 /**
- * Created by sacapuces on 15/04/15.
+ * Initialise le job qui rafraichit les positions de drones en lisant la simulation
  */
 public class JobInit implements ServletContextListener {
     Logger logger = Logger.getLogger(JobInit.class);
@@ -17,24 +17,18 @@ public class JobInit implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         logger.info("initializing context");
-        //JobDetail job = new JobDetail();
-        //job.setName("dummyJobName");
-        //job.setJobClass(HelloJob.class);
         JobDetail job = JobBuilder.newJob(DronePositionRefresherJob.class)
                 .withIdentity("dummyJobName", "group1").build();
-
-        //CronTrigger trigger = new CronTrigger();
-        //trigger.setName("dummyTriggerName");
-        //trigger.setCronExpression("0/5 * * * * ?");
 
         Trigger trigger = TriggerBuilder
                 .newTrigger()
                 .withIdentity("dummyTriggerName", "group1")
                 .withSchedule(
-                        CronScheduleBuilder.cronSchedule("0/2 * * * * ?"))
+                        SimpleScheduleBuilder.simpleSchedule()
+                                .withIntervalInMilliseconds(200)
+                                .repeatForever())
                 .build();
 
-        //schedule it
         try{
             Scheduler scheduler = new StdSchedulerFactory().getScheduler();
             scheduler.start();
