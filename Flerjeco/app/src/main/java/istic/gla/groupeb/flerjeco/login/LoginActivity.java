@@ -60,7 +60,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         refresh();
     }
 
@@ -68,7 +67,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
     @Override
     public void refresh() {
-
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);
 
@@ -102,7 +100,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-
         // Reset errors.
         mLoginView.setError(null);
         mPasswordView.setError(null);
@@ -113,7 +110,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
         boolean cancel = false;
         View focusView = null;
-
 
         // Check for a valid password, if the user entered one.
         if (TextUtils.isEmpty(password)) {
@@ -240,13 +236,8 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
         @Override
         protected String doInBackground(Void... params) {
-            Log.i(TAG, "doInBackground start");
-
             SpringService service = new SpringService();
-            String statusCode = service.login(mLogin, mPassword);
-
-            Log.i(TAG, "doInBackground end");
-            return statusCode;
+            return service.login(mLogin, mPassword);
         }
 
         @Override
@@ -262,23 +253,21 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_SHORT).show();
                 showProgress(true);
                 new GetAllInterventionsTask(LoginActivity.this).execute();
-            } else if(statusCode.equals("401")) {
-                count++;
-                if(count < 4) {
-                    Log.i(TAG, "Count: " + count);
-                    new UserLoginTask(activity, count, mLogin, mPassword).execute();
-                } else {
-                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
-                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                    mPasswordView.requestFocus();
-                }
             } else {
-                count++;
                 if(count < 4) {
-                    Log.i(TAG, "Count: " + count);
+                    Log.w(TAG, String.format("login failed with %d try (login:%s, pwd:%s), will retry", count, mLogin, mPassword));
+                    count++;
                     new UserLoginTask(activity, count, mLogin, mPassword).execute();
+                } else{
+                    Log.w(TAG, String.format("login failed definitely after %d try (login:%s, pwd:%s)", count, mLogin, mPassword));
+                    if(statusCode.equals("401")){
+                        Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
+                        mPasswordView.setError(getString(R.string.error_incorrect_password));
+                        mPasswordView.requestFocus();
+                    } else{
+                        Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_SHORT).show();
+                    }
                 }
-                Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_SHORT).show();
             }
         }
 

@@ -134,9 +134,9 @@ public class SpringService {
             ResponseEntity res = restTemplate.postForEntity(url, intervention, ResponseEntity.class);
 
             if (res.getStatusCode() == HttpStatus.BAD_REQUEST) {
-                Log.i(TAG, "Engine not alerted");
+                Log.e(TAG, "Engine not alerted");
             } else {
-                Log.i(TAG, "OK for the engine");
+                Log.v(TAG, "Engin alerted for intervention " + intervention.getId());
                 return "Ok";
             }
         } catch (Exception e) {
@@ -147,8 +147,8 @@ public class SpringService {
 
     /**
      * Assign a drone on an intervention
-     * @param id
-     * @return
+     * @param id the id of an intervention
+     * @return the drone assigned
      */
     public Drone assignDrone(Long id){
         // assignement of the drone for the intervention
@@ -169,8 +169,8 @@ public class SpringService {
 
     /**
      * Unassign a drone on an intervention
-     * @param id
-     * @return
+     * @param id the id of a drone
+     * @return the drone unassigned
      */
     public Drone unAssignDrone(Long id){
         // unassignement of the drone for the intervention
@@ -202,11 +202,8 @@ public class SpringService {
             ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
             inter = interventionResult.getBody();
             Log.i(TAG, interventionResult.getStatusCode().toString());
-            if (interventionResult == null) {
-                Log.i(TAG, "interventionResult = null");
-            } else
-                Log.i(TAG, "interventionResult : "+interventionResult.toString());
-                return inter;
+            Log.i(TAG, "interventionResult : "+interventionResult.toString());
+            return inter;
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -339,26 +336,21 @@ public class SpringService {
 
     /**
      * Gets all the interventions
-     * @return An array of interventions
+     * @return a responseEntity containing an array of interventions
      */
-    public Intervention[] getAllInterventions() {
-        Log.i(TAG, "getAllInterventions start");
+    public ResponseEntity<Intervention[]> getAllInterventions() {
+        Log.i(TAG, "Getting all interventions");
         final String url = URL + "intervention";
-        Intervention[] interventions = null;
 
         try {
             ResponseEntity<Intervention[]> entity = restTemplate.getForEntity(url, Intervention[].class);
-            interventions = entity.getBody();
-        } catch (ResourceAccessException e) {
-            Log.i(TAG, "getAllInterventions : " + e.getLocalizedMessage());
-        } catch (HttpServerErrorException e) {
-            Log.i(TAG, "getAllInterventions : " + e.getLocalizedMessage());
+            return entity;
+        } catch (ResourceAccessException|HttpServerErrorException e) {
+            Log.e(TAG, "getAllInterventions : " + e.getLocalizedMessage());
         } catch (Throwable e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, "failed to get interventions", e);
         }
-
-        Log.i(TAG, "getAllInterventions end");
-        return interventions;
+        return null;
     }
 
     /**

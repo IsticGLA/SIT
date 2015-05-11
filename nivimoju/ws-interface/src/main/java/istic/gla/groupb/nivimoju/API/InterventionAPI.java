@@ -3,6 +3,7 @@ package istic.gla.groupb.nivimoju.API;
 import dao.InterventionDAO;
 import entity.Intervention;
 import entity.Resource;
+import org.apache.log4j.Logger;
 import util.State;
 
 import javax.ws.rs.*;
@@ -15,6 +16,8 @@ import java.util.List;
  */
 @Path("intervention")
 public class InterventionAPI {
+    Logger logger = Logger.getLogger(InterventionAPI.class);
+
     /**
      * Gets all the interventions running
      * @return A list of interventions
@@ -26,6 +29,7 @@ public class InterventionAPI {
 
         interventionDAO.connect();
         List<Intervention> inters = interventionDAO.getAll();
+        logger.info("intervention:"+inters);
         interventionDAO.disconnect();
         return  Response.ok(inters).build();
     }

@@ -4,17 +4,18 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.springframework.http.ResponseEntity;
+
 import entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 
 /**
  * Represents an asynchronous task used to get interventions
  */
-public class GetAllInterventionsTask extends AsyncTask<Void, Void, Boolean> {
+public class GetAllInterventionsTask extends AsyncTask<Void, Void, ResponseEntity<Intervention[]>> {
 
     private static final String TAG = GetAllInterventionsTask.class.getSimpleName();
     private int count = 0;
-    private Intervention[] interventionTab;
     private IInterventionsActivity activity;
 
     public GetAllInterventionsTask(IInterventionsActivity activity) {
@@ -27,32 +28,32 @@ public class GetAllInterventionsTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected ResponseEntity<Intervention[]> doInBackground(Void... params) {
         SpringService service = new SpringService();
-        interventionTab = service.getAllInterventions();
-        if(interventionTab ==  null) {
-            return false;
-        }
-        Log.i(TAG, "interventionTab size : " + interventionTab.length);
-        Log.i(TAG, "doInBackground end");
-        return true;
+        return service.getAllInterventions();
     }
 
     @Override
-    protected void onPostExecute(final Boolean success) {
-        if(success) {
-            activity.updateInterventions(interventionTab);
-        }
-        else {
-            count++;
-            if(count < 4) {
-                Log.i(TAG, "Count: " + count);
-                new GetAllInterventionsTask(activity, count).execute();
-            }
-            else {
-                activity.updateInterventions(null);
-                Toast.makeText(activity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
-            }
+    protected void onPostExecute(ResponseEntity<Intervention[]> response) {
+        switch(response.getStatusCode()){
+            case OK:
+                if(response.getBody() != null){
+                    activity.updateInterventions(response.getBody());
+                } else{
+                    activity.updateInterventions(new Intervention[0]);
+                }
+
+                break;
+            default:
+                count++;
+                if(count < 4) {
+                    Log.i(TAG, "Retry: " + count);
+                    new GetAllInterventionsTask(activity, count).execute();
+                }
+                else {
+                    activity.updateInterventions(null);
+                    Toast.makeText(activity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
+                }
         }
     }
 }
