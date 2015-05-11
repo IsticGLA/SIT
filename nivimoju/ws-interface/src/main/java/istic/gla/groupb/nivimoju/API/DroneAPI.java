@@ -23,6 +23,21 @@ import java.util.List;
 public class DroneAPI {
     Logger logger = Logger.getLogger(DroneAPI.class);
 
+
+    /**
+     * Return all drones
+     * @return a response with all the drones
+     */
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAll() {
+        DroneDAO droneDAO = new DroneDAO();
+        droneDAO.connect();
+        List<Drone> droneList = droneDAO.getAll();
+        droneDAO.disconnect();
+        return Response.ok(droneList).build();
+    }
+
     /**
      * Find all drone affected to intervention of id idIntervention
      * @param idIntervention the id of the intervention
@@ -31,7 +46,7 @@ public class DroneAPI {
     @GET
     @Path("/byIntervention/{idIntervention}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll(
+    public Response getAllByIntervention(
             @PathParam("idIntervention") Long idIntervention) {
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();

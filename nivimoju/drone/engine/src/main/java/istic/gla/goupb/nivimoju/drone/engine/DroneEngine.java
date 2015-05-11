@@ -120,10 +120,10 @@ public class DroneEngine{
     private boolean getDroneInfoFromSimu(){
         DronesInfos infos = client.getDronesInfos();
         if(infos == null){
-            logger.warn("could not get infos from flask");
+            logger.warn("could not get drones infos from flask");
             return false;
         }
-        logger.trace("got response from flask client : " + infos);
+        logger.trace("got response from flask client for drones : " + infos);
         for(DroneInfo info : infos.getInfos()){
             if(info.getPosition() != null){
                 String label = info.getLabel();
@@ -140,7 +140,7 @@ public class DroneEngine{
                             "] but it does not seem to exist (existing labels : " + droneByLabel.keySet() + ")");
                 }
             } else{
-                logger.error("got no position from flask");
+                logger.error("got no drone position from flask");
                 return false;
             }
         }
@@ -233,11 +233,7 @@ public class DroneEngine{
                     if(droneToTest.getLabel().equals(drone.getLabel())) {
                         //on retire le drone de la liste de drone existante
                         dronesOfIntervention.remove(drone);
-                        try {
-                            client.postStop(drone.getLabel());
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        }
+                        client.postStop(drone.getLabel());
                     }
                 }
                 logger.info("removed drone in list, size "

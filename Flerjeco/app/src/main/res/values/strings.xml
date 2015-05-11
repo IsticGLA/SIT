@@ -72,4 +72,7 @@
     <string name="activateResource">Activate the resource</string>
     <string name="freeResource">Free the resource</string>
     <string name="title_dialog_change_resource">Manage the resource</string>
+    <string name="empty_list_interventions">There is no interventions, create one</string>
+    <string name="libelle_moyen_attente">Moyens en attente de validation</string>
+    <string name="libelle_moyen_valide">Moyens validés</string>
 </resources>
