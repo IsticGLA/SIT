@@ -122,74 +122,6 @@ public class SpringService {
     }
 
     /**
-     * call to alert engine
-     * @param intervention intervention updated
-     * @return The intervention
-     */
-    public String alertEngine(Intervention intervention) {
-        final String url = URL + "drone/alertengine";
-
-        try {
-            Log.v(TAG, url);
-            ResponseEntity res = restTemplate.postForEntity(url, intervention, ResponseEntity.class);
-
-            if (res.getStatusCode() == HttpStatus.BAD_REQUEST) {
-                Log.e(TAG, "Engine not alerted");
-            } else {
-                Log.v(TAG, "Engin alerted for intervention " + intervention.getId());
-                return "Ok";
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Engine not alerted : " + e);
-        }
-        return null;
-    }
-
-    /**
-     * Assign a drone on an intervention
-     * @param id the id of an intervention
-     * @return the drone assigned
-     */
-    public Drone assignDrone(Long id){
-        // assignement of the drone for the intervention
-        final String urlDrone = URL + "drone/assign/" + id;
-        Drone drone = null;
-
-        try {
-            Log.v(TAG, urlDrone);
-            ResponseEntity<Drone> droneEntity = restTemplate.getForEntity(urlDrone, Drone.class);
-            drone = droneEntity.getBody();
-            Log.v(TAG, "assignDrone : "+droneEntity.getStatusCode().toString());
-        } catch (Throwable e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-        return drone;
-    }
-
-    /**
-     * Unassign a drone on an intervention
-     * @param id the id of a drone
-     * @return the drone unassigned
-     */
-    public Drone unAssignDrone(Long id){
-        // unassignement of the drone for the intervention
-        final String urlDrone = URL + "drone/unassign/" + id;
-        Drone drone = null;
-
-        try {
-            Log.v(TAG, urlDrone);
-            ResponseEntity<Drone> droneEntity = restTemplate.getForEntity(urlDrone, Drone.class);
-            drone = droneEntity.getBody();
-            Log.v(TAG, "unAssignDrone : "+droneEntity.getStatusCode().toString());
-        } catch (Throwable e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-        return drone;
-    }
-
-    /**
      * Updates intervention with the one in parameters
      * @param intervention The new intervention
      * @return The new intervention backing from the server
@@ -357,23 +289,27 @@ public class SpringService {
      * Gets all the drone for the intervention
      * @return An array of drones
      */
-    public Drone[] getAllDroneByIntervention(Object[] params) {
+    public ResponseEntity<Drone[]> getAllDroneByIntervention(Object[] params) {
         Log.v(TAG, "getAllDroneByIntervention start");
         final String url = URL + "drone/byIntervention/" + params[0];
         Drone[] drones = null;
         Log.v(TAG, url);
+        return restTemplate.getForEntity(url, Drone[].class);
+    }
 
+    /**
+     * upodate the paths of an intervention
+     * @param intervention
+     * @return
+     */
+    public ResponseEntity<Intervention> updateInterventionPaths(Intervention intervention) {
+        final String url = URL + "intervention/update/paths";
         try {
-            ResponseEntity<Drone[]> entity = restTemplate.getForEntity(url, Drone[].class);
-            drones = entity.getBody();
-        } catch (ResourceAccessException e) {
-            Log.v(TAG, "getAllDroneByIntervention : " + e.getLocalizedMessage());
-        } catch (Throwable e) {
-            Log.e(TAG, e.getMessage());
+            return restTemplate.postForEntity(url, intervention, Intervention.class);
+        } catch (HttpServerErrorException e){
+            Log.e(TAG, "erreur à l'update d'un path", e);
+            throw e;
         }
-
-        Log.v(TAG, "getAllDroneByIntervention end");
-        return drones;
     }
 
 

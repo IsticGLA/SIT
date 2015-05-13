@@ -1,15 +1,11 @@
 package istic.gla.goupb.nivimoju.drone.engine;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import dao.DroneDAO;
+
 import entity.Drone;
+import entity.Intervention;
 import entity.Path;
-import entity.Position;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
-import istic.gla.groupb.nivimoju.drone.client.DroneInfo;
-import istic.gla.groupb.nivimoju.drone.client.DronesInfos;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
-import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalPath;
 import org.apache.log4j.Logger;
 
@@ -23,6 +19,7 @@ public class DroneEngine{
 
     //client vers la simulation
     private DroneClient client;
+    private final DroneContainer container;
 
     //map des paths en coordonnées blender
     private Map<Long, Collection<LocalPath>> localPathsByIntervention;
@@ -32,6 +29,7 @@ public class DroneEngine{
 
     private DroneEngine(){
         client = new DroneClient();
+        container = DroneContainer.getInstance();
         localPathsByIntervention = new HashMap<>();
         affectationByDroneLabel = new HashMap<>();
         dronesByIntervention = new HashMap<>();
@@ -45,226 +43,82 @@ public class DroneEngine{
     public static DroneEngine getInstance(){
         if(instance==null){
             instance = new DroneEngine();
-            instance.loadDronesFromDatabase();
         }
         return instance;
     }
 
     /**
-     * Set l'ensemble des chemins à suivre pour une intervention
-     * puis réaffecte les drones pour les parcourir et renvois les ordres à la simu
-     * @param idIntervention l'id de l'intervention
-     * @param paths les chemins demandés
+     *
+     * @param intervention l'intervention à préparer
      */
-    public void setPathsForIntervention(long idIntervention, Collection<Path> paths){
-        Collection<LocalPath> localPaths = new ArrayList<>();
-        for(Path path : paths){
-            logger.info("converting path " + path.toString());
-            LocalPath pathConverted = converter.getLocalPath(path);
-            localPaths.add(pathConverted);
-            logger.info("conversion : " + pathConverted);
+    public void computeForIntervention(Intervention intervention){
+        if(intervention == null){
+            logger.warn("got compute order for null intervention, stopping");
+            return;
         }
-        logger.info("adding " + localPaths.size() + "paths for intervention " + idIntervention);
-        localPathsByIntervention.put(idIntervention, localPaths);
-        reaffectDronesForIntervention(idIntervention);
-        sendOrdersForIntervention(idIntervention);
+        List<LocalPath> computedPaths = computePaths(intervention);
+        Collection<Drone> availableDrones = container.getDronesAssignedTo(intervention.getId());
+        if(computedPaths.size() != availableDrones.size()){
+            logger.error(String.format("inconsistent sizes. Got %d drones for %d paths", availableDrones.size(), computedPaths.size()));
+        }
+
+        Iterator<Drone> droneIterator = availableDrones.iterator();
+        HashMap<String, LocalPath> orders = new HashMap<>();
+        for(LocalPath path : computedPaths){
+            if(droneIterator.hasNext()){
+                Drone drone = droneIterator.next();
+                orders.put(drone.getLabel(), path);
+            } else {
+                logger.warn("reached the end of available drone but there are more paths. stopping.");
+                break;
+            }
+        }
+        sendOrders(orders);
     }
 
     /**
-     * sélectionne un drone parmis ceux disponible pour l'intervention pour chaque chemin
-     * @param idIntervention l'id de l'intervention
+     * transforme l'ensemble des chemins et zones d'une intervention en une liste de chemins locaux
+     * @param intervention
+     * @return
      */
-    private void reaffectDronesForIntervention(long idIntervention){
-        logger.info("reaffecting drone for intervention [" + idIntervention + "]");
-        Collection<Drone> availableDrones = dronesByIntervention.get(idIntervention);
-        if(availableDrones == null || availableDrones.size() == 0){
-            logger.warn("there is no drone available for intervention " + idIntervention);
-            return;
+    private List<LocalPath> computePaths(Intervention intervention){
+        //TODO augmenter avec les calculs a partir de zones
+        return transformInLocal(intervention.getWatchPath());
+    }
+
+    /**
+     * transforme un path en latlong vers un path local
+     * @param paths la liste des path a convertir
+     * @return la liste après conversion
+     */
+    private List<LocalPath> transformInLocal(List<Path> paths){
+        List<LocalPath> localPaths = new ArrayList<>();
+        if(paths == null){
+            return localPaths;
         }
-        Collection<LocalPath> paths = localPathsByIntervention.get(idIntervention);
-        if(paths == null || paths.size() == 0){
-            logger.warn("there is no path setted for intervention " + idIntervention);
-            return;
+        for(Path path : paths){
+            logger.debug("converting path " + path.toString());
+            LocalPath pathConverted = converter.getLocalPath(path);
+            localPaths.add(pathConverted);
+            logger.debug("conversion : " + pathConverted);
         }
-        Iterator<Drone> droneIterator = availableDrones.iterator();
-        for(LocalPath path : paths){
-            if(droneIterator.hasNext()) {
-                Drone drone = droneIterator.next();
-                affectationByDroneLabel.put(drone.getLabel(), path);
-                logger.info("affecting drone " + drone.getLabel() +" to path " + path.toString());
-            } else{
-                logger.warn("there is not enough drones for intervention : " + availableDrones.size()
-                + " drones, " + paths.size() + " paths");
-            }
-        }
+        return localPaths;
     }
 
     /**
      * send order to the simulation for all the drones in an intervention
-     * @param idIntervention the id of the intervention
+     * @param orders the orders (path by drone label)
      */
-    public void sendOrdersForIntervention(long idIntervention){
-        logger.info("sending orders for intervention " + idIntervention);
-        Collection<Drone> dronesAffected = dronesByIntervention.get(idIntervention);
-        if(dronesAffected != null) {
-            for (Drone drone : dronesAffected) {
-                LocalPath pathForDrone = affectationByDroneLabel.get(drone.getLabel());
-                logger.info("sending order for drone " + drone.getLabel() + " path : " + pathForDrone);
-                if(pathForDrone != null){
-                    client.postPath(drone.getLabel(), pathForDrone);
-                }
-            }
+    public void sendOrders(HashMap<String, LocalPath> orders){
+        if(orders == null){
+            logger.warn("cannot send null orders");
+            return;
         }
-    }
-
-    private boolean getDroneInfoFromSimu(){
-        DronesInfos infos = client.getDronesInfos();
-        if(infos == null){
-            logger.warn("could not get drones infos from flask");
-            return false;
+        logger.info(String.format("sending %d orders for intervention", orders.size()));
+        for(Map.Entry entry : orders.entrySet()){
+            logger.info("sending order for drone " + entry.getKey() + " path : " + entry.getValue());
+            client.postPath((String) entry.getKey(), (LocalPath) entry.getValue());
         }
-        logger.trace("got response from flask client for drones : " + infos);
-        for(DroneInfo info : infos.getInfos()){
-            if(info.getPosition() != null){
-                String label = info.getLabel();
-                double x = info.getPosition().getX();
-                double y = info.getPosition().getY();
-                LocalCoordinate local = new LocalCoordinate(x, y);
-                Position dronePosition = converter.getLatLong(local);
-                Drone drone = droneByLabel.get(label);
-                if(drone != null) {
-                    drone.setLatitude(dronePosition.getLatitude());
-                    drone.setLongitude(dronePosition.getLongitude());
-                } else{
-                    logger.error("We got info for drone [" + label +
-                            "] but it does not seem to exist (existing labels : " + droneByLabel.keySet() + ")");
-                }
-            } else{
-                logger.error("got no drone position from flask");
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * get positions info from simulation then update database
-     */
-    public void updateDroneInfoFromSimu(){
-        logger.trace("getting positions from simulation");
-        boolean gotInfos = getDroneInfoFromSimu();
-        if(gotInfos){
-            logger.trace("updating db with drones info");
-            updateDronesInDatabase();
-            logger.trace("done refreshing info for drones");
-        }
-    }
-
-    /**
-     * update the drones information in database (for position)
-     */
-    private void updateDronesInDatabase(){
-        DroneDAO droneDAO = new DroneDAO();
-        droneDAO.connect();
-        for(Drone drone : droneByLabel.values()) {
-            drone.updateDate();
-            droneDAO.update(drone);
-        }
-        droneDAO.disconnect();
-    }
-
-    /**
-     * set all drones from the db
-     */
-    public void loadDronesFromDatabase(){
-        logger.info("updating drones from database");
-        DroneDAO droneDAO = new DroneDAO();
-        droneDAO.connect();
-        List<Drone> drones = droneDAO.getAll();
-        if(drones != null) {
-            logger.info("got " + drones.size() + " drones from database");
-        }
-        droneDAO.disconnect();
-        loadDrones(drones);
-    }
-
-    /**
-     * associe un drone à une intervention en interne
-     * @param drone the drone to assign internally
-     * @return vrai si l'opération a réussi
-     */
-    public boolean assignDrone(Drone drone){
-        logger.info("assigning drone");
-        if(drone == null || drone.getIdIntervention() == -1) {
-            logger.info("cannot assign it");
-            return false;
-        } else {
-            logger.info("drone to assign : " + drone);
-            long idIntervention = drone.getIdIntervention();
-            if(dronesByIntervention.get(idIntervention) == null){
-                dronesByIntervention.put(idIntervention, new ArrayList<Drone>());
-            }
-            dronesByIntervention.get(idIntervention).add(drone);
-            logger.info("old drone in dronesByLabel : " + droneByLabel.get(drone.getLabel()));
-            droneByLabel.put(drone.getLabel(), drone);
-            logger.info("new drone in dronesByLabel : " + droneByLabel.get(drone.getLabel()));
-            affectationByDroneLabel.put(drone.getLabel(), null);
-            return true;
-
-        }
-    }
-
-    /**
-     * retire l'assignetion d'un drone en interne
-     * @param drone le drone à unassign
-     * @return vrai si l'opération a réussi
-     */
-    public boolean unasignDrone(final Drone drone){
-        if(drone == null){
-            logger.warn("cannot unassign it");
-            return false;
-        } else {
-            long idIntervention = drone.getIdIntervention();
-            if(dronesByIntervention.get(idIntervention) != null){
-                Collection<Drone> dronesOfIntervention = dronesByIntervention.get(idIntervention);
-                logger.info("removing drone in list, size "
-                        + dronesOfIntervention.size());
-                for(Drone droneToTest : dronesOfIntervention){
-                    if(droneToTest.getLabel().equals(drone.getLabel())) {
-                        //on retire le drone de la liste de drone existante
-                        dronesOfIntervention.remove(drone);
-                        client.postStop(drone.getLabel());
-                    }
-                }
-                logger.info("removed drone in list, size "
-                        + dronesOfIntervention.size());
-            }
-            droneByLabel.put(drone.getLabel(), drone);
-            affectationByDroneLabel.put(drone.getLabel(), null);
-            return true;
-        }
-    }
-
-    /**
-     * charge une liste de drone et prépare les maps interne
-     * @param drones la liste de drones à charger
-     **/
-    private void loadDrones(List<Drone> drones){
-        logger.info("loading drones internally");
-        droneByLabel.clear();
-        affectationByDroneLabel.clear();
-        dronesByIntervention.clear();
-        for(Drone drone : drones) {
-            logger.info("loading drone[" + drone.getLabel() +"]");
-            //update des listes interne
-            droneByLabel.put(drone.getLabel(), drone);
-            long idIntervention = drone.getIdIntervention();
-            if (dronesByIntervention.get(idIntervention) == null) {
-                dronesByIntervention.put(idIntervention, new ArrayList<Drone>());
-            }
-            dronesByIntervention.get(idIntervention).add(drone);
-        }
-        logger.info("loaded " + droneByLabel.size() + " drones : " + droneByLabel.keySet());
     }
 
 
@@ -272,12 +126,6 @@ public class DroneEngine{
     public static void main(String[] args) throws Exception{
         DroneEngine engine = new DroneEngine();
         List<Drone> drones = new ArrayList<>();
-        drones.add(new Drone("drone_1", 1, 2, -1));
-        drones.add(new Drone("drone_2", 1, 2, -1));
-        drones.add(new Drone("drone_3", 1, 2, -1));
-        drones.add(new Drone("drone_4", 1, 2, -1));
-        drones.add(new Drone("drone_5", 1, 2, -1));
-        engine.loadDrones(drones);
 /*        Position piscine = new Position(48.115367,-1.63781);
         Position croisement = new Position(48.11498, -1.63795);
         Position croisement2 = new Position(48.114454, -1.639962);

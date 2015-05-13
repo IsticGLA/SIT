@@ -233,7 +233,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             res.add(jsonDocumentToEntity(Long.valueOf(row.id()), (JsonObject) row.value()));
         }
         if (res.size() == 0){
-            return null;
+            //return null;
         }
         return res;
     }

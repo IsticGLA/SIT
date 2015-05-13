@@ -1,5 +1,11 @@
 package istic.gla.goupb.nivimoju.drone.engine;
 
+import entity.Drone;
+import entity.Position;
+import istic.gla.groupb.nivimoju.drone.client.DroneClient;
+import istic.gla.groupb.nivimoju.drone.client.DroneInfo;
+import istic.gla.groupb.nivimoju.drone.client.DronesInfos;
+import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 import org.apache.log4j.Logger;
 import org.quartz.*;
 
@@ -10,13 +16,30 @@ import org.quartz.*;
 @DisallowConcurrentExecution
 public class DronePositionRefresherJob implements Job{
     Logger logger = Logger.getLogger(DronePositionRefresherJob.class);
+    private static DroneClient client = new DroneClient();
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         logger.trace("starting job to refresh drone positions");
-        DroneEngine engine = DroneEngine.getInstance();
-        engine.updateDroneInfoFromSimu();
+        DroneContainer container = DroneContainer.getInstance();
+        DronesInfos infos = client.getDronesInfos();
+        if(infos == null){
+            logger.warn("could not get drones infos from flask");
+        }else {
+            logger.trace("got response from flask client for drones : " + infos);
+            for (DroneInfo info : infos.getInfos()) {
+                if (info.getPosition() != null) {
+                    String label = info.getLabel();
+                    double x = info.getPosition().getX();
+                    double y = info.getPosition().getY();
+                    LocalCoordinate local = new LocalCoordinate(x, y);
+                    Position dronePosition = DroneEngine.converter.getLatLong(local);
+                    container.updateDrone(label, dronePosition);
+                } else {
+                    logger.error("got no drone position from flask");
+                }
+            }
+        }
         logger.trace("ending job to refresh drone positions");
     }
-
 }

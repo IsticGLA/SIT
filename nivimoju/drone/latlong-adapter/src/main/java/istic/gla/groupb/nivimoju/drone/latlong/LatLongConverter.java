@@ -86,8 +86,8 @@ public class LatLongConverter {
         x = x*(1+deltaXFactor);
         y = y*(1+deltaYFactor);
 
-        logger.debug(String.format("width:%s, ratioX:%s, offsetX:%s, x=>%s", width, ratioX, offsetX, x));
-        logger.debug(String.format("height:%s, ratioY:%s, offsetY:%s, y=>%s", height, ratioY, offsetY, y));
+        logger.trace(String.format("width:%s, ratioX:%s, offsetX:%s, x=>%s", width, ratioX, offsetX, x));
+        logger.trace(String.format("height:%s, ratioY:%s, offsetY:%s, y=>%s", height, ratioY, offsetY, y));
 
         return new LocalCoordinate(x, y, 0);
     }

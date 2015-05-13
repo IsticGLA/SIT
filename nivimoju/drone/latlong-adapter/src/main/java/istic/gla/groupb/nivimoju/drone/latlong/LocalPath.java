@@ -1,5 +1,7 @@
 package istic.gla.groupb.nivimoju.drone.latlong;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,9 +38,7 @@ public class LocalPath {
         StringBuilder builder = new StringBuilder();
         builder.append("LocalPath{")
                 .append("positions=[");
-        for(LocalCoordinate pos : positions){
-            builder.append(pos.toString());
-        }
+        builder.append(StringUtils.join(positions, ", "));
         builder.append("], closed=" + closed +
                 '}');
         return builder.toString();

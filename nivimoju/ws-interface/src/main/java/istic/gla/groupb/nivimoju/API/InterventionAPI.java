@@ -1,12 +1,14 @@
 package istic.gla.groupb.nivimoju.API;
 
 import dao.InterventionDAO;
-import entity.Intervention;
-import entity.Resource;
+import entity.*;
+import istic.gla.goupb.nivimoju.drone.engine.DroneContainer;
+import istic.gla.goupb.nivimoju.drone.engine.DroneEngine;
 import org.apache.log4j.Logger;
 import util.State;
 
 import javax.ws.rs.*;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -223,5 +225,74 @@ public class InterventionAPI {
         intervention = interventionDAO.update(intervention);
         interventionDAO.disconnect();
         return Response.ok(intervention).build();
+    }
+
+    /**
+     * create a path for an intervention and assign a drone to it
+     * @return CREATED if successful, SERVICE_UNAVAILABLE if no drone is available, NOT_FOUND if the intervention does not exist
+     */
+    @POST
+    @Path("update/paths")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updatePaths(Intervention intervention) {
+        logger.info("updating path for intervention "+ intervention.getId());
+        InterventionDAO interventionDAO= new InterventionDAO();
+        interventionDAO.connect();
+        Intervention oldInter = interventionDAO.getById(intervention.getId());
+        if(oldInter == null){
+            logger.warn("intervention does not seem to exist in db");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+
+        //request or free drones
+        int deltaDroneNumber = intervention.getWatchPath().size() - oldInter.getWatchPath().size();
+        Drone assignedDrone = null;
+        if(deltaDroneNumber != 0){
+            if(deltaDroneNumber == 1){
+                //request drone
+                logger.info("the path update is asking for a new drone");
+                assignedDrone = DroneContainer.getInstance().requestDrone(intervention.getId());
+                if(assignedDrone == null){
+                    logger.info("no drone available");
+                    return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                            .entity("No drone is available")
+                            .build();
+                }
+            } else if(deltaDroneNumber == -1){
+                //free drone
+                logger.error("the path update is asking for a drone release");
+                DroneContainer.getInstance().freeDrone(intervention.getId());
+            } else {
+                logger.error("the path update is asking modiofication on more than 1 drone");
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity("This request had more than one path added/deleted")
+                        .build();
+            }
+        } else {
+            logger.info("the path update does not need to change drone affectations");
+        }
+
+        Intervention result = null;
+        try {
+            intervention.updateDate();
+            result = interventionDAO.update(intervention);
+            interventionDAO.disconnect();
+        } catch (Throwable t){
+            logger.error("failure during path update", t);
+            if(assignedDrone != null) {
+                DroneContainer.getInstance().freeDrone(assignedDrone);
+            }
+            throw  t;
+        }
+
+        //alerting the engine
+        DroneEngine.getInstance().computeForIntervention(intervention);
+
+        return  Response.status(Response.Status.OK)
+                .entity(result)
+                .build();
+
     }
 }
