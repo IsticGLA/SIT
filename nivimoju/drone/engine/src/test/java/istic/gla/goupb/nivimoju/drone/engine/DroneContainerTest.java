@@ -33,8 +33,8 @@ public class DroneContainerTest {
         assertNotNull(drone);
 
         assertEquals(2L, drone.getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get(drone.getLabel()).getIdIntervention());
-        assertEquals(1, container.getDronesByIntervention().get(2L).size());
+        assertEquals(2L, container.getMapDroneByLabel().get(drone.getLabel()).getIdIntervention());
+        assertEquals(1, container.getMapDronesByIntervention().get(2L).size());
         assertEquals(1, container.getDronesAssignedTo(2L).size());
     }
 
@@ -57,18 +57,18 @@ public class DroneContainerTest {
         assertEquals(2L, drone4.getIdIntervention());
         assertEquals(2L, drone5.getIdIntervention());
 
-        assertEquals(2L, container.getDroneByLabel().get("drone_1").getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get("drone_2").getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get("drone_3").getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get("drone_4").getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get("drone_5").getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get("drone_1").getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get("drone_2").getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get("drone_3").getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get("drone_4").getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get("drone_5").getIdIntervention());
 
-        assertEquals(5, container.getDronesByIntervention().get(2L).size());
+        assertEquals(5, container.getMapDronesByIntervention().get(2L).size());
         assertEquals(5, container.getDronesAssignedTo(2L).size());
 
         Drone drone6 = container.requestDrone(2L);
         assertNull(drone6);
-        assertEquals(5, container.getDronesByIntervention().get(2L).size());
+        assertEquals(5, container.getMapDronesByIntervention().get(2L).size());
         assertEquals(5, container.getDronesAssignedTo(2L).size());
     }
 
@@ -95,23 +95,23 @@ public class DroneContainerTest {
         assertEquals(2L, drone4.getIdIntervention());
         assertEquals(2L, drone5.getIdIntervention());
 
-        assertEquals(2L, container.getDroneByLabel().get("drone_1").getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get("drone_2").getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get("drone_3").getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get("drone_4").getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get("drone_5").getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get("drone_1").getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get("drone_2").getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get("drone_3").getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get("drone_4").getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get("drone_5").getIdIntervention());
 
-        assertEquals(5, container.getDronesByIntervention().get(2L).size());
+        assertEquals(5, container.getMapDronesByIntervention().get(2L).size());
         assertEquals(5, container.getDronesAssignedTo(2L).size());
 
         //free a drone
         assertTrue(container.freeDrone(2L));
 
-        assertEquals(4, container.getDronesByIntervention().get(2L).size());
+        assertEquals(4, container.getMapDronesByIntervention().get(2L).size());
         assertEquals(4, container.getDronesAssignedTo(2L).size());
-        assertEquals(1, container.getDronesByIntervention().get(-1L).size());
+        assertEquals(1, container.getMapDronesByIntervention().get(-1L).size());
         assertEquals(1, container.getDronesAssignedTo(-1L).size());
-        Drone freeDrone = container.getDronesByIntervention().get(-1L).iterator().next();
+        Drone freeDrone = container.getMapDronesByIntervention().get(-1L).iterator().next();
         assertNotNull(freeDrone);
         assertEquals(-1L, freeDrone.getIdIntervention());
         logger.info("drone free : " + freeDrone.getLabel());
@@ -119,11 +119,11 @@ public class DroneContainerTest {
         for(Drone drone : drones){
             if(drone.getLabel().equals(freeDrone.getLabel())){
                 assertEquals(-1L, drone.getIdIntervention());
-                assertEquals(-1L, container.getDroneByLabel().get(drone.getLabel()).getIdIntervention());
+                assertEquals(-1L, container.getMapDroneByLabel().get(drone.getLabel()).getIdIntervention());
             } else {
                 logger.debug("testing drone " + drone.getLabel());
                 assertEquals(2L, drone.getIdIntervention());
-                assertEquals(2L, container.getDroneByLabel().get(drone.getLabel()).getIdIntervention());
+                assertEquals(2L, container.getMapDroneByLabel().get(drone.getLabel()).getIdIntervention());
             }
         }
     }
@@ -136,8 +136,7 @@ public class DroneContainerTest {
         Drone drone4 = container.requestDrone(2L);
         Drone drone5 = container.requestDrone(2L);
 
-        //no change
-        container.freeDrone(drone1);
+        container.freeDrone(drone1.getLabel());
 
         assertEquals(-1L, drone1.getIdIntervention());
         assertEquals(2L, drone2.getIdIntervention());
@@ -145,15 +144,33 @@ public class DroneContainerTest {
         assertEquals(2L, drone4.getIdIntervention());
         assertEquals(2L, drone5.getIdIntervention());
 
-        assertEquals(-1L, container.getDroneByLabel().get(drone1.getLabel()).getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get(drone2.getLabel()).getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get(drone3.getLabel()).getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get(drone4.getLabel()).getIdIntervention());
-        assertEquals(2L, container.getDroneByLabel().get(drone5.getLabel()).getIdIntervention());
+        assertEquals(-1L, container.getMapDroneByLabel().get(drone1.getLabel()).getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get(drone2.getLabel()).getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get(drone3.getLabel()).getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get(drone4.getLabel()).getIdIntervention());
+        assertEquals(2L, container.getMapDroneByLabel().get(drone5.getLabel()).getIdIntervention());
 
-        assertEquals(4, container.getDronesByIntervention().get(2L).size());
+        assertEquals(4, container.getMapDronesByIntervention().get(2L).size());
         assertEquals(4, container.getDronesAssignedTo(2L).size());
-        assertEquals(1, container.getDronesByIntervention().get(-1L).size());
+        assertEquals(1, container.getMapDronesByIntervention().get(-1L).size());
         assertEquals(1, container.getDronesAssignedTo(-1L).size());
+    }
+
+    @Test
+    public void testRequestAndFree(){
+        Drone drone = container.requestDrone(2L);
+
+        assertNotNull(drone);
+
+        assertEquals("le request n'as pas vidé les drones libres", 4, container.getMapDronesByIntervention().get(-1L).size());
+        assertEquals("le request n'as pas rempli les drones affectés", 1, container.getMapDronesByIntervention().get(2L).size());
+        assertEquals("le request n'as pas modifié le drone", 2L, container.getDroneByLabel(drone.getLabel()).getIdIntervention());
+
+        boolean res = container.freeDrone(2L);
+        assertTrue(res);
+        assertEquals("le request n'as pas rempli les drones libres", 5, container.getMapDronesByIntervention().get(-1L).size());
+        assertNull("le request n'as pas vidé les drones affectés", container.getMapDronesByIntervention().get(2L));
+        assertEquals("le request n'as pas modifié le drone", -1L, container.getDroneByLabel(drone.getLabel()).getIdIntervention());
+
     }
 }

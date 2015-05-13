@@ -3,6 +3,7 @@ package istic.gla.goupb.nivimoju.drone.engine;
 import dao.DroneDAO;
 import entity.Drone;
 import entity.Position;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -16,16 +17,17 @@ public class DroneContainer {
     Logger logger = Logger.getLogger(DroneContainer.class);
     private static DroneContainer instance;
 
-    private Map<String, Drone> droneByLabel;
-    private Map<Long, Collection<Drone>> dronesByIntervention;
+    //the main container, used for read and write operations on drones
+    private Map<String, Drone> mapDroneByLabel;
+    //this map is used for quick read access to drone assigned to an intervention
+    private Map<Long, Collection<Drone>> mapDronesByIntervention;
 
     /**
      * Initialise the DroneContainer with data from DB
      */
     private DroneContainer(){
-        dronesByIntervention = new HashMap<>();
-        dronesByIntervention.put(-1L, new HashSet<Drone>());
-        droneByLabel = new HashMap<>();
+        mapDronesByIntervention = new HashMap<>();
+        mapDroneByLabel = new HashMap<>();
         logger.info("updating drones from database");
         DroneDAO droneDAO = new DroneDAO();
         droneDAO.connect();
@@ -52,27 +54,44 @@ public class DroneContainer {
      **/
     protected void loadDrones(List<Drone> drones){
         logger.info("loading drones internally");
-        droneByLabel.clear();
-        dronesByIntervention.clear();
+        mapDroneByLabel.clear();
         for(Drone drone : drones) {
-            logger.info("loading drone[" + drone.getLabel() +"]");
+            logger.info("loading drone[" + drone.getLabel() + "]");
             //update des listes interne
-            droneByLabel.put(drone.getLabel(), drone);
-            long idIntervention = drone.getIdIntervention();
-            if (dronesByIntervention.get(idIntervention) == null) {
-                dronesByIntervention.put(idIntervention, new HashSet<Drone>());
-            }
-            dronesByIntervention.get(idIntervention).add(drone);
+            mapDroneByLabel.put(drone.getLabel(), drone);
         }
-        logger.info("loaded " + droneByLabel.size() + " drones : " + droneByLabel.keySet());
+        buildMapDronesByIntervention();
+        logger.info("loaded " + mapDroneByLabel.size() + " drones : " + mapDroneByLabel.keySet());
     }
 
-    protected Map<String, Drone> getDroneByLabel(){
-        return droneByLabel;
+    private void buildMapDronesByIntervention(){
+        logger.debug("building map of drones by interventions");
+        mapDronesByIntervention.clear();
+        mapDronesByIntervention.put(-1L, new HashSet<Drone>());
+        for(Drone drone : mapDroneByLabel.values()){
+            long idIntervention = drone.getIdIntervention();
+            if (mapDronesByIntervention.get(idIntervention) == null) {
+                mapDronesByIntervention.put(idIntervention, new HashSet<Drone>());
+            }
+            mapDronesByIntervention.get(idIntervention).add(drone);
+        }
+        StringBuilder builder = new StringBuilder("built map of drones by interventions :\n");
+        for(Map.Entry<Long, Collection<Drone>> entry : mapDronesByIntervention.entrySet()){
+            builder.append("intervention ").append(entry.getKey()).append(":\n\t");
+            for(Drone drone: entry.getValue()){
+                builder.append(drone.getLabel()).append(", ");
+            }
+            builder.append("\n");
+        }
+        logger.debug(builder.toString());
     }
 
-    protected Map<Long, Collection<Drone>> getDronesByIntervention(){
-        return dronesByIntervention;
+    protected Map<String, Drone> getMapDroneByLabel(){
+        return mapDroneByLabel;
+    }
+
+    protected Map<Long, Collection<Drone>> getMapDronesByIntervention(){
+        return mapDronesByIntervention;
     }
 
     protected static void destroy(){
@@ -85,13 +104,13 @@ public class DroneContainer {
      * @param position la nouvelle position en latlong
      */
     public void updateDrone(String label, Position position){
-        Drone drone = droneByLabel.get(label);
+        Drone drone = mapDroneByLabel.get(label);
         if(drone != null) {
             drone.setLatitude(position.getLatitude());
             drone.setLongitude(position.getLongitude());
         } else{
             logger.error("We got info for drone [" + label +
-                    "] but it does not seem to exist (existing labels : " + droneByLabel.keySet() + ")");
+                    "] but it does not seem to exist (existing labels : " + mapDroneByLabel.keySet() + ")");
         }
     }
 
@@ -100,7 +119,7 @@ public class DroneContainer {
      * @return tous les drones
      */
     public Collection<Drone> getDrones(){
-        return droneByLabel.values();
+        return mapDroneByLabel.values();
     }
 
     /**
@@ -108,9 +127,10 @@ public class DroneContainer {
      * @return tous les drones
      */
     public Collection<Drone> getDronesAssignedTo(Long idIntervention){
-        Collection<Drone> drones = dronesByIntervention.get(idIntervention);
+        Collection<Drone> drones = mapDronesByIntervention.get(idIntervention);
         return drones == null ? new HashSet<Drone>() : drones;
     }
+
 
     /**
      * request a free drone to assign to a intervention
@@ -119,22 +139,16 @@ public class DroneContainer {
      */
     public Drone requestDrone(Long idInter){
         logger.info("drone request for intervention " + idInter);
-        Collection<Drone> freeDrones = dronesByIntervention.get(-1L);
-        if(freeDrones != null && freeDrones.size() > 0){
-            logger.info("there are free drones : " + freeDrones.size());
-            Drone drone = freeDrones.iterator().next();
-            logger.info("taking drone " + drone.getLabel());
-            if(dronesByIntervention.get(idInter) == null){
-                dronesByIntervention.put(idInter, new HashSet<Drone>());
+        for(Drone drone : mapDroneByLabel.values()){
+            if(drone.getIdIntervention() == -1L){
+                logger.info("taking " + drone.getLabel());
+                drone.setIdIntervention(idInter);
+                buildMapDronesByIntervention();
+                return drone;
             }
-            freeDrones.remove(drone);
-            drone.setIdIntervention(idInter);
-            dronesByIntervention.get(idInter).add(drone);
-            return drone;
-        } else{
-            logger.info("there are no free drones");
-            return null;
         }
+        logger.info("there are no free drones");
+        return null;
     }
 
     /**
@@ -144,12 +158,11 @@ public class DroneContainer {
      */
     public boolean freeDrone(Long idInter){
         logger.info("drone release for intervention " + idInter);
-        Collection<Drone> affectedDrones = dronesByIntervention.get(idInter);
+        Collection<Drone> affectedDrones = mapDronesByIntervention.get(idInter);
         if(affectedDrones != null && affectedDrones.size() > 0){
             Drone drone = affectedDrones.iterator().next();
-            affectedDrones.remove(drone);
             drone.setIdIntervention(-1L);
-            dronesByIntervention.get(-1L).add(drone);
+            buildMapDronesByIntervention();
             return true;
         } else{
             logger.error("no drone to release");
@@ -159,16 +172,20 @@ public class DroneContainer {
 
     /**
      * remove assignement for a ginven drone
-     * @param droneToFree the drone
+     * @param label the drone
      */
-    public void freeDrone(Drone droneToFree){
-        logger.info("releasing drone " + droneToFree.getLabel() + " from intervention " + droneToFree.getIdIntervention());
-        Collection<Drone> affectedDrones = dronesByIntervention.get(droneToFree.getIdIntervention());
-        Drone d = getDroneByLabel(droneToFree.getLabel());
-        if(d != null){
-            affectedDrones.remove(d);
-            dronesByIntervention.get(-1L).add(d);
-            d.setIdIntervention(-1L);
+    public void freeDrone(String label){
+        if(label != null){
+            Drone droneToFree = getDroneByLabel(label);
+            if(droneToFree != null){
+                logger.info("releasing drone " + label + " from intervention " + droneToFree.getIdIntervention());
+                droneToFree.setIdIntervention(-1L);
+                buildMapDronesByIntervention();
+            } else{
+                logger.warn(String.format("cannot free drone because label %s was not found in drone container", label));
+            }
+        }else{
+            logger.warn("cannot free drone because label is null");
         }
     }
 
@@ -178,6 +195,6 @@ public class DroneContainer {
      * @return the drone or null
      */
     public Drone getDroneByLabel(String label){
-        return droneByLabel.get(label);
+        return mapDroneByLabel.get(label);
     }
 }

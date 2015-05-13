@@ -61,8 +61,7 @@ public class DroneAPI {
     public Response unassign(
             @PathParam("label") String label) {
         DroneContainer container = DroneContainer.getInstance();
-        Drone drone = container.getDroneByLabel(label);
-        container.freeDrone(drone);
+        container.freeDrone(label);
         return Response.ok().build();
     }
 

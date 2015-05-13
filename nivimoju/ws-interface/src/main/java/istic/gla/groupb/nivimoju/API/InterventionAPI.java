@@ -265,7 +265,7 @@ public class InterventionAPI {
                 logger.error("the path update is asking for a drone release");
                 DroneContainer.getInstance().freeDrone(intervention.getId());
             } else {
-                logger.error("the path update is asking modiofication on more than 1 drone");
+                logger.error("the path update is asking modifications on more than 1 drone");
                 return Response.status(Response.Status.BAD_REQUEST)
                         .entity("This request had more than one path added/deleted")
                         .build();
@@ -282,7 +282,7 @@ public class InterventionAPI {
         } catch (Throwable t){
             logger.error("failure during path update", t);
             if(assignedDrone != null) {
-                DroneContainer.getInstance().freeDrone(assignedDrone);
+                DroneContainer.getInstance().freeDrone(assignedDrone.getLabel());
             }
             throw  t;
         }
