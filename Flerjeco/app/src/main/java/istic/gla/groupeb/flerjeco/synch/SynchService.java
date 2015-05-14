@@ -24,7 +24,7 @@ public class SynchService extends IntentService {
     public SynchService() {
         super("synchServices");
         timer = 5000;
-        timerDrone = 500;
+        timerDrone = 1000;
     }
 
     public void setSynchTool(ISynchTool synchTool) {

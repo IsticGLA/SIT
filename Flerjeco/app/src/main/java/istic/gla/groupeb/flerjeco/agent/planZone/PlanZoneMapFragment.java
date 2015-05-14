@@ -219,14 +219,14 @@ public class PlanZoneMapFragment extends Fragment {
      */
     public void clearGoogleMap(){
         googleMap.clear();
-        this.polylines = new ArrayList<>();
-        this.markers = new ArrayList<>();
+        this.polylines.clear();
+        this.markers.clear();
         this.newPath = new Path();
-
+        this.dronesMarkers.clear();
     }
 
     /**
-     * Send the new path in the database
+     * Send the new path to the server
      */
     public void sendPath(){
         // remove Click listener
@@ -505,8 +505,6 @@ public class PlanZoneMapFragment extends Fragment {
     }
 
     public void refreshDrone() {
-        Log.v(TAG, "REFRESH DRONE");
-
         if(inter != null) {
             new GetPositionDroneTask(this).execute(inter.getId());
         }
