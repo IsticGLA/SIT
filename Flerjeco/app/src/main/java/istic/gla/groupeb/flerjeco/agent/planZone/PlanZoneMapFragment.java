@@ -1,18 +1,23 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -22,8 +27,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import entity.Drone;
 import entity.Intervention;
@@ -47,7 +58,7 @@ public class PlanZoneMapFragment extends Fragment {
     private GoogleMap googleMap;
     private List<Polyline> polylines;
     private List<Marker> markers;
-    private List<Pair<Long, Marker>> dronesMarkers;
+    private Map<String, Marker> dronesMarkers;
 
     // list of all the path of the intervention
     private List<Path> pathList;
@@ -65,6 +76,7 @@ public class PlanZoneMapFragment extends Fragment {
     public boolean removePath = false;
     // indicate if we want to edit a path in the intervention
     public boolean editPath = false;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -198,7 +210,7 @@ public class PlanZoneMapFragment extends Fragment {
         this.pathList = pathList;
         this.polylines = new ArrayList<>();
         this.markers = new ArrayList<>();
-        this.dronesMarkers = new ArrayList<>();
+        this.dronesMarkers = new HashMap<>();
         this.newPath = new Path();
     }
 
@@ -323,7 +335,7 @@ public class PlanZoneMapFragment extends Fragment {
      */
     public void applyUpdateAfterOperation(Intervention intervention){
         pathList = intervention.getWatchPath();
-        updateMapView(intervention.getWatchPath().size()-1);
+        updateMapView(intervention.getWatchPath().size() - 1);
         PlanZoneActivity p = ((PlanZoneActivity) getActivity());
         p.refreshList(intervention);
         p.editModeOff();
@@ -419,36 +431,37 @@ public class PlanZoneMapFragment extends Fragment {
         }
     }
 
+    // private variable for reducing object creations
+    private Set<String> labels = new HashSet<>();
     /**
      * Show the marker for the drone of the intervention
      */
     public void showDrones(Drone[] tab){
-        // remove the marker on the map
-        for (Pair p : dronesMarkers){
-            ((Marker)p.second).remove();
+        labels.clear();
+        for(Drone drone : tab){
+            labels.add(drone.getLabel());
+            if(dronesMarkers.containsKey(drone.getLabel())){
+                //animate existing marker
+                animateMarker(dronesMarkers.get(drone.getLabel()),
+                        new LatLng(drone.getLatitude(), drone.getLongitude()),
+                        false, 500
+                );
+            } else{
+                //create a new marker
+                Marker m = googleMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(drone.getLatitude(), drone.getLongitude()))
+                        .title(drone.getLabel())
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_drone)));
+                dronesMarkers.put(drone.getLabel(), m);
+            }
         }
-
-        // Repopulate with drone we get back from the sync service
-        dronesMarkers = new ArrayList<>();
-        for (Drone d : tab){
-            Log.i(TAG, d.getLabel());
-            showDrone(d);
+        //delete marker for unassigned drones
+        if(!labels.containsAll(dronesMarkers.keySet())){
+            for(String labelToRemove : CollectionUtils.removeAll(dronesMarkers.keySet(), labels)){
+                dronesMarkers.get(labelToRemove).remove(); //remove the marker
+                dronesMarkers.remove(labelToRemove);
+            }
         }
-    }
-
-    public void showDrone(Drone d){
-        double latitude = d.getLatitude();
-        double longitude = d.getLongitude();
-        if (latitude == 0 || longitude == 0){
-            latitude = ((PlanZoneActivity) getActivity()).getIntervention().getLatitude();
-            longitude = ((PlanZoneActivity) getActivity()).getIntervention().getLongitude();
-        }
-        Marker m = googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(latitude, longitude))
-                .title(d.getLabel())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_drone)));
-
-        dronesMarkers.add(new Pair<>(d.getId(), m));
     }
 
     @Override
@@ -469,7 +482,7 @@ public class PlanZoneMapFragment extends Fragment {
             }
         };
         long id = ((PlanZoneActivity)getActivity()).getIntervention().getId();
-        IntentWraper.startService("notify/intervention/"+id, displaySynch, displayDroneSynch);
+        IntentWraper.startService("notify/intervention/" + id, displaySynch, displayDroneSynch);
     }
 
     @Override
@@ -493,15 +506,45 @@ public class PlanZoneMapFragment extends Fragment {
 
     public void refreshDrone() {
         Log.v(TAG, "REFRESH DRONE");
-        inter = ((PlanZoneActivity)getActivity()).getIntervention();
+
         if(inter != null) {
             new GetPositionDroneTask(this).execute(inter.getId());
         }
     }
 
+    public void animateMarker(final Marker marker, final LatLng toPosition,
+                              final boolean hideMarker, final long duration) {
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        Projection proj = googleMap.getProjection();
+        Point startPoint = proj.toScreenLocation(marker.getPosition());
+        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
 
+        final Interpolator interpolator = new LinearInterpolator();
 
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed
+                        / duration);
+                double lng = t * toPosition.longitude + (1 - t)
+                        * startLatLng.longitude;
+                double lat = t * toPosition.latitude + (1 - t)
+                        * startLatLng.latitude;
+                marker.setPosition(new LatLng(lat, lng));
 
-
-
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 16);
+                } else {
+                    if (hideMarker) {
+                        marker.setVisible(false);
+                    } else {
+                        marker.setVisible(true);
+                    }
+                }
+            }
+        });
+    }
 }

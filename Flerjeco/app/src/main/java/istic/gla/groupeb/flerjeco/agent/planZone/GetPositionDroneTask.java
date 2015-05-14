@@ -5,6 +5,8 @@ import android.util.Log;
 
 import org.springframework.http.ResponseEntity;
 
+import java.util.Date;
+
 import entity.Drone;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
@@ -16,6 +18,7 @@ public class GetPositionDroneTask extends AsyncTask<Long, Void, ResponseEntity<D
 
     private final String TAG = GetPositionDroneTask.class.getSimpleName();
     private final PlanZoneMapFragment fragment;
+    private final Date start;
 
     /**
      * constructor
@@ -23,6 +26,7 @@ public class GetPositionDroneTask extends AsyncTask<Long, Void, ResponseEntity<D
      */
     public GetPositionDroneTask(PlanZoneMapFragment fragment){
         this.fragment = fragment;
+        start = new Date();
     }
 
     @Override
@@ -52,5 +56,7 @@ public class GetPositionDroneTask extends AsyncTask<Long, Void, ResponseEntity<D
         } else{
             Log.e(TAG, "got null response");
         }
+        Date end = new Date();
+        Log.v(TAG, "refreshed drones in " + (end.getTime() - start.getTime()) + "ms");
     }
 }
