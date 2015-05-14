@@ -17,6 +17,7 @@ import istic.gla.groupeb.flerjeco.R;
 public class GetResourceTypeTask extends AsyncTask<List<Long>, Void, List<ResourceType>> {
     private static final String TAG = GetResourceTypeTask.class.getSimpleName();
     private IResourceTypeActivity resourceTypeActivity;
+    private SpringService service = new SpringService();
     private int count = 0;
 
     public GetResourceTypeTask(IResourceTypeActivity resourceTypeActivity){
@@ -33,7 +34,6 @@ public class GetResourceTypeTask extends AsyncTask<List<Long>, Void, List<Resour
         Log.i(TAG, "GetResourceTypeTask start");
         List<ResourceType> resourcesType = new ArrayList<>();
         List<Long> idResourcesTypes = params[0];
-        SpringService service = new SpringService();
 
         for(Long idRes : idResourcesTypes){
             ResourceType rt = service.getResourceTypeById(idRes);

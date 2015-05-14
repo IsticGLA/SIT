@@ -17,6 +17,7 @@ public class InterventionPostTask extends AsyncTask<Intervention, Void, Interven
     private int count = 0;
     private Intervention intervention;
     private IInterventionActivity activity;
+    private SpringService service = new SpringService();
 
     public InterventionPostTask(IInterventionActivity activity) {
         this.activity = activity;
@@ -30,7 +31,6 @@ public class InterventionPostTask extends AsyncTask<Intervention, Void, Interven
     @Override
     protected entity.Intervention doInBackground(entity.Intervention... params) {
         intervention = params[0];
-        SpringService service = new SpringService();
         return service.postIntervention(intervention);
     }
 

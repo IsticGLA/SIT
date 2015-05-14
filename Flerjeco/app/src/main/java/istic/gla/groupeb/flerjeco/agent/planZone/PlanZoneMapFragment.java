@@ -436,7 +436,7 @@ public class PlanZoneMapFragment extends Fragment {
     /**
      * Show the marker for the drone of the intervention
      */
-    public void showDrones(Drone[] tab){
+    public void showDrones(Drone[] tab, long duration){
         labels.clear();
         for(Drone drone : tab){
             labels.add(drone.getLabel());
@@ -444,7 +444,7 @@ public class PlanZoneMapFragment extends Fragment {
                 //animate existing marker
                 animateMarker(dronesMarkers.get(drone.getLabel()),
                         new LatLng(drone.getLatitude(), drone.getLongitude()),
-                        false, 500
+                        false, 500+duration
                 );
             } else{
                 //create a new marker

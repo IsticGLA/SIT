@@ -29,13 +29,14 @@ public class SpringService {
 
     private static final String TAG = SpringService.class.getSimpleName();
     private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
-    private static RestTemplate restTemplate = new RestTemplate();
+    private RestTemplate restTemplate;
 
     /**
      * @see istic.gla.groupeb.flerjeco.springRest.SpringService
      * default constructor {@link SpringService}
      */
     public SpringService(){
+        restTemplate = new RestTemplate();
         restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         restTemplate.getMessageConverters().add(new MappingJackson2HttpMessageConverter());
     }
@@ -310,23 +311,6 @@ public class SpringService {
             Log.e(TAG, "erreur à l'update d'un path", e);
             throw e;
         }
-    }
-
-
-    public Long moveDrone(Object[] params) {
-        Log.v(TAG, "move drone to : " + params[0] + ", " + params[1]);
-        final String url = URL + "drone/move/" + params[0] + "/" + params[1];
-        Long result = null;
-
-        try {
-            ResponseEntity<Long> id = restTemplate.exchange(url, HttpMethod.GET, null, Long.class);
-            result = id.getBody();
-            Log.v(TAG, "moveDrone : "+id.getStatusCode().toString());
-        } catch (Throwable e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-        return result;
     }
 
     /**

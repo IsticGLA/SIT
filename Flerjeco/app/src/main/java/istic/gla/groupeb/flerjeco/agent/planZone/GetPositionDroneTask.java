@@ -19,6 +19,7 @@ public class GetPositionDroneTask extends AsyncTask<Long, Void, ResponseEntity<D
     private final String TAG = GetPositionDroneTask.class.getSimpleName();
     private final PlanZoneMapFragment fragment;
     private final Date start;
+    private SpringService service = new SpringService();
 
     /**
      * constructor
@@ -33,8 +34,7 @@ public class GetPositionDroneTask extends AsyncTask<Long, Void, ResponseEntity<D
     protected ResponseEntity<Drone[]> doInBackground(Long... params) {
         try {
             Log.v(TAG, "Get the position of the drone for the intervention with id : " + params[0]);
-            SpringService springService = new SpringService();
-            return springService.getAllDroneByIntervention(params);
+            return service.getAllDroneByIntervention(params);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -44,11 +44,11 @@ public class GetPositionDroneTask extends AsyncTask<Long, Void, ResponseEntity<D
 
     @Override
     protected void onPostExecute(ResponseEntity<Drone[]> response) {
-        Log.v(TAG, "OnPostExecute on the getPositionDroneService");
+        Date responseDate = new Date();
         if (response != null) {
             switch(response.getStatusCode()){
                 case OK:
-                    fragment.showDrones(response.getBody());
+                    fragment.showDrones(response.getBody(), (responseDate.getTime() - start.getTime()));
                     break;
                 default:
                     Log.w(TAG, "failed to refresh drone position : " + response.getStatusCode());

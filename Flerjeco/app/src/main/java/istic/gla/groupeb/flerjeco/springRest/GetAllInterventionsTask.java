@@ -17,6 +17,7 @@ public class GetAllInterventionsTask extends AsyncTask<Void, Void, ResponseEntit
     private static final String TAG = GetAllInterventionsTask.class.getSimpleName();
     private int count = 0;
     private IInterventionsActivity activity;
+    private SpringService service = new SpringService();
 
     public GetAllInterventionsTask(IInterventionsActivity activity) {
         this.activity = activity;
@@ -29,7 +30,6 @@ public class GetAllInterventionsTask extends AsyncTask<Void, Void, ResponseEntit
 
     @Override
     protected ResponseEntity<Intervention[]> doInBackground(Void... params) {
-        SpringService service = new SpringService();
         return service.getAllInterventions();
     }
 

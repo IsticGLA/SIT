@@ -365,11 +365,12 @@ public class AgentInterventionActivity extends FragmentActivity
     }
 
     public class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
+        private SpringService service = new SpringService();
 
         @Override
         protected Intervention doInBackground(Intervention... intervention) {
             Log.i(TAG, "Start doInbackground updateIntervention");
-            return new SpringService().updateIntervention(intervention[0]);
+            return service.updateIntervention(intervention[0]);
         }
 
         @Override

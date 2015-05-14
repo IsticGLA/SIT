@@ -19,6 +19,7 @@ public class UpdatePathsForInterventionTask extends AsyncTask<Intervention, Void
     private final String TAG = UpdatePathsForInterventionTask.class.getSimpleName();
     private final PlanZoneMapFragment fragment;
     private final EPathOperation operation;
+    private SpringService service = new SpringService();
 
 
     /**
@@ -34,8 +35,7 @@ public class UpdatePathsForInterventionTask extends AsyncTask<Intervention, Void
     protected ResponseEntity<Intervention> doInBackground(Intervention... params) {
         try {
             Log.i(TAG, "Update paths of the intervention with id : " + params[0].getId());
-            SpringService springService = new SpringService();
-            return springService.updateInterventionPaths(params[0]);
+            return service.updateInterventionPaths(params[0]);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }

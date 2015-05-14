@@ -229,6 +229,7 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
         private final String mPassword;
         private int count = 0;
         private LoginActivity activity;
+        private SpringService service = new SpringService();
 
         public UserLoginTask(LoginActivity activity, String login, String password) {
             this.activity = activity;
@@ -245,7 +246,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
         @Override
         protected String doInBackground(Void... params) {
-            SpringService service = new SpringService();
             return service.login(mLogin, mPassword);
         }
 
