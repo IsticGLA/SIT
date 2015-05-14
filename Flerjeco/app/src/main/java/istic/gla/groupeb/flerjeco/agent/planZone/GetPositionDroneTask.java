@@ -11,30 +11,31 @@ import entity.Drone;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 /**
- * Represents an asynchronous call for add new path for drone in the current intervention
- * the user.
+ * Represents an asynchronous call for getting drone position and showing them on the map
  */
-public class GetPositionDroneTask extends AsyncTask<Long, Void, ResponseEntity<Drone[]>> {
+public class GetPositionDroneTask extends AsyncTask<Object, Void, ResponseEntity<Drone[]>> {
 
     private final String TAG = GetPositionDroneTask.class.getSimpleName();
     private final PlanZoneMapFragment fragment;
-    private final Date start;
+    private final long interventionId;
+    private Date start;
     private SpringService service = new SpringService();
 
     /**
      * constructor
      * @param fragment the fragment for callbacks
      */
-    public GetPositionDroneTask(PlanZoneMapFragment fragment){
+    public GetPositionDroneTask(PlanZoneMapFragment fragment, Long interventionId){
         this.fragment = fragment;
-        start = new Date();
+        this.interventionId = interventionId;
     }
 
     @Override
-    protected ResponseEntity<Drone[]> doInBackground(Long... params) {
+    protected ResponseEntity<Drone[]> doInBackground(Object... params) {
         try {
-            Log.v(TAG, "Get the position of the drone for the intervention with id : " + params[0]);
-            return service.getAllDroneByIntervention(params);
+            Log.v(TAG, "Get the position of the drone for the intervention with id : " + interventionId);
+            start = new Date();
+            return service.getAllDroneByIntervention(interventionId);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }

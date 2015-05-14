@@ -290,11 +290,9 @@ public class SpringService {
      * Gets all the drone for the intervention
      * @return An array of drones
      */
-    public ResponseEntity<Drone[]> getAllDroneByIntervention(Object[] params) {
+    public ResponseEntity<Drone[]> getAllDroneByIntervention(Long interventionId) {
         Log.v(TAG, "getAllDroneByIntervention start");
-        final String url = URL + "drone/byIntervention/" + params[0];
-        Drone[] drones = null;
-        Log.v(TAG, url);
+        final String url = URL + "drone/byIntervention/" + interventionId;
         return restTemplate.getForEntity(url, Drone[].class);
     }
 

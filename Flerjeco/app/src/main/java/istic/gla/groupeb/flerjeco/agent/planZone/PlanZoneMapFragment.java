@@ -46,7 +46,7 @@ import istic.gla.groupeb.flerjeco.synch.DisplaySynchDrone;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 /**
- * A fragment that launches other parts of the demo application.
+ * Fragment de carte pour les drones
  */
 public class PlanZoneMapFragment extends Fragment {
 
@@ -76,6 +76,8 @@ public class PlanZoneMapFragment extends Fragment {
     public boolean removePath = false;
     // indicate if we want to edit a path in the intervention
     public boolean editPath = false;
+
+    private boolean refreshDrones = false;
 
 
     @Override
@@ -437,30 +439,34 @@ public class PlanZoneMapFragment extends Fragment {
      * Show the marker for the drone of the intervention
      */
     public void showDrones(Drone[] tab, long duration){
-        labels.clear();
-        for(Drone drone : tab){
-            labels.add(drone.getLabel());
-            if(dronesMarkers.containsKey(drone.getLabel())){
-                //animate existing marker
-                animateMarker(dronesMarkers.get(drone.getLabel()),
-                        new LatLng(drone.getLatitude(), drone.getLongitude()),
-                        false, 500+duration
-                );
-            } else{
-                //create a new marker
-                Marker m = googleMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(drone.getLatitude(), drone.getLongitude()))
-                        .title(drone.getLabel())
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_drone)));
-                dronesMarkers.put(drone.getLabel(), m);
+        if(refreshDrones) {
+            labels.clear();
+            for(Drone drone : tab){
+                labels.add(drone.getLabel());
+                if(dronesMarkers.containsKey(drone.getLabel())){
+                    //animate existing marker
+                    animateMarker(dronesMarkers.get(drone.getLabel()),
+                            new LatLng(drone.getLatitude(), drone.getLongitude()),
+                            false, duration
+                    );
+                } else{
+                    //create a new marker
+                    Marker m = googleMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(drone.getLatitude(), drone.getLongitude()))
+                            .title(drone.getLabel())
+                            .anchor(0.5f, 0.5f)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_drone)));
+                    dronesMarkers.put(drone.getLabel(), m);
+                }
             }
-        }
-        //delete marker for unassigned drones
-        if(!labels.containsAll(dronesMarkers.keySet())){
-            for(String labelToRemove : CollectionUtils.removeAll(dronesMarkers.keySet(), labels)){
-                dronesMarkers.get(labelToRemove).remove(); //remove the marker
-                dronesMarkers.remove(labelToRemove);
+            //delete marker for unassigned drones
+            if(!labels.containsAll(dronesMarkers.keySet())){
+                for(String labelToRemove : CollectionUtils.removeAll(dronesMarkers.keySet(), labels)){
+                    dronesMarkers.get(labelToRemove).remove(); //remove the marker
+                    dronesMarkers.remove(labelToRemove);
+                }
             }
+            new GetPositionDroneTask(this, ((PlanZoneActivity) getActivity()).getIntervention().getId()).execute();
         }
     }
 
@@ -482,12 +488,16 @@ public class PlanZoneMapFragment extends Fragment {
             }
         };
         long id = ((PlanZoneActivity)getActivity()).getIntervention().getId();
-        IntentWraper.startService("notify/intervention/" + id, displaySynch, displayDroneSynch);
+        //IntentWraper.startService("notify/intervention/" + id, displaySynch, displayDroneSynch);
+        IntentWraper.startService("notify/intervention/" + id, displaySynch);
+        refreshDrones = true;
+        new GetPositionDroneTask(this, id).execute();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        refreshDrones = false;
         mMapView.onPause();
         IntentWraper.stopService();
     }
@@ -506,7 +516,7 @@ public class PlanZoneMapFragment extends Fragment {
 
     public void refreshDrone() {
         if(inter != null) {
-            new GetPositionDroneTask(this).execute(inter.getId());
+            new GetPositionDroneTask(this, inter.getId()).execute();
         }
     }
 
