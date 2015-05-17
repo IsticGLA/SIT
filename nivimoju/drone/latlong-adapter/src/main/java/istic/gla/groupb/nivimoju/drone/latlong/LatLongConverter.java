@@ -110,6 +110,20 @@ public class LatLongConverter {
         return localPath;
     }
 
+    public List<LocalCoordinate> getLocal(List<Position> latlongs){
+        List<LocalCoordinate> localCoordinates = new ArrayList<>();
+        for(Position latLong : latlongs){
+            try{
+                LocalCoordinate coord = getLocal(latLong);
+                coord.setZ(20);
+                localCoordinates.add(coord);
+            } catch (IllegalArgumentException e){
+                logger.error("could not transfer " + latLong + " to local coordinates");
+            }
+        }
+        return localCoordinates;
+    }
+
 
     /**
      * Retourne les coordonnées latlong correspondantes à une coordonnée locale
