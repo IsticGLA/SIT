@@ -1,21 +1,14 @@
 package istic.gla.groupb.nivimoju.API;
 
-import dao.DroneDAO;
-import entity.Drone;
+import container.DroneContainer;
 import entity.Intervention;
-import entity.Position;
-import istic.gla.goupb.nivimoju.drone.engine.DroneContainer;
 import istic.gla.goupb.nivimoju.drone.engine.DroneEngine;
-import istic.gla.groupb.nivimoju.drone.client.DroneClient;
-import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
-import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
  * API to manipulate drones
