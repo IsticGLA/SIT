@@ -19,7 +19,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 
@@ -67,7 +66,6 @@ public class InterventionDialogFragment extends DialogFragment
     private View mProgressView;
     private View mCreateFormView;
 
-    SpringService springService =  new SpringService();
     String[] spinnerArray;
     ArrayAdapter<String> spinnerAdapter;
 
@@ -75,10 +73,9 @@ public class InterventionDialogFragment extends DialogFragment
     private HashMap<String, List<Long>> resourceTypeMap;
 
 
-    boolean data_local = false, addressOrCoordinates=true;
+    boolean addressOrCoordinates=true;
     private GetAllIncidentCodeTask incidentCodesTask;
     private InterventionPostTask interventionPostTask;
-    private GetResourceTypeTask resourceGetTask;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
