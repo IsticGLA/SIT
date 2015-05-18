@@ -3,7 +3,7 @@ package istic.gla.goupb.nivimoju.drone.engine;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 
 /**
- * représente un noeud de parcours pour un scan
+ * reprÃ©sente un noeud de parcours pour un scan
  */
 public class Node {
     private boolean obstacle;

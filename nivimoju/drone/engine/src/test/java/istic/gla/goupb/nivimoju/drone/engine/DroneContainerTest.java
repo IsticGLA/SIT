@@ -162,15 +162,15 @@ public class DroneContainerTest {
 
         assertNotNull(drone);
 
-        assertEquals("le request n'as pas vidé les drones libres", 4, container.getMapDronesByIntervention().get(-1L).size());
-        assertEquals("le request n'as pas rempli les drones affectés", 1, container.getMapDronesByIntervention().get(2L).size());
-        assertEquals("le request n'as pas modifié le drone", 2L, container.getDroneByLabel(drone.getLabel()).getIdIntervention());
+        assertEquals("le request n'as pas vidÃ© les drones libres", 4, container.getMapDronesByIntervention().get(-1L).size());
+        assertEquals("le request n'as pas rempli les drones affectÃ©s", 1, container.getMapDronesByIntervention().get(2L).size());
+        assertEquals("le request n'as pas modifiÃ© le drone", 2L, container.getDroneByLabel(drone.getLabel()).getIdIntervention());
 
         boolean res = container.freeDrone(2L);
         assertTrue(res);
         assertEquals("le request n'as pas rempli les drones libres", 5, container.getMapDronesByIntervention().get(-1L).size());
-        assertNull("le request n'as pas vidé les drones affectés", container.getMapDronesByIntervention().get(2L));
-        assertEquals("le request n'as pas modifié le drone", -1L, container.getDroneByLabel(drone.getLabel()).getIdIntervention());
+        assertNull("le request n'as pas vidÃ© les drones affectÃ©s", container.getMapDronesByIntervention().get(2L));
+        assertEquals("le request n'as pas modifiÃ© le drone", -1L, container.getDroneByLabel(drone.getLabel()).getIdIntervention());
 
     }
 }
