@@ -64,6 +64,12 @@ public class ChangeStateDialogFragment extends DialogFragment {
             }
         });
         freeButton = (Button) v.findViewById(R.id.freeButton);
+        freeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                releaseResource();
+            }
+        });
 
         //init state spinner
         stateSpinner = (Spinner) v.findViewById(R.id.stateSpinner);
@@ -115,6 +121,12 @@ public class ChangeStateDialogFragment extends DialogFragment {
 
     public void changeResourceRole(ResourceRole role){
         resource.setResourceRole(role);
+        ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
+        dismiss();
+    }
+
+    public void releaseResource() {
+        resource.setState(State.free);
         ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
         dismiss();
     }
