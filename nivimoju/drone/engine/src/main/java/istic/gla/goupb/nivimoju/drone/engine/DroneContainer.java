@@ -49,8 +49,8 @@ public class DroneContainer {
     }
 
     /**
-     * charge une liste de drone et prépare les maps interne
-     * @param drones la liste de drones à charger
+     * charge une liste de drone et prÃ©pare les maps interne
+     * @param drones la liste de drones Ã  charger
      **/
     protected void loadDrones(List<Drone> drones){
         logger.info("loading drones internally");
@@ -115,7 +115,7 @@ public class DroneContainer {
     }
 
     /**
-     * Accède à l'ensemble des drones
+     * AccÃ¨de Ã  l'ensemble des drones
      * @return tous les drones
      */
     public Collection<Drone> getDrones(){
@@ -123,7 +123,7 @@ public class DroneContainer {
     }
 
     /**
-     * Accède à l'ensemble des drones affecté a une intervention
+     * AccÃ¨de Ã  l'ensemble des drones affectÃ© a une intervention
      * @return tous les drones
      */
     public Collection<Drone> getDronesAssignedTo(Long idIntervention){

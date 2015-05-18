@@ -66,7 +66,6 @@ public class InterventionDialogFragment extends DialogFragment
     private View mProgressView;
     private View mCreateFormView;
 
-    SpringService springService =  new SpringService();
     String[] spinnerArray;
     ArrayAdapter<String> spinnerAdapter;
 
@@ -74,7 +73,7 @@ public class InterventionDialogFragment extends DialogFragment
     private HashMap<String, List<Long>> resourceTypeMap;
 
 
-    boolean data_local = false, addressOrCoordinates=true;
+    boolean addressOrCoordinates=true;
     private GetAllIncidentCodeTask incidentCodesTask;
     private InterventionPostTask interventionPostTask;
     private GetResourceTypesTask resourceGetTask;
@@ -216,7 +215,7 @@ public class InterventionDialogFragment extends DialogFragment
     }
 
     @Override
-    public void getResourceType(List<ResourceType> resourceTypes) {
+    public void updateResourceTypes(ResourceType[] resourceTypes) {
         //Intervention
         entity.Intervention intervention;
         //Address of the intervention
@@ -244,7 +243,7 @@ public class InterventionDialogFragment extends DialogFragment
         intervention = new entity.Intervention(nameInterventionEditText.getText().toString(),
                 spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),
                 address.getLatitude(), address.getLongitude());
-        Log.i(TAG, "updateResourceTypes size : "+resourceTypes.size());
+        Log.i(TAG, "updateResourceTypes size : "+ resourceTypes.length);
         List<Resource> resources = convertResourcesTypeToResources(resourceTypes);
 
         //intervention.set
@@ -301,7 +300,7 @@ public class InterventionDialogFragment extends DialogFragment
         return null;
     }
 
-    public List<Resource> convertResourcesTypeToResources(List<ResourceType> resourcesType){
+    public List<Resource> convertResourcesTypeToResources(ResourceType[] resourcesType){
         List<Resource> resourcesResult= new ArrayList<>();
 
         for(ResourceType rt : resourcesType){

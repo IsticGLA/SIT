@@ -3,7 +3,6 @@ package istic.gla.groupeb.flerjeco.springRest;
 import android.util.Log;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -13,7 +12,6 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
-import java.util.ConcurrentModificationException;
 
 import entity.Drone;
 import entity.IncidentCode;
@@ -306,7 +304,7 @@ public class SpringService {
         try {
             return restTemplate.postForEntity(url, intervention, Intervention.class);
         } catch (HttpServerErrorException e){
-            Log.e(TAG, "erreur à l'update d'un path", e);
+            Log.e(TAG, "erreur Ã  l'update d'un path", e);
             throw e;
         }
     }

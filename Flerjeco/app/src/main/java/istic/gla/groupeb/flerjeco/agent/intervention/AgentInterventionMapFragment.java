@@ -55,6 +55,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     int position = -1;
 
+    private boolean initMap = true;
     private Intervention intervention;
     private LatLngBounds.Builder bounds;
     private StaticData[] staticDataTab;
@@ -180,12 +181,13 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 }
             }
 
-            if(!isPositionResource) {
+            if(!isPositionResource && initMap) {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
 
                 googleMap.animateCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));
+                initMap = false;
             } else {
                 googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
 
