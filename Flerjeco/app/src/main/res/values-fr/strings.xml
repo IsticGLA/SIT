@@ -49,7 +49,7 @@
     <string name="button_request_resource">Demander</string>
     <string name="change">changer</string>
     <string name="freeButton">libérer</string>
-    <string name="title_fragment_change_resource">changer l\'état de la resource</string>
+    <string name="title_fragment_change_resource">Changer l\'état de la resource</string>
     <string-array name="state">
         <item>Humain</item>
         <item>Risque</item>

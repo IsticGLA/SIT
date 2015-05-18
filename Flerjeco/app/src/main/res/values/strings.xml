@@ -40,7 +40,7 @@
     <string name="nameInterventionHint">Intervention name</string>
     <string name="createInterventionButton">Create Intervention</string>
     <string name="action_create_intervention">Create Intervention</string>
-    <string name="title_fragment_change_resource">change state of resource</string>
+    <string name="title_fragment_change_resource">Change state of resource</string>
     <string name="intervention_address">Intervention address</string>
     <string name="error_required_field">This field is required</string>
     <string name="create_by_address">Address</string>
