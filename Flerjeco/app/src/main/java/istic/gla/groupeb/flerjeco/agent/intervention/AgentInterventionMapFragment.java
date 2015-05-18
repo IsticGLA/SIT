@@ -220,7 +220,10 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
                 @Override
                 public void onMarkerDrag(Marker marker) {
-
+                    Resource resource = resourcesMap.get(marker.getTitle());
+                    if (resource != null) {
+                        resource.setState(State.planned);
+                    }
                 }
 
                 @Override
