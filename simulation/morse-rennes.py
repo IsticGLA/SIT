@@ -20,8 +20,10 @@ for drone in drones:
     i += 1
     camera = VideoCamera()
     camera.translate(z=-0.1)
-    camera.rotate(y=-90 / 180 * pi)
+    camera.rotate(y=-90 / 180 * pi, x=90 / 180 * pi)
+    
     drone.append(camera)
+    drone.camera = camera
 
     waypoint = RotorcraftWaypoint()
     drone.append(waypoint)
@@ -36,4 +38,4 @@ env.set_camera_location([9.5, -240.998, 60])
 env.set_camera_rotation([45 / 180 * 3.14, 0 / 180 * 3.14, 0 / 180 * 3.14])
 env.set_camera_clip(clip_start=1, clip_end=500)
 
-env.select_display_camera(camera)
+env.select_display_camera(drone_1.camera)
