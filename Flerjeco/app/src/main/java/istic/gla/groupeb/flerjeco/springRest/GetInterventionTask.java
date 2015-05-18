@@ -17,6 +17,7 @@ public class GetInterventionTask extends AsyncTask<Void, Void, Boolean> {
     private Intervention intervention;
     private IInterventionActivity activity;
     private Long id;
+    private SpringService service = new SpringService();
 
     public GetInterventionTask(IInterventionActivity activity, Long id) {
         this.activity = activity;
@@ -33,7 +34,6 @@ public class GetInterventionTask extends AsyncTask<Void, Void, Boolean> {
     protected Boolean doInBackground(Void... params) {
         try {
             Log.i(TAG, "doInBackground, id :" + id);
-            SpringService service = new SpringService();
             intervention = service.getInterventionById(id);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());

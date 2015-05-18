@@ -182,7 +182,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
             if(!isPositionResource) {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
+                        .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
 
                 googleMap.animateCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));

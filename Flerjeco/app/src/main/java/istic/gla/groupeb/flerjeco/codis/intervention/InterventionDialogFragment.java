@@ -67,7 +67,7 @@ public class InterventionDialogFragment extends DialogFragment
     private View mProgressView;
     private View mCreateFormView;
 
-    SpringService springService = new SpringService();
+    SpringService springService =  new SpringService();
     String[] spinnerArray;
     ArrayAdapter<String> spinnerAdapter;
 

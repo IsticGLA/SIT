@@ -10,10 +10,19 @@
         android:layout_gravity="center_horizontal"
         android:layout_weight="1" />
 
+    <TextView
+        android:id="@+id/list_empty_interventions_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="hey"
+        android:visibility="gone"
+        android:layout_gravity="center" />
+
     <View
         android:layout_width="fill_parent"
         android:layout_height="3dp"
         android:background="@android:color/darker_gray"/>
+
 
     <Button
         android:layout_width="match_parent"

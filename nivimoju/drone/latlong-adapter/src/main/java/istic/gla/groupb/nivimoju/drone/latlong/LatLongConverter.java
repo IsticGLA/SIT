@@ -86,8 +86,8 @@ public class LatLongConverter {
         x = x*(1+deltaXFactor);
         y = y*(1+deltaYFactor);
 
-        logger.debug(String.format("width:%s, ratioX:%s, offsetX:%s, x=>%s", width, ratioX, offsetX, x));
-        logger.debug(String.format("height:%s, ratioY:%s, offsetY:%s, y=>%s", height, ratioY, offsetY, y));
+        logger.trace(String.format("width:%s, ratioX:%s, offsetX:%s, x=>%s", width, ratioX, offsetX, x));
+        logger.trace(String.format("height:%s, ratioY:%s, offsetY:%s, y=>%s", height, ratioY, offsetY, y));
 
         return new LocalCoordinate(x, y, 0);
     }
@@ -108,6 +108,20 @@ public class LatLongConverter {
         localPath.setPositions(localCoordinates);
         logger.info("converted local path : " + localPath.toString());
         return localPath;
+    }
+
+    public List<LocalCoordinate> getLocal(List<Position> latlongs){
+        List<LocalCoordinate> localCoordinates = new ArrayList<>();
+        for(Position latLong : latlongs){
+            try{
+                LocalCoordinate coord = getLocal(latLong);
+                coord.setZ(20);
+                localCoordinates.add(coord);
+            } catch (IllegalArgumentException e){
+                logger.error("could not transfer " + latLong + " to local coordinates");
+            }
+        }
+        return localCoordinates;
     }
 
 

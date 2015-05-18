@@ -72,4 +72,12 @@
     <string name="activateResource">Activate the resource</string>
     <string name="freeResource">Free the resource</string>
     <string name="title_dialog_change_resource">Manage the resource</string>
+    <string name="empty_list_interventions">There is no interventions, create one</string>
+    <string name="libelle_moyen_attente">Moyens en attente de validation</string>
+    <string name="libelle_moyen_valide">Moyens validés</string>
+
+    <string name="drone_update_path_error_not_available">"Aucun drone n'est disponible, la création de trajet est impossible"</string>
+    <string name="drone_update_path_error_generic">"La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer"</string>
+    <string name="drone_update_path_success">"Les modifications ont été enregistées"</string>
+
 </resources>
