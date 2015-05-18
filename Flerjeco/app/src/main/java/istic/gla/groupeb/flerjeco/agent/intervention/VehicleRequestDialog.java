@@ -81,8 +81,7 @@ public class VehicleRequestDialog extends DialogFragment implements IResourceTyp
         showProgress(true);
 
         if(FlerjecoApplication.getInstance().getResourceTypes() != null && FlerjecoApplication.getInstance().getResourceTypes().length > 0) {
-            ResourceType[] resources = null;
-            updateResourceTypes(resources);
+            updateResourceTypes(FlerjecoApplication.getInstance().getResourceTypes());
         } else {
             resourceTypesTask = new GetResourceTypesTask(this);
             resourceTypesTask.execute();
@@ -157,20 +156,22 @@ public class VehicleRequestDialog extends DialogFragment implements IResourceTyp
 
     @Override
     public void updateResourceTypes(ResourceType[] resourceTypes) {
-        String[] spinnerArray = new String[resourceTypes.length];
-        spinnerMap = new HashMap();
         if(resourceTypes != null && resourceTypes.length > 0 ) {
+            String[] spinnerArray = new String[resourceTypes.length];
+            spinnerMap = new HashMap();
             FlerjecoApplication.getInstance().setResourceTypes(resourceTypes);
             for (int i = 0; i < resourceTypes.length; i++) {
                 spinnerMap.put(resourceTypes[i].getLabel(), resourceTypes[i].getId());
-                if(resourceTypes[i].getCategory() != null && resourceTypes[i].getCategory().equals(ResourceCategory.vehicule));
+                if (resourceTypes[i].getCategory() != null && resourceTypes[i].getCategory().equals(ResourceCategory.vehicule))
+                    ;
                 spinnerArray[i] = resourceTypes[i].getLabel();
             }
-        }
 
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter(VehicleRequestDialog.this.getActivity(), android.R.layout.simple_spinner_item, spinnerArray);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(spinnerAdapter);
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter(VehicleRequestDialog.this.getActivity(), android.R.layout.simple_spinner_item, spinnerArray);
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(spinnerAdapter);
+        }
+        showProgress(false);
     }
 
     @Override
