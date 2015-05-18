@@ -213,7 +213,7 @@ public class InterventionDialogFragment extends DialogFragment
     }
 
     @Override
-    public void updateResourceTypes(ResourceType[] resourceTypes) {
+    public void updateResourceTypeLabels(ResourceType[] resourceTypes) {
         //Intervention
         entity.Intervention intervention;
         //Address of the intervention
@@ -241,7 +241,7 @@ public class InterventionDialogFragment extends DialogFragment
         intervention = new entity.Intervention(nameInterventionEditText.getText().toString(),
                 spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),
                 address.getLatitude(), address.getLongitude());
-        Log.i(TAG, "updateResourceTypes size : "+ resourceTypes.length);
+        Log.i(TAG, "updateResourceTypeLabels size : "+ resourceTypes.length);
         List<Resource> resources = convertResourcesTypeToResources(resourceTypes);
 
         //intervention.set
