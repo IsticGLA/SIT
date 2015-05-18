@@ -3,6 +3,8 @@ package istic.gla.groupeb.flerjeco;
 import android.app.Application;
 import android.content.Context;
 
+import entity.IncidentCode;
+import entity.ResourceType;
 import entity.StaticData;
 import istic.gla.groupeb.flerjeco.springRest.IStaticDataActivity;
 
@@ -15,6 +17,8 @@ public class FlerjecoApplication extends Application implements IStaticDataActiv
     private String login, password;
     private StaticData[] staticData;
     private static FlerjecoApplication singleInstance = null;
+    private ResourceType[] resourceTypes;
+    private IncidentCode[] incidentCodes;
 
     public static FlerjecoApplication getInstance()
     {
@@ -61,4 +65,20 @@ public class FlerjecoApplication extends Application implements IStaticDataActiv
 
     @Override
     public Context getContext() { return getContext(); }
+
+    public void setResourceTypes(ResourceType[] resourceTypes) {
+        this.resourceTypes = resourceTypes;
+    }
+
+    public ResourceType[] getResourceTypes() {
+        return resourceTypes;
+    }
+
+    public void setIncidentCodes(IncidentCode[] incidentCodes) {
+        this.incidentCodes = incidentCodes;
+    }
+
+    public IncidentCode[] getIncidentCodes() {
+        return incidentCodes;
+    }
 }

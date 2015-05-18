@@ -55,6 +55,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     int position = -1;
 
+    private boolean initMap = true;
     private Intervention intervention;
     private LatLngBounds.Builder bounds;
     private StaticData[] staticDataTab;
@@ -180,12 +181,13 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 }
             }
 
-            if(!isPositionResource) {
+            if(!isPositionResource && initMap) {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
 
                 googleMap.animateCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));
+                initMap = false;
             } else {
                 googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
 
@@ -218,7 +220,10 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
                 @Override
                 public void onMarkerDrag(Marker marker) {
-
+                    Resource resource = resourcesMap.get(marker.getTitle());
+                    if (resource != null) {
+                        resource.setState(State.planned);
+                    }
                 }
 
                 @Override
@@ -291,14 +296,26 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         }
     }
 
+    public ResourceRole roleByName(String name) {
+        if(name.contains("VSAV") || name.contains("VSR")) {
+            return ResourceRole.people;
+        } else if(name.contains("FPT") || name.contains("EPA")){
+            return ResourceRole.fire;
+        } else if (name.contains("VLCG")) {
+            return ResourceRole.commands;
+        } else {
+            return ResourceRole.otherwise;
+        }
+    }
+
     public void drawMarker(MarkerOptions markerOptions, Resource resource){
         ResourceCategory category = resource.getResourceCategory();
         Bitmap mBitmap = null;
         if (category!=null){
             switch (category){
                 case vehicule:
-                    ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
                     String name = resource.getLabel();
+                    ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : roleByName(name);
                     Vehicle mVehicle = new Vehicle(name, role, resource.getState());
                     int width = mVehicle.getRect().width();
                     int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
