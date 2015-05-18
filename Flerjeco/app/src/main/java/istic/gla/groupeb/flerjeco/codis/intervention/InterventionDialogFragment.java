@@ -34,12 +34,11 @@ import entity.Resource;
 import entity.ResourceType;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.GetAllIncidentCodeTask;
-import istic.gla.groupeb.flerjeco.springRest.GetResourceTypeTask;
+import istic.gla.groupeb.flerjeco.springRest.GetResourceTypeLabelsTask;
 import istic.gla.groupeb.flerjeco.springRest.IIncidentCode;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
-import istic.gla.groupeb.flerjeco.springRest.IResourceTypeActivity;
+import istic.gla.groupeb.flerjeco.springRest.IResourceTypeLabelsActivity;
 import istic.gla.groupeb.flerjeco.springRest.InterventionPostTask;
-import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import util.State;
 
 /**
@@ -47,7 +46,7 @@ import util.State;
  * @see android.support.v4.app.DialogFragment
  */
 public class InterventionDialogFragment extends DialogFragment
-        implements IIncidentCode, IInterventionActivity, IResourceTypeActivity{
+        implements IIncidentCode, IInterventionActivity, IResourceTypeLabelsActivity {
     private static final String TAG = InterventionDialogFragment.class.getSimpleName();
 
     Spinner codeSinistreSpinner;
@@ -137,7 +136,7 @@ public class InterventionDialogFragment extends DialogFragment
 
                     //  Selecting sinister code selected resources from the list of identifiers of resourceType already recovered
                     //  Note: at the end of this task in the background, it creates intervention
-                    new GetResourceTypeTask(InterventionDialogFragment.this).execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
+                    new GetResourceTypeLabelsTask(InterventionDialogFragment.this).execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
 
                 }
             }
@@ -214,7 +213,7 @@ public class InterventionDialogFragment extends DialogFragment
     }
 
     @Override
-    public void getResourceType(List<ResourceType> resourceTypes) {
+    public void updateResourceTypeLabels(ResourceType[] resourceTypes) {
         //Intervention
         entity.Intervention intervention;
         //Address of the intervention
@@ -242,7 +241,7 @@ public class InterventionDialogFragment extends DialogFragment
         intervention = new entity.Intervention(nameInterventionEditText.getText().toString(),
                 spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),
                 address.getLatitude(), address.getLongitude());
-        Log.i(TAG, "getResourceType size : "+resourceTypes.size());
+        Log.i(TAG, "updateResourceTypeLabels size : "+ resourceTypes.length);
         List<Resource> resources = convertResourcesTypeToResources(resourceTypes);
 
         //intervention.set
@@ -299,7 +298,7 @@ public class InterventionDialogFragment extends DialogFragment
         return null;
     }
 
-    public List<Resource> convertResourcesTypeToResources(List<ResourceType> resourcesType){
+    public List<Resource> convertResourcesTypeToResources(ResourceType[] resourcesType){
         List<Resource> resourcesResult= new ArrayList<>();
 
         for(ResourceType rt : resourcesType){

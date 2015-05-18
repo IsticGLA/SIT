@@ -35,27 +35,30 @@ public class GetAllInterventionsTask extends AsyncTask<Void, Void, ResponseEntit
 
     @Override
     protected void onPostExecute(ResponseEntity<Intervention[]> response) {
-        switch(response.getStatusCode()){
-            case OK:
-                if(response.getBody() != null){
-                    Log.v(TAG, "got interventions : " + response.getBody().length);
-                    activity.updateInterventions(response.getBody());
-                } else{
-                    Log.v(TAG, "got 0 interventions ");
-                    activity.updateInterventions(new Intervention[0]);
-                }
+        if (response != null) {
+            switch (response.getStatusCode()) {
+                case OK:
+                    if (response.getBody() != null) {
+                        Log.v(TAG, "got interventions : " + response.getBody().length);
+                        activity.updateInterventions(response.getBody());
+                    } else {
+                        Log.v(TAG, "got 0 interventions ");
+                        activity.updateInterventions(new Intervention[0]);
+                    }
 
-                break;
-            default:
-                count++;
-                if(count < 4) {
-                    Log.i(TAG, "Retry: " + count);
-                    new GetAllInterventionsTask(activity, count).execute();
-                }
-                else {
-                    activity.updateInterventions(null);
-                    Toast.makeText(activity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
-                }
+                    break;
+                default:
+                    count++;
+                    if (count < 4) {
+                        Log.i(TAG, "Retry: " + count);
+                        new GetAllInterventionsTask(activity, count).execute();
+                    } else {
+                        activity.updateInterventions(null);
+                        Toast.makeText(activity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
+                    }
+            }
+        } else {
+            Log.e(TAG, "Error: Response is null");
         }
     }
 }
