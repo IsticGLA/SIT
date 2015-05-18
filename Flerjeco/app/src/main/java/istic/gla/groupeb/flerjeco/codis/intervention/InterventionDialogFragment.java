@@ -33,6 +33,7 @@ import entity.IncidentCode;
 import entity.Intervention;
 import entity.Resource;
 import entity.ResourceType;
+import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.GetAllIncidentCodeTask;
 import istic.gla.groupeb.flerjeco.springRest.GetResourceTypeLabelsTask;
@@ -102,8 +103,12 @@ public class InterventionDialogFragment extends DialogFragment
 
         //Selection of registered claims codes in the database and the list of identifiers of resourceType
         showProgress(true);
-        incidentCodesTask = new GetAllIncidentCodeTask(this);
-        incidentCodesTask.execute();
+        if(FlerjecoApplication.getInstance().getIncidentCodes() != null && FlerjecoApplication.getInstance().getIncidentCodes().length > 0) {
+            updateIncidentCodes(FlerjecoApplication.getInstance().getIncidentCodes());
+        } else {
+            incidentCodesTask = new GetAllIncidentCodeTask(this);
+            incidentCodesTask.execute();
+        }
 
         //  add button listener
         intervention_creation_button.setOnClickListener(new View.OnClickListener() {
@@ -254,9 +259,10 @@ public class InterventionDialogFragment extends DialogFragment
     }
 
     @Override
-    public void getIncidentCode(IncidentCode[] incidentCodes) {
+    public void updateIncidentCodes(IncidentCode[] incidentCodes) {
         showProgress(false);
         if(incidentCodes != null && incidentCodes.length > 0 ) {
+            FlerjecoApplication.getInstance().setIncidentCodes(incidentCodes);
             int i = 0;
             spinnerArray = new String[incidentCodes.length];
             resourceTypeMap = new HashMap<>();

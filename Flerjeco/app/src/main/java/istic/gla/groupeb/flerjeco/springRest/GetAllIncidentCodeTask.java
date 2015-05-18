@@ -38,7 +38,7 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
     @Override
     protected void onPostExecute(IncidentCode[] codes) {
         if(codes != null) {
-            activity.getIncidentCode(codes);
+            activity.updateIncidentCodes(codes);
         } else {
             count++;
             if(count < 4) {
@@ -46,7 +46,7 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
                 new GetAllIncidentCodeTask(activity, count).execute();
             }
             else {
-                activity.getIncidentCode(null);
+                activity.updateIncidentCodes(null);
                 Toast.makeText(activity.getContext(), R.string.fail_get_incident_code, Toast.LENGTH_SHORT).show();
             }
         }
