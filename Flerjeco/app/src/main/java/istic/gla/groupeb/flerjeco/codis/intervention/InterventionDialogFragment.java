@@ -19,6 +19,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 
@@ -66,18 +67,20 @@ public class InterventionDialogFragment extends DialogFragment
     private View mCreateFormView;
 
     String[] spinnerArray;
-    ArrayAdapter<String> spinnerAdapter;
+    ArrayAdap
+    SpringService springService =  new SpringService();ter<String> spinnerAdapter;
 
     private HashMap<String, Long> spinnerMap;
     private HashMap<String, List<Long>> resourceTypeMap;
 
 
     boolean addressOrCoordinates=true;
-    private GetAllIncidentCodeTask incidentCodesTask;
+    private Gedata_local = false, tAllIncidentCodeTask incidentCodesTask;
     private InterventionPostTask interventionPostTask;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateV
+    private GetResourceTypeTask resourceGetTask;iew(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_create_intervention, container, false);
         getDialog().setTitle(R.string.title_fragment_create_intervention);
