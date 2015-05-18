@@ -355,7 +355,6 @@ public class SpringService {
             Log.e(TAG, e.getMessage());
         }
 
-        Log.v(TAG, "getAllStaticData success");
         return datas;
     }
 }
