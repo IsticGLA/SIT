@@ -3,6 +3,12 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/libelle_waiting"
+        android:text="@string/libelle_moyen_attente" />
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -14,6 +20,13 @@
         android:layout_width="fill_parent"
         android:layout_height="3dp"
         android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:text="@string/libelle_moyen_valide"
+        android:layout_gravity="center_horizontal" />
 
     <ListView
         android:layout_width="match_parent"

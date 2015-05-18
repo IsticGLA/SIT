@@ -3,7 +3,7 @@ package istic.gla.groupb.nivimoju.drone.client;
 import java.util.List;
 
 /**
- * Created by sacapuces on 15/04/15.
+ * containers of inforamtions about multiples drones
  */
 public class DronesInfos {
     private List<DroneInfo> infos;

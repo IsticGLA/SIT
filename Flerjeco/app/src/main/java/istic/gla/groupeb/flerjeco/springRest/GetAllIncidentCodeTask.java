@@ -14,6 +14,7 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
     private static final String TAG = GetAllIncidentCodeTask.class.getSimpleName();
     private int count = 0;
     private IIncidentCode activity;
+    private SpringService service = new SpringService();
 
     public GetAllIncidentCodeTask(IIncidentCode activity) {
         this.activity = activity;
@@ -27,7 +28,6 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
     @Override
     protected IncidentCode[] doInBackground(Void... params) {
         try {
-            SpringService service = new SpringService();
             return service.codeSinistreClient();
         } catch (Exception e){
             Log.e(TAG, "ERROR " + e);
@@ -47,7 +47,7 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
             }
             else {
                 activity.getIncidentCode(null);
-                Toast.makeText(activity.getContext(), R.string.fail_get_interventions, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity.getContext(), R.string.fail_get_incident_code, Toast.LENGTH_SHORT).show();
             }
         }
     }

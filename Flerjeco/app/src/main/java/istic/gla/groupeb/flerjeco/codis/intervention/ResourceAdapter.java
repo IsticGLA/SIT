@@ -75,6 +75,11 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
                             "" + interventionId,
                             "" + resource.getIdRes(),
                             State.validated.name());
+                    _viewHolder.acceptButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    });
                 }
             }
         });
@@ -86,6 +91,11 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
                     new ResourceRequestTask().execute("" + interventionId,
                             "" + resource.getIdRes(),
                             State.refused.name());
+                    _viewHolder.refuseButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    });
                 }
             }
         });
@@ -93,11 +103,11 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
         return convertView;
     }
     private class ResourceRequestTask extends AsyncTask<String, Void, Intervention> {
-
+        private SpringService service = new SpringService();
         @Override
         protected Intervention doInBackground(String... params) {
             try {
-                return new SpringService().changeResourceState(params);
+                return service.changeResourceState(params);
             } catch (HttpStatusCodeException e) {
                 Log.e("ResourceAdapterCodis", e.getMessage(), e);
             }

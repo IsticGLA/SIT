@@ -14,7 +14,9 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -60,7 +62,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         refresh();
     }
 
@@ -68,7 +69,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
     @Override
     public void refresh() {
-
         // Set up the login form.
         mLoginView = (EditText) findViewById(R.id.editText_login);
 
@@ -102,7 +102,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
      * errors are presented and no actual login attempt is made.
      */
     public void attemptLogin() {
-
         // Reset errors.
         mLoginView.setError(null);
         mPasswordView.setError(null);
@@ -113,7 +112,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
         boolean cancel = false;
         View focusView = null;
-
 
         // Check for a valid password, if the user entered one.
         if (TextUtils.isEmpty(password)) {
@@ -151,6 +149,13 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public void showProgress(final boolean show) {
+        //hide the keyboard
+        // Check if no view has focus:
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+        }
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
@@ -224,6 +229,7 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
         private final String mPassword;
         private int count = 0;
         private LoginActivity activity;
+        private SpringService service = new SpringService();
 
         public UserLoginTask(LoginActivity activity, String login, String password) {
             this.activity = activity;
@@ -240,13 +246,7 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
         @Override
         protected String doInBackground(Void... params) {
-            Log.i(TAG, "doInBackground start");
-
-            SpringService service = new SpringService();
-            String statusCode = service.login(mLogin, mPassword);
-
-            Log.i(TAG, "doInBackground end");
-            return statusCode;
+            return service.login(mLogin, mPassword);
         }
 
         @Override
@@ -259,26 +259,24 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
             flerjecoApplication.setPassword(mPassword);
 
             if (statusCode.equals("200")) {
-                Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_LONG).show();
+                Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_SHORT).show();
                 showProgress(true);
                 new GetAllInterventionsTask(LoginActivity.this).execute();
-            } else if(statusCode.equals("401")) {
-                count++;
-                if(count < 4) {
-                    Log.i(TAG, "Count: " + count);
-                    new UserLoginTask(activity, count, mLogin, mPassword).execute();
-                } else {
-                    Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_LONG).show();
-                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                    mPasswordView.requestFocus();
-                }
             } else {
-                count++;
                 if(count < 4) {
-                    Log.i(TAG, "Count: " + count);
+                    Log.w(TAG, String.format("login failed with %d try (login:%s, pwd:%s), will retry", count, mLogin, mPassword));
+                    count++;
                     new UserLoginTask(activity, count, mLogin, mPassword).execute();
+                } else{
+                    Log.w(TAG, String.format("login failed definitely after %d try (login:%s, pwd:%s)", count, mLogin, mPassword));
+                    if(statusCode.equals("401")){
+                        Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();
+                        mPasswordView.setError(getString(R.string.error_incorrect_password));
+                        mPasswordView.requestFocus();
+                    } else{
+                        Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_SHORT).show();
+                    }
                 }
-                Toast.makeText(LoginActivity.this, getString(R.string.error_server_down), Toast.LENGTH_LONG).show();
             }
         }
 

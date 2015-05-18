@@ -3,14 +3,14 @@ package istic.gla.groupb.nivimoju.drone.client;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 
 /**
- * Created by sacapuces on 15/04/15.
+ * Container of infos about a single drone
+ * contain the name and position of the drone
  */
 public class DroneInfo {
     private String label;
     private LocalCoordinate position;
 
     public String getLabel() {
-
         return label;
     }
 

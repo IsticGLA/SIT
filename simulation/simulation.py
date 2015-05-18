@@ -123,6 +123,8 @@ class Controller:
         for drone in self.drones:
             if drone.label == label_drone:
                 drone.stop()
+                return True
+        return False
 
 
 controller = Controller(5)
@@ -171,11 +173,14 @@ def stop_drone(drone_label):
     app.logger.info("received a new request on "+drone_label+"/stop")
     try:
         # Get the JSON data sent from the form
-        controller.stop(drone_label)
+        success = controller.stop(drone_label)
+        if success:
+            return "Drone " + str(drone_label) + "stopped", 200
+        else:
+            return "Drone " + str(drone_label) + "not stopped. Defined drones : " + str(controller.drones), 404
     except:
         app.logger.error(traceback.format_exc())
-        abort(400)
-    return "OK", 200
+        abort(500)
 
 
 @app.route('/drones/info', methods=['GET'])
@@ -190,7 +195,7 @@ def get_drones_info():
         return jsonify(infos=drones_infos)
     except:
         app.logger.error(traceback.format_exc())
-        abort(400)
+        abort(500)
 
 
 @app.route('/hello', methods=['GET'])

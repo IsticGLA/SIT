@@ -145,11 +145,11 @@ public class VehicleRequestDialog extends DialogFragment {
     }
 
     private class ResourceTypesTask extends AsyncTask<Void, Void, ResourceType[]> {
-
+        private SpringService service = new SpringService();
         @Override
         protected ResourceType[] doInBackground(Void... params) {
             try {
-                ResourceType[] resourceTypes = new SpringService().resourceTypes();
+                ResourceType[] resourceTypes = service.resourceTypes();
                 return resourceTypes;
 
             } catch (HttpStatusCodeException e) {
@@ -186,11 +186,11 @@ public class VehicleRequestDialog extends DialogFragment {
     }
 
     private class ResourceRequestTask extends AsyncTask<Object, Void, Intervention> {
-
+        private SpringService service = new SpringService();
         @Override
         protected Intervention doInBackground(Object... params) {
             try {
-                return new SpringService().requestVehicle(params);
+                return service.requestVehicle(params);
             } catch (HttpStatusCodeException e) {
                 Log.e(TAG, e.getMessage(), e);
             }

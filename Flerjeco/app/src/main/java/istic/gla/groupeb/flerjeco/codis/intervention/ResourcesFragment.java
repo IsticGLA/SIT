@@ -56,7 +56,9 @@ public class ResourcesFragment extends Fragment implements ISynchTool {
         listViewRequests = (ListView) v.findViewById(R.id.listViewAgentRequests);
 
         InterventionActivity interventionActivity = (InterventionActivity) getActivity();
-        updateResources(interventionActivity.getInterventions()[0]);
+        if(interventionActivity.getInterventions().length > 0){
+            updateResources(interventionActivity.getInterventions()[0]);
+        }
 
         return v;
     }
@@ -85,7 +87,7 @@ public class ResourcesFragment extends Fragment implements ISynchTool {
             State resourceState = resource.getState();
             if (State.active.equals(resourceState) || State.planned.equals(resourceState) || State.validated.equals(resourceState)){
                 labelsResources.add(resource.getLabel());
-            }else{
+            } else if (State.waiting.equals(resourceState)) {
                 requests.add(resource);
             }
         }
