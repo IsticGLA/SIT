@@ -27,7 +27,6 @@ public class ChangeStateDialogFragment extends DialogFragment {
     private ResourceRole role;
 
     //fields
-    //Button validateButton;
     CheckBox validatecheckBox;
     Button freeButton;
     Button changeRoleButton;
@@ -52,15 +51,6 @@ public class ChangeStateDialogFragment extends DialogFragment {
         });
 
         //init fields
-/*
-        validateButton = (Button) v.findViewById(R.id.validateButton);
-        validateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                validateResource();
-            }
-        });
-*/
 
         freeButton = (Button) v.findViewById(R.id.freeButton);
         freeButton.setOnClickListener(new View.OnClickListener() {
