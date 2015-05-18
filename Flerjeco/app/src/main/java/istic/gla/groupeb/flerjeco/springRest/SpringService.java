@@ -3,6 +3,7 @@ package istic.gla.groupeb.flerjeco.springRest;
 import android.util.Log;
 
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -51,7 +52,7 @@ public class SpringService {
         try {
             ResponseEntity<ResourceType> resourcetype = restTemplate.getForEntity(url, ResourceType.class);
             rt = resourcetype.getBody();
-            Log.v(TAG, "getResourceTypeById : "+resourcetype.getStatusCode().toString());
+            Log.v(TAG, "getResourceTypeById : " + resourcetype.getStatusCode().toString());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -72,7 +73,7 @@ public class SpringService {
         try {
             ResponseEntity<Intervention> interventionResult = restTemplate.getForEntity(url, Intervention.class);
             intervention = interventionResult.getBody();
-            Log.v(TAG, "getInterventionById : "+interventionResult.getStatusCode().toString());
+            Log.v(TAG, "getInterventionById : " + interventionResult.getStatusCode().toString());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -92,7 +93,7 @@ public class SpringService {
         try {
             ResponseEntity<IncidentCode[]> incidentCode = restTemplate.getForEntity(url, IncidentCode[].class);
             codes = incidentCode.getBody();
-            Log.v(TAG, "codeSinistreClient : "+incidentCode.getStatusCode().toString());
+            Log.v(TAG, "codeSinistreClient : " + incidentCode.getStatusCode().toString());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -112,7 +113,7 @@ public class SpringService {
         try {
             ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, intervention, Intervention.class);
             inter = interventionResult.getBody();
-            Log.v(TAG, "postIntervention : "+interventionResult.getStatusCode().toString());
+            Log.v(TAG, "postIntervention : " + interventionResult.getStatusCode().toString());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
@@ -225,14 +226,14 @@ public class SpringService {
      * Gets all the resource types
      * @return A list of resource types
      */
-    public ResourceType[] resourceTypes() {
+    public ResourceType[] getResourceTypes() {
         final String url = URL + "resource";
         ResourceType[] resourceTypes = null;
 
         try {
             ResponseEntity<ResourceType[]> resourceTypesEntity = restTemplate.getForEntity(url, ResourceType[].class);
             resourceTypes = resourceTypesEntity.getBody();
-            Log.v(TAG, "resourceTypes StatusCode : " + resourceTypesEntity.getStatusCode().toString());
+            Log.v(TAG, "getResourceTypes StatusCode : " + resourceTypesEntity.getStatusCode().toString());
         } catch (HttpServerErrorException e) {
             Log.e(TAG, e.getMessage());
         } catch (Throwable e) {
@@ -249,7 +250,7 @@ public class SpringService {
      */
     public Intervention requestVehicle(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1];
-        Log.v(TAG, "requestVehicle : "+url);
+        Log.v(TAG, "requestVehicle : " + url);
         Intervention intervention = null;
 
         try {
@@ -281,7 +282,7 @@ public class SpringService {
         } catch (Throwable e) {
             Log.e(TAG, "failed to get interventions", e);
         }
-        return null;
+        return new ResponseEntity<Intervention[]>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -321,7 +322,7 @@ public class SpringService {
         try {
             ResponseEntity<Intervention> interventionEntity = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
             intervention = interventionEntity.getBody();
-            Log.v(TAG, "changeResourceState : "+interventionEntity.getStatusCode().toString());
+            Log.v(TAG, "changeResourceState : " + interventionEntity.getStatusCode().toString());
             Log.v("SpringService", interventionEntity.getBody().getName());
         } catch (HttpServerErrorException e) {
             Log.e(TAG, e.getMessage());
@@ -345,7 +346,7 @@ public class SpringService {
         try {
             ResponseEntity<StaticData[]> entity = restTemplate.getForEntity(url, StaticData[].class);
             datas = entity.getBody();
-            Log.v(TAG, "getAllStaticDatas : "+entity.getStatusCode());
+            Log.v(TAG, "getAllStaticDatas : " + entity.getStatusCode());
         } catch (HttpServerErrorException e) {
             Log.v(TAG, "getAllStaticDatas : " + e.getMessage());
         } catch (ResourceAccessException e) {
