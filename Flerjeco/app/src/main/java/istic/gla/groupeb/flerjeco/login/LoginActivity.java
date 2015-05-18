@@ -65,8 +65,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
         refresh();
     }
 
-
-
     @Override
     public void refresh() {
         // Set up the login form.
