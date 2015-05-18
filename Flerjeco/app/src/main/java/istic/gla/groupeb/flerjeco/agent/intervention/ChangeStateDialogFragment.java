@@ -1,25 +1,17 @@
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 
-import entity.Intervention;
 import entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
-import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 import util.ResourceRole;
 import util.State;
 
@@ -35,7 +27,8 @@ public class ChangeStateDialogFragment extends DialogFragment {
     private ResourceRole role;
 
     //fields
-    Button validateButton;
+    //Button validateButton;
+    CheckBox validatecheckBox;
     Button freeButton;
     Button changeRoleButton;
 
@@ -47,15 +40,19 @@ public class ChangeStateDialogFragment extends DialogFragment {
 
         resource = (Resource)getArguments().getSerializable("resource");
 
+        validatecheckBox = (CheckBox) v.findViewById(R.id.validateCheckBox);
         changeRoleButton = (Button) v.findViewById(R.id.buton_change_role);
         changeRoleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeResourceRole(role);
+                if(validatecheckBox != null) {
+                    changeResourceRoleAndActivation(role);
+                }
             }
         });
 
         //init fields
+/*
         validateButton = (Button) v.findViewById(R.id.validateButton);
         validateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,6 +60,8 @@ public class ChangeStateDialogFragment extends DialogFragment {
                 validateResource();
             }
         });
+*/
+
         freeButton = (Button) v.findViewById(R.id.freeButton);
         freeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,7 +118,10 @@ public class ChangeStateDialogFragment extends DialogFragment {
         dismiss();
     }
 
-    public void changeResourceRole(ResourceRole role){
+    public void changeResourceRoleAndActivation(ResourceRole role){
+        if(validatecheckBox.isChecked()){
+            validateResource();
+        }
         resource.setResourceRole(role);
         ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
         dismiss();
