@@ -113,7 +113,7 @@ public class MapListInterventionsFragment extends Fragment {
                 @Override
                 public void onCameraChange(CameraPosition arg0) {
                     // Move camera.
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 16));
                     // Remove listener to prevent position reset on camera move.
                     googleMap.setOnCameraChangeListener(null);
                 }

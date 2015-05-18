@@ -69,6 +69,9 @@ public class UpdatePathsForInterventionTask extends AsyncTask<Intervention, Void
             }
         } else {
             Log.w(TAG, "got null response");
+            Toast.makeText(fragment.getActivity().getApplicationContext(),
+                    fragment.getActivity().getResources().getString(R.string.drone_update_path_error_generic),
+                    Toast.LENGTH_LONG).show();
         }
 
         if(revert){

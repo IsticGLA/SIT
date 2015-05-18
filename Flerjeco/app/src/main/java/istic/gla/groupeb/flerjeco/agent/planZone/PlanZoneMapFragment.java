@@ -1,5 +1,6 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
+import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -231,6 +232,9 @@ public class PlanZoneMapFragment extends Fragment {
      * Send the new path to the server
      */
     public void sendPath(){
+        ProgressDialog progressDialog;
+        progressDialog = ProgressDialog.show(getActivity().getApplicationContext(), "dialog title",
+                "dialog message", true);
         // remove Click listener
         resetMapListener();
         inter = ((PlanZoneActivity)getActivity()).getIntervention();
@@ -247,6 +251,7 @@ public class PlanZoneMapFragment extends Fragment {
             inter.getWatchPath().add(newPath);
             new UpdatePathsForInterventionTask(this, EPathOperation.CREATE).execute(inter);
         }
+        progressDialog.dismiss();
     }
 
     /**
