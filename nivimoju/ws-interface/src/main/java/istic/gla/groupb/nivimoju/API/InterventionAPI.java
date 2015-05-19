@@ -194,6 +194,8 @@ public class InterventionAPI {
                     .build();
         }
 
+        InterventionContainer.getInstance().updateIntervention(intervention);
+
         //request or free drones
         int neededDroneNumber = intervention.getWatchPath().size() + intervention.getWatchArea().size();
         int currentlyAssignedDroneNumber =
