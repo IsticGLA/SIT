@@ -29,7 +29,6 @@ class Drone:
         self.take_picture = False
         self.currentIndex = 0
         self.pose_sub = rospy.Subscriber(label+"/pose", PoseStamped, self.pose_callback)
-        self.camera_sub = rospy.Subscriber(label+"/camera/image", Image, self.picture_callback)
         self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=10, latch=False)
 
     def pose_callback(self, pose_stamped):
@@ -51,10 +50,9 @@ class Drone:
                     logging.info("robot " + self.label + " will stay there")
 
     def picture_callback(self, data):
-        if(self.take_picture):
-            logging.info("taking picture")
-            cv_image = self.convert_image(data)
-            self.take_picture = False
+        logging.info("taking picture")
+        self.camera_sub.unsubscribe()
+        #cv_image = self.convert_image(data)
 
     def convert_image(self, ros_image):
         #### direct conversion to CV2 ####
@@ -124,7 +122,7 @@ class Drone:
         self.__init__(self.label, self.dest_tolerance_squared)
 
     def take_picture(self):
-        self.take_picture = True
+        self.camera_sub = rospy.Subscriber(label+"/camera/image", Image, self.picture_callback, queue_size=1)
 
 
 class Controller:
