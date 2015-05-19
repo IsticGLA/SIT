@@ -38,7 +38,7 @@ public class DronePositionRefresherJob implements Job{
                     Position dronePosition = DroneEngine.converter.getLatLong(local);
                     container.updateDrone(label, dronePosition);
                 } else {
-                    logger.error("got no drone position from flask");
+                    logger.trace("got no drone position from flask for drone " + info.getLabel());
                 }
             }
         }
