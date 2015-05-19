@@ -43,6 +43,7 @@ import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.IResourceTypeLabelsActivity;
 import istic.gla.groupeb.flerjeco.springRest.InterventionPostTask;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
+import util.ResourceRole;
 import util.State;
 
 /**
@@ -309,6 +310,18 @@ public class InterventionDialogFragment extends DialogFragment
         return null;
     }
 
+    public ResourceRole roleByName(String name) {
+        if(name.contains("VSAV") || name.contains("VSR")) {
+            return ResourceRole.people;
+        } else if(name.contains("FPT") || name.contains("EPA")){
+            return ResourceRole.fire;
+        } else if (name.contains("VLCG")) {
+            return ResourceRole.commands;
+        } else {
+            return ResourceRole.otherwise;
+        }
+    }
+
     public List<Resource> convertResourcesTypeToResources(ResourceType[] resourcesType){
         List<Resource> resourcesResult= new ArrayList<>();
 
@@ -316,6 +329,7 @@ public class InterventionDialogFragment extends DialogFragment
             if(rt != null) {
                 Resource rs = new Resource();
                 rs.setLabel(rt.getLabel());
+                rs.setResourceRole(roleByName(rt.getLabel()));
                 rs.setState(State.validated);
                 resourcesResult.add(rs);
             }

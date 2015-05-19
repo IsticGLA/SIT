@@ -1,6 +1,7 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
 import android.app.ActionBar;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -31,7 +32,7 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     // save of the edition mode
     private boolean editionMode = false;
 
-
+    private ProgressDialog progressDialog;
 
 
     @Override
@@ -293,6 +294,20 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
         checkBox.setChecked(b);
+    }
+
+    public void showProgress(boolean isProgress) {
+        Log.i(TAG, "showProgress start");
+        if(progressDialog == null) {
+            Log.i(TAG, "progressDialog null");
+            progressDialog = new ProgressDialog(PlanZoneActivity.this);
+            progressDialog.setTitle("Chargement");
+        }
+        if(isProgress) {
+            progressDialog.show();
+        } else {
+            progressDialog.dismiss();
+        }
     }
 
     /**

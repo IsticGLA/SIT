@@ -181,7 +181,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 }
             }
 
-            if(!isPositionResource && initMap) {
+            if(!isPositionResource && !initMap) {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
 
@@ -194,7 +194,11 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                     @Override
                     public void onCameraChange(CameraPosition arg0) {
                         // Move camera.
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                        try {
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                        } catch (IllegalStateException e) {
+                            Log.e(TAG, "Error: no included points for camera update");
+                        }
                         // Remove listener to prevent position reset on camera move.
                         googleMap.setOnCameraChangeListener(null);
                     }
@@ -220,14 +224,18 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
                 @Override
                 public void onMarkerDrag(Marker marker) {
-                    Resource resource = resourcesMap.get(marker.getTitle());
-                    if (resource != null) {
-                        resource.setState(State.planned);
-                    }
+                    
                 }
 
                 @Override
                 public void onMarkerDragEnd(Marker marker) {
+                    /*Resource resource = resourcesMap.get(marker.getTitle());
+                    if (resource != null) {
+                        resource.setState(State.planned);
+                        if (null != getActivity()) {
+                            ((AgentInterventionActivity) getActivity()).resourceUpdated(resource);
+                        }
+                    }*/
                     /*String title = marker.getTitle();
                     LatLng latLng = marker.getPosition();
                     Resource resource = resourcesMap.get(title);
@@ -296,18 +304,6 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         }
     }
 
-    public ResourceRole roleByName(String name) {
-        if(name.contains("VSAV") || name.contains("VSR")) {
-            return ResourceRole.people;
-        } else if(name.contains("FPT") || name.contains("EPA")){
-            return ResourceRole.fire;
-        } else if (name.contains("VLCG")) {
-            return ResourceRole.commands;
-        } else {
-            return ResourceRole.otherwise;
-        }
-    }
-
     public void drawMarker(MarkerOptions markerOptions, Resource resource){
         ResourceCategory category = resource.getResourceCategory();
         Bitmap mBitmap = null;
@@ -315,7 +311,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
             switch (category){
                 case vehicule:
                     String name = resource.getLabel();
-                    ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : roleByName(name);
+                    ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
                     Vehicle mVehicle = new Vehicle(name, role, resource.getState());
                     int width = mVehicle.getRect().width();
                     int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;

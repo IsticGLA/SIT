@@ -39,6 +39,7 @@ public class MapListInterventionsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // inflat and return the layout
         View v = inflater.inflate(R.layout.map_view, container,
                 false);
@@ -84,7 +85,7 @@ public class MapListInterventionsFragment extends Fragment {
             Intervention intervention = interventionTab[position];
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
-            //googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             mCurrentPosition = position;
         } else {
             Log.e(TAG, "Error: position is out of list of interventions");

@@ -150,7 +150,6 @@ public class AgentInterventionActivity extends FragmentActivity
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
 
-
         if (mapFragment != null) {
             //save the current position
             mCurrentPosition = position;
