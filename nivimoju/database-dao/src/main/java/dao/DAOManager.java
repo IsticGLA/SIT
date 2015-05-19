@@ -6,6 +6,8 @@ import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.error.FlushDisabledException;
 import util.Configuration;
 
+import java.util.NoSuchElementException;
+
 /**
  * Created by jeremy on 09/04/15.
  */
@@ -41,11 +43,15 @@ public class DAOManager {
     }
 
     public static void disconnect() {
-        if(currentCluster != null)
-        {
-            if (currentBucket != null && currentBucket.close()){
-                currentBucket = null;
+        try {
+            if (currentCluster != null) {
+                if (currentBucket != null && currentBucket.close()) {
+                    currentBucket = null;
+                }
             }
+        }
+        catch (NoSuchElementException ex) {
+
         }
     }
 

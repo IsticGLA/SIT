@@ -70,7 +70,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             return maxTimestamp;
         } catch (BucketClosedException e) {
             connect();
-            getNewerLastUpdate();
         }
         return null;
     }
@@ -85,7 +84,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             return this.getById(id).getLastUpdate();
         } catch (BucketClosedException e) {
             connect();
-            getLastUpdate(id);
         }
         return null;
     }
@@ -99,7 +97,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             return false;
         } catch (BucketClosedException ex) {
             connect();
-            checkLastUpdate(e);
         }
         return false;
     }
@@ -121,8 +118,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         } catch (DocumentAlreadyExistsException ex) {
             return null;
         } catch (BucketClosedException ex) {
-        connect();
-        create(e);
+            connect();
         }
         return null;
     }
@@ -139,7 +135,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             return -1;
         } catch (BucketClosedException ex) {
             connect();
-            delete(e);
         }
         return -1;
     }
@@ -158,7 +153,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             return null;
         } catch (BucketClosedException ex) {
             connect();
-            update(e);
         }
         return null;
     }
@@ -175,7 +169,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             return viewRowsToEntities(result);
         } catch (BucketClosedException ex) {
             connect();
-            getAll();
         }
         return null;
     }
@@ -198,7 +191,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             return null;
         } catch (BucketClosedException ex) {
             connect();
-            getById(id);
         }
         return null;
     }
@@ -221,7 +213,6 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             return viewRowsToEntities(result);
         } catch (BucketClosedException ex) {
             connect();
-            getBy(key, value);
         }
         return null;
     }
