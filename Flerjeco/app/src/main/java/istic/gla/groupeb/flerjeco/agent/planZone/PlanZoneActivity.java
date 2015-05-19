@@ -297,8 +297,12 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     }
 
     public void showProgress(boolean isProgress) {
-        if(progressDialog == null)
+        Log.i(TAG, "showProgress start");
+        if(progressDialog == null) {
+            Log.i(TAG, "progressDialog null");
             progressDialog = new ProgressDialog(PlanZoneActivity.this);
+            progressDialog.setTitle("Chargement");
+        }
         if(isProgress) {
             progressDialog.show();
         } else {
