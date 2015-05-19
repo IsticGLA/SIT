@@ -132,10 +132,10 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            /*mAuthTask = new UserLoginTask(this, login, password);
-            mAuthTask.execute((Void) null);*/
+            mAuthTask = new UserLoginTask(this, login, password);
+            mAuthTask.execute((Void) null);
 
-            new GetAllInterventionsTask(LoginActivity.this).execute();
+            //new GetAllInterventionsTask(LoginActivity.this).execute();
 
             isCodis = ((CheckBox) findViewById(R.id.checkBox_codis)).isChecked();
             Log.i(TAG, "isCodis: " + isCodis);

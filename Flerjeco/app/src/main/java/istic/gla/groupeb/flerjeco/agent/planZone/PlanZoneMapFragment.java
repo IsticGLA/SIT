@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,7 +61,7 @@ public class PlanZoneMapFragment extends Fragment {
     // all variables for the Google Map
     MapView mMapView;
     private GoogleMap googleMap;
-    private List<Polyline> polylines;
+    private List<Pair<Polyline, Marker>> polylines;
     private List<Marker> markers;
     private Map<String, Marker> dronesMarkers;
 
@@ -396,30 +397,31 @@ public class PlanZoneMapFragment extends Fragment {
      * @param last last point of the polyline to draw
      */
     public void drawLine(LatLng first, LatLng last){
-        float rotationDegrees = (float) Math.toDegrees(Math.atan2(Math.toRadians(first.latitude)-Math.toRadians(last.latitude), first.longitude-last.longitude));
         // First you need rotate the bitmap of the arrowhead somewhere in your code
-        Matrix matrix = new Matrix();
-        matrix.postRotate(rotationDegrees);
+        float rotationDegrees = (float) angleFromCoordinate(last.latitude, last.longitude, first.latitude, first.longitude);
+
         // Create the rotated arrowhead bitmap
         Bitmap arrow = BitmapFactory.decodeResource(getResources(), R.drawable.arrow);
-
-        Bitmap arrowheadBitmap = Bitmap.createBitmap(arrow, 0, 0,
-                arrow.getWidth(), arrow.getHeight(), matrix, true);
-        BitmapDescriptor bitmapDescriptorFactory = BitmapDescriptorFactory.fromBitmap(arrowheadBitmap);
+        BitmapDescriptor bitmapDescriptorFactory = BitmapDescriptorFactory.fromBitmap(arrow);
         // Get the middle position
         LatLng middlePos = midPoint(first.latitude, first.longitude, last.latitude, last.longitude);
         // Now we are gonna to add a marker
         Marker mArrowhead = googleMap.addMarker(new MarkerOptions()
                 .position(middlePos)
+                .flat(true)
+                .anchor(0.5f, 0.5f)
+                .rotation(rotationDegrees)
                 .icon(bitmapDescriptorFactory));
 
         Polyline line = googleMap.addPolyline((new PolylineOptions())
                 .add(first, last).width(3).color(Color.parseColor("#9b24a6"))
                 .geodesic(true));
-        polylines.add(line);
+
+        polylines.add(new Pair<Polyline, Marker>(line, mArrowhead));
     }
 
-    public LatLng midPoint(double lat1,double lon1,double lat2,double lon2){
+    // Get middle point between two coordinates
+    private LatLng midPoint(double lat1,double lon1,double lat2,double lon2){
 
         double dLon = Math.toRadians(lon2 - lon1);
 
@@ -440,6 +442,24 @@ public class PlanZoneMapFragment extends Fragment {
         return new LatLng(Math.toDegrees(lat3), Math.toDegrees(lon3));
     }
 
+    // get angle between two coordinates
+    private double angleFromCoordinate(double lat1, double long1, double lat2, double long2) {
+
+        double dLon = (long2 - long1);
+
+        double y = Math.sin(dLon) * Math.cos(lat2);
+        double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1)
+                * Math.cos(lat2) * Math.cos(dLon);
+
+        double brng = Math.atan2(y, x);
+
+        brng = Math.toDegrees(brng);
+        brng = (brng + 360) % 360;
+        brng = 360 - brng;
+
+        return brng;
+    }
+
     /**
      * Remove the polyline on the Google Map
      * @param i indice of the polyline to remove in the polylines list
@@ -447,7 +467,8 @@ public class PlanZoneMapFragment extends Fragment {
     public void removeLine(int i){
         Log.i(TAG, "Remove the polyline at the " + i + " position");
         if (polylines.size() > 0) {
-            polylines.get(i).remove();
+            polylines.get(i).first.remove();
+            polylines.get(i).second.remove();
             polylines.remove(i);
         }
     }
@@ -490,10 +511,11 @@ public class PlanZoneMapFragment extends Fragment {
                 labels.add(drone.getLabel());
                 if(dronesMarkers.containsKey(drone.getLabel())){
                     //animate existing marker
-                    animateMarker(dronesMarkers.get(drone.getLabel()),
+                    /**animateMarker(dronesMarkers.get(drone.getLabel()),
                             new LatLng(drone.getLatitude(), drone.getLongitude()),
                             false, duration
-                    );
+                    );*/
+                    dronesMarkers.get(drone.getLabel()).setPosition(new LatLng(drone.getLatitude(), drone.getLongitude()));
                 } else{
                     //create a new marker
                     Marker m = googleMap.addMarker(new MarkerOptions()
