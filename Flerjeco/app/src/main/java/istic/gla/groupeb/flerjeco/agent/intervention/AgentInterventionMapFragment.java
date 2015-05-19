@@ -296,18 +296,6 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         }
     }
 
-    public ResourceRole roleByName(String name) {
-        if(name.contains("VSAV") || name.contains("VSR")) {
-            return ResourceRole.people;
-        } else if(name.contains("FPT") || name.contains("EPA")){
-            return ResourceRole.fire;
-        } else if (name.contains("VLCG")) {
-            return ResourceRole.commands;
-        } else {
-            return ResourceRole.otherwise;
-        }
-    }
-
     public void drawMarker(MarkerOptions markerOptions, Resource resource){
         ResourceCategory category = resource.getResourceCategory();
         Bitmap mBitmap = null;
@@ -315,7 +303,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
             switch (category){
                 case vehicule:
                     String name = resource.getLabel();
-                    ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : roleByName(name);
+                    ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
                     Vehicle mVehicle = new Vehicle(name, role, resource.getState());
                     int width = mVehicle.getRect().width();
                     int height = mVehicle.getRect().height()+mVehicle.getRect2().height()+10;
