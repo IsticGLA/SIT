@@ -181,7 +181,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 }
             }
 
-            if(!isPositionResource && initMap) {
+            if(!isPositionResource && !initMap) {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
 
