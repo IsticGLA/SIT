@@ -38,6 +38,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import entity.Intervention;
@@ -51,6 +52,8 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import util.ResourceCategory;
+import util.ResourceRole;
 import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
@@ -85,7 +88,7 @@ public class AgentInterventionActivity extends FragmentActivity
             intervention = (Intervention) extras.getSerializable("intervention");
         }
 
-        /*List<Resource> resourceList = new ArrayList<>();
+        List<Resource> resourceList = new ArrayList<>();
         resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource1", State.validated, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
         resourceList.add(new Resource("Resource2", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
@@ -96,7 +99,7 @@ public class AgentInterventionActivity extends FragmentActivity
         resourceList.add(new Resource("Resource7", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource8", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        intervention.setResources(resourceList);*/
+        intervention.setResources(resourceList);
 
         setContentView(R.layout.activity_intervention_agent);
 
@@ -148,7 +151,6 @@ public class AgentInterventionActivity extends FragmentActivity
 
         mapFragment = (AgentInterventionMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-
 
 
         if (mapFragment != null) {

@@ -39,6 +39,7 @@ public class GetAllInterventionsTask extends AsyncTask<Void, Void, ResponseEntit
             case OK:
                 if(response.getBody() != null){
                     Log.v(TAG, "got interventions : " + response.getBody().length);
+                    Log.d(TAG, response.getBody().toString());
                     activity.updateInterventions(response.getBody());
                 } else{
                     Log.v(TAG, "got 0 interventions ");
