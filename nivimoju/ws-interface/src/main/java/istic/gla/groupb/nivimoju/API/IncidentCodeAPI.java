@@ -1,7 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
-import dao.IncidentCodeDAO;
-import entity.IncidentCode;
+import istic.gla.groupb.nivimoju.dao.IncidentCodeDAO;
+import istic.gla.groupb.nivimoju.entity.IncidentCode;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

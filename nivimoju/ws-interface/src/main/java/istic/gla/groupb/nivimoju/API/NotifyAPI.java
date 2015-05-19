@@ -1,7 +1,6 @@
 package istic.gla.groupb.nivimoju.API;
 
-import container.InterventionContainer;
-import dao.InterventionDAO;
+import istic.gla.groupb.nivimoju.container.InterventionContainer;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
