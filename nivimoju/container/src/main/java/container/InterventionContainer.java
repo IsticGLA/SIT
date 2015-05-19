@@ -6,6 +6,7 @@ import entity.Resource;
 import org.apache.log4j.Logger;
 import util.State;
 
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -173,5 +174,34 @@ public class InterventionContainer {
         }
 
         return intervention;
+    }
+
+    /**
+     * return the LastUpdate from the container
+     * @param id
+     * @return
+     */
+    public Timestamp getLastUpdate(long id) {
+        Intervention intervention = getInterventionById(id);
+        if(intervention != null) {
+            return intervention.getLastUpdate();
+        }
+        return null;
+    }
+
+    /**
+     * return the Newer LastUpdate from a type in the database
+     * @return
+     */
+    public Timestamp getNewerLastUpdate() {
+        Timestamp maxTimestamp = new Timestamp(0);
+        Timestamp timestamp = null;
+        for(Intervention inter : getInterventions()) {
+            timestamp= inter.getLastUpdate();
+            if(maxTimestamp.before(timestamp)) {
+                maxTimestamp = timestamp;
+            }
+        }
+        return maxTimestamp;
     }
 }

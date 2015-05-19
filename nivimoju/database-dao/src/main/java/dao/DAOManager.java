@@ -1,5 +1,6 @@
 package dao;
 
+import com.couchbase.client.core.CouchbaseException;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
@@ -7,6 +8,7 @@ import com.couchbase.client.java.error.FlushDisabledException;
 import util.Configuration;
 
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by jeremy on 09/04/15.
@@ -29,29 +31,43 @@ public class DAOManager {
     protected static Bucket currentBucket;
 
     public static void connect(){
-        if (currentCluster != null && currentBucket==null) {
+        try {
+            if (currentCluster != null && currentBucket==null) {
+                // Open a bucket
+                currentBucket = currentCluster.openBucket(Configuration.BUCKET_NAME);
+            }
+        } catch (CouchbaseException ex) {
+            currentCluster.disconnect();
+            currentCluster = CouchbaseCluster.create(Configuration.COUCHBASE_HOSTNAME);
             // Open a bucket
-            currentBucket = currentCluster.openBucket(Configuration.BUCKET_NAME);
+            currentBucket = null;
         }
     }
 
     public static void connectTest(){
-        if (currentCluster != null && currentBucket==null) {
+        try {
+            if (currentCluster != null && currentBucket==null) {
+                // Open a bucket
+                currentBucket = currentCluster.openBucket(Configuration.BUCKET_NAME_TEST);
+            }
+        } catch (CouchbaseException ex) {
+            currentCluster.disconnect();
+            currentCluster = CouchbaseCluster.create(Configuration.COUCHBASE_HOSTNAME);
             // Open a bucket
-            currentBucket = currentCluster.openBucket(Configuration.BUCKET_NAME_TEST);
+            currentBucket = null;
         }
     }
 
     public static void disconnect() {
         try {
             if (currentCluster != null) {
-                if (currentBucket != null && currentBucket.close()) {
+                if (currentBucket != null && currentBucket.close(2, TimeUnit.SECONDS)) {
                     currentBucket = null;
                 }
             }
         }
         catch (NoSuchElementException ex) {
-
+            currentBucket = null;
         }
     }
 

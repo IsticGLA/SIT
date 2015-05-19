@@ -1,5 +1,6 @@
 package istic.gla.groupb.nivimoju.API;
 
+import container.InterventionContainer;
 import dao.InterventionDAO;
 
 import javax.ws.rs.*;
@@ -26,11 +27,9 @@ public class NotifyAPI {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response notifyIntervention(@PathParam("idIntervention") long idIntervention, Timestamp timestamp) {
-        InterventionDAO interventionDAO = new InterventionDAO();
-        interventionDAO.connect();
-        Timestamp databaseLastUpdate = interventionDAO.getLastUpdate(idIntervention);
-        interventionDAO.disconnect();
-        if (databaseLastUpdate.after(timestamp)) {
+        Timestamp databaseLastUpdate = InterventionContainer.getInstance().getLastUpdate(idIntervention);
+
+        if (databaseLastUpdate != null && databaseLastUpdate.after(timestamp)) {
             // Content Different client / server
             return Response.status(201).entity(databaseLastUpdate).build();
         } else {
@@ -47,10 +46,7 @@ public class NotifyAPI {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response notifyAllIntervention(Timestamp timestamp) {
-        InterventionDAO interventionDAO = new InterventionDAO();
-        interventionDAO.connect();
-        Timestamp databaseLastUpdate = interventionDAO.getNewerLastUpdate();
-        interventionDAO.disconnect();
+        Timestamp databaseLastUpdate = InterventionContainer.getInstance().getNewerLastUpdate();
         if (databaseLastUpdate.after(timestamp)) {
             // Content Different client / server
             return Response.status(201).entity(databaseLastUpdate).build();
