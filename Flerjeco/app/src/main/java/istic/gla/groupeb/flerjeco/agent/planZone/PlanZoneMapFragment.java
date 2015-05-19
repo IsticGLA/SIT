@@ -200,7 +200,7 @@ public class PlanZoneMapFragment extends Fragment {
                     LatLng previousLatLng = new LatLng(positions.get(i-1).getLatitude(), positions.get(i-1).getLongitude());
                     drawLine(latLng, previousLatLng);
                 // else if it the path is closed, draw line between first and last point
-                } if (i == positions.size()-1 && pathList.get(position).isClosed()){
+                } if (i == positions.size()-1 && pathList.get(position).isClosed() && positions.size() > 2){
                     LatLng firstLatLng = new LatLng(positions.get(0).getLatitude(), positions.get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
                 }
