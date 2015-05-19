@@ -5,6 +5,9 @@ import istic.gla.groupb.nivimoju.util.ResourceCategory;
 import istic.gla.groupb.nivimoju.util.State;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.HashMap;
 
 /**
  * Created by jeremy on 08/04/15.
@@ -18,6 +21,7 @@ public class Resource implements Serializable {
     private ResourceCategory resourceCategory;
     private double latitude;
     private double longitude;
+    private HashMap<State, Timestamp> statesHistory;
 
     /**
      * Build a Resource
@@ -39,6 +43,8 @@ public class Resource implements Serializable {
         super();
         this.label = label;
         this.state = state;
+        statesHistory = new HashMap<>();
+        statesHistory.put(state, new Timestamp(Calendar.getInstance().getTime().getTime()));
         this.resourceRole = ResourceRole.otherwise;
         this.resourceCategory = ResourceCategory.vehicule;
         this.latitude = latitude;
@@ -58,6 +64,8 @@ public class Resource implements Serializable {
         super();
         this.label = label;
         this.state = state;
+        statesHistory = new HashMap<>();
+        statesHistory.put(state, new Timestamp(Calendar.getInstance().getTime().getTime()));
         this.resourceRole = resourceRole;
         this.resourceCategory = resourceCategory;
         this.latitude = latitude;
@@ -74,6 +82,8 @@ public class Resource implements Serializable {
         this.idRes = id;
         this.label = label;
         this.state = state;
+        statesHistory = new HashMap<>();
+        statesHistory.put(state, new Timestamp(Calendar.getInstance().getTime().getTime()));
         this.resourceRole = ResourceRole.otherwise;
         this.resourceCategory = ResourceCategory.vehicule;
     }
@@ -100,6 +110,11 @@ public class Resource implements Serializable {
 
     public void setState(State state) {
         this.state = state;
+        statesHistory.put(state, new Timestamp(Calendar.getInstance().getTime().getTime()));
+    }
+
+    public Timestamp getStateDate(State state) {
+        return statesHistory.get(state);
     }
 
     public double getLatitude() {
