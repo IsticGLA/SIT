@@ -12,7 +12,7 @@ public class Image extends AbstractEntity {
     private double width;
     private double heigth;
     private Timestamp timestamp;
-    private Position position;
+    private double[] position;
     private byte[] image;
 
     public Image(){
@@ -20,7 +20,7 @@ public class Image extends AbstractEntity {
         this.type = Constant.TYPE_IMAGE;
     }
 
-    public Image(double w, double h, Timestamp t, Position p, byte[] b){
+    public Image(double w, double h, Timestamp t, double[] p, byte[] b){
         super();
         this.type = Constant.TYPE_IMAGE;
         this.width = w;
@@ -54,11 +54,11 @@ public class Image extends AbstractEntity {
         this.timestamp = timestamp;
     }
 
-    public Position getPosition() {
+    public double[] getPosition() {
         return position;
     }
 
-    public void setPosition(Position position) {
+    public void setPosition(double[] position) {
         this.position = position;
     }
 

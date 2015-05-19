@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by jeremy on 19/05/15.
@@ -39,7 +40,8 @@ public class ImageDAOTest {
         }
         byte[] b = baos.toByteArray();
         Date date= new java.util.Date();
-        image = new Image(256.0, 256.0, new Timestamp(date.getTime()), new Position(48.63004, -1.66334), b);
+        double[] position = {49.63004, -1.66334};
+        image = new Image(256.0, 256.0, new Timestamp(date.getTime()), position, b);
         imageDAO = new ImageDAO();
         imageDAO.connect();
     }
@@ -51,12 +53,14 @@ public class ImageDAOTest {
 
     @Test
     public void createTest() {
-        //Image res = imageDAO.create(image);
+        Image res = imageDAO.create(image);
     }
 
     @Test
     public void getTest() {
-        Image res = imageDAO.getById(49l);
+        Image res = imageDAO.getById(53l);
+        logger.error(res.toString());
+        logger.error(res.getType());
         try {
             FileOutputStream fos = new FileOutputStream("src/test/resources/test.jpg");
             fos.write(res.getImage());
@@ -64,6 +68,15 @@ public class ImageDAOTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    @Test
+    public void getSpatialTest() {
+        Position first = new Position(49.6, -1.7);
+        Position last = new Position(50.0, -1.6);
+        List<Image> res = imageDAO.getSpatialImages(first, last);
+        for (Image i : res){
+            logger.info(i.getPosition()[0] + "   " + i.getPosition()[1]);
+        }
     }
 }
