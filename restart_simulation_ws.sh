@@ -1,10 +1,10 @@
 #!/bin/sh
 pkill python3
-if [ ! -f log/flask.log ]
+if [ ! -f /sit/log/flask.log ]
 then
-    mkdir log
-    touch flask.log
+    mkdir /sit/log
+    touch /sit/log/flask.log
 fi
-nohup python3 simulation/simulation.py > log/flask.log 2>&1 &
+nohup python3 simulation/simulation.py > /sit/log/flask.log 2>&1 &
 
 

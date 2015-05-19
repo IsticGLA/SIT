@@ -15,7 +15,7 @@ import cv2
 import os
 
 app = Flask(__name__)
-logging.basicConfig(filename='/sit/log/flask.log',level=logging.DEBUG)
+#logging.basicConfig(filename='/sit/log/flask.log',level=logging.DEBUG)
 
 class Drone:
     def __init__(self, label, dest_tolerance_squared):
@@ -28,8 +28,8 @@ class Drone:
         self.closed = False
         self.take_picture = False
         self.currentIndex = 0
-        self.pose_sub = rospy.Subscriber(label+"/pose", PoseStamped, self.pose_callback)
-        self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=10, latch=False)
+        self.pose_sub = None
+        self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=1, latch=True)
 
     def pose_callback(self, pose_stamped):
         assert isinstance(pose_stamped, PoseStamped)
@@ -42,17 +42,21 @@ class Drone:
             # verification de l'arrivée
             distance_squared = ex*ex + ey*ey + ez*ez
             if distance_squared < self.dest_tolerance_squared:
-                logging.info("robot " + self.label + " arrived to destination")
+                app.logger.info("robot " + self.label + " arrived to destination")
                 if len(self.path) > 1:
-                    logging.info("robot " + self.label + " will go to next waypoint")
+                    app.logger.info("robot " + self.label + " will go to next waypoint")
                     self.next_waypoint_in_path()
                 else:
-                    logging.info("robot " + self.label + " will stay there")
+                    app.logger.info("robot " + self.label + " will stay there")
+                    self.stop()
+        elif self.path is not None and len(self.path) > 0:
+            app.logger.warn("robot " + self.label + "has no destination")
 
     def picture_callback(self, data):
-        logging.info("taking picture")
+        app.logger.info("taking picture")
         self.camera_sub.unsubscribe()
-        #cv_image = self.convert_image(data)
+        self.camera_sub = None
+        cv_image = self.convert_image(data)
 
     def convert_image(self, ros_image):
         #### direct conversion to CV2 ####
@@ -61,13 +65,13 @@ class Drone:
         return image_np
 
     def set_path(self, path, closed):
-        logging.info("the path has " + str(len(path)) + " waypoints")
+        app.logger.info("the path has " + str(len(path)) + " waypoints")
         self.path = path
         self.forward = True
         self.closed = closed
         target_index = 0
         if self.dest is not None:
-            logging.info("finding the new waypoint closest to old destination")
+            app.logger.info("finding the new waypoint closest to old destination")
             current_min_distance_squared = 10000000
             for i in range(len(path)):
                 ex = self.dest["x"] - path[i]["x"]
@@ -78,33 +82,37 @@ class Drone:
                     current_min_distance_squared = distance_squared
                     target_index = i
         else:
-            logging.info("drone had no destination before, going to the start of path")
+            app.logger.info("drone had no destination before, going to the start of path")
         if len(self.path) < 1:
-            logging.warn("the path has no waypoint to go to : " + str(path))
+            app.logger.warn("the path has no waypoint to go to : " + str(path))
         else:
-            logging.info("going to waypoint number " + str(target_index))
+            app.logger.info("going to waypoint number " + str(target_index))
             self.currentIndex = target_index
             self.goto(self.path[self.currentIndex])
 
     def next_waypoint_in_path(self):
-        logging.info("setting next waypoint for robot " +
-                        self.label + "("+str(self.currentIndex+1)+"/"+str(len(self.path))+")")
-        if self.forward:
-            self.currentIndex += 1
-            if self.currentIndex >= len(self.path):
-                if self.closed:
-                    self.currentIndex = 0
-                else:
-                    self.currentIndex = len(self.path) - 1
-                    self.forward = False
+        app.logger.info("setting next waypoint for robot " +
+                        self.label + "(surrentIndex="+str(self.currentIndex)+"/pathLength="+str(len(self.path))+")")
+        if self.closed:
+            self.currentIndex = (self.currentIndex + 1) % len(self.path)
         else:
-            self.currentIndex -= 1
-            if self.currentIndex < 0:
-                self.currentIndex = 0
-                self.forward = True
-        logging.info("new waypoint " +
+            if self.forward:
+                self.currentIndex += 1
+                if self.currentIndex >= len(self.path):
+                     app.logger.info(self.label + " reached end of path, going back")
+                     self.currentIndex = (len(self.path) - 1) % len(self.path)
+                     self.forward = False
+            else:
+                self.currentIndex -= 1
+                if self.currentIndex < 0:
+                    app.logger.info(self.label + " reached start of path, going forward")
+                    self.currentIndex = 1 % len(self.path)
+                    self.forward = True
+        app.logger.info("new currentIndex set for robot " +
+                        self.label + "(surrentIndex="+str(self.currentIndex)+"/pathLength="+str(len(self.path))+")")
+        app.logger.info("new waypoint " +
                         self.label + "("+str(self.currentIndex+1)+"/"+str(len(self.path))+")")
-        logging.debug("current index " + str(self.currentIndex+1) +
+        app.logger.debug("current index " + str(self.currentIndex+1) +
                          " forward : " + str(self.forward) +
                          " current destination : " + str(self.dest))
         self.goto(self.path[self.currentIndex])
@@ -113,13 +121,18 @@ class Drone:
         x = position["x"]
         y = position["y"]
         z = position["z"]
-        logging.info("publishing waypoint to " + str(x) + ", " + str(y) + ", " + str(z))
+        app.logger.info("publishing waypoint to point" + str(x) + ", " + str(y) + ", " + str(z))
         pose = Pose(position=Point(x, y, z))
         self.waypoint_pub.publish(pose)
         self.dest = position
+        if self.pose_sub is None:
+            self.pose_sub = rospy.Subscriber(self.label+"/pose", PoseStamped, self.pose_callback)
 
     def stop(self):
         self.__init__(self.label, self.dest_tolerance_squared)
+        self.pose_sub.unsubscribe()
+        self.pose_sub = None
+        app.logger.info("drone " + self.label + " stopped")
 
     def take_picture(self):
         self.camera_sub = rospy.Subscriber(label+"/camera/image", Image, self.picture_callback, queue_size=1)
@@ -150,9 +163,9 @@ controller = Controller(5)
 @app.route('/robot/waypoint', methods=['POST'])
 def waypoint():
     global controller
-    logging.info("received a new request on /robot/waypoint")
+    app.logger.info("received a new request on /robot/waypoint")
     if not request.json or 'x' not in request.json or 'y' not in request.json or 'z' not in request.json:
-        logging.error("request is not json")
+        app.logger.error("request is not json")
         abort(400)
     try:
         x = request.json['x']
@@ -161,25 +174,25 @@ def waypoint():
         controller.set_waypoint(x, y, z)
         return jsonify({"x": x, "y": y, "z": z}), 200
     except:
-        logging.error(traceback.format_exc())
+        app.logger.error(traceback.format_exc())
         abort(400)
 
 
 @app.route('/<path:drone_label>/path', methods=['POST'])
 def set_path_for_drone(drone_label):
     global controller
-    logging.info("received a new request on "+drone_label+"/path")
+    app.logger.info("received a new request on "+drone_label+"/path")
     try:
         # Get the JSON data sent from the form
         path = request.json['positions']  # list<dict<x,y,z>>
-        logging.info("path received "+str(path))
+        app.logger.info("path received "+str(path))
         if len(path) < 1:
-            logging.warn("cannot use this path")
+            app.logger.warn("cannot use this path")
         else:
             closed = request.json['closed']
             controller.set_path(drone_label, path, closed)
     except:
-        logging.error(traceback.format_exc())
+        app.logger.error(traceback.format_exc())
         abort(400)
     return "hello", 200
 
@@ -187,7 +200,7 @@ def set_path_for_drone(drone_label):
 @app.route('/<path:drone_label>/stop', methods=['POST'])
 def stop_drone(drone_label):
     global controller
-    logging.info("received a new request on "+drone_label+"/stop")
+    app.logger.info("received a new request on "+drone_label+"/stop")
     try:
         # Get the JSON data sent from the form
         success = controller.stop(drone_label)
@@ -196,13 +209,13 @@ def stop_drone(drone_label):
         else:
             return "Drone " + str(drone_label) + "not stopped. Defined drones : " + str(controller.drones), 404
     except:
-        logging.error(traceback.format_exc())
+        app.logger.error(traceback.format_exc())
         abort(500)
 
 
 @app.route('/drones/info', methods=['GET'])
 def get_drones_info():
-    # logging.info("received a new request on /drones/info")
+    # app.logger.info("received a new request on /drones/info")
     global controller
     try:
         drones_infos = []
@@ -211,25 +224,28 @@ def get_drones_info():
             drones_infos.append(info)
         return jsonify(infos=drones_infos)
     except:
-        logging.error(traceback.format_exc())
+        app.logger.error(traceback.format_exc())
         abort(500)
 
 
 @app.route('/hello', methods=['GET'])
 def hello():
+    app.logger.info("hello")
     return "hello", 200
 
 if __name__ == '__main__':
-    #handler = RotatingFileHandler('flask.log', maxBytes=10000, backupCount=1)
-    #handler.setLevel(logging.DEBUG)
-    #formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    #handler.setFormatter(formatter)
-    #logging.addHandler(handler)
+    handler = RotatingFileHandler('/sit/log/flask.log', maxBytes=10000, backupCount=1)
+    #handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
     try:
-        logging.info("starting ros node with ROS_IP:" + os.environ['ROS_IP'])
+        app.logger.info("starting ros node with ROS_IP:" + os.environ['ROS_IP'])
         rospy.init_node("node_server")
-        logging.info("ros node started with ROS_IP:" + os.environ['ROS_IP'])
+        app.logger.info("ros node started with ROS_IP:" + os.environ['ROS_IP'])
         app.run(debug=True, host='0.0.0.0', port=5000)
-        logging.info("flask webservice started")
+        app.logger.info("flask webservice started")
     except Exception as e:
-        logging.error(traceback.format_exc())
+        app.logger.error(traceback.format_exc())
+
