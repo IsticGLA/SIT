@@ -2,7 +2,6 @@ package istic.gla.groupb.nivimoju.API;
 
 import istic.gla.groupb.nivimoju.container.DroneContainer;
 import istic.gla.groupb.nivimoju.container.InterventionContainer;
-import entity.*;
 import istic.gla.groupb.nivimoju.drone.engine.DroneEngine;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
