@@ -39,13 +39,6 @@ public class InterventionContainer {
         }
     }
 
-    public static synchronized InterventionContainer getInstance(){
-        if(instance == null){
-            instance = new InterventionContainer();
-        }
-        return instance;
-    }
-
     /**
      * charge une liste d'intervention et prepare les maps interne
      * @param interventions la liste d'interventions a charger
@@ -70,38 +63,6 @@ public class InterventionContainer {
     }
 
     /**
-     * Met un jour une intervention
-     * @param intervention update l'intervention
-     */
-    public Intervention updateIntervention(Intervention intervention){
-        Intervention interventionMap = mapInterventionById.get(intervention.getId());
-        if(interventionMap != null) {
-            mapInterventionById.put(intervention.getId(), intervention);
-        } else{
-            logger.error("We got info for intervention [" + intervention.getId() +
-                    "] but it does not seem to exist (existing ids : " + mapInterventionById.keySet() + ")");
-        }
-        return interventionMap;
-    }
-
-    /**
-     * Accede a l'ensemble des interventions
-     * @return toutes les interventions
-     */
-    public Collection<Intervention> getInterventions(){
-        return mapInterventionById.values();
-    }
-
-    /**
-     * Accede a l'ensemble des interventions
-     * @param id
-     * @return l'intervention d'id id
-     */
-    public Intervention getInterventionById(Long id){
-        return mapInterventionById.get(id);
-    }
-
-    /**
      * Accede a l'ensemble des interventions
      * @param intervention
      * @return Cree l'intervention intervention
@@ -113,6 +74,22 @@ public class InterventionContainer {
         interventionDAO.disconnect();
         mapInterventionById.put(resultat.getId(), resultat);
 
+        return intervention;
+    }
+
+    /**
+     * Met un jour une intervention
+     * @param intervention update l'intervention
+     */
+    public Intervention updateIntervention(Intervention intervention){
+        Intervention interventionMap = mapInterventionById.get(intervention.getId());
+        if(interventionMap != null) {
+            intervention.updateDate();
+            mapInterventionById.put(intervention.getId(), intervention);
+        } else{
+            logger.error("We got info for intervention [" + intervention.getId() +
+                    "] but it does not seem to exist (existing ids : " + mapInterventionById.keySet() + ")");
+        }
         return intervention;
     }
 
@@ -131,6 +108,7 @@ public class InterventionContainer {
                 break;
             }
         }
+        intervention.updateDate();
         return intervention;
     }
 
@@ -150,7 +128,7 @@ public class InterventionContainer {
         }
         id++;
         intervention.getResources().add(new Resource(id, vehicleName + id, State.waiting));
-
+        intervention.updateDate();
         return intervention;
     }
 
@@ -172,8 +150,32 @@ public class InterventionContainer {
         if (!found){
             intervention.getResources().add(vehicle);
         }
-
+        intervention.updateDate();
         return intervention;
+    }
+
+    public static synchronized InterventionContainer getInstance(){
+        if(instance == null){
+            instance = new InterventionContainer();
+        }
+        return instance;
+    }
+
+    /**
+     * Accede a l'ensemble des interventions
+     * @return toutes les interventions
+     */
+    public Collection<Intervention> getInterventions(){
+        return mapInterventionById.values();
+    }
+
+    /**
+     * Accede a l'ensemble des interventions
+     * @param id
+     * @return l'intervention d'id id
+     */
+    public Intervention getInterventionById(Long id){
+        return mapInterventionById.get(id);
     }
 
     /**
