@@ -28,7 +28,7 @@ public class InterventionAPI {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInterventions() {
         Collection<Intervention> inters = InterventionContainer.getInstance().getInterventions();
-        logger.info("intervention:" + inters);
+        logger.trace("intervention:" + inters);
         return  Response.ok(inters).build();
     }
 
