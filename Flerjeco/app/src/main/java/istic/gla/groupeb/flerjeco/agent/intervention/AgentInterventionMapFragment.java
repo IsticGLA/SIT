@@ -194,7 +194,11 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                     @Override
                     public void onCameraChange(CameraPosition arg0) {
                         // Move camera.
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                        try {
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                        } catch (IllegalStateException e) {
+                            Log.e(TAG, "Error: no included points for camera update");
+                        }
                         // Remove listener to prevent position reset on camera move.
                         googleMap.setOnCameraChangeListener(null);
                     }
@@ -220,14 +224,18 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
                 @Override
                 public void onMarkerDrag(Marker marker) {
-                    Resource resource = resourcesMap.get(marker.getTitle());
-                    if (resource != null) {
-                        resource.setState(State.planned);
-                    }
+                    
                 }
 
                 @Override
                 public void onMarkerDragEnd(Marker marker) {
+                    /*Resource resource = resourcesMap.get(marker.getTitle());
+                    if (resource != null) {
+                        resource.setState(State.planned);
+                        if (null != getActivity()) {
+                            ((AgentInterventionActivity) getActivity()).resourceUpdated(resource);
+                        }
+                    }*/
                     /*String title = marker.getTitle();
                     LatLng latLng = marker.getPosition();
                     Resource resource = resourcesMap.get(title);
