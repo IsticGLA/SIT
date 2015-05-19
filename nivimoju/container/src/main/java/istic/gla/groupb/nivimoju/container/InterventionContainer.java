@@ -18,7 +18,7 @@ public class InterventionContainer {
     Logger logger = Logger.getLogger(InterventionContainer.class);
     private static InterventionContainer instance;
 
-    //the main container, used for read and write operations on drones
+    //the main container, used for read and write operations on interventions
     private Map<Long, Intervention> mapInterventionById;
 
     /**
@@ -33,9 +33,9 @@ public class InterventionContainer {
         interventionDAO.disconnect();
         if(interventions != null && interventions.size() > 0) {
             logger.info("got " + interventions.size() + " interventions from database");
-            loadDrones(interventions);
+            loadInterventions(interventions);
         } else{
-            logger.error("failed to load drones");
+            logger.error("failed to load interventions");
         }
     }
 
@@ -50,7 +50,7 @@ public class InterventionContainer {
      * charge une liste d'intervention et prepare les maps interne
      * @param interventions la liste d'interventions a charger
      **/
-    protected void loadDrones(List<Intervention> interventions){
+    protected void loadInterventions(List<Intervention> interventions){
         logger.info("loading interventions internally");
         mapInterventionById.clear();
         for(Intervention intervention : interventions) {
@@ -58,7 +58,7 @@ public class InterventionContainer {
             //update des listes interne
             mapInterventionById.put(intervention.getId(), intervention);
         }
-        logger.info("loaded " + mapInterventionById.size() + " drones : " + mapInterventionById.keySet());
+        logger.info("loaded " + mapInterventionById.size() + " interventions : " + mapInterventionById.keySet());
     }
 
     protected Map<Long, Intervention> getMapInterventionById(){
