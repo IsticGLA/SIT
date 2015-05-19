@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import entity.IncidentCode;
+import istic.gla.groupb.nivimoju.entity.IncidentCode;
 import istic.gla.groupeb.flerjeco.R;
 
 /**

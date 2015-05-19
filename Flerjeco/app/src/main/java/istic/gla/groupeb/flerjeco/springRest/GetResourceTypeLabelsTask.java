@@ -6,7 +6,7 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import entity.ResourceType;
+import istic.gla.groupb.nivimoju.entity.ResourceType;
 import istic.gla.groupeb.flerjeco.R;
 
 /**

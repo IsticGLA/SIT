@@ -40,8 +40,8 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
-import entity.Intervention;
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
@@ -51,7 +51,7 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
-import util.State;
+import istic.gla.groupb.nivimoju.util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
         implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool, IInterventionActivity {

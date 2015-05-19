@@ -30,7 +30,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 
 public class InterventionsNamesFragment extends Fragment {

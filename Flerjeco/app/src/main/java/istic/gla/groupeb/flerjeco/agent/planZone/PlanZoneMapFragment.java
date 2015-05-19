@@ -1,12 +1,16 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +22,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.Projection;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -36,10 +41,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import entity.Drone;
-import entity.Intervention;
-import entity.Path;
-import entity.Position;
+import istic.gla.groupb.nivimoju.entity.Drone;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Path;
+import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynchDrone;
@@ -56,7 +61,7 @@ public class PlanZoneMapFragment extends Fragment {
     // all variables for the Google Map
     MapView mMapView;
     private GoogleMap googleMap;
-    private List<Polyline> polylines;
+    private List<Pair<Polyline, Marker>> polylines;
     private List<Marker> markers;
     private Map<String, Marker> dronesMarkers;
 
@@ -392,10 +397,67 @@ public class PlanZoneMapFragment extends Fragment {
      * @param last last point of the polyline to draw
      */
     public void drawLine(LatLng first, LatLng last){
+        // First you need rotate the bitmap of the arrowhead somewhere in your code
+        float rotationDegrees = (float) angleFromCoordinate(last.latitude, last.longitude, first.latitude, first.longitude);
+
+        // Create the rotated arrowhead bitmap
+        Bitmap arrow = BitmapFactory.decodeResource(getResources(), R.drawable.arrow);
+        BitmapDescriptor bitmapDescriptorFactory = BitmapDescriptorFactory.fromBitmap(arrow);
+        // Get the middle position
+        LatLng middlePos = midPoint(first.latitude, first.longitude, last.latitude, last.longitude);
+        // Now we are gonna to add a marker
+        Marker mArrowhead = googleMap.addMarker(new MarkerOptions()
+                .position(middlePos)
+                .flat(true)
+                .anchor(0.5f, 0.5f)
+                .rotation(rotationDegrees)
+                .icon(bitmapDescriptorFactory));
+
         Polyline line = googleMap.addPolyline((new PolylineOptions())
-                .add(first, last).width(3).color(Color.BLUE)
+                .add(first, last).width(3).color(Color.parseColor("#9b24a6"))
                 .geodesic(true));
-        polylines.add(line);
+
+        polylines.add(new Pair<Polyline, Marker>(line, mArrowhead));
+    }
+
+    // Get middle point between two coordinates
+    private LatLng midPoint(double lat1,double lon1,double lat2,double lon2){
+
+        double dLon = Math.toRadians(lon2 - lon1);
+
+        //convert to radians
+        lat1 = Math.toRadians(lat1);
+        lat2 = Math.toRadians(lat2);
+        lon1 = Math.toRadians(lon1);
+
+        double Bx = Math.cos(lat2) * Math.cos(dLon);
+        double By = Math.cos(lat2) * Math.sin(dLon);
+        double lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
+        double lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
+
+        //print out in degrees
+        Log.i("TEST", lat1 + "  " + lon1 + "       " + lat2 + "   " + lon2);
+        Log.i("TEST", Math.toDegrees(lat3) + " " + Math.toDegrees(lon3));
+
+        return new LatLng(Math.toDegrees(lat3), Math.toDegrees(lon3));
+    }
+
+    // get angle between two coordinates
+    private double angleFromCoordinate(double lat1, double long1, double lat2, double long2) {
+
+        double dLon = (long2 - long1);
+
+        double y = Math.sin(dLon) * Math.cos(lat2);
+        double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1)
+                * Math.cos(lat2) * Math.cos(dLon);
+
+        double brng = Math.atan2(y, x);
+
+        brng = Math.toDegrees(brng);
+        brng = (brng + 360) % 360;
+        brng = 360 - brng;
+
+        return brng;
     }
 
     /**
@@ -405,7 +467,8 @@ public class PlanZoneMapFragment extends Fragment {
     public void removeLine(int i){
         Log.i(TAG, "Remove the polyline at the " + i + " position");
         if (polylines.size() > 0) {
-            polylines.get(i).remove();
+            polylines.get(i).first.remove();
+            polylines.get(i).second.remove();
             polylines.remove(i);
         }
     }
@@ -448,10 +511,11 @@ public class PlanZoneMapFragment extends Fragment {
                 labels.add(drone.getLabel());
                 if(dronesMarkers.containsKey(drone.getLabel())){
                     //animate existing marker
-                    animateMarker(dronesMarkers.get(drone.getLabel()),
+                    /**animateMarker(dronesMarkers.get(drone.getLabel()),
                             new LatLng(drone.getLatitude(), drone.getLongitude()),
                             false, duration
-                    );
+                    );*/
+                    dronesMarkers.get(drone.getLabel()).setPosition(new LatLng(drone.getLatitude(), drone.getLongitude()));
                 } else{
                     //create a new marker
                     Marker m = googleMap.addMarker(new MarkerOptions()
@@ -559,3 +623,4 @@ public class PlanZoneMapFragment extends Fragment {
         });
     }
 }
+

@@ -10,10 +10,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
-import util.ResourceRole;
-import util.State;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.State;
 
 /**
  * Fragment used for change the state of a resource of firefighters

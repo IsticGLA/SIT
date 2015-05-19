@@ -1,10 +1,10 @@
 package istic.gla.groupb.nivimoju.API;
 
-import container.DroneContainer;
-import container.InterventionContainer;
-import dao.InterventionDAO;
-import entity.*;
-import istic.gla.goupb.nivimoju.drone.engine.DroneEngine;
+import istic.gla.groupb.nivimoju.container.DroneContainer;
+import istic.gla.groupb.nivimoju.container.InterventionContainer;
+import istic.gla.groupb.nivimoju.drone.engine.DroneEngine;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
 import org.apache.log4j.Logger;
 
 import javax.ws.rs.*;
@@ -195,29 +195,16 @@ public class InterventionAPI {
         }
 
         //request or free drones
-        int deltaDroneNumber = intervention.getWatchPath().size() - oldInter.getWatchPath().size();
-        Drone assignedDrone = null;
-        if(deltaDroneNumber != 0){
-            if(deltaDroneNumber == 1){
-                //request drone
-                logger.info("the path update is asking for a new drone");
-                assignedDrone = DroneContainer.getInstance().requestDrone(intervention.getId());
-                if(assignedDrone == null){
-                    logger.info("no drone available");
-                    return Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                            .entity("No drone is available")
-                            .build();
-                }
-            } else if(deltaDroneNumber == -1){
-                //free drone
-                logger.error("the path update is asking for a drone release");
-                DroneContainer.getInstance().freeDrone(intervention.getId());
-            } else {
-                logger.error("the path update is asking modifications on more than 1 drone");
-                return Response.status(Response.Status.BAD_REQUEST)
-                        .entity("This request had more than one path added/deleted")
-                        .build();
-            }
+        int neededDroneNumber = intervention.getWatchPath().size() + intervention.getWatchArea().size();
+        int currentlyAssignedDroneNumber =
+                DroneContainer.getInstance().getDronesAssignedTo(intervention.getId()).size();
+        int deltaDroneNumber = neededDroneNumber - currentlyAssignedDroneNumber;
+        if(deltaDroneNumber > 0) {
+            logger.info(String.format("the path update is asking for %d new drones", deltaDroneNumber));
+            DroneContainer.getInstance().requestDrones(intervention.getId(), deltaDroneNumber);
+        } else if(deltaDroneNumber < 0) {
+            logger.info(String.format("the path update is asking for liberation of %d drones", -deltaDroneNumber));
+            DroneContainer.getInstance().freeDrones(intervention.getId(), -deltaDroneNumber);
         } else {
             logger.info("the path update does not need to change drone affectations");
         }
@@ -228,6 +215,5 @@ public class InterventionAPI {
         return  Response.status(Response.Status.OK)
                 .entity(intervention)
                 .build();
-
     }
 }

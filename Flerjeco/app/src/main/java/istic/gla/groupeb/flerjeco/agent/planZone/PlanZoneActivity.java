@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 
-import entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
@@ -24,7 +24,7 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     private static final String TAG = PlanZoneActivity.class.getSimpleName();
 
     // current intervention
-    private Intervention intervention;
+    private Intervention intervention; /*= new Intervention("Test", 2, 48.399, -1.6554);*/
 
     // current position of the path in the ListView DroneListFragment
     private int position=0;

@@ -13,14 +13,14 @@ import android.widget.ArrayAdapter;
 
 import java.util.List;
 
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.IIcon;
 import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.view.IconView;
-import util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
 
 /**
  * Created by flolegazier on 13/04/15.

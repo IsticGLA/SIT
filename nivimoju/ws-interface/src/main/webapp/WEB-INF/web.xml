@@ -28,7 +28,7 @@
     </listener>
     <listener>
         <listener-class>
-            job.init.JobInit
+            istic.gla.groupb.nivimoju.job.init.JobInit
         </listener-class>
     </listener>
 
