@@ -250,7 +250,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
         @Override
         protected void onPostExecute(String statusCode) {
             mAuthTask = null;
-            showProgress(false);
             FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
             flerjecoApplication.setCodisUser(isCodis);
             flerjecoApplication.setLogin(mLogin);
@@ -258,7 +257,6 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
 
             if (statusCode.equals("200")) {
                 Toast.makeText(LoginActivity.this, getString(R.string.login_successful), Toast.LENGTH_SHORT).show();
-                showProgress(true);
                 new GetAllInterventionsTask(LoginActivity.this).execute();
             } else {
                 if(count < 4) {
@@ -266,6 +264,7 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
                     count++;
                     new UserLoginTask(activity, count, mLogin, mPassword).execute();
                 } else{
+                    showProgress(false);
                     Log.w(TAG, String.format("login failed definitely after %d try (login:%s, pwd:%s)", count, mLogin, mPassword));
                     if(statusCode.equals("401")){
                         Toast.makeText(LoginActivity.this, getString(R.string.login_failed), Toast.LENGTH_SHORT).show();

@@ -37,10 +37,12 @@ import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.GetAllIncidentCodeTask;
 import istic.gla.groupeb.flerjeco.springRest.GetResourceTypeLabelsTask;
+import istic.gla.groupeb.flerjeco.springRest.GetResourceTypesTask;
 import istic.gla.groupeb.flerjeco.springRest.IIncidentCode;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.IResourceTypeLabelsActivity;
 import istic.gla.groupeb.flerjeco.springRest.InterventionPostTask;
+import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import util.State;
 
 /**
@@ -68,20 +70,20 @@ public class InterventionDialogFragment extends DialogFragment
     private View mCreateFormView;
 
     String[] spinnerArray;
-    ArrayAdap
-    SpringService springService =  new SpringService();ter<String> spinnerAdapter;
+    ArrayAdapter<String> spinnerAdapter;
+    SpringService springService =  new SpringService();
 
     private HashMap<String, Long> spinnerMap;
     private HashMap<String, List<Long>> resourceTypeMap;
 
 
-    boolean addressOrCoordinates=true;
-    private Gedata_local = false, tAllIncidentCodeTask incidentCodesTask;
+    boolean data_local = false, addressOrCoordinates=true;
+    private GetAllIncidentCodeTask incidentCodesTask;
     private InterventionPostTask interventionPostTask;
+    private GetResourceTypesTask resourceGetTask;
 
     @Override
-    public View onCreateV
-    private GetResourceTypeTask resourceGetTask;iew(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_create_intervention, container, false);
         getDialog().setTitle(R.string.title_fragment_create_intervention);
