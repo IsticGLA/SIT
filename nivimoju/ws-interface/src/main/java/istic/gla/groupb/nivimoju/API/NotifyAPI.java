@@ -6,12 +6,16 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.Timestamp;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * Created by vivien on 13/04/15.
  */
 @Path("notify")
 public class NotifyAPI {
+
+    private Map<Integer, Stack<Response>> waitingRequests;
 
     /**
      * Gets all the interventions running

@@ -1,7 +1,7 @@
-package istic.gla.groupb.nivimoju.init;
+package job.init;
 
-import istic.gla.goupb.nivimoju.drone.engine.DronePersistJob;
-import istic.gla.goupb.nivimoju.drone.engine.DronePositionRefresherJob;
+import job.DronePersistJob;
+import job.DronePositionRefresherJob;
 import org.apache.log4j.Logger;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
@@ -18,12 +18,14 @@ public class JobInit implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         logger.info("initializing context");
-        JobDetail jobPosition = JobBuilder.newJob(DronePositionRefresherJob.class)
+        JobDetail jobDronePosition = JobBuilder.newJob(DronePositionRefresherJob.class)
                 .withIdentity("DronePositionRefresherJob", "group1").build();
-        JobDetail jobPersist = JobBuilder.newJob(DronePersistJob.class)
+        JobDetail jobDronePersist = JobBuilder.newJob(DronePersistJob.class)
                 .withIdentity("DronePersistJob", "group1").build();
+        JobDetail jobInterventionPersist = JobBuilder.newJob(DronePersistJob.class)
+                .withIdentity("InterventionPersistJob", "group1").build();
 
-        Trigger triggerPosition = TriggerBuilder
+        Trigger triggerDronePosition = TriggerBuilder
                 .newTrigger()
                 .withIdentity("DronePositionRefresherTrigger", "group1")
                 .withSchedule(
@@ -32,9 +34,18 @@ public class JobInit implements ServletContextListener {
                                 .repeatForever())
                 .build();
 
-        Trigger triggerPersist = TriggerBuilder
+        Trigger triggerDronePersist = TriggerBuilder
                 .newTrigger()
                 .withIdentity("DronePersistTrigger", "group1")
+                .withSchedule(
+                        SimpleScheduleBuilder.simpleSchedule()
+                                .withIntervalInSeconds(10)
+                                .repeatForever())
+                .build();
+
+        Trigger triggerInterventionPersist = TriggerBuilder
+                .newTrigger()
+                .withIdentity("InterventionPersistTrigger", "group1")
                 .withSchedule(
                         SimpleScheduleBuilder.simpleSchedule()
                                 .withIntervalInSeconds(10)
@@ -44,8 +55,9 @@ public class JobInit implements ServletContextListener {
         try{
             Scheduler scheduler = new StdSchedulerFactory().getScheduler();
             scheduler.start();
-            scheduler.scheduleJob(jobPosition, triggerPosition);
-            scheduler.scheduleJob(jobPersist, triggerPersist);
+            scheduler.scheduleJob(jobDronePosition, triggerDronePosition);
+            scheduler.scheduleJob(jobDronePersist, triggerDronePersist);
+            scheduler.scheduleJob(jobInterventionPersist, triggerInterventionPersist);
         } catch (SchedulerException e){
             logger.error(e);
         }

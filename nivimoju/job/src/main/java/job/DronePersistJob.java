@@ -1,5 +1,6 @@
-package istic.gla.goupb.nivimoju.drone.engine;
+package job;
 
+import container.DroneContainer;
 import dao.DroneDAO;
 import entity.Drone;
 import org.apache.log4j.Logger;
@@ -8,8 +9,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-/**    public boolean assignDrone(Drone drone){
-
+/**
  * Job refreshing the database with positions from simulation
  */
 @DisallowConcurrentExecution

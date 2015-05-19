@@ -1,17 +1,17 @@
 package istic.gla.groupb.nivimoju.API;
 
+import container.DroneContainer;
+import container.InterventionContainer;
 import dao.InterventionDAO;
 import entity.*;
-import istic.gla.goupb.nivimoju.drone.engine.DroneContainer;
 import istic.gla.goupb.nivimoju.drone.engine.DroneEngine;
 import org.apache.log4j.Logger;
-import util.State;
 
 import javax.ws.rs.*;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Created by jules on 08/04/15.
@@ -27,12 +27,8 @@ public class InterventionAPI {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInterventions() {
-        InterventionDAO interventionDAO = new InterventionDAO();
-
-        interventionDAO.connect();
-        List<Intervention> inters = interventionDAO.getAll();
-        logger.info("intervention:"+inters);
-        interventionDAO.disconnect();
+        Collection<Intervention> inters = InterventionContainer.getInstance().getInterventions();
+        logger.info("intervention:" + inters);
         return  Response.ok(inters).build();
     }
 
@@ -45,10 +41,7 @@ public class InterventionAPI {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInterventionById(
             @PathParam("idintervention") long idintervention) {
-        InterventionDAO interventionDAO = new InterventionDAO();
-        interventionDAO.connect();
-        Intervention intervention = interventionDAO.getById(idintervention);
-        interventionDAO.disconnect();
+        Intervention intervention = InterventionContainer.getInstance().getInterventionById(idintervention);
         return Response.ok(intervention).build();
     }
 
@@ -63,12 +56,8 @@ public class InterventionAPI {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createIntervention(
             Intervention intervention) {
-        InterventionDAO interventionDAO= new InterventionDAO();
-        interventionDAO.connect();
-        Intervention resultat = interventionDAO.create(intervention);
-        interventionDAO.disconnect();
+        Intervention resultat = InterventionContainer.getInstance().createIntervention(intervention);
         return  Response.ok(resultat).build();
-
     }
 
     /**
@@ -82,10 +71,7 @@ public class InterventionAPI {
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateIntervention(
             Intervention intervention) {
-        InterventionDAO interventionDAO= new InterventionDAO();
-        interventionDAO.connect();
-        Intervention result = interventionDAO.update(intervention);
-        interventionDAO.disconnect();
+        Intervention result = InterventionContainer.getInstance().updateIntervention(intervention);
         return  Response.ok(result).build();
 
     }
@@ -150,18 +136,8 @@ public class InterventionAPI {
             @PathParam("inter") Long inter,
             @PathParam("res") Long res,
             @PathParam("state") String state) {
-        InterventionDAO interventionDAO = new InterventionDAO();
-        interventionDAO.connect();
-        Intervention intervention = interventionDAO.getById(inter);
         try {
-            for (Resource resource : intervention.getResources()) {
-                if (resource.getIdRes() == res) {
-                    resource.setState(State.valueOf(state));
-                    break;
-                }
-            }
-            interventionDAO.update(intervention);
-            interventionDAO.disconnect();
+            Intervention intervention = InterventionContainer.getInstance().changeResourceState(inter, res, state);
             return Response.ok(intervention).build();
         } catch (Exception ex) {
             return Response.serverError().build();
@@ -179,19 +155,7 @@ public class InterventionAPI {
     public Response requestVehicle(
             @PathParam("inter") Long inter,
             @PathParam("vehicle") String vehicle) {
-        InterventionDAO interventionDAO = new InterventionDAO();
-        interventionDAO.connect();
-        Intervention intervention = interventionDAO.getById(inter);
-        Long id = Long.valueOf(0);
-        for(Resource resource : intervention.getResources()) {
-            if(resource.getIdRes() >= id) {
-                id = resource.getIdRes();
-            }
-        }
-        id++;
-        intervention.getResources().add(new Resource(id, vehicle + id, State.waiting));
-        intervention = interventionDAO.update(intervention);
-        interventionDAO.disconnect();
+        Intervention intervention = InterventionContainer.getInstance().addResource(inter, vehicle);
         return Response.ok(intervention).build();
     }
 
@@ -208,22 +172,7 @@ public class InterventionAPI {
     public Response placeVehicle(
             Resource newResource,
             @PathParam("inter") Long inter) {
-        boolean found = false;
-        InterventionDAO interventionDAO = new InterventionDAO();
-        interventionDAO.connect();
-        Intervention intervention = interventionDAO.getById(inter);
-        for (Resource resource : intervention.getResources()) {
-            if (resource.getIdRes() == newResource.getIdRes()) {
-                resource = newResource;
-                found = true;
-            }
-        }
-        if (!found){
-            intervention.getResources().add(newResource);
-        }
-        intervention.updateDate();
-        intervention = interventionDAO.update(intervention);
-        interventionDAO.disconnect();
+        Intervention intervention = InterventionContainer.getInstance().placeVehicle(inter, newResource);
         return Response.ok(intervention).build();
     }
 
@@ -236,10 +185,9 @@ public class InterventionAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response updatePaths(Intervention intervention) {
-        logger.info("updating path for intervention "+ intervention.getId());
-        InterventionDAO interventionDAO= new InterventionDAO();
-        interventionDAO.connect();
-        Intervention oldInter = interventionDAO.getById(intervention.getId());
+        logger.info("updating path for intervention " + intervention.getId());
+
+        Intervention oldInter = InterventionContainer.getInstance().getInterventionById(intervention.getId());
         if(oldInter == null){
             logger.warn("intervention does not seem to exist in db");
             return Response.status(Response.Status.NOT_FOUND)
@@ -274,24 +222,11 @@ public class InterventionAPI {
             logger.info("the path update does not need to change drone affectations");
         }
 
-        Intervention result = null;
-        try {
-            intervention.updateDate();
-            result = interventionDAO.update(intervention);
-            interventionDAO.disconnect();
-        } catch (Throwable t){
-            logger.error("failure during path update", t);
-            if(assignedDrone != null) {
-                DroneContainer.getInstance().freeDrone(assignedDrone.getLabel());
-            }
-            throw  t;
-        }
-
         //alerting the engine
         DroneEngine.getInstance().computeForIntervention(intervention);
 
         return  Response.status(Response.Status.OK)
-                .entity(result)
+                .entity(intervention)
                 .build();
 
     }
