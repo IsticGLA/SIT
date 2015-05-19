@@ -112,25 +112,32 @@ public class Resource implements Serializable {
         Timestamp now = new Timestamp(Calendar.getInstance().getTime().getTime());
         switch (state) {
             case active:
-                this.activeHistory = now;
+                if(activeHistory != null)
+                    this.activeHistory = now;
                 break;
             case arrived:
-                this.arrivedHistory = now;
+                if(arrivedHistory != null)
+                    this.arrivedHistory = now;
                 break;
             case free:
-                this.freeHistory = now;
+                if(freeHistory != null)
+                    this.freeHistory = now;
                 break;
             case planned:
-                this.plannedHistory = now;
+                if(plannedHistory != null)
+                    this.plannedHistory = now;
                 break;
             case refused:
-                this.refusedHistory = now;
+                if(refusedHistory != null)
+                    this.refusedHistory = now;
                 break;
             case validated:
-                this.validatedHistory = now;
+                if(validatedHistory != null)
+                    this.validatedHistory = now;
                 break;
             case waiting:
-                this.waitingHistory = now;
+                if(waitingHistory != null)
+                    this.waitingHistory = now;
                 break;
             default:
                 break;
