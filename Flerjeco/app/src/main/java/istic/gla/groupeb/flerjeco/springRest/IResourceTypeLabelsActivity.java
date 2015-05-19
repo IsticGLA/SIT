@@ -4,8 +4,8 @@ import android.content.Context;
 
 import java.util.List;
 
-import entity.Intervention;
-import entity.ResourceType;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.ResourceType;
 
 /**
  * Created by corentin on 16/04/15.

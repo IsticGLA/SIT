@@ -33,7 +33,7 @@ import org.apache.commons.collections4.ListUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.InterventionAdapter;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;

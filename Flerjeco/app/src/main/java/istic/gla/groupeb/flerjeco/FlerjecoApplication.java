@@ -3,9 +3,9 @@ package istic.gla.groupeb.flerjeco;
 import android.app.Application;
 import android.content.Context;
 
-import entity.IncidentCode;
-import entity.ResourceType;
-import entity.StaticData;
+import istic.gla.groupb.nivimoju.entity.IncidentCode;
+import istic.gla.groupb.nivimoju.entity.ResourceType;
+import istic.gla.groupb.nivimoju.entity.StaticData;
 import istic.gla.groupeb.flerjeco.springRest.IStaticDataActivity;
 
 /**

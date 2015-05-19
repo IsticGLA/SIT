@@ -6,7 +6,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 
-import util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
 
 /**
  * This class allows to draw the representation

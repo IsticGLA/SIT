@@ -10,7 +10,7 @@ import android.widget.ImageView;
 
 import java.util.List;
 
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 
 /**

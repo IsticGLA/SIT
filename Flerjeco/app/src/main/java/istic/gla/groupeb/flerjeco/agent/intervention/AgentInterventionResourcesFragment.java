@@ -31,15 +31,15 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceImageAdapter;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
-import util.ResourceCategory;
-import util.State;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
+import istic.gla.groupb.nivimoju.util.State;
 
 public class AgentInterventionResourcesFragment extends Fragment implements ISynchTool {
     OnResourceSelectedListener mCallback;
