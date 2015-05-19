@@ -30,7 +30,7 @@ public class DAOManager {
      */
     protected static Bucket currentBucket;
 
-    public static void connect(){
+    public synchronized static void connect(){
         try {
             if (currentCluster != null && currentBucket==null) {
                 // Open a bucket
@@ -44,7 +44,7 @@ public class DAOManager {
         }
     }
 
-    public static void connectTest(){
+    public synchronized static void connectTest(){
         try {
             if (currentCluster != null && currentBucket==null) {
                 // Open a bucket
@@ -58,7 +58,7 @@ public class DAOManager {
         }
     }
 
-    public static void disconnect() {
+    public synchronized static void disconnect() {
         try {
             if (currentCluster != null) {
                 if (currentBucket != null && currentBucket.close(2, TimeUnit.SECONDS)) {
@@ -76,7 +76,7 @@ public class DAOManager {
      * flush our bucket
      * @return
      */
-    public static boolean flush()
+    public synchronized static boolean flush()
     {
         if(currentBucket!=null && currentCluster!=null)
         {
@@ -93,7 +93,7 @@ public class DAOManager {
         return false;
     }
 
-    public static Bucket getCurrentBucket() {
+    public synchronized static Bucket getCurrentBucket() {
         return currentBucket;
     }
 }
