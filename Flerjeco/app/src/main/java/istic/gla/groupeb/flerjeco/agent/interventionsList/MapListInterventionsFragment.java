@@ -39,6 +39,7 @@ public class MapListInterventionsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // inflat and return the layout
         View v = inflater.inflate(R.layout.map_view, container,
                 false);
