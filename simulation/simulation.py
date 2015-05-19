@@ -91,8 +91,7 @@ class Drone:
             self.goto(self.path[self.currentIndex])
 
     def next_waypoint_in_path(self):
-        app.logger.info("setting next waypoint for robot " +
-                        self.label + "(surrentIndex="+str(self.currentIndex)+"/pathLength="+str(len(self.path))+")")
+        app.logger.info("setting next waypoint for robot " + self.label)
         if self.closed:
             self.currentIndex = (self.currentIndex + 1) % len(self.path)
         else:
@@ -100,7 +99,7 @@ class Drone:
                 self.currentIndex += 1
                 if self.currentIndex >= len(self.path):
                      app.logger.info(self.label + " reached end of path, going back")
-                     self.currentIndex = (len(self.path) - 1) % len(self.path)
+                     self.currentIndex = (len(self.path) - 2) % len(self.path)
                      self.forward = False
             else:
                 self.currentIndex -= 1
@@ -108,13 +107,8 @@ class Drone:
                     app.logger.info(self.label + " reached start of path, going forward")
                     self.currentIndex = 1 % len(self.path)
                     self.forward = True
-        app.logger.info("new currentIndex set for robot " +
-                        self.label + "(surrentIndex="+str(self.currentIndex)+"/pathLength="+str(len(self.path))+")")
-        app.logger.info("new waypoint " +
-                        self.label + "("+str(self.currentIndex+1)+"/"+str(len(self.path))+")")
         app.logger.debug("current index " + str(self.currentIndex+1) +
-                         " forward : " + str(self.forward) +
-                         " current destination : " + str(self.dest))
+                         " forward : " + str(self.forward))
         self.goto(self.path[self.currentIndex])
 
     def goto(self, position):
@@ -234,7 +228,7 @@ def hello():
     return "hello", 200
 
 if __name__ == '__main__':
-    handler = RotatingFileHandler('/sit/log/flask.log', maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler('/sit/log/flask.log', maxBytes=1000000, backupCount=1)
     #handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
