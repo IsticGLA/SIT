@@ -10,6 +10,9 @@ from logging.handlers import RotatingFileHandler
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Point
+from sensor_msgs.msg import Image, CameraInfo
+from cv_bridge import CvBridge, CvBridgeError
+import cv2
 import os
 
 app = Flask(__name__)
@@ -24,8 +27,11 @@ class Drone:
         self.path = []  # liste de dict<x,y,z>
         self.forward = True
         self.closed = False
+        self.take_picture = False
         self.currentIndex = 0
+        self.bridge = CvBridge()
         self.pose_sub = rospy.Subscriber(label+"/pose", PoseStamped, self.pose_callback)
+        self.camera_sub = rospy.Subscriber(label+"/camera/image", Image, self.picture_callback)
         self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=10, latch=False)
 
     def pose_callback(self, pose_stamped):
@@ -45,6 +51,19 @@ class Drone:
                     self.next_waypoint_in_path()
                 else:
                     app.logger.info("robot " + self.label + " will stay there")
+
+    def picture_callback(self, data):
+        if(self.take_picture):
+            app.logger.info("taking picture")
+            cv_image = self.convert_image(data)
+            self.take_picture = False
+
+    def convert_image(self, ros_image):  
+        try:
+            cv_image = self.bridge.imgmsg_to_cv2(ros_image, "bgr8")
+            return cv_image
+        except CvBridgeError, e:
+            app.logger.error("error" + e)  
 
     def set_path(self, path, closed):
         app.logger.info("the path has " + str(len(path)) + " waypoints")
@@ -106,6 +125,9 @@ class Drone:
 
     def stop(self):
         self.__init__(self.label, self.dest_tolerance_squared)
+
+    def take_picture(self):
+        self.take_picture = True
 
 
 class Controller:
