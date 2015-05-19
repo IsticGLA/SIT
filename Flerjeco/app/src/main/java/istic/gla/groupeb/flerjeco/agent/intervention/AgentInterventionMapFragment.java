@@ -77,8 +77,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     private void clearMapData(){
         for (Resource resource : resources){
-            if (markers.get(resource.getLabel()+resource.getIdRes()) != null) {
-                markers.get(resource.getLabel()+resource.getIdRes()).remove();
+            if (markers.get(resource.getLabel()) != null) {
+                markers.get(resource.getLabel()).remove();
             }
         }
         resources.clear();
@@ -116,18 +116,6 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         intervention = interventionActivity.intervention;
         initMap();
         return v;
-    }
-
-    public void cancelResources(){
-        for (Resource resource : resources){
-            if (markers.get(resource.getLabel()) != null) {
-                markers.get(resource.getLabel()).remove();
-            }
-        }
-        resources.clear();
-        resourcesMap.clear();
-        buttonValidateResources.setVisibility(View.GONE);
-        buttonCancelResources.setVisibility(View.GONE);
     }
 
     public void initMap(){
@@ -181,7 +169,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 }
             }
 
-            if(!isPositionResource && !initMap) {
+            if(!isPositionResource && initMap) {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
 

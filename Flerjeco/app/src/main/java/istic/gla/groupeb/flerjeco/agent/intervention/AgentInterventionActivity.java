@@ -184,10 +184,6 @@ public class AgentInterventionActivity extends FragmentActivity
         vehicleDialog.show(getSupportFragmentManager(), "vehicle_dialog");
     }
 
-    public void cancelResources(View v){
-        mapFragment.cancelResources();
-    }
-
     // Action Menu for Logout
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
