@@ -2,6 +2,7 @@ package istic.gla.groupeb.flerjeco.agent.interventionsList;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import istic.gla.groupeb.flerjeco.R;
 public class MapListInterventionsFragment extends Fragment {
 
     final static String ARG_POSITION = "position";
+    private static final String TAG = MapListInterventionsFragment.class.getSimpleName();
 
     MapView mMapView;
     private GoogleMap googleMap;
@@ -79,12 +81,15 @@ public class MapListInterventionsFragment extends Fragment {
     }
 
     public void updateMapView(int position) {
-        Intervention intervention = interventionTab[position];
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
-        googleMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
-        mCurrentPosition = position;
+        if (position < interventionTab.length) {
+            Intervention intervention = interventionTab[position];
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
+            //googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            mCurrentPosition = position;
+        } else {
+            Log.e(TAG, "Error: position is out of list of interventions");
+        }
     }
 
     public void initMap(Intervention[] interventionTab){
@@ -114,7 +119,7 @@ public class MapListInterventionsFragment extends Fragment {
                 @Override
                 public void onCameraChange(CameraPosition arg0) {
                     // Move camera.
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 16));
                     // Remove listener to prevent position reset on camera move.
                     googleMap.setOnCameraChangeListener(null);
                 }

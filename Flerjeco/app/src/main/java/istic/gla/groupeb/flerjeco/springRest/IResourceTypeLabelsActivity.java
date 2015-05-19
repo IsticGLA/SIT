@@ -10,8 +10,8 @@ import entity.ResourceType;
 /**
  * Created by corentin on 16/04/15.
  */
-public interface IResourceTypeActivity {
-    void getResourceType(List<ResourceType> resourceTypes);
+public interface IResourceTypeLabelsActivity {
+    void updateResourceTypeLabels(ResourceType[] resourceTypes);
 
     Context getContext();
 }

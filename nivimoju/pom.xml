@@ -10,6 +10,8 @@
         <module>database-dao</module>
         <module>database-entities</module>
         <module>drone</module>
+        <module>container</module>
+        <module>job</module>
     </modules>
     <name>Nivimoju</name>
 

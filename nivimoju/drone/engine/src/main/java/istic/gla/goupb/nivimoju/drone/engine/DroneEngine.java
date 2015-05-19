@@ -1,6 +1,6 @@
 package istic.gla.goupb.nivimoju.drone.engine;
 
-
+import container.DroneContainer;
 import entity.Drone;
 import entity.Intervention;
 import entity.Path;
@@ -10,7 +10,6 @@ import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalPath;
 import org.apache.log4j.Logger;
-
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -87,13 +86,13 @@ public class DroneEngine{
      */
     private List<LocalPath> computePaths(Intervention intervention){
         //TODO augmenter avec les calculs a partir de zones
-        //return transformInLocal(intervention.getWatchPath());
+        return transformInLocal(intervention.getWatchPath());
         //temporaire pour test
-        List<List<Position>> areas = new ArrayList<>();
+        /*List<List<Position>> areas = new ArrayList<>();
         for(Path p : intervention.getWatchPath()){
             areas.add(p.getPositions());
         }
-        return getPathsForScans(areas, 1);
+        return getPathsForScans(areas, 1);*/
     }
 
     /**

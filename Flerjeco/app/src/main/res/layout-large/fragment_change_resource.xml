@@ -10,6 +10,8 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="istic.gla.groupeb.flerjeco.agent.intervention.ChangeStateDialogFragment">
 
+
+
     <ScrollView
         android:id="@+id/intervention_scroll"
         android:layout_width="match_parent"
@@ -28,7 +30,15 @@
                 android:orientation="horizontal">
 
 
-                <Button
+                <CheckBox
+                    android:id="@+id/validateCheckBox"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="@string/manage_activateResource"
+                    android:checked="false" />
+
+                <!--<Button
                     android:id="@+id/validateButton"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -36,7 +46,8 @@
                     android:text="@string/manage_activateResource"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:layout_marginBottom="15dp" />
+                    android:layout_marginBottom="15dp" />-->
+
             </LinearLayout>
 
             <LinearLayout
@@ -64,12 +75,7 @@
                     android:layout_weight="0.5"
                     android:spinnerMode="dialog" />
 
-                <Button
-                    android:layout_width="20dp"
-                    android:layout_height="match_parent"
-                    android:id="@+id/buton_change_role"
-                    android:layout_weight="0.5"
-                    android:text="Ok"/>
+
             </LinearLayout>
 
 
@@ -82,8 +88,17 @@
                     android:id="@+id/freeButton"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="0.5"
                     android:text="@string/manage_freeResource"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:layout_marginBottom="15dp" />
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/buton_change_role"
+                    android:layout_weight="0.5"
+                    android:text="Ok"
                     android:maxLines="1"
                     android:singleLine="true"
                     android:layout_marginBottom="15dp" />

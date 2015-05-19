@@ -1,9 +1,8 @@
-package istic.gla.goupb.nivimoju.drone.engine;
+package container;
 
 import dao.DroneDAO;
 import entity.Drone;
 import entity.Position;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.util.*;
@@ -49,8 +48,8 @@ public class DroneContainer {
     }
 
     /**
-     * charge une liste de drone et prépare les maps interne
-     * @param drones la liste de drones à charger
+     * charge une liste de drone et prepare les maps interne
+     * @param drones la liste de drones a charger
      **/
     protected void loadDrones(List<Drone> drones){
         logger.info("loading drones internally");
@@ -100,7 +99,7 @@ public class DroneContainer {
 
     /**
      * Met un jour un drone avec une nouvelle position GPS
-      * @param label le label du drone
+     * @param label le label du drone
      * @param position la nouvelle position en latlong
      */
     public void updateDrone(String label, Position position){
@@ -115,7 +114,7 @@ public class DroneContainer {
     }
 
     /**
-     * Accède à l'ensemble des drones
+     * Accede a l'ensemble des drones
      * @return tous les drones
      */
     public Collection<Drone> getDrones(){
@@ -123,7 +122,7 @@ public class DroneContainer {
     }
 
     /**
-     * Accède à l'ensemble des drones affecté a une intervention
+     * Accede a l'ensemble des drones affecte a une intervention
      * @return tous les drones
      */
     public Collection<Drone> getDronesAssignedTo(Long idIntervention){
@@ -198,3 +197,4 @@ public class DroneContainer {
         return mapDroneByLabel.get(label);
     }
 }
+

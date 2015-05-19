@@ -2,15 +2,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <parent>
         <artifactId>nivimoju</artifactId>
         <groupId>groupeb.gla.istic</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-    <packaging>war</packaging>
 
-    <artifactId>ws-interface</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>job</artifactId>
 
     <dependencies>
         <dependency>
@@ -25,19 +25,14 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-json</artifactId>
-            <version>1.18.1</version>
+            <groupId>groupeb.gla.istic</groupId>
+            <artifactId>drone-latlong-adapter</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>1.18.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-servlet</artifactId>
-            <version>1.18.1</version>
+            <groupId>groupeb.gla.istic</groupId>
+            <artifactId>drone-simulation-client</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>groupeb.gla.istic</groupId>
@@ -51,34 +46,13 @@
         </dependency>
         <dependency>
             <groupId>groupeb.gla.istic</groupId>
-            <artifactId>drone-simulation-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>groupeb.gla.istic</groupId>
             <artifactId>drone-engine</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>groupeb.gla.istic</groupId>
-            <artifactId>job</artifactId>
+            <artifactId>container</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.tomcat.maven</groupId>
-                <artifactId>tomcat7-maven-plugin</artifactId>
-                <version>2.1</version>
-                <configuration>
-                    <url>http://37.59.58.42:8080/manager/text</url>
-                    <username>root</username>
-                    <password>projetgla</password>
-                    <path>/nivimoju</path>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
