@@ -125,12 +125,19 @@ public class InterventionDAOTest {
     public void updateResource(){
         InterventionDAO interventionDAO = new InterventionDAO();
 
-        /*
-        Intervention intervention = interventionDAO.getById(19L);
-        intervention.setName("COCOCHONE");
+
+        Intervention intervention = interventionDAO.getById(43L);
+
         intervention.updateDate();
+
+        List<Resource> resourceList = new ArrayList<>();
+
+        resourceList.add(new Resource(1L, "VSAV1", State.active));
+
+        intervention.setResources(resourceList);
+
         interventionDAO.update(intervention);
-        */
+
 
         interventionDAO.getNewerLastUpdate();
     }

@@ -7,7 +7,6 @@ import istic.gla.groupb.nivimoju.util.State;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Calendar;
-import java.util.HashMap;
 
 /**
  * Created by jeremy on 08/04/15.
@@ -21,7 +20,13 @@ public class Resource implements Serializable {
     private ResourceCategory resourceCategory;
     private double latitude;
     private double longitude;
-    private HashMap<State, Timestamp> statesHistory;
+    private Timestamp plannedHistory;
+    private Timestamp arrivedHistory;
+    private Timestamp activeHistory;
+    private Timestamp waitingHistory;
+    private Timestamp validatedHistory;
+    private Timestamp refusedHistory;
+    private Timestamp freeHistory;
 
     /**
      * Build a Resource
@@ -42,9 +47,7 @@ public class Resource implements Serializable {
     public Resource(String label, State state, double latitude, double longitude) {
         super();
         this.label = label;
-        this.state = state;
-        statesHistory = new HashMap<>();
-        statesHistory.put(state, new Timestamp(Calendar.getInstance().getTime().getTime()));
+        this.setState(state);
         this.resourceRole = ResourceRole.otherwise;
         this.resourceCategory = ResourceCategory.vehicule;
         this.latitude = latitude;
@@ -63,9 +66,7 @@ public class Resource implements Serializable {
     public Resource(String label, State state, ResourceRole resourceRole, ResourceCategory resourceCategory, double latitude, double longitude) {
         super();
         this.label = label;
-        this.state = state;
-        statesHistory = new HashMap<>();
-        statesHistory.put(state, new Timestamp(Calendar.getInstance().getTime().getTime()));
+        this.setState(state);
         this.resourceRole = resourceRole;
         this.resourceCategory = resourceCategory;
         this.latitude = latitude;
@@ -81,9 +82,7 @@ public class Resource implements Serializable {
         super();
         this.idRes = id;
         this.label = label;
-        this.state = state;
-        statesHistory = new HashMap<>();
-        statesHistory.put(state, new Timestamp(Calendar.getInstance().getTime().getTime()));
+        this.setState(state);
         this.resourceRole = ResourceRole.otherwise;
         this.resourceCategory = ResourceCategory.vehicule;
     }
@@ -110,11 +109,53 @@ public class Resource implements Serializable {
 
     public void setState(State state) {
         this.state = state;
-        statesHistory.put(state, new Timestamp(Calendar.getInstance().getTime().getTime()));
+        Timestamp now = new Timestamp(Calendar.getInstance().getTime().getTime());
+        switch (state) {
+            case active:
+                this.activeHistory = now;
+                break;
+            case arrived:
+                this.arrivedHistory = now;
+                break;
+            case free:
+                this.freeHistory = now;
+                break;
+            case planned:
+                this.plannedHistory = now;
+                break;
+            case refused:
+                this.refusedHistory = now;
+                break;
+            case validated:
+                this.validatedHistory = now;
+                break;
+            case waiting:
+                this.waitingHistory = now;
+                break;
+            default:
+                break;
+        }
     }
 
     public Timestamp getStateDate(State state) {
-        return statesHistory.get(state);
+        switch (state) {
+            case active:
+                return this.activeHistory;
+            case arrived:
+                return this.arrivedHistory;
+            case free:
+                return this.freeHistory;
+            case planned:
+                return this.plannedHistory;
+            case refused:
+                return this.refusedHistory;
+            case validated:
+                return this.validatedHistory;
+            case waiting:
+                return this.waitingHistory;
+            default:
+                return null;
+        }
     }
 
     public double getLatitude() {
@@ -147,6 +188,34 @@ public class Resource implements Serializable {
 
     public void setResourceRole(ResourceRole resourceRole) {
         this.resourceRole = resourceRole;
+    }
+
+    public Timestamp getPlannedHistory() {
+        return plannedHistory;
+    }
+
+    public Timestamp getArrivedHistory() {
+        return arrivedHistory;
+    }
+
+    public Timestamp getActiveHistory() {
+        return activeHistory;
+    }
+
+    public Timestamp getWaitingHistory() {
+        return waitingHistory;
+    }
+
+    public Timestamp getValidatedHistory() {
+        return validatedHistory;
+    }
+
+    public Timestamp getRefusedHistory() {
+        return refusedHistory;
+    }
+
+    public Timestamp getFreeHistory() {
+        return freeHistory;
     }
 
     @Override
