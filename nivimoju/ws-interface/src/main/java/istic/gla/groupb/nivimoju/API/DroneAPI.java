@@ -1,8 +1,8 @@
 package istic.gla.groupb.nivimoju.API;
 
-import container.DroneContainer;
-import entity.Intervention;
-import istic.gla.goupb.nivimoju.drone.engine.DroneEngine;
+import istic.gla.groupb.nivimoju.container.DroneContainer;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.drone.engine.DroneEngine;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 

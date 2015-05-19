@@ -1,7 +1,7 @@
 package istic.gla.groupb.nivimoju.drone.latlong;
 
-import entity.Path;
-import entity.Position;
+import istic.gla.groupb.nivimoju.entity.Path;
+import istic.gla.groupb.nivimoju.entity.Position;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.log4j.Logger;
