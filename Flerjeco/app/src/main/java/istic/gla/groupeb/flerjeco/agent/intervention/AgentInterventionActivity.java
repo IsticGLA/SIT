@@ -300,7 +300,7 @@ public class AgentInterventionActivity extends FragmentActivity
                         resourceList.remove(mCurrentPosition);
                         firstFragment.getIconBitmapResourceList().remove(mCurrentPosition);
                         firstFragment.getResourceImageAdapter().notifyDataSetChanged();
-                    }else{
+                    } else {
                         resource = additionalResourceList.get(mCurrentPosition);
                         resource.setLatitude(latLng.latitude);
                         resource.setLongitude(latLng.longitude);

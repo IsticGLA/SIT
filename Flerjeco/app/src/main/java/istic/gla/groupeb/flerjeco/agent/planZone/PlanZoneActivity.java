@@ -362,7 +362,9 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         this.intervention = intervention;
         DroneListFragment droneListFragment = (DroneListFragment)
                 getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
-        droneListFragment.refresh(intervention);
+        if(droneListFragment != null) {
+            droneListFragment.refresh(intervention);
+        }
     }
 
     public void checkListView(int position){
