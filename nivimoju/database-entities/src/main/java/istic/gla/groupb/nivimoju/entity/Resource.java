@@ -129,6 +129,9 @@ public class Resource implements Serializable {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public void setStateDate(State state) {
         Timestamp now = new Timestamp(Calendar.getInstance().getTime().getTime());
         switch (state) {
             case active:

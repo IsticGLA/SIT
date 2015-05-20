@@ -45,6 +45,10 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
         resource = (Resource)getArguments().getSerializable("resource");
 
         validatecheckBox = (CheckBox) v.findViewById(R.id.validateCheckBox);
+        if(State.active.equals(resource.getState())) {
+            validatecheckBox.setChecked(true);
+            validatecheckBox.setEnabled(false);
+        }
         changeRoleButton = (Button) v.findViewById(R.id.buton_change_role);
         changeRoleButton.setOnClickListener(new View.OnClickListener() {
             @Override

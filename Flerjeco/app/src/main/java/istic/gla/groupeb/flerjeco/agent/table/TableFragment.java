@@ -188,9 +188,14 @@ public class TableFragment extends Fragment implements ISynchTool{
     public void refresh() {
         //Delete all content before painting in containerTable
         containerTable.removeAllViews();
+        String[] moyen;
 
-        // Recuperation du table layout sur lequel nous allons agir
-        String[] moyen = getResources().getStringArray(R.array.resourceDateState);
+        try {
+            // Recuperation du table layout sur lequel nous allons agir
+            moyen = getResources().getStringArray(R.array.resourceDateState);
+        }catch (IllegalStateException e) {
+            return;
+        }
 
         // On va calculer la largeur des colonnes en fonction de la marge de 10
         // On affiche l'enreg dans une ligne

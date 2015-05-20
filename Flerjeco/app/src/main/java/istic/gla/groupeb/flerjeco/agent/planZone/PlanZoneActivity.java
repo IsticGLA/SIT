@@ -410,7 +410,9 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         refreshList(newIntervention);
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-        mapFragment.refreshMapAfterSynchro(newIntervention, oldIntervention);
+        if(mapFragment != null) {
+            mapFragment.refreshMapAfterSynchro(newIntervention, oldIntervention);
+        }
     }
 
     @Override
