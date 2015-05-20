@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
@@ -26,7 +27,7 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
     private static final String TAG = TableActivity.class.getSimpleName();
 
     protected Intervention intervention;
-
+    private TableFragment firstFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +36,21 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
 
         intervention = new Intervention();
 
+
         Bundle extras = getIntent().getExtras();
 
         if (extras != null){
             Log.i(TAG, "getExtras not null");
             intervention = (Intervention) extras.getSerializable("intervention");
+
+            DisplaySynch displaySynch = new DisplaySynch() {
+                @Override
+                public void ctrlDisplay() {
+                    refresh();
+                }
+            };
+            String url = "notify/intervention/"+intervention.getId();
+            IntentWraper.startService(url, displaySynch);
         }
 
 
@@ -55,7 +66,7 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
             }
 
             // Create an instance of ExampleFragment
-            TableFragment firstFragment = new TableFragment();
+            firstFragment = new TableFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -92,9 +103,11 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_tableau, menu);
-        return true;
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_logout, menu);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -158,6 +171,10 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
     public void updateIntervention(Intervention intervention) {
         Log.i(TAG, "updateIntervention");
         this.intervention = intervention;
+
+        if (firstFragment != null){
+            firstFragment.refresh();
+        }
     }
 
 
@@ -187,11 +204,13 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
         super.onStop();
     }
 
+
     @Override
     protected void onPause() {
         super.onPause();
         IntentWraper.stopService();
     }
+
 
     @Override
     public void onFragmentInteraction(Uri uri) {

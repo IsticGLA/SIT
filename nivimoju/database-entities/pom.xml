@@ -11,23 +11,6 @@
 
     <artifactId>database-entities</artifactId>
 
-    <dependencies>
-        <dependency>
-            <groupId>groupeb.gla.istic</groupId>
-            <artifactId>ws-interface</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>groupeb.gla.istic</groupId>
-            <artifactId>drone-engine</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>groupeb.gla.istic</groupId>
-            <artifactId>container</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
 
 
 </project>
