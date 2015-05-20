@@ -1,5 +1,6 @@
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -10,21 +11,25 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Spinner;
 
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupb.nivimoju.util.ResourceRole;
 import istic.gla.groupb.nivimoju.util.State;
+import istic.gla.groupeb.flerjeco.springRest.IResourceActivity;
+import istic.gla.groupeb.flerjeco.springRest.UpdateResourceTask;
 
 /**
  * Fragment used for change the state of a resource of firefighters
  * @see android.support.v4.app.DialogFragment
  */
-public class ChangeStateDialogFragment extends DialogFragment {
+public class ChangeStateDialogFragment extends DialogFragment implements IResourceActivity {
     private static final String TAG = ChangeStateDialogFragment.class.getSimpleName();
 
     Spinner stateSpinner;
     Resource resource;
     private ResourceRole role;
+    private UpdateResourceTask updateResourceTask;
 
     //fields
     CheckBox validatecheckBox;
@@ -118,9 +123,11 @@ public class ChangeStateDialogFragment extends DialogFragment {
     }
 
     public void releaseResource() {
-        resource.setState(State.free);
-        ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
-        dismiss();
+        updateResourceTask = new UpdateResourceTask(this);
+        updateResourceTask.execute(
+                "" + ((AgentInterventionActivity) getActivity()).intervention.getId(),
+                "" + resource.getIdRes(),
+                State.free.name());
     }
 
     public int getStatePosition(){
@@ -158,8 +165,20 @@ public class ChangeStateDialogFragment extends DialogFragment {
     @Override
     public void onPause() {
         super.onPause();
-
     }
 
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        if(updateResourceTask != null) {
+            updateResourceTask.cancel(true);
+        }
+    }
 
+    @Override
+    public void updateResources(Intervention intervention) {
+        if(intervention != null) {
+            dismiss();
+        }
+    }
 }
