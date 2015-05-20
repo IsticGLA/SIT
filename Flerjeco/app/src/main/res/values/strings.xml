@@ -102,6 +102,9 @@
     <string name="drone_update_path_error_not_available">"Aucun drone n'est disponible, la création de trajet est impossible"</string>
     <string name="drone_update_path_error_generic">"La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer"</string>
     <string name="drone_update_path_success">"Les modifications ont été enregistées"</string>
+    <string name="button_resource_arrived">Arrived</string>
+    <string name="button_resource_released">Released</string>
+    <string name="resource_arrived_dialog_title">Vehicle is arrived ?</string>
     <string name="title_activity_tableau"> Managing resources</string>
 
     <string name="hello_world">Hello world!</string>
