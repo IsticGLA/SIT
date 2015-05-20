@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 
@@ -15,6 +16,7 @@ import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
@@ -26,7 +28,7 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
     private static final String TAG = TableActivity.class.getSimpleName();
 
     protected Intervention intervention;
-
+    private TableFragment firstFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +37,21 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
 
         intervention = new Intervention();
 
+
         Bundle extras = getIntent().getExtras();
 
         if (extras != null){
             Log.i(TAG, "getExtras not null");
             intervention = (Intervention) extras.getSerializable("intervention");
+
+            DisplaySynch displaySynch = new DisplaySynch() {
+                @Override
+                public void ctrlDisplay() {
+                    refresh();
+                }
+            };
+            String url = "notify/intervention/"+intervention.getId();
+            IntentWraper.startService(url, displaySynch);
         }
 
 
@@ -55,7 +67,7 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
             }
 
             // Create an instance of ExampleFragment
-            TableFragment firstFragment = new TableFragment();
+            firstFragment = new TableFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -92,26 +104,25 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_tableau, menu);
-        return true;
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_logout, menu);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                Intent intent = new Intent(TableActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
-
 
 
     @Override
@@ -158,6 +169,10 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
     public void updateIntervention(Intervention intervention) {
         Log.i(TAG, "updateIntervention");
         this.intervention = intervention;
+
+        if (firstFragment != null){
+            firstFragment.refresh();
+        }
     }
 
 
@@ -187,11 +202,13 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
         super.onStop();
     }
 
+
     @Override
     protected void onPause() {
         super.onPause();
         IntentWraper.stopService();
     }
+
 
     @Override
     public void onFragmentInteraction(Uri uri) {

@@ -44,5 +44,6 @@
     </style>
     <style name="frag2HeaderCol" parent="frag2Col">
         <item name="android:textStyle">bold</item>
+        <item name="android:layout_centerInParent">true</item>
     </style>
 </resources>

@@ -3,6 +3,7 @@ package istic.gla.groupb.nivimoju.dao;
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Position;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,7 +42,7 @@ public class ImageDAOTest {
         byte[] b = baos.toByteArray();
         Date date= new java.util.Date();
         double[] position = {49.63004, -1.66334};
-        image = new Image(256.0, 256.0, new Timestamp(date.getTime()), position, b);
+        image = new Image(256.0, DateTime.now().getMillis(), position, b, 1);
         imageDAO = new ImageDAO();
         imageDAO.connect();
     }
