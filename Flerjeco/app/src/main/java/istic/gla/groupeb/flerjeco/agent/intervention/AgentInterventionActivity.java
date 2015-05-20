@@ -42,6 +42,7 @@ import java.util.List;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
 import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
@@ -285,12 +286,14 @@ public class AgentInterventionActivity extends FragmentActivity
                         firstFragment.getResourceImageAdapter().notifyDataSetChanged();
                     } else {
                         resource = additionalResourceList.get(mCurrentPosition);
-                        List<Resource> resources = intervention.getResources();
-                        resources.add(resource);
+                        resource.setIdRes(-1);
+                        resource.setResourceCategory(ResourceCategory.dragabledata);
+                        /*List<Resource> resources = intervention.getResources();
+                        resources.add(resource);*/
                     }
 
                     updateResourceOnDrop(resource, latLng);
-                    
+
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     view.setVisibility(View.VISIBLE);
@@ -303,8 +306,8 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
-    public void resourceUpdated(Resource resource){
-        List<Resource> resList = intervention.getResources();
+    public void updateResource(Resource resource){
+        /*List<Resource> resList = intervention.getResources();
         Resource temp = null;
         for (Resource res : resList){
             if (res.getIdRes() == resource.getIdRes()){
@@ -314,7 +317,7 @@ public class AgentInterventionActivity extends FragmentActivity
         if (temp != null){
             resList.remove(temp);
             resList.add(resource);
-        }
+        }*/
 
         UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
         mUpdateResourceIntervention.execute();
@@ -329,8 +332,13 @@ public class AgentInterventionActivity extends FragmentActivity
         resource.setLongitude(latLng.longitude);
         resource.setState(State.planned);
 
-        UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
-        mUpdateResourceIntervention.execute();
+
+        Log.i(TAG, "RESOURCE : ");
+        Log.i(TAG, "id : "+resource.getIdRes());
+        Log.i(TAG, "label : "+resource.getLabel());
+        Log.i(TAG, "category : "+resource.getResourceCategory());
+
+        updateResource(resource);
     }
 
     public void showManageResourceDialog(Resource resource){

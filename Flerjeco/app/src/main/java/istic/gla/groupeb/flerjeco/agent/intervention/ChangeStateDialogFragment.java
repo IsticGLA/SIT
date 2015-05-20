@@ -113,7 +113,7 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
 
     public void validateResource(){
         resource.setState(State.active);
-        ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
+        ((AgentInterventionActivity)getActivity()).updateResource(resource);
         dismiss();
     }
 
@@ -122,7 +122,7 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
             validateResource();
         }
         resource.setResourceRole(role);
-        ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
+        ((AgentInterventionActivity)getActivity()).updateResource(resource);
         dismiss();
     }
 
