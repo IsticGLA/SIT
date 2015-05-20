@@ -7,10 +7,15 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 
+import android.widget.TableRow.LayoutParams;
+import android.widget.TextView;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
@@ -29,6 +34,7 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
 
     protected Intervention intervention;
     private TableFragment firstFragment;
+    private  TableLayout headerTable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +59,9 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
             String url = "notify/intervention/"+intervention.getId();
             IntentWraper.startService(url, displaySynch);
         }
+
+        //Init of header table
+        headerTableInit();
 
 
         // Check whether the activity is using the layout version with
@@ -101,7 +110,42 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
         actionBar.addTab(tabDrone,2,false);
     }
 
+    public void headerTableInit(){
+        headerTable = (TableLayout) findViewById(R.id.headerTable);
 
+        // Recuperation du table layout sur lequel nous allons agir
+        String[] moyen = getResources().getStringArray(R.array.resourceDateState);
+
+        // On va calculer la largeur des colonnes en fonction de la marge de 10
+        // On affiche l'enreg dans une ligne
+        TableRow tableRow = new TableRow(this);
+        headerTable.addView(tableRow,
+                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        headerTable.setBackgroundColor(getResources().getColor(R.color.grey));
+
+        // On crée une ligne de x moyen colonnes
+        tableRow.setLayoutParams(new LayoutParams(moyen.length));
+
+        int i = 0;
+        for (String resourceDateState : moyen) {
+            TextView text = createTextView(false , i == moyen.length - 1);
+            text.setText(resourceDateState);
+            text.setGravity(Gravity.CENTER);
+            text.setWidth(100);
+            tableRow.addView(text, i++);
+        }
+    }
+    private TextView createTextView(boolean endline, boolean endcolumn){
+        TextView text = new TextView(this, null, R.style.frag2HeaderCol);
+        int bottom = endline ? 1 : 0;
+        int right = endcolumn ? 1 :0;
+        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 0.3f);
+        params.setMargins(1, 1, right, bottom);
+        text.setLayoutParams(params);
+        text.setPadding(4, 4, 10, 4);
+        text.setBackgroundColor(getResources().getColor(R.color.white));
+        return text;
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
