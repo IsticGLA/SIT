@@ -10,10 +10,10 @@ import java.util.Arrays;
 public class Image extends AbstractEntity {
 
     private double width;
-    private double heigth;
+    private double height;
     private long timestamp;
     private double[] position;
-    private byte[] image;
+    private int[] image;
     private long idIntervention;
 
     public Image(){
@@ -21,11 +21,11 @@ public class Image extends AbstractEntity {
         this.type = Constant.TYPE_IMAGE;
     }
 
-    public Image(double width, long timestamp, double[] position, byte[] bytes, long idIntervention){
+    public Image(double width, long timestamp, double[] position, int[] bytes, long idIntervention){
         super();
         this.type = Constant.TYPE_IMAGE;
         this.width = width;
-        this.heigth = bytes.length / (3 * width);
+        this.height = bytes.length / (3 * width);
         this.timestamp = timestamp;
         this.position = position;
         this.image = bytes;
@@ -40,12 +40,12 @@ public class Image extends AbstractEntity {
         this.width = width;
     }
 
-    public double getHeigth() {
-        return heigth;
+    public double getHeight() {
+        return height;
     }
 
-    public void setHeigth(double heigth) {
-        this.heigth = heigth;
+    public void setHeight(double height) {
+        this.height = height;
     }
 
     public long getTimestamp() {
@@ -64,11 +64,11 @@ public class Image extends AbstractEntity {
         this.position = position;
     }
 
-    public byte[] getImage() {
+    public int[] getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(int[] image) {
         this.image = image;
     }
 
@@ -87,7 +87,7 @@ public class Image extends AbstractEntity {
 
         Image image1 = (Image) o;
 
-        if (Double.compare(image1.heigth, heigth) != 0) return false;
+        if (Double.compare(image1.height, height) != 0) return false;
         if (idIntervention != image1.idIntervention) return false;
         if (timestamp != image1.timestamp) return false;
         if (Double.compare(image1.width, width) != 0) return false;
@@ -103,7 +103,7 @@ public class Image extends AbstractEntity {
         long temp;
         temp = Double.doubleToLongBits(width);
         result = (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(heigth);
+        temp = Double.doubleToLongBits(height);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + Arrays.hashCode(position);
@@ -116,7 +116,7 @@ public class Image extends AbstractEntity {
     public String toString() {
         return "Image{" +
                 "width=" + width +
-                ", heigth=" + heigth +
+                ", height=" + height +
                 ", timestamp=" + timestamp +
                 ", position=" + Arrays.toString(position) +
                 ", image=" + Arrays.toString(image) +

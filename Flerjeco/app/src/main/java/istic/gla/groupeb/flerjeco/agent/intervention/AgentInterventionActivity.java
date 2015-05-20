@@ -243,8 +243,11 @@ public class AgentInterventionActivity extends FragmentActivity
             resList.remove(temp);
             resList.add(resource);
         }
-        UpdateIntervention updateIntervention = new UpdateIntervention();
-        updateIntervention.execute(intervention);
+
+        UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
+        mUpdateResourceIntervention.execute();
+        /*UpdateIntervention updateIntervention = new UpdateIntervention();
+        updateIntervention.execute(intervention);*/
         //refresh();
     }
 
@@ -294,27 +297,16 @@ public class AgentInterventionActivity extends FragmentActivity
 
                     if (((LinearLayout)view).getChildAt(0) instanceof ImageView){
                         resource = resourceList.get(mCurrentPosition);
-                        resource.setLatitude(latLng.latitude);
-                        resource.setLongitude(latLng.longitude);
-                        resource.setState(State.planned);
                         resourceList.remove(mCurrentPosition);
                         firstFragment.getIconBitmapResourceList().remove(mCurrentPosition);
                         firstFragment.getResourceImageAdapter().notifyDataSetChanged();
                     } else {
                         resource = additionalResourceList.get(mCurrentPosition);
-                        resource.setLatitude(latLng.latitude);
-                        resource.setLongitude(latLng.longitude);
-                        resource.setState(State.active);
                         List<Resource> resources = intervention.getResources();
                         resources.add(resource);
                     }
 
-                    Log.d(TAG,"label Resource" + resource.getLabel());
-
-                    UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
-                    mUpdateResourceIntervention.execute();
-
-
+                    updateResourceOnDrop(resource, latLng);
 
                     /*MarkerOptions marker = new MarkerOptions().position(latLng).title(label);
                     marker.draggable(true);
@@ -335,6 +327,16 @@ public class AgentInterventionActivity extends FragmentActivity
             }
             return true;
         }
+    }
+
+    public void updateResourceOnDrop(Resource resource, LatLng latLng){
+
+        resource.setLatitude(latLng.latitude);
+        resource.setLongitude(latLng.longitude);
+        resource.setState(State.planned);
+
+        UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
+        mUpdateResourceIntervention.execute();
     }
 
     public void showManageResourceDialog(Resource resource){

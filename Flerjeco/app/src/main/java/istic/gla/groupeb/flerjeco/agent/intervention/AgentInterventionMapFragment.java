@@ -30,15 +30,15 @@ import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.entity.StaticData;
 import istic.gla.groupb.nivimoju.util.MarkerType;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
-import istic.gla.groupb.nivimoju.util.ResourceCategory;
-import istic.gla.groupb.nivimoju.util.ResourceRole;
-import istic.gla.groupb.nivimoju.util.State;
 
 /**
  * A fragment that launches other parts of the demo application.
@@ -207,21 +207,13 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
                 @Override
                 public void onMarkerDragEnd(Marker marker) {
-                    /*Resource resource = labelsResourcesHashMap.get(marker.getTitle());
-                    if (resource != null) {
-                        resource.setState(State.planned);
-                        if (null != getActivity()) {
-                            ((AgentInterventionActivity) getActivity()).resourceUpdated(resource);
-                        }
-                    }*/
-                    /*String title = marker.getTitle();
+                    Resource resource = labelsResourcesHashMap.get(marker.getTitle());
                     LatLng latLng = marker.getPosition();
-                    Resource resource = labelsResourcesHashMap.get(title);
-                    resource.setLatitude(latLng.longitude);
-                    resource.setLongitude(latLng.longitude);
-                    if (null != getActivity()){
-                        ((AgentInterventionActivity) getActivity()).resourceUpdated(resource);
-                    }*/
+                    if (resource != null && null != getActivity()) {
+                        //((AgentInterventionActivity) getActivity()).resourceUpdated(resource);
+                        ((AgentInterventionActivity) getActivity()).updateResourceOnDrop(resource,latLng);
+                    }
+
                 }
             });
         }
