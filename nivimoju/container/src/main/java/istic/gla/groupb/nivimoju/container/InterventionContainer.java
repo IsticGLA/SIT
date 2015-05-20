@@ -71,6 +71,14 @@ public class InterventionContainer {
     public Intervention createIntervention(Intervention intervention){
         InterventionDAO interventionDAO= new InterventionDAO();
         interventionDAO.connect();
+
+        int id =0;
+        for(Resource res : intervention.getResources()){
+            res.setIdRes(id);
+            res.setLabel(res.getLabel() + id);
+            id++;
+        }
+
         Intervention resultat = interventionDAO.create(intervention);
         interventionDAO.disconnect();
         mapInterventionById.put(resultat.getId(), resultat);
@@ -140,17 +148,17 @@ public class InterventionContainer {
      * @return
      */
     public Intervention placeVehicle(Long idintervention, Resource vehicle) {
-        boolean found = false;
         Intervention intervention = getInterventionById(idintervention);
         for (Resource resource : intervention.getResources()) {
             if (resource.getIdRes() == vehicle.getIdRes()) {
-                resource = vehicle;
-                found = true;
+                intervention.getResources().remove(resource);
+                intervention.getResources().add(vehicle);
+                return intervention;
             }
         }
-        if (!found){
-            addResource(idintervention, vehicle.getLabel());
-        }
+
+        intervention = addResource(idintervention, vehicle.getLabel());
+
         intervention.updateDate();
         return intervention;
     }
@@ -187,7 +195,8 @@ public class InterventionContainer {
         Long id = Long.valueOf(0);
         for(Path oldpath : intervention.getWatchPath()) {
             if(oldpath.getIdPath() == path.getIdPath()) {
-                oldpath = path;
+                intervention.getWatchPath().remove(oldpath);
+                intervention.getWatchPath().add(path);
                 intervention.updateDate();
                 return intervention;
             }
