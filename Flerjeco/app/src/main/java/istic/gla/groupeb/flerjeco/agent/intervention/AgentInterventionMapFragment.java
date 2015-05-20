@@ -29,6 +29,7 @@ import java.util.Map;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.entity.StaticData;
+import istic.gla.groupb.nivimoju.util.MarkerType;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
@@ -234,19 +235,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     public void drawStaticMarker(MarkerOptions markerOptions, StaticData data){
         Bitmap bmp = null;
-        switch (data.getMarkerType()){
-            case waterSource:
-                bmp = BitmapFactory.decodeResource(getResources(), R.drawable.watersource);
-                break;
-            case danger:
-                Danger danger = new Danger();
-                bmp = Bitmap.createBitmap(60, 60, Bitmap.Config.ARGB_8888);
-                Canvas mCanvas = new Canvas(bmp);
-                danger.drawIcon(mCanvas);
-                break;
-            case incident:
-                bmp = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
-                break;
+        if (data.getMarkerType().equals(MarkerType.waterSource)){
+            bmp = BitmapFactory.decodeResource(getResources(), R.drawable.watersource);
         }
         if (bmp != null) {
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bmp));
