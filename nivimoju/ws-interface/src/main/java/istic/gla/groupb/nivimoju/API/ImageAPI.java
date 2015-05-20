@@ -39,7 +39,7 @@ public class ImageAPI {
             fos.write(byteBuffer.array());
             fos.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error ", e);
         }
 
         logger.info("length of image received : " + flaskImage.getImage().length);
