@@ -142,9 +142,7 @@ public class SpringService {
         return inter;
     }
 
-    public Intervention updateResourceIntervention(Object[] params) {
-        long interventionId = (long)params[0];
-        Resource resource = (Resource)params[1];
+    public Intervention updateResourceIntervention(long interventionId, Resource resource) {
         final String url = URL + "intervention/"+interventionId+"/resources/update";
         Intervention intervention = null;
 

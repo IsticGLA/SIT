@@ -255,7 +255,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         if (category!=null){
             switch (category){
                 case vehicule:
-                    String name = resource.getLabel()+resource.getIdRes();
+                    String name = resource.getLabel();
                     ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
                     Vehicle mVehicle = new Vehicle(name, role, resource.getState());
                     int width = mVehicle.getRect().width();

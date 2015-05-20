@@ -73,6 +73,22 @@ public class AgentInterventionActivity extends FragmentActivity
             new GetInterventionTask(this, intervention.getId()).execute();
         }
     }
+    /**
+     * Update lists of resources and map
+     * @param intervention
+     */
+    public void updateIntervention(Intervention intervention) {
+        Log.i(TAG, "updateIntervention");
+        this.intervention = intervention;
+        //update lists of resources and map
+        if (firstFragment != null){
+            firstFragment.refresh();
+        }
+        if (mapFragment != null){
+            mapFragment.refresh();
+        }
+    }
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -231,21 +247,6 @@ public class AgentInterventionActivity extends FragmentActivity
         updateIntervention.execute(intervention);
         //refresh();
     }
-    /**
-     * Update lists of resources and map
-     * @param intervention
-     */
-    public void updateIntervention(Intervention intervention) {
-        Log.i(TAG, "updateIntervention");
-        this.intervention = intervention;
-        //update lists of resources and map
-        if (firstFragment != null){
-            firstFragment.refresh();
-        }
-        if (mapFragment != null){
-            mapFragment.refresh();
-        }
-    }
 
     @Override
     public Context getContext() {
@@ -308,8 +309,12 @@ public class AgentInterventionActivity extends FragmentActivity
                         resources.add(resource);
                     }
 
-                    UpdateIntervention mUpdateIntervention = new UpdateIntervention();
-                    mUpdateIntervention.execute(intervention);
+                    Log.d(TAG,"label Resource" + resource.getLabel());
+
+                    UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
+                    mUpdateResourceIntervention.execute();
+
+
 
                     /*MarkerOptions marker = new MarkerOptions().position(latLng).title(label);
                     marker.draggable(true);
@@ -382,6 +387,30 @@ public class AgentInterventionActivity extends FragmentActivity
         @Override
         protected void onPostExecute(Intervention intervention){
             Log.i(TAG, "Start onPostExecute updateIntervention");
+            updateIntervention(intervention);
+            Log.i(TAG, "End update intervention");
+        }
+    }
+
+    public class UpdateResourceIntervention extends AsyncTask<Object[], Void, Intervention> {
+        private SpringService service = new SpringService();
+        private long interventionId;
+        private Resource resource;
+
+        public UpdateResourceIntervention(long interventionId, Resource resource){
+            this.interventionId = interventionId;
+            this.resource = resource;
+        }
+
+        @Override
+        protected Intervention doInBackground(Object[]... params) {
+            Log.i(TAG, "Start doInbackground UpdateResourceIntervention");
+            return service.updateResourceIntervention(interventionId,resource);
+        }
+
+        @Override
+        protected void onPostExecute(Intervention intervention){
+            Log.i(TAG, "Start onPostExecute UpdateResourceIntervention");
             updateIntervention(intervention);
             Log.i(TAG, "End update intervention");
         }

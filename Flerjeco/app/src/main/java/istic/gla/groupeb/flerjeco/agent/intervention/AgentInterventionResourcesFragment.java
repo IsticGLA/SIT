@@ -27,20 +27,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
+import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceImageAdapter;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
-import istic.gla.groupb.nivimoju.util.ResourceCategory;
-import istic.gla.groupb.nivimoju.util.State;
 
 public class AgentInterventionResourcesFragment extends Fragment implements ISynchTool {
     OnResourceSelectedListener mCallback;
@@ -181,7 +180,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                     Canvas mCanvas = new Canvas(mBitmap);
                     mVehicle.drawIcon(mCanvas);
                     iconBitmapResourceList.add(mBitmap);
-                    Log.i("RESOURCELIST", resource.getLabel());
+                    Log.i("RESOURCELIST", resource.getLabel() + resource.getIdRes());
                 } else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) || State.validated.equals(resourceState)) {
                     requestList.add(resource);
                 }
