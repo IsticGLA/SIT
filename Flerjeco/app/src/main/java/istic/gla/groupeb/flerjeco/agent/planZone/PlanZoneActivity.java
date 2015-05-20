@@ -2,6 +2,7 @@ package istic.gla.groupeb.flerjeco.agent.planZone;
 
 import android.app.ActionBar;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -14,18 +15,23 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 
-import entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.agent.tableau.TableauActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
-public class PlanZoneActivity extends FragmentActivity implements DroneListFragment.OnResourceSelectedListener, ActionBar.TabListener {
+public class PlanZoneActivity extends FragmentActivity implements DroneListFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool, IInterventionActivity {
 
     private static final String TAG = PlanZoneActivity.class.getSimpleName();
 
     // current intervention
-    private Intervention intervention;
+    private Intervention intervention; /*= new Intervention("Test", 2, 48.399, -1.6554);*/
 
     // current position of the path in the ListView DroneListFragment
     private int position=0;
@@ -120,6 +126,21 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
                 finish();
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(intervention != null) {
+            DisplaySynch displaySynch = new DisplaySynch() {
+                @Override
+                public void ctrlDisplay() {
+                    refresh();
+                }
+            };
+            String url = "notify/intervention/" + intervention.getId();
+            IntentWraper.startService(url, displaySynch);
         }
     }
 
@@ -359,5 +380,22 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     @Override
     public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
 
+    }
+
+    @Override
+    public void updateIntervention(Intervention intervention) {
+        refreshList(intervention);
+    }
+
+    @Override
+    public Context getContext() {
+        return getApplicationContext();
+    }
+
+    @Override
+    public void refresh() {
+        if (null != intervention) {
+            new GetInterventionTask(this, intervention.getId()).execute();
+        }
     }
 }

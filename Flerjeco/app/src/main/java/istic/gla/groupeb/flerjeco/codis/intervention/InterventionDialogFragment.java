@@ -29,10 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import entity.IncidentCode;
-import entity.Intervention;
-import entity.Resource;
-import entity.ResourceType;
+import istic.gla.groupb.nivimoju.entity.IncidentCode;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.entity.ResourceType;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.GetAllIncidentCodeTask;
@@ -43,8 +43,8 @@ import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
 import istic.gla.groupeb.flerjeco.springRest.IResourceTypeLabelsActivity;
 import istic.gla.groupeb.flerjeco.springRest.InterventionPostTask;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import util.ResourceRole;
-import util.State;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.State;
 
 /**
  * Fragment used for the creation of the intervention of firefighters
@@ -226,7 +226,7 @@ public class InterventionDialogFragment extends DialogFragment
     @Override
     public void updateResourceTypeLabels(ResourceType[] resourceTypes) {
         //Intervention
-        entity.Intervention intervention;
+        istic.gla.groupb.nivimoju.entity.Intervention intervention;
         //Address of the intervention
         Address address = new Address(Locale.getDefault());
 
@@ -249,7 +249,7 @@ public class InterventionDialogFragment extends DialogFragment
         }
 
         //Les champs text sont toujours vérifié
-        intervention = new entity.Intervention(nameInterventionEditText.getText().toString(),
+        intervention = new istic.gla.groupb.nivimoju.entity.Intervention(nameInterventionEditText.getText().toString(),
                 spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),
                 address.getLatitude(), address.getLongitude());
         Log.i(TAG, "updateResourceTypeLabels size : "+ resourceTypes.length);

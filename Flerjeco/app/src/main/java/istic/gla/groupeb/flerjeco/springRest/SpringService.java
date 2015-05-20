@@ -14,12 +14,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
 
-import entity.Drone;
-import entity.IncidentCode;
-import entity.Intervention;
-import entity.Resource;
-import entity.ResourceType;
-import entity.StaticData;
+import istic.gla.groupb.nivimoju.entity.Drone;
+import istic.gla.groupb.nivimoju.entity.IncidentCode;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.entity.ResourceType;
+import istic.gla.groupb.nivimoju.entity.StaticData;
 
 /**
  * Created by amhachi on 08/04/15.

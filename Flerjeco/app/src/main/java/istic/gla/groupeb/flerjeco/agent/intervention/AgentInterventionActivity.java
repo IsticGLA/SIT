@@ -34,14 +34,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
-import entity.Intervention;
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.agent.tableau.TableauActivity;
@@ -52,7 +52,6 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
-import util.State;
 
 public class AgentInterventionActivity extends FragmentActivity
         implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool, IInterventionActivity {
@@ -192,10 +191,6 @@ public class AgentInterventionActivity extends FragmentActivity
         vehicleDialog.show(getSupportFragmentManager(), "vehicle_dialog");
     }
 
-    public void cancelResources(View v){
-        mapFragment.cancelResources();
-    }
-
     // Action Menu for Logout
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -284,8 +279,6 @@ public class AgentInterventionActivity extends FragmentActivity
 
                     MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
 
-                    GoogleMap googleMap = mapView.getMap();
-
                     int x = (int) event.getX();
                     int y = (int) event.getY();
 
@@ -325,8 +318,8 @@ public class AgentInterventionActivity extends FragmentActivity
                     mapFragment.drawMarker(marker, resource);
                     // adding marker
                     Marker markerAdded = googleMap.addMarker(marker);
-                    mapFragment.getMarkers().put(label, markerAdded);
-                    mapFragment.getResourcesMap().put(label, resource);*/
+                    mapFragment.getLabelsMarkersHashMap().put(label, markerAdded);
+                    mapFragment.getLabelsResourcesHashMap().put(label, resource);*/
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     view.setVisibility(View.VISIBLE);

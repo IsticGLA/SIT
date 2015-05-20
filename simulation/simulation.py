@@ -10,10 +10,12 @@ from logging.handlers import RotatingFileHandler
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Point
+from sensor_msgs.msg import Image, CameraInfo
+import cv2
 import os
 
 app = Flask(__name__)
-
+#logging.basicConfig(filename='/sit/log/flask.log',level=logging.DEBUG)
 
 class Drone:
     def __init__(self, label, dest_tolerance_squared):
@@ -24,9 +26,10 @@ class Drone:
         self.path = []  # liste de dict<x,y,z>
         self.forward = True
         self.closed = False
+        self.take_picture = False
         self.currentIndex = 0
-        self.pose_sub = rospy.Subscriber(label+"/pose", PoseStamped, self.pose_callback)
-        self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=10, latch=False)
+        self.pose_sub = None
+        self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=1, latch=True)
 
     def pose_callback(self, pose_stamped):
         assert isinstance(pose_stamped, PoseStamped)
@@ -45,6 +48,21 @@ class Drone:
                     self.next_waypoint_in_path()
                 else:
                     app.logger.info("robot " + self.label + " will stay there")
+                    self.stop()
+        elif self.path is not None and len(self.path) > 0:
+            app.logger.warn("robot " + self.label + "has no destination")
+
+    def picture_callback(self, data):
+        app.logger.info("taking picture")
+        self.camera_sub.unsubscribe()
+        self.camera_sub = None
+        cv_image = self.convert_image(data)
+
+    def convert_image(self, ros_image):
+        #### direct conversion to CV2 ####
+        np_arr = np.fromstring(ros_data.data, np.uint8)
+        image_np = cv2.imdecode(np_arr, cv2.CV_LOAD_IMAGE_COLOR)
+        return image_np
 
     def set_path(self, path, closed):
         app.logger.info("the path has " + str(len(path)) + " waypoints")
@@ -73,39 +91,45 @@ class Drone:
             self.goto(self.path[self.currentIndex])
 
     def next_waypoint_in_path(self):
-        app.logger.info("setting next waypoint for robot " +
-                        self.label + "("+str(self.currentIndex+1)+"/"+str(len(self.path))+")")
-        if self.forward:
-            self.currentIndex += 1
-            if self.currentIndex >= len(self.path):
-                if self.closed:
-                    self.currentIndex = 0
-                else:
-                    self.currentIndex = len(self.path) - 1
-                    self.forward = False
+        app.logger.info("setting next waypoint for robot " + self.label)
+        if self.closed:
+            self.currentIndex = (self.currentIndex + 1) % len(self.path)
         else:
-            self.currentIndex -= 1
-            if self.currentIndex < 0:
-                self.currentIndex = 0
-                self.forward = True
-        app.logger.info("new waypoint " +
-                        self.label + "("+str(self.currentIndex+1)+"/"+str(len(self.path))+")")
+            if self.forward:
+                self.currentIndex += 1
+                if self.currentIndex >= len(self.path):
+                     app.logger.info(self.label + " reached end of path, going back")
+                     self.currentIndex = (len(self.path) - 2) % len(self.path)
+                     self.forward = False
+            else:
+                self.currentIndex -= 1
+                if self.currentIndex < 0:
+                    app.logger.info(self.label + " reached start of path, going forward")
+                    self.currentIndex = 1 % len(self.path)
+                    self.forward = True
         app.logger.debug("current index " + str(self.currentIndex+1) +
-                         " forward : " + str(self.forward) +
-                         " current destination : " + str(self.dest))
+                         " forward : " + str(self.forward))
         self.goto(self.path[self.currentIndex])
 
     def goto(self, position):
         x = position["x"]
         y = position["y"]
         z = position["z"]
-        app.logger.info("publishing waypoint to " + str(x) + ", " + str(y) + ", " + str(z))
+        app.logger.info("publishing waypoint to point" + str(x) + ", " + str(y) + ", " + str(z))
         pose = Pose(position=Point(x, y, z))
         self.waypoint_pub.publish(pose)
         self.dest = position
+        if self.pose_sub is None:
+            self.pose_sub = rospy.Subscriber(self.label+"/pose", PoseStamped, self.pose_callback)
 
     def stop(self):
         self.__init__(self.label, self.dest_tolerance_squared)
+        self.pose_sub.unsubscribe()
+        self.pose_sub = None
+        app.logger.info("drone " + self.label + " stopped")
+
+    def take_picture(self):
+        self.camera_sub = rospy.Subscriber(label+"/camera/image", Image, self.picture_callback, queue_size=1)
 
 
 class Controller:
@@ -200,10 +224,12 @@ def get_drones_info():
 
 @app.route('/hello', methods=['GET'])
 def hello():
+    app.logger.info("hello")
     return "hello", 200
 
 if __name__ == '__main__':
-    handler = RotatingFileHandler('flask.log', maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler('/sit/log/flask.log', maxBytes=1000000, backupCount=1)
+    #handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
@@ -216,3 +242,4 @@ if __name__ == '__main__':
         app.logger.info("flask webservice started")
     except Exception as e:
         app.logger.error(traceback.format_exc())
+

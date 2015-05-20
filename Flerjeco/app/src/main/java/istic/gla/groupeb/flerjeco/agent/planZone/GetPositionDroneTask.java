@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Date;
 
-import entity.Drone;
+import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 /**

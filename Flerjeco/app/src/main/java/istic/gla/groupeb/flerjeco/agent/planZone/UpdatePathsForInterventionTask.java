@@ -6,7 +6,7 @@ import android.widget.Toast;
 
 import org.springframework.http.ResponseEntity;
 
-import entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 

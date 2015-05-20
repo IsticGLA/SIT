@@ -22,15 +22,15 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.HashMap;
 
-import entity.Intervention;
-import entity.Resource;
-import entity.ResourceType;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.entity.ResourceType;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.GetResourceTypesTask;
 import istic.gla.groupeb.flerjeco.springRest.IResourceTypesActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import util.ResourceCategory;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
 
 /**
  * Created by jules on 09/04/15.

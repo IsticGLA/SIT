@@ -2,7 +2,7 @@ package istic.gla.groupeb.flerjeco.springRest;
 
 import android.content.Context;
 
-import entity.StaticData;
+import istic.gla.groupb.nivimoju.entity.StaticData;
 
 /**
  * Created by jules on 16/04/15.

@@ -1,7 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
-import dao.ResourceTypeDAO;
-import entity.ResourceType;
+import istic.gla.groupb.nivimoju.dao.ResourceTypeDAO;
+import istic.gla.groupb.nivimoju.entity.ResourceType;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

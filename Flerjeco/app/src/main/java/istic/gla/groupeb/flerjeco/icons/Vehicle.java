@@ -6,8 +6,8 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import util.ResourceRole;
-import util.State;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.State;
 
 /**
  * This class allows to draw the representation

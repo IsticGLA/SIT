@@ -5,7 +5,7 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupeb.flerjeco.icons.IIcon;
 
 public class IconView extends View {
