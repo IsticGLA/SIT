@@ -91,7 +91,9 @@ public class VehicleArrivedDialog extends DialogFragment implements IResourceAct
     @Override
     public void onCancel(DialogInterface dialog) {
         super.onCancel(dialog);
-        updateResourceTask.cancel(true);
+        if(updateResourceTask != null) {
+            updateResourceTask.cancel(true);
+        }
     }
 
     /**
