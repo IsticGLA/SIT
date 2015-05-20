@@ -53,12 +53,35 @@
         <item>FHA</item>
     </string-array>
     <string-array name="state">
-        <item>Humain</item>
-        <item>Risque</item>
-        <item>Commande</item>
-        <item>Feu</item>
-        <item>Eau</item>
+        <item>@string/human</item>
+        <item>@string/risk</item>
+        <item>@string/command</item>
+        <item>@string/fire</item>
+        <item>@string/water</item>
     </string-array>
+    <string-array name="resourceDateState">
+        <item>@string/resource</item>
+        <item>@string/asked</item>
+        <item>@string/triggered</item>
+        <item>@string/arrived</item>
+        <item>@string/send</item>
+        <item>@string/released</item>
+    </string-array>
+
+    <string name="resource">Resource</string>
+    <string name="asked">Asked at</string>
+    <string name="triggered">Triggered at</string>
+    <string name="arrived">Arrived at</string>
+    <string name="send">Send at</string>
+    <string name="released">Released at</string>
+
+    <string name="human">Human</string>
+    <string name="risk">Risk</string>
+    <string name="command">Command</string>
+    <string name="fire">Fire</string>
+    <string name="water">Water</string>
+
+
     <string name="buttonValidateResources">Validate the position of resources</string>
     <string name="create_path">Create path</string>
     <string name="finish_edition">Terminate</string>
@@ -79,15 +102,20 @@
     <string name="drone_update_path_error_not_available">"Aucun drone n'est disponible, la création de trajet est impossible"</string>
     <string name="drone_update_path_error_generic">"La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer"</string>
     <string name="drone_update_path_success">"Les modifications ont été enregistées"</string>
-    <string name="title_activity_tableau">Gestion des moyens</string>
+    <string name="button_resource_arrived">Arrived</string>
+    <string name="button_resource_released">Released</string>
+    <string name="resource_arrived_dialog_title">Vehicle is arrived ?</string>
+    <string name="title_activity_tableau"> Managing resources</string>
 
     <string name="hello_world">Hello world!</string>
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string name="table">Table</string>
     <string name="visualisation">Visualisation</string>
     <string name="drones">Drones</string>
     <string name="intervention">Intervention</string>
+    <string name="manage_activateResource"></string>
 
 </resources>

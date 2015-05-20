@@ -2,6 +2,7 @@ package istic.gla.groupb.nivimoju.container;
 
 import istic.gla.groupb.nivimoju.dao.DroneDAO;
 import istic.gla.groupb.nivimoju.entity.Drone;
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Position;
 import org.apache.log4j.Logger;
 

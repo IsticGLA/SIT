@@ -2,6 +2,7 @@ package istic.gla.groupb.nivimoju.container;
 
 import istic.gla.groupb.nivimoju.dao.InterventionDAO;
 import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import org.apache.log4j.Logger;
 import istic.gla.groupb.nivimoju.util.State;
@@ -148,9 +149,68 @@ public class InterventionContainer {
             }
         }
         if (!found){
-            intervention.getResources().add(vehicle);
+            addResource(idintervention, vehicle.getLabel());
         }
         intervention.updateDate();
+        return intervention;
+    }
+
+    /**
+     * Add Watchpath to an intervention
+     * @param idintervention
+     * @param path
+     * @return
+     */
+    public Intervention addWatchPath(Long idintervention, Path path) {
+        Intervention intervention = getInterventionById(idintervention);
+        Long id = Long.valueOf(0);
+        for(Path oldpath : intervention.getWatchPath()) {
+            if(oldpath.getIdPath() >= id) {
+                id = oldpath.getIdPath();
+            }
+        }
+        id++;
+        path.setIdPath(id);
+        intervention.getWatchPath().add(path);
+        intervention.updateDate();
+        return intervention;
+    }
+
+    /**
+     * Update Watchpath to an intervention
+     * @param idintervention
+     * @param path
+     * @return
+     */
+    public Intervention updateWatchPath(Long idintervention, Path path) {
+        Intervention intervention = getInterventionById(idintervention);
+        Long id = Long.valueOf(0);
+        for(Path oldpath : intervention.getWatchPath()) {
+            if(oldpath.getIdPath() == path.getIdPath()) {
+                oldpath = path;
+                intervention.updateDate();
+                return intervention;
+            }
+        }
+        return intervention;
+    }
+
+    /**
+     * Delete Watchpath to an intervention
+     * @param idintervention
+     * @param path
+     * @return
+     */
+    public Intervention deleteWatchPath(Long idintervention, Path path) {
+        Intervention intervention = getInterventionById(idintervention);
+        Long id = Long.valueOf(0);
+        for(Path oldpath : intervention.getWatchPath()) {
+            if(oldpath.getIdPath() == path.getIdPath()) {
+                intervention.getWatchPath().remove(oldpath);
+                intervention.updateDate();
+                return intervention;
+            }
+        }
         return intervention;
     }
 

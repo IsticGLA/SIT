@@ -9,12 +9,28 @@ import java.util.List;
  */
 public class Path implements Serializable {
 
-    List<Position> positions;
-    boolean closed;
+    private long idPath;
+    private List<Position> positions;
+    private boolean closed;
 
     public Path(){
+        this.idPath = -1;
         this.positions = new ArrayList<>();
         this.closed = false;
+    }
+
+    public Path(long idPath){
+        this.idPath = idPath;
+        this.positions = new ArrayList<>();
+        this.closed = false;
+    }
+
+    public long getIdPath() {
+        return idPath;
+    }
+
+    public void setIdPath(long idPath) {
+        this.idPath = idPath;
     }
 
     public List<Position> getPositions() {
