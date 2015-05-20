@@ -66,4 +66,7 @@
     <string name="manage_activateResource">Activer la ressource</string>
     <string name="manage_freeResource">Libérer la ressource</string>
     <string name="title_dialog_change_resource">Gestion de la ressource</string>
+    <string name="button_resource_arrived">Arrivé</string>
+    <string name="button_resource_released">Libéré</string>
+    <string name="resource_arrived_dialog_title">Le véhicule est il arrivé ?</string>
 </resources>
