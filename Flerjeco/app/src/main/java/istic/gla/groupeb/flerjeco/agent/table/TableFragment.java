@@ -15,6 +15,7 @@ import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
@@ -225,6 +226,9 @@ public class TableFragment extends Fragment implements ISynchTool{
                     TextView text = createTextView(true, true);
 
                     Timestamp timestamp;
+
+                    //Number formatter for minutes ##00
+                    DecimalFormat decimalFormat = new DecimalFormat("##00");
                     switch (j){
                         case 0 :
                             text.setText(resource.getLabel());
@@ -232,7 +236,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                         case 1 :
                             timestamp = resource.getWaitingHistory();
                             if(timestamp != null) {
-                                text.setText(timestamp.getHours() + ":" + timestamp.getMinutes());
+                                text.setText(timestamp.getHours() + ":" + decimalFormat.format(timestamp.getMinutes()));
                             }else{
                                 text.setText("-");
                             }
@@ -241,7 +245,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                             timestamp = resource.getValidatedHistory();
                             if(timestamp != null)
                             {
-                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                                text.setText(timestamp.getHours()+":"+decimalFormat.format(timestamp.getMinutes()));
                             }else{
                                 text.setText("-");
                             }
@@ -249,7 +253,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                         case 3 :
                             timestamp = resource.getArrivedHistory();
                             if(timestamp != null){
-                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                                text.setText(timestamp.getHours()+":"+decimalFormat.format(timestamp.getMinutes()));
                             }else{
                                 text.setText("-");
                             }
@@ -257,7 +261,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                         case 4 :
                             timestamp = resource.getPlannedHistory();
                             if(timestamp != null){
-                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                                text.setText(timestamp.getHours()+":"+decimalFormat.format(timestamp.getMinutes()));
                             }else{
                                 text.setText("-");
                             }
@@ -265,7 +269,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                         case 5 :
                             timestamp = resource.getFreeHistory();
                             if(timestamp != null){
-                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                                text.setText(timestamp.getHours()+":"+decimalFormat.format(timestamp.getMinutes()));
                             }else{
                                 text.setText("-");
                             }
@@ -277,7 +281,7 @@ public class TableFragment extends Fragment implements ISynchTool{
 
                     text.setTextColor(getResourceColor(resource.getResourceRole()));
                     tableRow.addView(text, i++);
-                    text.setGravity(Gravity.RIGHT);
+                    text.setGravity(Gravity.CENTER);
                 }
             }
         }
