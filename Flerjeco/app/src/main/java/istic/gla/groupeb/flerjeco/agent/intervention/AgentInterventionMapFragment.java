@@ -210,7 +210,6 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                     Resource resource = labelsResourcesHashMap.get(marker.getTitle());
                     LatLng latLng = marker.getPosition();
                     if (resource != null && null != getActivity()) {
-                        //((AgentInterventionActivity) getActivity()).resourceUpdated(resource);
                         ((AgentInterventionActivity) getActivity()).updateResourceOnDrop(resource,latLng);
                     }
 

@@ -34,6 +34,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -231,26 +232,6 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
-    public void resourceUpdated(Resource resource){
-        List<Resource> resList = intervention.getResources();
-        Resource temp = null;
-        for (Resource res : resList){
-            if (res.getIdRes() == resource.getIdRes()){
-                temp = res;
-            }
-        }
-        if (temp != null){
-            resList.remove(temp);
-            resList.add(resource);
-        }
-
-        UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
-        mUpdateResourceIntervention.execute();
-        /*UpdateIntervention updateIntervention = new UpdateIntervention();
-        updateIntervention.execute(intervention);*/
-        //refresh();
-    }
-
     @Override
     public Context getContext() {
         return getApplicationContext();
@@ -283,6 +264,8 @@ public class AgentInterventionActivity extends FragmentActivity
 
                     MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
 
+                    GoogleMap googleMap = mapView.getMap();
+
                     int x = (int) event.getX();
                     int y = (int) event.getY();
 
@@ -307,16 +290,7 @@ public class AgentInterventionActivity extends FragmentActivity
                     }
 
                     updateResourceOnDrop(resource, latLng);
-
-                    /*MarkerOptions marker = new MarkerOptions().position(latLng).title(label);
-                    marker.draggable(true);
-
-                    // Changing marker icons
-                    mapFragment.drawMarker(marker, resource);
-                    // adding marker
-                    Marker markerAdded = googleMap.addMarker(marker);
-                    mapFragment.getLabelsMarkersHashMap().put(label, markerAdded);
-                    mapFragment.getLabelsResourcesHashMap().put(label, resource);*/
+                    
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     view.setVisibility(View.VISIBLE);
@@ -327,6 +301,26 @@ public class AgentInterventionActivity extends FragmentActivity
             }
             return true;
         }
+    }
+
+    public void resourceUpdated(Resource resource){
+        List<Resource> resList = intervention.getResources();
+        Resource temp = null;
+        for (Resource res : resList){
+            if (res.getIdRes() == resource.getIdRes()){
+                temp = res;
+            }
+        }
+        if (temp != null){
+            resList.remove(temp);
+            resList.add(resource);
+        }
+
+        UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
+        mUpdateResourceIntervention.execute();
+        /*UpdateIntervention updateIntervention = new UpdateIntervention();
+        updateIntervention.execute(intervention);*/
+        //refresh();
     }
 
     public void updateResourceOnDrop(Resource resource, LatLng latLng){
