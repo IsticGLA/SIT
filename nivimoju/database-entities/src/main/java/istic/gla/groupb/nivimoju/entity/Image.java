@@ -2,7 +2,7 @@ package istic.gla.groupb.nivimoju.entity;
 
 import istic.gla.groupb.nivimoju.util.Constant;
 
-import java.sql.Timestamp;
+import java.util.Arrays;
 
 /**
  * Created by jeremy on 19/05/15.
@@ -11,23 +11,25 @@ public class Image extends AbstractEntity {
 
     private double width;
     private double heigth;
-    private Timestamp timestamp;
+    private long timestamp;
     private double[] position;
     private byte[] image;
+    private long idIntervention;
 
     public Image(){
         super();
         this.type = Constant.TYPE_IMAGE;
     }
 
-    public Image(double w, double h, Timestamp t, double[] p, byte[] b){
+    public Image(double width, long timestamp, double[] position, byte[] bytes, long idIntervention){
         super();
         this.type = Constant.TYPE_IMAGE;
-        this.width = w;
-        this.heigth = h;
-        this.timestamp = t;
-        this.position = p;
-        this.image = b;
+        this.width = width;
+        this.heigth = bytes.length / (3 * width);
+        this.timestamp = timestamp;
+        this.position = position;
+        this.image = bytes;
+        this.idIntervention = idIntervention;
     }
 
     public double getWidth() {
@@ -46,11 +48,11 @@ public class Image extends AbstractEntity {
         this.heigth = heigth;
     }
 
-    public Timestamp getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -70,6 +72,14 @@ public class Image extends AbstractEntity {
         this.image = image;
     }
 
+    public long getIdIntervention() {
+        return idIntervention;
+    }
+
+    public void setIdIntervention(long idIntervention) {
+        this.idIntervention = idIntervention;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -77,12 +87,14 @@ public class Image extends AbstractEntity {
 
         Image image1 = (Image) o;
 
-        if (Double.compare(image1.width, width) != 0) return false;
         if (Double.compare(image1.heigth, heigth) != 0) return false;
-        if (!timestamp.equals(image1.timestamp)) return false;
-        if (!position.equals(image1.position)) return false;
-        return image.equals(image1.image);
+        if (idIntervention != image1.idIntervention) return false;
+        if (timestamp != image1.timestamp) return false;
+        if (Double.compare(image1.width, width) != 0) return false;
+        if (!Arrays.equals(image, image1.image)) return false;
+        if (!Arrays.equals(position, image1.position)) return false;
 
+        return true;
     }
 
     @Override
@@ -93,9 +105,10 @@ public class Image extends AbstractEntity {
         result = (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(heigth);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + timestamp.hashCode();
-        result = 31 * result + position.hashCode();
-        result = 31 * result + image.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + Arrays.hashCode(position);
+        result = 31 * result + Arrays.hashCode(image);
+        result = 31 * result + (int) (idIntervention ^ (idIntervention >>> 32));
         return result;
     }
 
@@ -105,8 +118,9 @@ public class Image extends AbstractEntity {
                 "width=" + width +
                 ", heigth=" + heigth +
                 ", timestamp=" + timestamp +
-                ", position=" + position +
-                ", image=" + image +
+                ", position=" + Arrays.toString(position) +
+                ", image=" + Arrays.toString(image) +
+                ", idIntervention=" + idIntervention +
                 '}';
     }
 }

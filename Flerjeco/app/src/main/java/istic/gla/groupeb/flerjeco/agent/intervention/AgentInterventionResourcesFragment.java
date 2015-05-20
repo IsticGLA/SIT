@@ -137,10 +137,12 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         listViewRequests.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                VehicleArrivedDialog vehicleArrivedDialog = new VehicleArrivedDialog();
-                vehicleArrivedDialog.setResource(requestList.get(position));
-                vehicleArrivedDialog.setInterventionId(((AgentInterventionActivity)getActivity()).intervention.getId());
-                vehicleArrivedDialog.show(getFragmentManager(), "vehicle_dialog");
+                if(State.validated.equals(requestList.get(position).getState())) {
+                    VehicleArrivedDialog vehicleArrivedDialog = new VehicleArrivedDialog();
+                    vehicleArrivedDialog.setResource(requestList.get(position));
+                    vehicleArrivedDialog.setInterventionId(((AgentInterventionActivity) getActivity()).intervention.getId());
+                    vehicleArrivedDialog.show(getFragmentManager(), "vehicle_dialog");
+                }
             }
         });
 
