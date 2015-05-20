@@ -76,6 +76,7 @@ public class InterventionContainer {
         for(Resource res : intervention.getResources()){
             res.setIdRes(id);
             res.setLabel(res.getLabel() + id);
+            res.initState();
             id++;
         }
 

@@ -87,6 +87,14 @@ public class Resource implements Serializable {
         this.resourceCategory = ResourceCategory.vehicule;
     }
 
+    public void initState() {
+        if (this.state == State.validated) {
+            Timestamp now = new Timestamp(Calendar.getInstance().getTime().getTime());
+            this.validatedHistory = now;
+            this.waitingHistory = now;
+        }
+    }
+
     public long getIdRes() {
         return idRes;
     }
@@ -112,31 +120,31 @@ public class Resource implements Serializable {
         Timestamp now = new Timestamp(Calendar.getInstance().getTime().getTime());
         switch (state) {
             case active:
-                if(activeHistory != null)
+                if(activeHistory == null)
                     this.activeHistory = now;
                 break;
             case arrived:
-                if(arrivedHistory != null)
+                if(arrivedHistory == null)
                     this.arrivedHistory = now;
                 break;
             case free:
-                if(freeHistory != null)
+                if(freeHistory == null)
                     this.freeHistory = now;
                 break;
             case planned:
-                if(plannedHistory != null)
+                if(plannedHistory == null)
                     this.plannedHistory = now;
                 break;
             case refused:
-                if(refusedHistory != null)
+                if(refusedHistory == null)
                     this.refusedHistory = now;
                 break;
             case validated:
-                if(validatedHistory != null)
+                if(validatedHistory == null)
                     this.validatedHistory = now;
                 break;
             case waiting:
-                if(waitingHistory != null)
+                if(waitingHistory == null)
                     this.waitingHistory = now;
                 break;
             default:
