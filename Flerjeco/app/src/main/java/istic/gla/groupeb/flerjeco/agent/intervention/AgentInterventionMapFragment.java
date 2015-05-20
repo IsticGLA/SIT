@@ -73,8 +73,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     private void clearMapData(){
         for (Resource resource : resources){
-            if (labelsMarkersHashMap.get(resource.getLabel()) != null) {
-                labelsMarkersHashMap.get(resource.getLabel()).remove();
+            if (labelsMarkersHashMap.get(resource.getLabel()+resource.getIdRes()) != null) {
+                labelsMarkersHashMap.get(resource.getLabel()+resource.getIdRes()).remove();
             }
         }
         resources.clear();
@@ -114,7 +114,6 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         if (null != intervention){
             // Create LatLngBound to zoom on the set of positions in the path
             final LatLngBounds.Builder bounds = new LatLngBounds.Builder();
-            boolean isPositionResource = false;
 
             if (intervention.getResources().size()>0){
 
@@ -129,23 +128,20 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
                         if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
 
-                            String resourceLabel = resource.getLabel();
+                            String resourceLabelID = resource.getLabel()+resource.getIdRes();
                             // create marker
-                            MarkerOptions marker = new MarkerOptions().position(latLng).title(resourceLabel);
+                            MarkerOptions marker = new MarkerOptions().position(latLng).title(resourceLabelID);
                             drawMarker(marker, resource);
                             // adding marker
                             Marker markerAdded = googleMap.addMarker(marker);
 
-                            labelsMarkersHashMap.put(resourceLabel, markerAdded);
+                            labelsMarkersHashMap.put(resourceLabelID, markerAdded);
                             resources.add(resource);
-                            labelsResourcesHashMap.put(resourceLabel, resource);
+                            labelsResourcesHashMap.put(resourceLabelID, resource);
 
-                            Log.i(TAG, "Label "+resourceLabel+", Latitude : "+latitude+", Longitude : "+longitude);
+                            Log.i(TAG, "Label "+resourceLabelID+", Latitude : "+latitude+", Longitude : "+longitude);
 
-                            if (intervention.getResources().size()>1) {
-                                isPositionResource = true;
-                                bounds.include(latLng);
-                            }
+                            bounds.include(latLng);
                         }
 
                     }
@@ -154,26 +150,35 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 }
             }
 
-            if(!isPositionResource && initMap) {
+            if(initMap) {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
+                        .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
 
-                googleMap.animateCamera(CameraUpdateFactory
+                googleMap.moveCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));
                 initMap = false;
-            } else {
-                googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
 
+                googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
-                    public void onCameraChange(CameraPosition arg0) {
-                        // Move camera.
-                        try {
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
-                        } catch (IllegalStateException e) {
-                            Log.e(TAG, "Error: no included points for camera update");
+                    public void onMapLoaded() {
+                        if (resources.size()>1) {
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 100));
                         }
-                        // Remove listener to prevent position reset on camera move.
-                        googleMap.setOnCameraChangeListener(null);
+                        else if (resources.size()==1){
+                            CameraPosition cameraPosition = new CameraPosition.Builder()
+                                    .target(new LatLng(resources.get(0).getLatitude(), resources.get(0).getLongitude())).zoom(16).build();
+
+                            googleMap.animateCamera(CameraUpdateFactory
+                                    .newCameraPosition(cameraPosition));
+                        }
+                        else {
+                            CameraPosition cameraPosition = new CameraPosition.Builder()
+                                    .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
+
+                            googleMap.animateCamera(CameraUpdateFactory
+                                    .newCameraPosition(cameraPosition));
+                        }
+                        googleMap.setOnMapLoadedCallback(null);
                     }
                 });
             }
@@ -250,7 +255,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         if (category!=null){
             switch (category){
                 case vehicule:
-                    String name = resource.getLabel();
+                    String name = resource.getLabel()+resource.getIdRes();
                     ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
                     Vehicle mVehicle = new Vehicle(name, role, resource.getState());
                     int width = mVehicle.getRect().width();
