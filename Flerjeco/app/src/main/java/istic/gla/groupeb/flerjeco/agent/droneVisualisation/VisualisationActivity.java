@@ -1,27 +1,16 @@
 package istic.gla.groupeb.flerjeco.agent.droneVisualisation;
 
-import android.app.ActionBar;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.AgentTabbedActivity;
-import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
+import istic.gla.groupeb.flerjeco.TabbedActivity;
 import istic.gla.groupeb.flerjeco.agent.planZone.DroneListFragment;
-import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
-import istic.gla.groupeb.flerjeco.agent.table.TableActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
@@ -29,7 +18,7 @@ import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
-public class VisualisationActivity extends AgentTabbedActivity implements ISynchTool, IInterventionActivity {
+public class VisualisationActivity extends TabbedActivity implements ISynchTool, IInterventionActivity {
 
     private static final String TAG = VisualisationActivity.class.getSimpleName();
 
@@ -39,15 +28,6 @@ public class VisualisationActivity extends AgentTabbedActivity implements ISynch
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Get the Bundle from the intent
-        Bundle extras = getIntent().getExtras();
-
-        // if we got an extras, we set the intervention to the value of the extras
-        if (extras != null){
-            Log.i(TAG, "Get the intervention from the bundle");
-            intervention = (Intervention) extras.getSerializable("intervention");
-        }
 
         // Set the content view with the activity_plan_zone layout
         setContentView(R.layout.activity_plan_zone);
@@ -62,46 +42,7 @@ public class VisualisationActivity extends AgentTabbedActivity implements ISynch
             if (savedInstanceState != null) {
                 return;
             }
-
-            // Create an instance of ExampleFragment
-            DroneListFragment firstFragment = new DroneListFragment();
-
-            // In case this activity was started with special instructions from an Intent,
-            // pass the Intent's extras to the fragment as arguments
-            firstFragment.setArguments(getIntent().getExtras());
-
-            // Add the fragment to the 'fragment_container' FrameLayout
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.fragment_container, firstFragment).commit();
         }
-
-        final ActionBar actionBar = getActionBar();
-
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // Add 4 tabs, specifying the tab's text and TabListener
-        ActionBar.Tab tabInter = actionBar.newTab();
-        tabInter.setText("Intervention");
-        tabInter.setTabListener(this);
-
-        ActionBar.Tab tabTableau = actionBar.newTab();
-        tabTableau.setText("Tableau");
-        tabTableau.setTabListener(this);
-
-        ActionBar.Tab tabDrone = actionBar.newTab();
-        tabDrone.setText("Drone");
-        tabDrone.setTabListener(this);
-
-        ActionBar.Tab tabVisu = actionBar.newTab();
-        tabDrone.setText("Visualisation");
-        tabDrone.setTabListener(this);
-
-
-        actionBar.addTab(tabInter, 0, false);
-        actionBar.addTab(tabTableau, 1, false);
-        actionBar.addTab(tabDrone, 2, false);
-        actionBar.addTab(tabVisu, 3, true);
     }
 
 

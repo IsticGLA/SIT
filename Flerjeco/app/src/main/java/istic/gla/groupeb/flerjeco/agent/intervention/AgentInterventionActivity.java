@@ -15,14 +15,12 @@
  */
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.DragEvent;
@@ -43,9 +41,7 @@ import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.AgentTabbedActivity;
-import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
-import istic.gla.groupeb.flerjeco.agent.table.TableActivity;
+import istic.gla.groupeb.flerjeco.TabbedActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
@@ -54,7 +50,7 @@ import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
-public class AgentInterventionActivity extends AgentTabbedActivity
+public class AgentInterventionActivity extends TabbedActivity
         implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ISynchTool, IInterventionActivity {
 
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();

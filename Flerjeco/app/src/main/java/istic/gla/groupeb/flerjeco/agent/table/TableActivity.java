@@ -9,14 +9,14 @@ import android.view.MenuItem;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.AgentTabbedActivity;
+import istic.gla.groupeb.flerjeco.TabbedActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
-public class TableActivity extends AgentTabbedActivity implements ISynchTool, IInterventionActivity, TableFragment.OnFragmentInteractionListener{
+public class TableActivity extends TabbedActivity implements ISynchTool, IInterventionActivity, TableFragment.OnFragmentInteractionListener{
 
     private static final String TAG = TableActivity.class.getSimpleName();
 

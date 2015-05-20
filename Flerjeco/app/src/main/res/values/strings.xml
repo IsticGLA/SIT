@@ -117,5 +117,6 @@
     <string name="drones">Drones</string>
     <string name="intervention">Intervention</string>
     <string name="manage_activateResource"></string>
+    <string name="resources">Resources</string>
 
 </resources>
