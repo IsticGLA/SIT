@@ -11,6 +11,7 @@ import com.couchbase.client.java.error.DocumentAlreadyExistsException;
 import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.view.*;
 import istic.gla.groupb.nivimoju.entity.AbstractEntity;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -46,6 +47,14 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
      */
     public final void disconnect() {
         DAOManager.disconnect();
+    }
+
+    /**
+     * Connect to BDD and
+     * @return Bucket to communicate with couchbase
+     */
+    public final void connectTest() {
+        DAOManager.connectTest();
     }
 
     /**
@@ -220,6 +229,18 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         List<T> res = new ArrayList<>();
         // Iterate through the returned ViewRows
         for (ViewRow row : list) {
+            res.add(jsonDocumentToEntity(Long.valueOf(row.id()), (JsonObject) row.value()));
+        }
+        if (res.size() == 0){
+            //return null;
+        }
+        return res;
+    }
+
+    protected List<T> viewSpatialRowsToEntities(List<SpatialViewRow> list){
+        List<T> res = new ArrayList<>();
+        // Iterate through the returned ViewRows
+        for (SpatialViewRow row : list) {
             res.add(jsonDocumentToEntity(Long.valueOf(row.id()), (JsonObject) row.value()));
         }
         if (res.size() == 0){

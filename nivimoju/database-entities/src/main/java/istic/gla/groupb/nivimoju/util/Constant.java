@@ -6,6 +6,7 @@ package istic.gla.groupb.nivimoju.util;
 public class Constant {
     public static final String TYPE_INTERVENTION = "Intervention";
     public static final String TYPE_USER = "User";
+    public static final String TYPE_IMAGE = "Image";
     public static final String TYPE_INCIDENT_CODE = "IncidentCode";
     public static final String TYPE_RESOURCE_TYPE = "ResourceType";
     public static final String TYPE_STATIC_DATA = "StaticData";

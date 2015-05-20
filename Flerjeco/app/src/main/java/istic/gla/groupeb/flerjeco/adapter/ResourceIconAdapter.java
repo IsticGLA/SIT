@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,13 +13,13 @@ import android.widget.ArrayAdapter;
 import java.util.List;
 
 import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.IIcon;
 import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.view.IconView;
-import istic.gla.groupb.nivimoju.util.ResourceRole;
 
 /**
  * Created by flolegazier on 13/04/15.
@@ -54,7 +53,6 @@ public class ResourceIconAdapter extends ArrayAdapter<Resource> {
 
         Resource resource = resources.get(position);
         String label = resource.getLabel();
-        Log.i("Adapter, resource : ",label);
         ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
 
         switch (resource.getResourceCategory()){
