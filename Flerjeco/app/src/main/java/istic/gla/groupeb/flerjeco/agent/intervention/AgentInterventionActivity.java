@@ -34,6 +34,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -231,23 +232,6 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
-    public void resourceUpdated(Resource resource){
-        List<Resource> resList = intervention.getResources();
-        Resource temp = null;
-        for (Resource res : resList){
-            if (res.getIdRes() == resource.getIdRes()){
-                temp = res;
-            }
-        }
-        if (temp != null){
-            resList.remove(temp);
-            resList.add(resource);
-        }
-        UpdateIntervention updateIntervention = new UpdateIntervention();
-        updateIntervention.execute(intervention);
-        //refresh();
-    }
-
     @Override
     public Context getContext() {
         return getApplicationContext();
@@ -280,6 +264,8 @@ public class AgentInterventionActivity extends FragmentActivity
 
                     MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
 
+                    GoogleMap googleMap = mapView.getMap();
+
                     int x = (int) event.getX();
                     int y = (int) event.getY();
 
@@ -294,37 +280,17 @@ public class AgentInterventionActivity extends FragmentActivity
 
                     if (((LinearLayout)view).getChildAt(0) instanceof ImageView){
                         resource = resourceList.get(mCurrentPosition);
-                        resource.setLatitude(latLng.latitude);
-                        resource.setLongitude(latLng.longitude);
-                        resource.setState(State.planned);
                         resourceList.remove(mCurrentPosition);
                         firstFragment.getIconBitmapResourceList().remove(mCurrentPosition);
                         firstFragment.getResourceImageAdapter().notifyDataSetChanged();
                     } else {
                         resource = additionalResourceList.get(mCurrentPosition);
-                        resource.setLatitude(latLng.latitude);
-                        resource.setLongitude(latLng.longitude);
-                        resource.setState(State.active);
                         List<Resource> resources = intervention.getResources();
                         resources.add(resource);
                     }
 
-                    Log.d(TAG,"label Resource" + resource.getLabel());
-
-                    UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
-                    mUpdateResourceIntervention.execute();
-
-
-
-                    /*MarkerOptions marker = new MarkerOptions().position(latLng).title(label);
-                    marker.draggable(true);
-
-                    // Changing marker icons
-                    mapFragment.drawMarker(marker, resource);
-                    // adding marker
-                    Marker markerAdded = googleMap.addMarker(marker);
-                    mapFragment.getLabelsMarkersHashMap().put(label, markerAdded);
-                    mapFragment.getLabelsResourcesHashMap().put(label, resource);*/
+                    updateResourceOnDrop(resource, latLng);
+                    
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     view.setVisibility(View.VISIBLE);
@@ -335,6 +301,36 @@ public class AgentInterventionActivity extends FragmentActivity
             }
             return true;
         }
+    }
+
+    public void resourceUpdated(Resource resource){
+        List<Resource> resList = intervention.getResources();
+        Resource temp = null;
+        for (Resource res : resList){
+            if (res.getIdRes() == resource.getIdRes()){
+                temp = res;
+            }
+        }
+        if (temp != null){
+            resList.remove(temp);
+            resList.add(resource);
+        }
+
+        UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
+        mUpdateResourceIntervention.execute();
+        /*UpdateIntervention updateIntervention = new UpdateIntervention();
+        updateIntervention.execute(intervention);*/
+        //refresh();
+    }
+
+    public void updateResourceOnDrop(Resource resource, LatLng latLng){
+
+        resource.setLatitude(latLng.latitude);
+        resource.setLongitude(latLng.longitude);
+        resource.setState(State.planned);
+
+        UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
+        mUpdateResourceIntervention.execute();
     }
 
     public void showManageResourceDialog(Resource resource){

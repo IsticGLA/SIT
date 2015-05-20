@@ -21,7 +21,7 @@ public class ImageBuilder {
         if (drone != null) {
             Image result = new Image();
             result.setWidth(flaskImage.getWidth());
-            //result.setImage(flaskImage.getImage());
+            result.setImage(flaskImage.getImage());
             Position position = DroneEngine.converter.getLatLong(flaskImage.getPosition());
             double[] posArray = {position.getLatitude(), position.getLongitude()};
             result.setPosition(posArray);
