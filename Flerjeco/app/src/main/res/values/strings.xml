@@ -96,8 +96,8 @@
     <string name="freeResource">Free the resource</string>
     <string name="title_dialog_change_resource">Manage the resource</string>
     <string name="empty_list_interventions">There is no interventions, create one</string>
-    <string name="libelle_moyen_attente">Moyens en attente de validation</string>
-    <string name="libelle_moyen_valide">Moyens validés</string>
+    <string name="libelle_moyen_attente">Vehicle awaiting approval</string>
+    <string name="libelle_moyen_valide">Vehicle validated</string>
 
     <string name="drone_update_path_error_not_available">"Aucun drone n'est disponible, la création de trajet est impossible"</string>
     <string name="drone_update_path_error_generic">" The update of the intervention did not work, please try again"</string>
@@ -116,8 +116,8 @@
     <string name="visualisation">Visualisation</string>
     <string name="drones">Drones</string>
     <string name="intervention">Intervention</string>
-    <string name="manage_activateResource"></string>
     <string name="resources">Resources</string>
     <string name="manage_activateResource"> Enable the resource</string>
     <string name="manage_changeResourceRole"></string>
+    <string name="libelle_moyen_marqueur">Marker</string>
 </resources>
