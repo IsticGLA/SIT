@@ -76,7 +76,7 @@ public class TableFragment extends Fragment {
         containerTable = (TableLayout) getActivity().findViewById(R.id.containerTable);
 
         // Recuperation du table layout sur lequel nous allons agir
-        String[] moyen = {"Moyen","Demandé à", "Déclenché à", "Arrivé à", "Envoyé à", "Libéré à"};
+        String[] moyen = getResources().getStringArray(R.array.resourceDateState);
 
         // On va calculer la largeur des colonnes en fonction de la marge de 10
         // On affiche l'enreg dans une ligne
