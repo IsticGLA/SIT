@@ -130,6 +130,11 @@ public class DroneListFragment extends Fragment {
         listViewPath.setItemChecked(labelsPath.size()-1, true);
     }
 
+    public void checkListView(int position){
+        unCheckedListView();
+        listViewPath.setItemChecked(position, true);
+    }
+
     /**
      * unchecked the listView when you create a new path
      */
