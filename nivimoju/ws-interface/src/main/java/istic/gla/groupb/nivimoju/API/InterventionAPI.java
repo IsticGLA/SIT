@@ -107,7 +107,7 @@ public class InterventionAPI {
     @PUT
     @Path("{inter}/agent/{agent}")
     public Response addAgent(
-            @PathParam("inter") String inter,
+            @PathParam("inter") Long inter,
             @PathParam("agent") String agent) {
         return Response.ok().build();
     }
@@ -119,8 +119,13 @@ public class InterventionAPI {
      */
     @GET
     @Path("{inter}/resources")
-    public Response getResources(@PathParam("inter") String inter) {
-        return Response.ok().build();
+    public Response getResources(@PathParam("inter") Long inter) {
+        try {
+            Intervention intervention = InterventionContainer.getInstance().getInterventionById(inter);
+            return Response.ok(intervention.getResources()).build();
+        } catch (Exception ex) {
+            return Response.serverError().build();
+        }
     }
 
     /**

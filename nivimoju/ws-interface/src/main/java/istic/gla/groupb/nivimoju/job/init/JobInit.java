@@ -1,7 +1,9 @@
 package istic.gla.groupb.nivimoju.job.init;
 
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.job.DronePersistJob;
 import istic.gla.groupb.nivimoju.job.DronePositionRefresherJob;
+import istic.gla.groupb.nivimoju.job.InterventionPersistJob;
 import org.apache.log4j.Logger;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
@@ -22,7 +24,7 @@ public class JobInit implements ServletContextListener {
                 .withIdentity("DronePositionRefresherJob", "group1").build();
         JobDetail jobDronePersist = JobBuilder.newJob(DronePersistJob.class)
                 .withIdentity("DronePersistJob", "group1").build();
-        JobDetail jobInterventionPersist = JobBuilder.newJob(DronePersistJob.class)
+        JobDetail jobInterventionPersist = JobBuilder.newJob(InterventionPersistJob.class)
                 .withIdentity("InterventionPersistJob", "group1").build();
 
         Trigger triggerDronePosition = TriggerBuilder
