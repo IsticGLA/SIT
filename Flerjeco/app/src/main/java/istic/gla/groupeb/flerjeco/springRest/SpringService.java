@@ -317,7 +317,7 @@ public class SpringService {
      */
     public Intervention changeResourceState(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2];
-        Log.v(TAG, "changeResourceState URL : "+url);
+        Log.i(TAG, "changeResourceState URL : "+url);
         Intervention intervention = null;
 
         try {
