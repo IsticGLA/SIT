@@ -85,7 +85,7 @@ public class ResourcesFragment extends Fragment implements ISynchTool {
         ((InterventionActivity)getActivity()).updateIntervention(intervention);
         for (Resource resource : intervention.getResources()){
             State resourceState = resource.getState();
-            if (State.active.equals(resourceState) || State.planned.equals(resourceState) || State.validated.equals(resourceState)){
+            if (State.active.equals(resourceState) || State.planned.equals(resourceState) || State.validated.equals(resourceState)|| State.arrived.equals(resourceState)){
                 labelsResources.add(resource.getLabel());
             } else if (State.waiting.equals(resourceState)) {
                 requests.add(resource);
