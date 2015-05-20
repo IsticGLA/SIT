@@ -68,7 +68,7 @@
         </service>
 
         <activity
-            android:name=".agent.tableau.TableauActivity"
+            android:name=".agent.table.TableActivity"
             android:exported="true"
             android:label="@string/title_activity_tableau"
             android:screenOrientation="landscape" >

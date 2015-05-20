@@ -1,4 +1,4 @@
-package istic.gla.groupeb.flerjeco.agent.tableau;
+package istic.gla.groupeb.flerjeco.agent.table;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -18,12 +18,12 @@ import istic.gla.groupeb.flerjeco.R;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link TableauFragment.OnFragmentInteractionListener} interface
+ * {@link TableFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link TableauFragment#newInstance} factory method to
+ * Use the {@link TableFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TableauFragment extends Fragment {
+public class TableFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -44,8 +44,8 @@ public class TableauFragment extends Fragment {
      * @return A new instance of fragment TableauFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static TableauFragment newInstance(String param1, String param2) {
-        TableauFragment fragment = new TableauFragment();
+    public static TableFragment newInstance(String param1, String param2) {
+        TableFragment fragment = new TableFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -53,7 +53,7 @@ public class TableauFragment extends Fragment {
         return fragment;
     }
 
-    public TableauFragment() {
+    public TableFragment() {
         // Required empty public constructor
     }
 

@@ -18,7 +18,7 @@ import android.widget.CheckBox;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
-import istic.gla.groupeb.flerjeco.agent.tableau.TableauActivity;
+import istic.gla.groupeb.flerjeco.agent.table.TableActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
@@ -102,8 +102,8 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
 
 
         actionBar.addTab(tabInter, 0, false);
-        actionBar.addTab(tabTableau,1,false);
-        actionBar.addTab(tabDrone,2,true);
+        actionBar.addTab(tabTableau, 1, false);
+        actionBar.addTab(tabDrone, 2, true);
     }
 
 
@@ -361,7 +361,7 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
             startActivity(intent);
             finish();
         }else if(tab.getText().toString().equals("Tableau")){
-            Intent intent = new Intent(PlanZoneActivity.this, TableauActivity.class);
+            Intent intent = new Intent(PlanZoneActivity.this, TableActivity.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable("intervention", intervention);
             intent.putExtras(bundle);

@@ -44,7 +44,7 @@ import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
-import istic.gla.groupeb.flerjeco.agent.tableau.TableauActivity;
+import istic.gla.groupeb.flerjeco.agent.table.TableActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
@@ -350,7 +350,7 @@ public class AgentInterventionActivity extends FragmentActivity
             startActivity(intent);
             finish();
         }else if(tab.getText().toString().equals("Tableau")){
-            Intent intent = new Intent(AgentInterventionActivity.this, TableauActivity.class);
+            Intent intent = new Intent(AgentInterventionActivity.this, TableActivity.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable("intervention", intervention);
             intent.putExtras(bundle);

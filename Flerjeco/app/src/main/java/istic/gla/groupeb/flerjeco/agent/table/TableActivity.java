@@ -1,4 +1,4 @@
-package istic.gla.groupeb.flerjeco.agent.tableau;
+package istic.gla.groupeb.flerjeco.agent.table;
 
 import android.app.ActionBar;
 import android.content.Context;
@@ -21,9 +21,9 @@ import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
-public class TableauActivity extends FragmentActivity implements  ActionBar.TabListener, ISynchTool, IInterventionActivity, TableauFragment.OnFragmentInteractionListener{
+public class TableActivity extends FragmentActivity implements  ActionBar.TabListener, ISynchTool, IInterventionActivity, TableFragment.OnFragmentInteractionListener{
 
-    private static final String TAG = TableauActivity.class.getSimpleName();
+    private static final String TAG = TableActivity.class.getSimpleName();
 
     protected Intervention intervention;
 
@@ -55,7 +55,7 @@ public class TableauActivity extends FragmentActivity implements  ActionBar.TabL
             }
 
             // Create an instance of ExampleFragment
-            TableauFragment firstFragment = new TableauFragment();
+            TableFragment firstFragment = new TableFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -118,14 +118,14 @@ public class TableauActivity extends FragmentActivity implements  ActionBar.TabL
     public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
         Intent intent = null;
         if(tab.getText().toString().equals("Drone")) {
-            intent = new Intent(TableauActivity.this, PlanZoneActivity.class);
+            intent = new Intent(TableActivity.this, PlanZoneActivity.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable("intervention", intervention);
             intent.putExtras(bundle);
             startActivity(intent);
             finish();
         }else if(tab.getText().toString().equals("Intervention")){
-            intent = new Intent(TableauActivity.this, AgentInterventionActivity.class);
+            intent = new Intent(TableActivity.this, AgentInterventionActivity.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable("intervention", intervention);
             intent.putExtras(bundle);
