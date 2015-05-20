@@ -115,6 +115,7 @@ public class InterventionContainer {
         for (Resource resource : intervention.getResources()) {
             if (resource.getIdRes() == res) {
                 resource.setState(State.valueOf(state));
+                resource.setStateDate(State.valueOf(state));
                 break;
             }
         }
@@ -137,7 +138,9 @@ public class InterventionContainer {
             }
         }
         id++;
-        intervention.getResources().add(new Resource(id, vehicleName + id, State.waiting));
+        Resource resource = new Resource(id, vehicleName + id, State.waiting);
+        resource.setStateDate(resource.getState());
+        intervention.getResources().add(resource);
         intervention.updateDate();
         return intervention;
     }
@@ -150,8 +153,10 @@ public class InterventionContainer {
      */
     public Intervention placeVehicle(Long idintervention, Resource vehicle) {
         Intervention intervention = getInterventionById(idintervention);
+        vehicle.setStateDate(vehicle.getState());
         for (Resource resource : intervention.getResources()) {
             if (resource.getIdRes() == vehicle.getIdRes()) {
+                vehicle.setStateDate(vehicle.getState());
                 intervention.getResources().remove(resource);
                 intervention.getResources().add(vehicle);
                 return intervention;
