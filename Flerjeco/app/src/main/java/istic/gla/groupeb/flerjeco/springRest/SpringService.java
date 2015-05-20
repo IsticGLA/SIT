@@ -17,9 +17,11 @@ import java.sql.Timestamp;
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.IncidentCode;
 import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.entity.ResourceType;
 import istic.gla.groupb.nivimoju.entity.StaticData;
+import istic.gla.groupeb.flerjeco.agent.planZone.EPathOperation;
 
 /**
  * Created by amhachi on 08/04/15.
@@ -83,7 +85,11 @@ public class SpringService {
 
     /**
      * Get incident codes
+<<<<<<< Updated upstream
      * @return array of {@link istic.gla.groupb.nivimoju.entity.IncidentCode}
+=======
+     * @return array of {@link IncidentCode}
+>>>>>>> Stashed changes
      * @throws HttpStatusCodeException throw exception if status code is bad
      */
     public IncidentCode[] codeSinistreClient() throws HttpStatusCodeException {
@@ -295,13 +301,20 @@ public class SpringService {
 
     /**
      * upodate the paths of an intervention
-     * @param intervention
+     * @param obj
      * @return
      */
-    public ResponseEntity<Intervention> updateInterventionPaths(Intervention intervention) {
-        final String url = URL + "intervention/update/paths";
+    public ResponseEntity<Intervention> updateInterventionPaths(Object[] obj, EPathOperation operation) {
+        String url = null;
+        if (operation == EPathOperation.CREATE){
+            url = URL + "intervention/" + obj[0] + "/watchpath/create";
+        } else if (operation == EPathOperation.UPDATE) {
+            url = URL + "intervention/" + obj[0] + "/watchpath/update";
+        } else {
+            url = URL + "intervention/" + obj[0] + "/watchpath/delete";
+        }
         try {
-            return restTemplate.postForEntity(url, intervention, Intervention.class);
+            return restTemplate.postForEntity(url, obj[1], Intervention.class);
         } catch (HttpServerErrorException e){
             Log.e(TAG, "erreur à l'update d'un path", e);
             throw e;
