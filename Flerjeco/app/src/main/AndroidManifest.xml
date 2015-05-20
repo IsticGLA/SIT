@@ -26,8 +26,8 @@
             android:name=".login.LoginActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:windowSoftInputMode="adjustResize|stateVisible"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
             <intent
                 android:targetClass="istic.gla.groupeb.flerjeco.login.LoginActivity"
                 android:targetPackage="istic.gla.groupeb.flerjeco.login" />
@@ -47,19 +47,19 @@
         <activity
             android:name=".codis.intervention.InterventionActivity"
             android:label="@string/title_activity_intervention"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name=".agent.interventionsList.ListInterventionsActivity"
             android:exported="true"
             android:label="@string/title_activity_list_interventions"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name=".agent.planZone.PlanZoneActivity"
             android:exported="true"
             android:label="@string/title_activity_plan_zone"
-            android:screenOrientation="landscape">
+            android:screenOrientation="landscape" >
         </activity>
 
         <service
@@ -67,6 +67,12 @@
             android:exported="false" >
         </service>
 
+        <activity
+            android:name=".agent.tableau.TableauActivity"
+            android:exported="true"
+            android:label="@string/title_activity_tableau"
+            android:screenOrientation="landscape" >
+        </activity>
     </application>
 
 </manifest>
