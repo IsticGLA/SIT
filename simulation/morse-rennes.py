@@ -26,6 +26,7 @@ for drone in drones:
     drone.camera = camera
 
     waypoint = RotorcraftWaypoint()
+    waypoint.properties(HorizontalPgain=0.06)
     drone.append(waypoint)
 
     pose = Pose()

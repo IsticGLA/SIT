@@ -3,7 +3,6 @@ package istic.gla.groupeb.flerjeco.agent.planZone;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -46,8 +45,6 @@ import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
-import istic.gla.groupeb.flerjeco.synch.DisplaySynchDrone;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 /**
@@ -200,7 +197,7 @@ public class PlanZoneMapFragment extends Fragment {
                     LatLng previousLatLng = new LatLng(positions.get(i-1).getLatitude(), positions.get(i-1).getLongitude());
                     drawLine(latLng, previousLatLng);
                 // else if it the path is closed, draw line between first and last point
-                } if (i == positions.size()-1 && pathList.get(position).isClosed()){
+                } if (i == positions.size()-1 && pathList.get(position).isClosed() && positions.size() > 2){
                     LatLng firstLatLng = new LatLng(positions.get(0).getLatitude(), positions.get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
                 }
@@ -541,22 +538,8 @@ public class PlanZoneMapFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mMapView.onResume();
-        DisplaySynch displaySynch = new DisplaySynch() {
-            @Override
-            public void ctrlDisplay() {
 
-            }
-        };
-
-        DisplaySynchDrone displayDroneSynch = new DisplaySynchDrone() {
-            @Override
-            public void ctrlDisplay() {
-                refreshDrone();
-            }
-        };
         long id = ((PlanZoneActivity)getActivity()).getIntervention().getId();
-        //IntentWraper.startService("notify/intervention/" + id, displaySynch, displayDroneSynch);
-        IntentWraper.startService("notify/intervention/" + id, displaySynch);
         refreshDrones = true;
         new GetPositionDroneTask(this, id).execute();
     }

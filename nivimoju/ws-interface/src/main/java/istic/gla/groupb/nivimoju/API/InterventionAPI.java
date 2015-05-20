@@ -28,7 +28,7 @@ public class InterventionAPI {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getInterventions() {
         Collection<Intervention> inters = InterventionContainer.getInstance().getInterventions();
-        logger.info("intervention:" + inters);
+        logger.trace("intervention:" + inters);
         return  Response.ok(inters).build();
     }
 
@@ -193,6 +193,8 @@ public class InterventionAPI {
             return Response.status(Response.Status.NOT_FOUND)
                     .build();
         }
+
+        InterventionContainer.getInstance().updateIntervention(intervention);
 
         //request or free drones
         int neededDroneNumber = intervention.getWatchPath().size() + intervention.getWatchArea().size();
