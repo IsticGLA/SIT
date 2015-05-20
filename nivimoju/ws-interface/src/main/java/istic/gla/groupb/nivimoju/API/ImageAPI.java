@@ -25,7 +25,7 @@ public class ImageAPI {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response createImage(FlaskImage flaskImage){
-        logger.debug("received image from flask : " + flaskImage.toString());
+        //logger.debug("received image from flask : " + flaskImage);
         Image image = new ImageBuilder().buildImage(flaskImage);
 
         ImageDAO imageDAO = new ImageDAO();

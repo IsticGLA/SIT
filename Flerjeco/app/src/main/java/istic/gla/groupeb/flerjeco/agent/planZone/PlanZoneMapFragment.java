@@ -239,16 +239,21 @@ public class PlanZoneMapFragment extends Fragment {
         inter = ((PlanZoneActivity)getActivity()).getIntervention();
         // if we are in edition mode, we set the new path in the intervention we get back from the main activity
         if (editPath){
-            inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
-            inter.getWatchPath().get(mCurrentPosition).setClosed(newPath.isClosed());
+            //inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
+            //inter.getWatchPath().get(mCurrentPosition).setClosed(newPath.isClosed());
 
             // send to the database
-            new UpdatePathsForInterventionTask(this, EPathOperation.UPDATE).execute(inter);
+            Path pathToUpdate = inter.getWatchPath().get(mCurrentPosition);
+            pathToUpdate.setPositions(newPath.getPositions());
+            pathToUpdate.setClosed(newPath.isClosed());
+            Object[] tab = {inter.getId(), pathToUpdate};
+            new UpdatePathsForInterventionTask(this, EPathOperation.UPDATE).execute(tab);
 
         // else, we add the new path
         } else {
-            inter.getWatchPath().add(newPath);
-            new UpdatePathsForInterventionTask(this, EPathOperation.CREATE).execute(inter);
+            //inter.getWatchPath().add(newPath);
+            Object[] tab = {inter.getId(), newPath};
+            new UpdatePathsForInterventionTask(this, EPathOperation.CREATE).execute(tab);
         }
     }
 
@@ -264,9 +269,10 @@ public class PlanZoneMapFragment extends Fragment {
 
         // remove of the path we want to remove
         if (mCurrentPosition >= 0 && inter.getWatchPath().size() > mCurrentPosition) {
-            inter.getWatchPath().remove(mCurrentPosition);
+            //inter.getWatchPath().remove(mCurrentPosition);
             // send to the database
-            new UpdatePathsForInterventionTask(this, EPathOperation.DELETE).execute(inter);
+            Object[] tab = {inter.getId(), inter.getWatchPath().get(mCurrentPosition)};
+            new UpdatePathsForInterventionTask(this, EPathOperation.DELETE).execute(tab);
         }
     }
 
@@ -346,6 +352,42 @@ public class PlanZoneMapFragment extends Fragment {
         p.refreshList(intervention);
         p.editModeOff();
         ((PlanZoneActivity)getActivity()).showProgress(false);
+    }
+
+    /**
+     * callback for when the path create/delete/update succeed
+     */
+    public void refreshMapAfterSynchro(Intervention newIntervention, Intervention oldIntervention){
+        PlanZoneActivity p = ((PlanZoneActivity) getActivity());
+        pathList = newIntervention.getWatchPath();
+        if (p.isEditionMode()){
+            if (mCurrentPosition != -1) {
+                Path oldPath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), oldIntervention.getWatchPath());
+                Path updatePath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), newIntervention.getWatchPath());
+                // remove a path
+                if (updatePath == null) {
+                    if (newIntervention.getWatchPath().size() > 0) {
+                        updateMapView(newIntervention.getWatchPath().size() - 1);
+                        p.checkListView(newIntervention.getWatchPath().size() - 1);
+                    }
+                // update path
+                } else if (oldPath.isClosed() != updatePath.isClosed() || !oldPath.getPositions().equals(updatePath.getPositions())){
+                    updateMapView(mCurrentPosition);
+                    p.checkListView(mCurrentPosition);
+                } else {
+                    p.checkListView(mCurrentPosition);
+                }
+            }
+        }
+    }
+
+    public Path findPathById(long idPath, List<Path> list){
+        for (Path p : list){
+            if (p.getIdPath() == idPath){
+                return p;
+            }
+        }
+        return null;
     }
 
     /**
