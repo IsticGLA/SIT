@@ -64,7 +64,7 @@
         <item>@string/asked</item>
         <item>@string/triggered</item>
         <item>@string/arrived</item>
-        <item>@string/send</item>
+        <item>@string/engaged</item>
         <item>@string/released</item>
     </string-array>
 
@@ -72,7 +72,7 @@
     <string name="asked">Asked at</string>
     <string name="triggered">Triggered at</string>
     <string name="arrived">Arrived at</string>
-    <string name="send">Send at</string>
+    <string name="engaged">Engaged at</string>
     <string name="released">Released at</string>
 
     <string name="human">Human</string>

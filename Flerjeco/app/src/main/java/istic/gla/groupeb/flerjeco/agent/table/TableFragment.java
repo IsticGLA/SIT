@@ -20,6 +20,7 @@ import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.util.ResourceRole;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -29,7 +30,7 @@ import istic.gla.groupeb.flerjeco.R;
  * Use the {@link TableFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TableFragment extends Fragment {
+public class TableFragment extends Fragment implements ISynchTool{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -40,6 +41,8 @@ public class TableFragment extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+
 
     //Manipulated intervention
     private Intervention intervention;
@@ -83,100 +86,7 @@ public class TableFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         containerTable = (TableLayout) getActivity().findViewById(R.id.containerTable);
 
-        // Recuperation du table layout sur lequel nous allons agir
-        String[] moyen = getResources().getStringArray(R.array.resourceDateState);
-
-        // On va calculer la largeur des colonnes en fonction de la marge de 10
-        // On affiche l'enreg dans une ligne
-        TableRow tableRow = new TableRow(getActivity());
-        containerTable.addView(tableRow,
-                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        containerTable.setBackgroundColor(getResources().getColor(R.color.grey));
-
-        // On crée une ligne de x moyen colonnes
-        tableRow.setLayoutParams(new LayoutParams(moyen.length));
-
-        // get intervention
-        intervention = ((TableActivity) getActivity()).intervention;
-
-
-
-        int i = 0;
-        for (String resourceDateState : moyen) {
-            TextView text = createTextView(false , i == moyen.length - 1);
-            text.setText(resourceDateState);
-            text.setGravity(Gravity.CENTER);
-            tableRow.addView(text, i++);
-        }
-
-        if (intervention.getResources().size()>0) {
-            for (final Resource resource : intervention.getResources()){
-                tableRow = new TableRow(getActivity());
-
-                containerTable.addView(tableRow,
-                        new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-                i = 0;
-                for (int j = 0; j < moyen.length ; j++ ) {
-                    TextView text = createTextView(true, true);
-
-                    Timestamp timestamp;
-                    switch (j){
-                        case 0 :
-                            text.setText(resource.getLabel());
-                            break;
-                        case 1 :
-                            timestamp = resource.getWaitingHistory();
-                            if(timestamp != null) {
-                                text.setText(timestamp.getHours() + ":" + timestamp.getMinutes());
-                            }else{
-                                text.setText("RAS");
-                            }
-                            break;
-                        case 2 :
-                            timestamp = resource.getValidatedHistory();
-                            if(timestamp != null)
-                            {
-                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
-                            }else{
-                                text.setText("RAS");
-                            }
-                            break;
-                        case 3 :
-                            timestamp = resource.getArrivedHistory();
-                            if(timestamp != null){
-                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
-                            }else{
-                                text.setText("RAS");
-                            }
-                            break;
-                        case 4 :
-                            timestamp = resource.getPlannedHistory();
-                            if(timestamp != null){
-                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
-                            }else{
-                                text.setText("RAS");
-                            }
-                            break;
-                        case 5 :
-                            timestamp = resource.getFreeHistory();
-                            if(timestamp != null){
-                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
-                            }else{
-                                text.setText("RAS");
-                            }
-                            break;
-                        default:
-                            text.setText("RAS");
-                            break;
-                    }
-
-                    text.setTextColor(getResourceColor(resource.getResourceRole()));
-                    tableRow.addView(text, i++);
-                    text.setGravity(Gravity.RIGHT);
-                }
-            }
-        }
-
+        refresh();
     }
 
     /**
@@ -273,4 +183,104 @@ public class TableFragment extends Fragment {
         this.containerTable = containerTable;
     }
 
+    @Override
+    public void refresh() {
+        //Delete all content before painting in containerTable
+        containerTable.removeAllViews();
+
+        // Recuperation du table layout sur lequel nous allons agir
+        String[] moyen = getResources().getStringArray(R.array.resourceDateState);
+
+        // On va calculer la largeur des colonnes en fonction de la marge de 10
+        // On affiche l'enreg dans une ligne
+        TableRow tableRow = new TableRow(getActivity());
+        containerTable.addView(tableRow,
+                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        containerTable.setBackgroundColor(getResources().getColor(R.color.grey));
+
+        // On crée une ligne de x moyen colonnes
+        tableRow.setLayoutParams(new LayoutParams(moyen.length));
+
+        // get intervention
+        intervention = ((TableActivity) getActivity()).intervention;
+
+
+
+        int i = 0;
+        for (String resourceDateState : moyen) {
+            TextView text = createTextView(false , i == moyen.length - 1);
+            text.setText(resourceDateState);
+            text.setGravity(Gravity.CENTER);
+            tableRow.addView(text, i++);
+        }
+
+        if (intervention.getResources().size()>0) {
+            for (final Resource resource : intervention.getResources()){
+                tableRow = new TableRow(getActivity());
+
+                containerTable.addView(tableRow,
+                        new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+                i = 0;
+                for (int j = 0; j < moyen.length ; j++ ) {
+                    TextView text = createTextView(true, true);
+
+                    Timestamp timestamp;
+                    switch (j){
+                        case 0 :
+                            text.setText(resource.getLabel());
+                            break;
+                        case 1 :
+                            timestamp = resource.getWaitingHistory();
+                            if(timestamp != null) {
+                                text.setText(timestamp.getHours() + ":" + timestamp.getMinutes());
+                            }else{
+                                text.setText("-");
+                            }
+                            break;
+                        case 2 :
+                            timestamp = resource.getValidatedHistory();
+                            if(timestamp != null)
+                            {
+                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                            }else{
+                                text.setText("-");
+                            }
+                            break;
+                        case 3 :
+                            timestamp = resource.getArrivedHistory();
+                            if(timestamp != null){
+                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                            }else{
+                                text.setText("-");
+                            }
+                            break;
+                        case 4 :
+                            timestamp = resource.getPlannedHistory();
+                            if(timestamp != null){
+                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                            }else{
+                                text.setText("-");
+                            }
+                            break;
+                        case 5 :
+                            timestamp = resource.getFreeHistory();
+                            if(timestamp != null){
+                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                            }else{
+                                text.setText("-");
+                            }
+                            break;
+                        default:
+                            text.setText("-");
+                            break;
+                    }
+
+                    text.setTextColor(getResourceColor(resource.getResourceRole()));
+                    tableRow.addView(text, i++);
+                    text.setGravity(Gravity.RIGHT);
+                }
+            }
+        }
+
+    }
 }

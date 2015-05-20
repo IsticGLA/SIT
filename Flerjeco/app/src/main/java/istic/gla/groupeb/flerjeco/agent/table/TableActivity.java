@@ -27,7 +27,7 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
     private static final String TAG = TableActivity.class.getSimpleName();
 
     protected Intervention intervention;
-
+    private TableFragment firstFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +36,21 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
 
         intervention = new Intervention();
 
+
         Bundle extras = getIntent().getExtras();
 
         if (extras != null){
             Log.i(TAG, "getExtras not null");
             intervention = (Intervention) extras.getSerializable("intervention");
+
+            DisplaySynch displaySynch = new DisplaySynch() {
+                @Override
+                public void ctrlDisplay() {
+                    refresh();
+                }
+            };
+            String url = "notify/intervention/"+intervention.getId();
+            IntentWraper.startService(url, displaySynch);
         }
 
 
@@ -56,7 +66,7 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
             }
 
             // Create an instance of ExampleFragment
-            TableFragment firstFragment = new TableFragment();
+            firstFragment = new TableFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -161,6 +171,10 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
     public void updateIntervention(Intervention intervention) {
         Log.i(TAG, "updateIntervention");
         this.intervention = intervention;
+
+        if (firstFragment != null){
+            firstFragment.refresh();
+        }
     }
 
 
@@ -190,11 +204,13 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
         super.onStop();
     }
 
+
     @Override
     protected void onPause() {
         super.onPause();
         IntentWraper.stopService();
     }
+
 
     @Override
     public void onFragmentInteraction(Uri uri) {

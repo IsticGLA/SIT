@@ -71,7 +71,7 @@
     <string name="resource_arrived_dialog_title">Le véhicule est il arrivé ?</string>
     <string name="title_activity_tableau">Gestion des moyens</string>
     <string name="resource">Moyen</string>
-    <string name="send">Envoyé à</string>
+    <string name="engaged">Engagé à</string>
     <string name="released">Libéré à</string>
     <string name="asked">Demandé à</string>
     <string name="triggered">Déclenché à</string>
