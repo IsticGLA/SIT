@@ -33,9 +33,9 @@ public class ImageAPI {
         Image image = new ImageBuilder().buildImage(flaskImage);
         BufferedImage img = new BufferedImage((int)image.getWidth(), (int)image.getHeight(), BufferedImage.TYPE_INT_RGB);
         img.getRaster().setPixels(0,0,(int)image.getWidth(), (int)image.getHeight(), image.getImage());
-        File outputfile = new File("/sit/log/test.jpg");
+        File outputfile = new File("/sit/log/test.bmp");
         try {
-            ImageIO.write(img, "jpg", outputfile);
+            ImageIO.write(img, "bmp", outputfile);
         } catch (IOException e) {
             logger.error("Error ", e);
         }
