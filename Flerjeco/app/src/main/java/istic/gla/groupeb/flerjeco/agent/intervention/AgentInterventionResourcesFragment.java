@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,6 +134,17 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                 return true;
             }
         });
+        listViewRequests.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                if(State.validated.equals(requestList.get(position).getState())) {
+                    VehicleArrivedDialog vehicleArrivedDialog = new VehicleArrivedDialog();
+                    vehicleArrivedDialog.setResource(requestList.get(position));
+                    vehicleArrivedDialog.setInterventionId(((AgentInterventionActivity) getActivity()).intervention.getId());
+                    vehicleArrivedDialog.show(getFragmentManager(), "vehicle_dialog");
+                }
+            }
+        });
 
         return v;
     }
@@ -162,7 +174,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         if (null != interventionActivity && null != interventionActivity.intervention) {
             for (Resource resource : interventionActivity.intervention.getResources()) {
                 State resourceState = resource.getState();
-                if (State.validated.equals(resourceState)) {
+                if (State.arrived.equals(resourceState)) {
                     resourceList.add(resource);
                     Vehicle mVehicle = new Vehicle(resource.getLabel(), resource.getResourceRole(), resource.getState());
                     int width = mVehicle.getRect().width();
@@ -172,7 +184,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                     mVehicle.drawIcon(mCanvas);
                     iconBitmapResourceList.add(mBitmap);
                     Log.i("RESOURCELIST", resource.getLabel());
-                } else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState)) {
+                } else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) || State.validated.equals(resourceState)) {
                     requestList.add(resource);
                 }
             }

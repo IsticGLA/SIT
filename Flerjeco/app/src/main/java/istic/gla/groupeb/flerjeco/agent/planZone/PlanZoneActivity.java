@@ -18,6 +18,7 @@ import android.widget.CheckBox;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
+import istic.gla.groupeb.flerjeco.agent.table.TableActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
@@ -85,16 +86,24 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         // Specify that tabs should be displayed in the action bar.
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        // Add 2 tabs, specifying the tab's text and TabListener
+        // Add 3 tabs, specifying the tab's text and TabListener
         ActionBar.Tab tabInter = actionBar.newTab();
         tabInter.setText("Intervention");
         tabInter.setTabListener(this);
 
+        ActionBar.Tab tabTableau = actionBar.newTab();
+        tabTableau.setText("Tableau");
+        tabTableau.setTabListener(this);
+
         ActionBar.Tab tabDrone = actionBar.newTab();
         tabDrone.setText("Drone");
         tabDrone.setTabListener(this);
-        actionBar.addTab(tabDrone);
+
+
+
         actionBar.addTab(tabInter, 0, false);
+        actionBar.addTab(tabTableau, 1, false);
+        actionBar.addTab(tabDrone, 2, true);
     }
 
 
@@ -346,6 +355,13 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
         if(tab.getText().toString().equals("Intervention")) {
             Intent intent = new Intent(PlanZoneActivity.this, AgentInterventionActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("intervention", intervention);
+            intent.putExtras(bundle);
+            startActivity(intent);
+            finish();
+        }else if(tab.getText().toString().equals("Tableau")){
+            Intent intent = new Intent(PlanZoneActivity.this, TableActivity.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable("intervention", intervention);
             intent.putExtras(bundle);

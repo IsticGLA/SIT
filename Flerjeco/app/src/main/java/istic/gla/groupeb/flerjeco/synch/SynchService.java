@@ -23,7 +23,7 @@ public class SynchService extends IntentService {
 
     public SynchService() {
         super("synchServices");
-        timer = 5000;
+        timer = 1000;
         timerDrone = 1000;
     }
 

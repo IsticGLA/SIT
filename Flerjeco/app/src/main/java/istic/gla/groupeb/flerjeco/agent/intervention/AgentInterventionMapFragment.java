@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -49,19 +48,15 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
     private static final String TAG = AgentInterventionMapFragment.class.getSimpleName();
 
     MapView mMapView;
-    Button buttonValidateResources;
-    Button buttonCancelResources;
     private GoogleMap googleMap;
 
     int position = -1;
 
     private boolean initMap = true;
     private Intervention intervention;
-    private LatLngBounds.Builder bounds;
-    private StaticData[] staticDataTab;
     private List<Resource> resources = new ArrayList<>();
-    private Map<String, com.google.android.gms.maps.model.Marker> markers = new HashMap<>();
-    private Map<String, Resource> resourcesMap = new HashMap<>();
+    private Map<String, com.google.android.gms.maps.model.Marker> labelsMarkersHashMap = new HashMap<>();
+    private Map<String, Resource> labelsResourcesHashMap = new HashMap<>();
 
     @Override
     public void refresh() {
@@ -77,32 +72,24 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     private void clearMapData(){
         for (Resource resource : resources){
-            if (markers.get(resource.getLabel()+resource.getIdRes()) != null) {
-                markers.get(resource.getLabel()+resource.getIdRes()).remove();
+            if (labelsMarkersHashMap.get(resource.getLabel()) != null) {
+                labelsMarkersHashMap.get(resource.getLabel()).remove();
             }
         }
         resources.clear();
-        resourcesMap.clear();
+        labelsResourcesHashMap.clear();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        // inflat and return the layout
         View v = inflater.inflate(R.layout.map_view, container,
                 false);
+
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
-
-        FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
-        if (flerjecoApplication != null) {
-            staticDataTab = flerjecoApplication.getStaticData();
-        }
-
         mMapView.onResume();// needed to get the map to refresh immediately
-
-        buttonCancelResources = (Button) v.findViewById(R.id.buttonCancelResources);
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -112,41 +99,21 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
         googleMap = mMapView.getMap();
 
-        AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
-        intervention = interventionActivity.intervention;
         initMap();
-        return v;
-    }
 
-    public void cancelResources(){
-        for (Resource resource : resources){
-            if (markers.get(resource.getLabel()) != null) {
-                markers.get(resource.getLabel()).remove();
-            }
-        }
-        resources.clear();
-        resourcesMap.clear();
-        buttonValidateResources.setVisibility(View.GONE);
-        buttonCancelResources.setVisibility(View.GONE);
+        return v;
     }
 
     public void initMap(){
         // get intervention
         intervention = ((AgentInterventionActivity) getActivity()).intervention;
 
+        addStaticData();
+
         if (null != intervention){
             // Create LatLngBound to zoom on the set of positions in the path
-            bounds = new LatLngBounds.Builder();
+            final LatLngBounds.Builder bounds = new LatLngBounds.Builder();
             boolean isPositionResource = false;
-
-            if (staticDataTab != null && staticDataTab.length > 0){
-                for (StaticData data : staticDataTab){
-                    MarkerOptions marker = new MarkerOptions().position(
-                            new LatLng(data.getLatitude(), data.getLongitude()));
-                    drawStaticMarker(marker, data);
-                    googleMap.addMarker(marker);
-                }
-            }
 
             if (intervention.getResources().size()>0){
 
@@ -154,34 +121,39 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                     double latitude = resource.getLatitude();
                     double longitude = resource .getLongitude();
                     if(latitude != 0 && longitude != 0) {
-                        Log.i(TAG, "Latitude : "+latitude+" Longitude : "+longitude);
-                        isPositionResource = true;
+
                         LatLng latLng = new LatLng(latitude, longitude);
-                        bounds.include(latLng);
+
+                        State resourceState = resource.getState();
+
+                        if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+
+                            String resourceLabel = resource.getLabel();
+                            // create marker
+                            MarkerOptions marker = new MarkerOptions().position(latLng).title(resourceLabel);
+                            drawMarker(marker, resource);
+                            // adding marker
+                            Marker markerAdded = googleMap.addMarker(marker);
+
+                            labelsMarkersHashMap.put(resourceLabel, markerAdded);
+                            resources.add(resource);
+                            labelsResourcesHashMap.put(resourceLabel, resource);
+
+                            Log.i(TAG, "Label "+resourceLabel+", Latitude : "+latitude+", Longitude : "+longitude);
+
+                            if (intervention.getResources().size()>1) {
+                                isPositionResource = true;
+                                bounds.include(latLng);
+                            }
+                        }
+
                     }
 
-                    State resourceState = resource.getState();
-                    if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
-                        // create marker
-                        MarkerOptions marker = new MarkerOptions().position(
-                                new LatLng(resource.getLatitude(), resource.getLongitude())).title(resource.getLabel());
 
-                        marker.draggable(true);
-                        // Changing marker icon
-                        drawMarker(marker, resource);
-                        // adding marker
-                        Marker markerAdded = googleMap.addMarker(marker);
-                        String title = resource.getLabel()+resource.getIdRes();
-                        markerAdded.setTitle(title);
-
-                        markers.put(title, markerAdded);
-                        resources.add(resource);
-                        resourcesMap.put(title,resource);
-                    }
                 }
             }
 
-            if(!isPositionResource && !initMap) {
+            if(!isPositionResource && initMap) {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
                         .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
 
@@ -208,7 +180,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
             googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
-                    Resource resource = resourcesMap.get(marker.getTitle());
+                    Resource resource = labelsResourcesHashMap.get(marker.getTitle());
                     if (resource != null && !resource.getLabel().contains("incident")) {
                         ((AgentInterventionActivity) getActivity()).showManageResourceDialog(resource);
                     }
@@ -229,7 +201,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
                 @Override
                 public void onMarkerDragEnd(Marker marker) {
-                    /*Resource resource = resourcesMap.get(marker.getTitle());
+                    /*Resource resource = labelsResourcesHashMap.get(marker.getTitle());
                     if (resource != null) {
                         resource.setState(State.planned);
                         if (null != getActivity()) {
@@ -238,7 +210,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                     }*/
                     /*String title = marker.getTitle();
                     LatLng latLng = marker.getPosition();
-                    Resource resource = resourcesMap.get(title);
+                    Resource resource = labelsResourcesHashMap.get(title);
                     resource.setLatitude(latLng.longitude);
                     resource.setLongitude(latLng.longitude);
                     if (null != getActivity()){
@@ -259,29 +231,6 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         this.position = position;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        mMapView.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mMapView.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mMapView.onDestroy();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mMapView.onLowMemory();
-    }
 
     public void drawStaticMarker(MarkerOptions markerOptions, StaticData data){
         Bitmap bmp = null;
@@ -306,6 +255,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     public void drawMarker(MarkerOptions markerOptions, Resource resource){
         ResourceCategory category = resource.getResourceCategory();
+        markerOptions.draggable(true);
         Bitmap mBitmap = null;
         if (category!=null){
             switch (category){
@@ -344,10 +294,52 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         }
     }
 
-    public Map<String, Marker> getMarkers() {
-        return markers;
+    private void addStaticData(){
+        StaticData[] staticDataTab;
+
+        FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
+        if (flerjecoApplication != null) {
+            staticDataTab = flerjecoApplication.getStaticData();
+
+            if (staticDataTab != null && staticDataTab.length > 0){
+                for (StaticData data : staticDataTab){
+                    MarkerOptions marker = new MarkerOptions().position(
+                            new LatLng(data.getLatitude(), data.getLongitude()));
+                    drawStaticMarker(marker, data);
+                    googleMap.addMarker(marker);
+                }
+            }
+        }
     }
-    public Map<String, Resource> getResourcesMap() {
-        return resourcesMap;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMapView.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mMapView.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mMapView.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
+    }
+
+    public Map<String, Marker> getLabelsMarkersHashMap() {
+        return labelsMarkersHashMap;
+    }
+    public Map<String, Resource> getLabelsResourcesHashMap() {
+        return labelsResourcesHashMap;
     }
 }
