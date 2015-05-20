@@ -44,6 +44,7 @@ import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
+import istic.gla.groupeb.flerjeco.agent.table.TableActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
@@ -59,8 +60,10 @@ public class AgentInterventionActivity extends FragmentActivity
 
     protected Intervention intervention;
 
+
     private AgentInterventionResourcesFragment firstFragment;
     private AgentInterventionMapFragment mapFragment;
+
 
     int mCurrentPosition = -1;
 
@@ -94,7 +97,7 @@ public class AgentInterventionActivity extends FragmentActivity
         resourceList.add(new Resource("VSAP", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource7", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource8", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
+        reprivate TableJavaFragment frag3 = new TableJavaFragment();sourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
         intervention.setResources(resourceList);*/
 
         setContentView(R.layout.activity_intervention_agent);
@@ -134,12 +137,17 @@ public class AgentInterventionActivity extends FragmentActivity
         ActionBar.Tab tab = actionBar.newTab();
         tab.setText("Intervention");
         tab.setTabListener(this);
-        actionBar.addTab(tab);
+        actionBar.addTab(tab, 0, true);
+
+        tab = actionBar.newTab();
+        tab.setText("Tableau");
+        tab.setTabListener(this);
+        actionBar.addTab(tab, 1, false);
 
         tab = actionBar.newTab();
         tab.setText("Drone");
         tab.setTabListener(this);
-        actionBar.addTab(tab);
+        actionBar.addTab(tab, 2, false);
     }
 
 
@@ -223,7 +231,6 @@ public class AgentInterventionActivity extends FragmentActivity
         updateIntervention.execute(intervention);
         //refresh();
     }
-
     /**
      * Update lists of resources and map
      * @param intervention
@@ -337,6 +344,13 @@ public class AgentInterventionActivity extends FragmentActivity
     public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
         if(tab.getText().toString().equals("Drone")) {
             Intent intent = new Intent(AgentInterventionActivity.this, PlanZoneActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("intervention", intervention);
+            intent.putExtras(bundle);
+            startActivity(intent);
+            finish();
+        }else if(tab.getText().toString().equals("Tableau")){
+            Intent intent = new Intent(AgentInterventionActivity.this, TableActivity.class);
             Bundle bundle = new Bundle();
             bundle.putSerializable("intervention", intervention);
             intent.putExtras(bundle);
