@@ -1,6 +1,6 @@
 package istic.gla.groupb.nivimoju.builder;
 
-import istic.gla.groupb.nivimoju.API.flask.FlaskImage;
+import istic.gla.groupb.nivimoju.drone.FlaskImage;
 import istic.gla.groupb.nivimoju.container.DroneContainer;
 import istic.gla.groupb.nivimoju.drone.engine.DroneEngine;
 import istic.gla.groupb.nivimoju.entity.Drone;

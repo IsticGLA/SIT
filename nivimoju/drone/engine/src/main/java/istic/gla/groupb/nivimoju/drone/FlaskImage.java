@@ -1,4 +1,4 @@
-package istic.gla.groupb.nivimoju.API.flask;
+package istic.gla.groupb.nivimoju.drone;
 
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 

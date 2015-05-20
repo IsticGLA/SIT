@@ -21,14 +21,14 @@ public class Image extends AbstractEntity {
         this.type = Constant.TYPE_IMAGE;
     }
 
-    public Image(double w, long t, double[] p, byte[] b, long idIntervention){
+    public Image(double width, long timestamp, double[] position, byte[] bytes, long idIntervention){
         super();
         this.type = Constant.TYPE_IMAGE;
-        this.width = w;
-        this.heigth = b.length / (3 * width);
-        this.timestamp = t;
-        this.position = p;
-        this.image = b;
+        this.width = width;
+        this.heigth = bytes.length / (3 * width);
+        this.timestamp = timestamp;
+        this.position = position;
+        this.image = bytes;
         this.idIntervention = idIntervention;
     }
 
