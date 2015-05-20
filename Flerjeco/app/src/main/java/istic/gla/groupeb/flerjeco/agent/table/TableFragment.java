@@ -1,6 +1,7 @@
 package istic.gla.groupeb.flerjeco.agent.table;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.*;
@@ -13,10 +14,12 @@ import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 
+import java.sql.Timestamp;
+
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -113,10 +116,61 @@ public class TableFragment extends Fragment {
                 containerTable.addView(tableRow,
                         new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
                 i = 0;
-                for (String player : moyen) {
+                for (int j = 0; j < moyen.length ; j++ ) {
                     TextView text = createTextView(true, true);
-                    text.setText(resource.getLabel());
-                    text.setTextColor(getResources().getColor(R.color.red));
+
+                    Timestamp timestamp;
+                    switch (j){
+                        case 0 :
+                            text.setText(resource.getLabel());
+                            break;
+                        case 1 :
+                            timestamp = resource.getWaitingHistory();
+                            if(timestamp != null) {
+                                text.setText(timestamp.getHours() + ":" + timestamp.getMinutes());
+                            }else{
+                                text.setText("RAS");
+                            }
+                            break;
+                        case 2 :
+                            timestamp = resource.getValidatedHistory();
+                            if(timestamp != null)
+                            {
+                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                            }else{
+                                text.setText("RAS");
+                            }
+                            break;
+                        case 3 :
+                            timestamp = resource.getArrivedHistory();
+                            if(timestamp != null){
+                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                            }else{
+                                text.setText("RAS");
+                            }
+                            break;
+                        case 4 :
+                            timestamp = resource.getPlannedHistory();
+                            if(timestamp != null){
+                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                            }else{
+                                text.setText("RAS");
+                            }
+                            break;
+                        case 5 :
+                            timestamp = resource.getFreeHistory();
+                            if(timestamp != null){
+                                text.setText(timestamp.getHours()+":"+timestamp.getMinutes());
+                            }else{
+                                text.setText("RAS");
+                            }
+                            break;
+                        default:
+                            text.setText("RAS");
+                            break;
+                    }
+
+                    text.setTextColor(getResourceColor(resource.getResourceRole()));
                     tableRow.addView(text, i++);
                     text.setGravity(Gravity.RIGHT);
                 }
@@ -124,6 +178,35 @@ public class TableFragment extends Fragment {
         }
 
     }
+
+    /**
+     * Method that changes the function of the vehicle
+     * @param function the new function of the vehicle
+     */
+    public int getResourceColor(ResourceRole function){
+
+        switch (function){
+            case water:
+                return Color.BLUE;
+
+            case fire:
+                return Color.RED;
+
+            case people:
+                return Color.argb(255,102,255,102);
+
+            case risks:
+                return Color.argb(255,255,102,0);
+
+            case commands:
+                return Color.argb(255,153,0,102);
+
+            default:
+                return Color.BLACK;
+
+        }
+    }
+
 
     private TextView createTextView(boolean endline, boolean endcolumn){
         TextView text = new TextView(getActivity(), null, R.style.frag2HeaderCol);
