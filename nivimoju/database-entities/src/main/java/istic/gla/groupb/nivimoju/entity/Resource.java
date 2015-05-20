@@ -83,7 +83,7 @@ public class Resource implements Serializable {
         this.idRes = id;
         this.label = label;
         this.setState(state);
-        this.resourceRole = ResourceRole.otherwise;
+        this.resourceRole = roleByName(label);
         this.resourceCategory = ResourceCategory.vehicule;
     }
 
@@ -92,6 +92,18 @@ public class Resource implements Serializable {
             Timestamp now = new Timestamp(Calendar.getInstance().getTime().getTime());
             this.validatedHistory = now;
             this.waitingHistory = now;
+        }
+    }
+
+    private ResourceRole roleByName(String name) {
+        if(name.contains("VSAV") || name.contains("VSR")) {
+            return ResourceRole.people;
+        } else if(name.contains("FPT") || name.contains("EPA")){
+            return ResourceRole.fire;
+        } else if (name.contains("VLCG")) {
+            return ResourceRole.commands;
+        } else {
+            return ResourceRole.otherwise;
         }
     }
 
