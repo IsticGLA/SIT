@@ -17,6 +17,7 @@ import android.widget.CheckBox;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.AgentTabbedActivity;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.agent.table.TableActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
@@ -26,12 +27,9 @@ import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
-public class PlanZoneActivity extends FragmentActivity implements DroneListFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool, IInterventionActivity {
+public class PlanZoneActivity extends AgentTabbedActivity implements DroneListFragment.OnResourceSelectedListener, ISynchTool, IInterventionActivity {
 
     private static final String TAG = PlanZoneActivity.class.getSimpleName();
-
-    // current intervention
-    private Intervention intervention; /*= new Intervention("Test", 2, 48.399, -1.6554);*/
 
     // current position of the path in the ListView DroneListFragment
     private int position=0;
@@ -45,15 +43,6 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Get the Bundle from the intent
-        Bundle extras = getIntent().getExtras();
-
-        // if we got an extras, we set the intervention to the value of the extras
-        if (extras != null){
-            Log.i(TAG, "Get the intervention from the bundle");
-            intervention = (Intervention) extras.getSerializable("intervention");
-        }
 
         // Set the content view with the activity_plan_zone layout
         setContentView(R.layout.activity_plan_zone);
@@ -80,30 +69,6 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
         }
-
-        final ActionBar actionBar = getActionBar();
-
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // Add 3 tabs, specifying the tab's text and TabListener
-        ActionBar.Tab tabInter = actionBar.newTab();
-        tabInter.setText("Intervention");
-        tabInter.setTabListener(this);
-
-        ActionBar.Tab tabTableau = actionBar.newTab();
-        tabTableau.setText("Tableau");
-        tabTableau.setTabListener(this);
-
-        ActionBar.Tab tabDrone = actionBar.newTab();
-        tabDrone.setText("Drone");
-        tabDrone.setTabListener(this);
-
-
-
-        actionBar.addTab(tabInter, 0, false);
-        actionBar.addTab(tabTableau, 1, false);
-        actionBar.addTab(tabDrone, 2, true);
     }
 
 
@@ -349,37 +314,6 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         DroneListFragment droneListFragment = (DroneListFragment)
                 getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
         droneListFragment.refresh(intervention);
-    }
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals("Intervention")) {
-            Intent intent = new Intent(PlanZoneActivity.this, AgentInterventionActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
-        }else if(tab.getText().toString().equals("Tableau")){
-            Intent intent = new Intent(PlanZoneActivity.this, TableActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
-        }
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals("Drone")) {
-            finish();
-        }
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-
     }
 
     @Override

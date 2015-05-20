@@ -106,7 +106,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     public void initMap(){
         // get intervention
-        intervention = ((AgentInterventionActivity) getActivity()).intervention;
+        intervention = ((AgentInterventionActivity) getActivity()).getIntervention();
 
         addStaticData();
 

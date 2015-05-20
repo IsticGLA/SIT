@@ -1,47 +1,29 @@
 package istic.gla.groupeb.flerjeco.agent.table;
 
-import android.app.ActionBar;
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
-import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
+import istic.gla.groupeb.flerjeco.agent.AgentTabbedActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
-public class TableActivity extends FragmentActivity implements  ActionBar.TabListener, ISynchTool, IInterventionActivity, TableFragment.OnFragmentInteractionListener{
+public class TableActivity extends AgentTabbedActivity implements ISynchTool, IInterventionActivity, TableFragment.OnFragmentInteractionListener{
 
     private static final String TAG = TableActivity.class.getSimpleName();
-
-    protected Intervention intervention;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tableau);
-
-        intervention = new Intervention();
-
-        Bundle extras = getIntent().getExtras();
-
-        if (extras != null){
-            Log.i(TAG, "getExtras not null");
-            intervention = (Intervention) extras.getSerializable("intervention");
-        }
-
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -65,28 +47,6 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
 
         }
-
-        final ActionBar actionBar = getActionBar();
-
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // Add 3 tabs, specifying the tab's text and TabListener
-        ActionBar.Tab tabInter = actionBar.newTab();
-        tabInter.setText("Intervention");
-        tabInter.setTabListener(this);
-
-        ActionBar.Tab tabTableau = actionBar.newTab();
-        tabTableau.setText("Tableau");
-        tabTableau.setTabListener(this);
-
-        ActionBar.Tab tabDrone = actionBar.newTab();
-        tabDrone.setText("Drone");
-        tabDrone.setTabListener(this);
-
-        actionBar.addTab(tabInter, 0, false);
-        actionBar.addTab(tabTableau,1,true);
-        actionBar.addTab(tabDrone,2,false);
     }
 
 
@@ -111,40 +71,6 @@ public class TableActivity extends FragmentActivity implements  ActionBar.TabLis
 
         return super.onOptionsItemSelected(item);
     }
-
-
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        Intent intent = null;
-        if(tab.getText().toString().equals("Drone")) {
-            intent = new Intent(TableActivity.this, PlanZoneActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
-        }else if(tab.getText().toString().equals("Intervention")){
-            intent = new Intent(TableActivity.this, AgentInterventionActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
-        }
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals("Tableau")) {
-            finish();
-        }
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-    }
-
 
     @Override
     public Context getContext() {

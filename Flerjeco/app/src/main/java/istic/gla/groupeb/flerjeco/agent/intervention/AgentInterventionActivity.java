@@ -43,6 +43,7 @@ import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.AgentTabbedActivity;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
 import istic.gla.groupeb.flerjeco.agent.table.TableActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
@@ -53,13 +54,10 @@ import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
-public class AgentInterventionActivity extends FragmentActivity
-        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool, IInterventionActivity {
+public class AgentInterventionActivity extends AgentTabbedActivity
+        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ISynchTool, IInterventionActivity {
 
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();
-
-    protected Intervention intervention;
-
 
     private AgentInterventionResourcesFragment firstFragment;
     private AgentInterventionMapFragment mapFragment;
@@ -77,15 +75,6 @@ public class AgentInterventionActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        intervention = new Intervention();
-
-        Bundle extras = getIntent().getExtras();
-
-        if (extras != null){
-            Log.i(TAG, "getExtras not null");
-            intervention = (Intervention) extras.getSerializable("intervention");
-        }
 
         /*List<Resource> resourceList = new ArrayList<>();
         resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
@@ -127,27 +116,6 @@ public class AgentInterventionActivity extends FragmentActivity
             findViewById(R.id.fragment_container).setOnDragListener(new MyDragListener());
             findViewById(R.id.map_fragment).setOnDragListener(new MyDragListener());
         }
-
-        final ActionBar actionBar = getActionBar();
-
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // Add 2 tabs, specifying the tab's text and TabListener
-        ActionBar.Tab tab = actionBar.newTab();
-        tab.setText("Intervention");
-        tab.setTabListener(this);
-        actionBar.addTab(tab, 0, true);
-
-        tab = actionBar.newTab();
-        tab.setText("Tableau");
-        tab.setTabListener(this);
-        actionBar.addTab(tab, 1, false);
-
-        tab = actionBar.newTab();
-        tab.setText("Drone");
-        tab.setTabListener(this);
-        actionBar.addTab(tab, 2, false);
     }
 
 
@@ -338,36 +306,6 @@ public class AgentInterventionActivity extends FragmentActivity
         args.putSerializable("resource", resource);
         fragment.setArguments(args);
         fragment.show(getSupportFragmentManager(), "changeState_dialog");
-    }
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals("Drone")) {
-            Intent intent = new Intent(AgentInterventionActivity.this, PlanZoneActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
-        }else if(tab.getText().toString().equals("Tableau")){
-            Intent intent = new Intent(AgentInterventionActivity.this, TableActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
-        }
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals("Intervention")) {
-            finish();
-        }
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
     }
 
     public class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {

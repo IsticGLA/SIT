@@ -159,8 +159,8 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
      */
     private void fillResourcesAndRequests(){
         AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
-        if (null != interventionActivity && null != interventionActivity.intervention) {
-            for (Resource resource : interventionActivity.intervention.getResources()) {
+        if (null != interventionActivity && null != interventionActivity.getIntervention()) {
+            for (Resource resource : interventionActivity.getIntervention().getResources()) {
                 State resourceState = resource.getState();
                 if (State.validated.equals(resourceState)) {
                     resourceList.add(resource);

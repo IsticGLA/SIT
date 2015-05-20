@@ -1,4 +1,4 @@
-package istic.gla.groupeb.flerjeco.agent.planZone;
+package istic.gla.groupeb.flerjeco.agent.droneVisualisation;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -46,14 +46,17 @@ import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
+import istic.gla.groupeb.flerjeco.agent.planZone.EPathOperation;
+import istic.gla.groupeb.flerjeco.agent.planZone.GetPositionDroneTask;
+import istic.gla.groupeb.flerjeco.agent.planZone.UpdatePathsForInterventionTask;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 /**
  * Fragment de carte pour les drones
  */
-public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
+public class VisualisationMapFragment extends Fragment implements DronesMapFragment {
 
-    private static final String TAG = PlanZoneMapFragment.class.getSimpleName();
+    private static final String TAG = VisualisationMapFragment.class.getSimpleName();
     final static String ARG_POSITION = "position";
 
     // all variables for the Google Map
@@ -74,11 +77,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     // current intervention
     private Intervention inter;
     // list all drone of the intevervention
-
-    // indicate if we want to remove a path in the intervention
-    public boolean removePath = false;
-    // indicate if we want to edit a path in the intervention
-    public boolean editPath = false;
 
     private boolean refreshDrones = false;
 
@@ -104,7 +102,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         // get the googleMap
         googleMap = mMapView.getMap();
 
-        PlanZoneActivity activity = (PlanZoneActivity) getActivity();
+        VisualisationActivity activity = (VisualisationActivity) getActivity();
 
         // Center the camera on the intervention position
         CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -135,16 +133,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     }
 
     /**
-     * Creation of the new path
-     */
-    public void createPath(){
-        // clear the Google Map
-        clearGoogleMap();
-        editPath = false;
-        addMapClickListener();
-    }
-
-    /**
      * Update the Google Map with the path you just clicked
      * @param position position of the path you clicked in the list
      */
@@ -153,7 +141,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         clearGoogleMap();
 
         // get the intervention from the main activity
-        inter = ((PlanZoneActivity) getActivity()).getIntervention();
+        inter = ((VisualisationActivity) getActivity()).getIntervention();
 
         // if path of the position position in the list is not null, we draw it on the map
         if (pathList.size() > 0 && position < pathList.size() && null != pathList.get(position)){
@@ -164,7 +152,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
             // set closed property on newPath
             boolean b = pathList.get(position).isClosed();
             newPath.setClosed(b);
-            ((PlanZoneActivity) getActivity()).checkCloseBox(b);
 
             // save the old path for future restore if the update doesn't work
             savePath = new Path();
@@ -228,152 +215,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         this.markers.clear();
         this.newPath = new Path();
         this.dronesMarkers.clear();
-    }
-
-    /**
-     * Send the new path to the server
-     */
-    public void sendPath(){
-        ((PlanZoneActivity)getActivity()).showProgress(true);
-        // remove Click listener
-        resetMapListener();
-        inter = ((PlanZoneActivity)getActivity()).getIntervention();
-        // if we are in edition mode, we set the new path in the intervention we get back from the main activity
-        if (editPath){
-            inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
-            inter.getWatchPath().get(mCurrentPosition).setClosed(newPath.isClosed());
-
-            // send to the database
-            new UpdatePathsForInterventionTask(this, EPathOperation.UPDATE).execute(inter);
-
-        // else, we add the new path
-        } else {
-            inter.getWatchPath().add(newPath);
-            new UpdatePathsForInterventionTask(this, EPathOperation.CREATE).execute(inter);
-        }
-    }
-
-    /**
-     * Remove path on the database
-     */
-    public void removePath(){
-        removePath = true;
-        // remove Click listener
-        resetMapListener();
-        // get back the intervention from the main activity
-        inter = ((PlanZoneActivity)getActivity()).getIntervention();
-
-        // remove of the path we want to remove
-        if (mCurrentPosition >= 0 && inter.getWatchPath().size() > mCurrentPosition) {
-            inter.getWatchPath().remove(mCurrentPosition);
-            // send to the database
-            new UpdatePathsForInterventionTask(this, EPathOperation.DELETE).execute(inter);
-        }
-    }
-
-    /**
-     * Add Map Click listener on the Google Map
-     */
-    public void addMapClickListener(){
-        // Add clickListener on the map two save positions in new path
-        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                double latitude = latLng.latitude;
-                double longitude = latLng.longitude;
-
-                //if there are at least two polyline on the Google Map and newPath is closed, remove the last one
-                if (polylines.size() > 2 && newPath.isClosed()) {
-                    removeLine(polylines.size() - 1);
-                }
-
-                // create marker
-                MarkerOptions marker = new MarkerOptions().position(
-                        new LatLng(latitude, longitude)).title("new Path");
-                // Changing marker icon
-                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                // adding marker
-                Marker m = googleMap.addMarker(marker);
-                // add the marker on the markers list
-                markers.add(m);
-
-                // Set the Position on newPath
-                newPath.getPositions().add(new Position(latitude, longitude, 20));
-
-                int size = newPath.getPositions().size();
-                // draw line between two points if is not the first
-                if (size > 1) {
-                    LatLng previousLatLng = new LatLng(newPath.getPositions().get(size - 2).getLatitude(), newPath.getPositions().get(size - 2).getLongitude());
-                    drawLine(latLng, previousLatLng);
-                }
-                // else if it the path is closed, draw line between first and last point
-                if (size > 2 && newPath.isClosed()) {
-                    LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
-                    drawLine(firstLatLng, latLng);
-                }
-            }
-        });
-    }
-
-    /**
-     * callback for when the path create/delete/update fail
-     */
-    public void revertOperation(EPathOperation operation){
-        Log.i(TAG, "reverting after failure for operation " + operation);
-        switch(operation){
-            case CREATE:
-                pathList.remove(pathList.size()-1);
-                clearGoogleMap();
-                break;
-            case UPDATE:
-                pathList.set(mCurrentPosition, savePath);
-                updateMapView(mCurrentPosition);
-                break;
-            case DELETE:
-                pathList.add(mCurrentPosition, savePath);
-                updateMapView(mCurrentPosition);
-                break;
-        }
-        ((PlanZoneActivity)getActivity()).showProgress(false);
-    }
-
-    /**
-     * callback for when the path create/delete/update succeed
-     */
-    public void applyUpdateAfterOperation(Intervention intervention){
-        pathList = intervention.getWatchPath();
-        updateMapView(intervention.getWatchPath().size() - 1);
-        PlanZoneActivity p = ((PlanZoneActivity) getActivity());
-        p.refreshList(intervention);
-        p.editModeOff();
-        ((PlanZoneActivity)getActivity()).showProgress(false);
-    }
-
-    /**
-     * Reset the MapClickListener on the Google Map
-     */
-    public void resetMapListener(){
-        googleMap.setOnMapClickListener(null);
-    }
-
-    /**
-     * function called when we check or uncheck the checkbox checkbox_closed_path
-     */
-    public void closePath(){
-        // if the path is not close, we close it
-        if (!newPath.isClosed()) {
-            Log.i(TAG, "Close the path");
-            newPath.setClosed(true);
-            drawClosePolyline();
-        // else unclose it
-        } else {
-            Log.i(TAG, "Open the path");
-            newPath.setClosed(false);
-            // if there are at least three points in newPath
-            if (newPath.getPositions().size() > 2) {
-                removeLine(polylines.size() - 1);
-            }
-        }
     }
 
     /**
@@ -458,45 +299,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         return brng;
     }
 
-    /**
-     * Remove the polyline on the Google Map
-     * @param i indice of the polyline to remove in the polylines list
-     */
-    public void removeLine(int i){
-        Log.i(TAG, "Remove the polyline at the " + i + " position");
-        if (polylines.size() > 0) {
-            polylines.get(i).first.remove();
-            polylines.get(i).second.remove();
-            polylines.remove(i);
-        }
-    }
-
-    /**
-     * Remove the last point of the new path
-     */
-    public void removeLastPoint(){
-        Log.i(TAG, "Remove the last position on the path");
-        if (markers.size() > 0) {
-
-            // remove the last marker on the Google Map
-            int i = markers.size()-1;
-            markers.get(i).remove();
-            markers.remove(i);
-            newPath.getPositions().remove(i);
-
-            // remove the last polyline if there is at least one polyline
-            if (polylines.size() > 0) {
-                removeLine(polylines.size() - 1);
-            }
-            // remove the polyline which close the path is isClosed is true
-            if (polylines.size() > 1 && newPath.isClosed()) {
-                removeLine(polylines.size() - 1);
-                // closed the path
-                drawClosePolyline();
-            }
-        }
-    }
-
     // private variable for reducing object creations
     private Set<String> labels = new HashSet<>();
     /**
@@ -531,7 +333,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                     dronesMarkers.remove(labelToRemove);
                 }
             }
-            new GetPositionDroneTask(this, ((PlanZoneActivity) getActivity()).getIntervention().getId()).execute();
+            new GetPositionDroneTask(this, ((VisualisationActivity) getActivity()).getIntervention().getId()).execute();
         }
     }
 
@@ -540,7 +342,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         super.onResume();
         mMapView.onResume();
 
-        long id = ((PlanZoneActivity)getActivity()).getIntervention().getId();
+        long id = ((VisualisationActivity)getActivity()).getIntervention().getId();
         refreshDrones = true;
         new GetPositionDroneTask(this, id).execute();
     }
@@ -569,42 +371,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         if(inter != null) {
             new GetPositionDroneTask(this, inter.getId()).execute();
         }
-    }
-
-    public void animateMarker(final Marker marker, final LatLng toPosition,
-                              final boolean hideMarker, final long duration) {
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        Projection proj = googleMap.getProjection();
-        Point startPoint = proj.toScreenLocation(marker.getPosition());
-        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-
-        final Interpolator interpolator = new LinearInterpolator();
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed
-                        / duration);
-                double lng = t * toPosition.longitude + (1 - t)
-                        * startLatLng.longitude;
-                double lat = t * toPosition.latitude + (1 - t)
-                        * startLatLng.latitude;
-                marker.setPosition(new LatLng(lat, lng));
-
-                if (t < 1.0) {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16);
-                } else {
-                    if (hideMarker) {
-                        marker.setVisible(false);
-                    } else {
-                        marker.setVisible(true);
-                    }
-                }
-            }
-        });
     }
 }
 

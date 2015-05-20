@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.Date;
 
 import istic.gla.groupb.nivimoju.entity.Drone;
+import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
+import istic.gla.groupeb.flerjeco.agent.droneVisualisation.VisualisationMapFragment;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 /**
@@ -16,7 +18,7 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 public class GetPositionDroneTask extends AsyncTask<Object, Void, ResponseEntity<Drone[]>> {
 
     private final String TAG = GetPositionDroneTask.class.getSimpleName();
-    private final PlanZoneMapFragment fragment;
+    private final DronesMapFragment fragment;
     private final long interventionId;
     private Date start;
     private SpringService service = new SpringService();
@@ -25,7 +27,7 @@ public class GetPositionDroneTask extends AsyncTask<Object, Void, ResponseEntity
      * constructor
      * @param fragment the fragment for callbacks
      */
-    public GetPositionDroneTask(PlanZoneMapFragment fragment, Long interventionId){
+    public GetPositionDroneTask(DronesMapFragment fragment, Long interventionId){
         this.fragment = fragment;
         this.interventionId = interventionId;
     }
