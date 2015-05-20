@@ -191,40 +191,6 @@ public class TableFragment extends Fragment implements ISynchTool{
         containerTable.removeAllViews();
 
         String[] moyen = getResources().getStringArray(R.array.resourceDateState);
-        /*// Recuperation du table layout sur lequel nous allons agir
-        String[] moyen = getResources().getStringArray(R.array.resourceDateState);
-
-        String[] moyen;
-
-        try {
-            // Recuperation du table layout sur lequel nous allons agir
-            moyen = getResources().getStringArray(R.array.resourceDateState);
-        }catch (IllegalStateException e) {
-            return;
-        }
-
-        // On va calculer la largeur des colonnes en fonction de la marge de 10
-        // On affiche l'enreg dans une ligne
-        TableRow tableRow = new TableRow(getActivity());
-        containerTable.addView(tableRow,
-                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-        containerTable.setBackgroundColor(getResources().getColor(R.color.grey));
-
-        // On crée une ligne de x moyen colonnes
-        tableRow.setLayoutParams(new LayoutParams(moyen.length));
-
-        // get intervention
-        intervention = ((TableActivity) getActivity()).intervention;
-
-
-
-        int i = 0;
-        for (String resourceDateState : moyen) {
-            TextView text = createTextView(false , i == moyen.length - 1);
-            text.setText(resourceDateState);
-            text.setGravity(Gravity.CENTER);
-            tableRow.addView(text, i++);
-        }*/
 
         // get intervention
         intervention = ((TableActivity) getActivity()).intervention;
@@ -253,7 +219,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                             case 1:
                                 timestamp = resource.getWaitingHistory();
                                 if (timestamp != null) {
-                                    text.setText(timestamp.getHours() + ":" + decimalFormat.format(timestamp.getMinutes()));
+                                    text.setText(timestamp.getHours()  + decimalFormat.format(timestamp.getMinutes()));
                                 } else {
                                     text.setText("-");
                                 }
@@ -261,7 +227,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                             case 2:
                                 timestamp = resource.getValidatedHistory();
                                 if (timestamp != null) {
-                                    text.setText(timestamp.getHours() + ":" + decimalFormat.format(timestamp.getMinutes()));
+                                    text.setText(timestamp.getHours()  + decimalFormat.format(timestamp.getMinutes()));
                                 } else {
                                     text.setText("-");
                                 }
@@ -269,7 +235,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                             case 3:
                                 timestamp = resource.getArrivedHistory();
                                 if (timestamp != null) {
-                                    text.setText(timestamp.getHours() + ":" + decimalFormat.format(timestamp.getMinutes()));
+                                    text.setText(timestamp.getHours()  + decimalFormat.format(timestamp.getMinutes()));
                                 } else {
                                     text.setText("-");
                                 }
@@ -277,7 +243,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                             case 4:
                                 timestamp = resource.getPlannedHistory();
                                 if (timestamp != null) {
-                                    text.setText(timestamp.getHours() + ":" + decimalFormat.format(timestamp.getMinutes()));
+                                    text.setText(timestamp.getHours()  + decimalFormat.format(timestamp.getMinutes()));
                                 } else {
                                     text.setText("-");
                                 }
@@ -285,7 +251,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                             case 5:
                                 timestamp = resource.getFreeHistory();
                                 if (timestamp != null) {
-                                    text.setText(timestamp.getHours() + ":" + decimalFormat.format(timestamp.getMinutes()));
+                                    text.setText(timestamp.getHours()  + decimalFormat.format(timestamp.getMinutes()));
                                 } else {
                                     text.setText("-");
                                 }
