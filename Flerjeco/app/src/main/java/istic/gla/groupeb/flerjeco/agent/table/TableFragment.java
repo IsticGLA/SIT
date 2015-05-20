@@ -13,7 +13,10 @@ import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +38,8 @@ public class TableFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
+    //Manipulated intervention
+    private Intervention intervention;
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -88,29 +93,36 @@ public class TableFragment extends Fragment {
         // On crée une ligne de x moyen colonnes
         tableRow.setLayoutParams(new LayoutParams(moyen.length));
 
-        // On va commencer par renseigner une ligne de titre par joueur
+        // get intervention
+        intervention = ((TableActivity) getActivity()).intervention;
+
+
+
         int i = 0;
-        for (String player : moyen) {
+        for (String resourceDateState : moyen) {
             TextView text = createTextView(false , i == moyen.length - 1);
-            text.setText(player);
+            text.setText(resourceDateState);
             text.setGravity(Gravity.CENTER);
             tableRow.addView(text, i++);
         }
 
-        for (int j = 0; j < 10; j++) {
-            tableRow = new TableRow(getActivity());
+        if (intervention.getResources().size()>0) {
+            for (final Resource resource : intervention.getResources()){
+                tableRow = new TableRow(getActivity());
 
-            containerTable.addView(tableRow,
-                    new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-            i = 0;
-            for (String player : moyen) {
-                TextView text = createTextView(j==9, i == moyen.length - 1);
-                text.setText("123");
-                text.setTextColor(getResources().getColor(R.color.red));
-                tableRow.addView(text, i++);
-                text.setGravity(Gravity.RIGHT);
+                containerTable.addView(tableRow,
+                        new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+                i = 0;
+                for (String player : moyen) {
+                    TextView text = createTextView(true, true);
+                    text.setText(resource.getLabel());
+                    text.setTextColor(getResources().getColor(R.color.red));
+                    tableRow.addView(text, i++);
+                    text.setGravity(Gravity.RIGHT);
+                }
             }
         }
+
     }
 
     private TextView createTextView(boolean endline, boolean endcolumn){
