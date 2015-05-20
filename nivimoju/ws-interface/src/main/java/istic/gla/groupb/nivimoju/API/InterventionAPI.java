@@ -177,25 +177,77 @@ public class InterventionAPI {
     }
 
     /**
+     * Add the watchPath
+     * @param inter The id of the intervention
+     * @param newPath resource
+     * @return OK
+     */
+    @POST
+    @Path("{inter}/watchpath/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response newWatchpath(
+            @PathParam("inter") Long inter,
+            istic.gla.groupb.nivimoju.entity.Path newPath) {
+        Intervention intervention = InterventionContainer.getInstance().addWatchPath(inter, newPath);
+
+        requestOrFreeDrone(intervention);
+
+        return Response.ok(intervention).build();
+    }
+
+    /**
      * create a path for an intervention and assign a drone to it
      * @return CREATED if successful, SERVICE_UNAVAILABLE if no drone is available, NOT_FOUND if the intervention does not exist
      */
     @POST
-    @Path("update/paths")
+    @Path("{inter}/watchpath/update")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response updatePaths(Intervention intervention) {
-        logger.info("updating path for intervention " + intervention.getId());
+    public Response updatePaths(@PathParam("inter") Long inter, istic.gla.groupb.nivimoju.entity.Path path) {
+        logger.info("updating path for intervention " + inter);
 
-        Intervention oldInter = InterventionContainer.getInstance().getInterventionById(intervention.getId());
+        Intervention oldInter = InterventionContainer.getInstance().getInterventionById(inter);
         if(oldInter == null){
             logger.warn("intervention does not seem to exist in db");
             return Response.status(Response.Status.NOT_FOUND)
                     .build();
         }
 
-        InterventionContainer.getInstance().updateIntervention(intervention);
+        Intervention intervention = InterventionContainer.getInstance().updateWatchPath(inter, path);
 
+        requestOrFreeDrone(intervention);
+
+        return  Response.status(Response.Status.OK)
+                .entity(intervention)
+                .build();
+    }
+
+    /**
+     * Delete the watchPath
+     * @param inter The id of the intervention
+     * @param newPath resource
+     * @return OK
+     */
+    @POST
+    @Path("{inter}/watchpath/delete")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteWatchpath(
+            @PathParam("inter") Long inter,
+            istic.gla.groupb.nivimoju.entity.Path newPath) {
+        Intervention intervention = InterventionContainer.getInstance().deleteWatchPath(inter, newPath);
+
+        requestOrFreeDrone(intervention);
+
+        return Response.ok(intervention).build();
+    }
+
+    /**
+     * Request free drone
+     * @param intervention
+     */
+    public void requestOrFreeDrone(Intervention intervention) {
         //request or free drones
         int neededDroneNumber = intervention.getWatchPath().size() + intervention.getWatchArea().size();
         int currentlyAssignedDroneNumber =
@@ -213,9 +265,5 @@ public class InterventionAPI {
 
         //alerting the engine
         DroneEngine.getInstance().computeForIntervention(intervention);
-
-        return  Response.status(Response.Status.OK)
-                .entity(intervention)
-                .build();
     }
 }

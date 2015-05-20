@@ -224,7 +224,6 @@ public class DroneEngine{
         return res;
     }
 
-
     public static void main(String[] args) throws Exception{
         DroneEngine engine = new DroneEngine();
         List<Drone> drones = new ArrayList<>();
