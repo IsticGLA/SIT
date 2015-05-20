@@ -120,33 +120,28 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 for (final Resource resource : intervention.getResources()){
                     double latitude = resource.getLatitude();
                     double longitude = resource .getLongitude();
-                    if(latitude != 0 && longitude != 0) {
 
-                        LatLng latLng = new LatLng(latitude, longitude);
+                    LatLng latLng = new LatLng(latitude, longitude);
 
-                        State resourceState = resource.getState();
+                    State resourceState = resource.getState();
 
-                        if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
+                    if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
 
-                            String resourceLabelID = resource.getLabel()+resource.getIdRes();
-                            // create marker
-                            MarkerOptions marker = new MarkerOptions().position(latLng).title(resourceLabelID);
-                            drawMarker(marker, resource);
-                            // adding marker
-                            Marker markerAdded = googleMap.addMarker(marker);
+                        String resourceLabelID = resource.getLabel()+resource.getIdRes();
+                        // create marker
+                        MarkerOptions marker = new MarkerOptions().position(latLng).title(resourceLabelID);
+                        drawMarker(marker, resource);
+                        // adding marker
+                        Marker markerAdded = googleMap.addMarker(marker);
 
-                            labelsMarkersHashMap.put(resourceLabelID, markerAdded);
-                            resources.add(resource);
-                            labelsResourcesHashMap.put(resourceLabelID, resource);
+                        labelsMarkersHashMap.put(resourceLabelID, markerAdded);
+                        resources.add(resource);
+                        labelsResourcesHashMap.put(resourceLabelID, resource);
 
-                            Log.i(TAG, "Label "+resourceLabelID+", Latitude : "+latitude+", Longitude : "+longitude);
+                        Log.i(TAG, "Label "+resourceLabelID+", Latitude : "+latitude+", Longitude : "+longitude);
 
-                            bounds.include(latLng);
-                        }
-
+                        bounds.include(latLng);
                     }
-
-
                 }
             }
 

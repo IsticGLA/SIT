@@ -6,16 +6,16 @@ import istic.gla.groupb.nivimoju.drone.FlaskImage;
 import istic.gla.groupb.nivimoju.entity.Image;
 import org.apache.log4j.Logger;
 
+import javax.imageio.ImageIO;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.FileOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 /**
  * API to manipulate images
@@ -31,17 +31,14 @@ public class ImageAPI {
     public Response createImage(FlaskImage flaskImage){
         logger.debug("received image from flask...");
         Image image = new ImageBuilder().buildImage(flaskImage);
+        BufferedImage img = new BufferedImage((int)image.getWidth(), (int)image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        img.getRaster().setPixels(0,0,(int)image.getWidth(), (int)image.getHeight(), image.getImage());
+        File outputfile = new File("/sit/log/test.bmp");
         try {
-            FileOutputStream fos = new FileOutputStream("/sit/log/test.bmp");
-            ByteBuffer byteBuffer = ByteBuffer.allocate(image.getImage().length * 8);
-            IntBuffer intBuffer = byteBuffer.asIntBuffer();
-            intBuffer.put(image.getImage());
-            fos.write(byteBuffer.array());
-            fos.close();
+            ImageIO.write(img, "bmp", outputfile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error ", e);
         }
-
         logger.info("length of image received : " + flaskImage.getImage().length);
         logger.info("length of image built : " + image.getImage() == null ? 0 : image.getImage().length);
         ImageDAO imageDAO = new ImageDAO();
