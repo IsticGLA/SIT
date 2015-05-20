@@ -83,7 +83,7 @@ public class SpringService {
 
     /**
      * Get incident codes
-     * @return array of {@link entity.IncidentCode}
+     * @return array of {@link istic.gla.groupb.nivimoju.entity.IncidentCode}
      * @throws HttpStatusCodeException throw exception if status code is bad
      */
     public IncidentCode[] codeSinistreClient() throws HttpStatusCodeException {
@@ -317,6 +317,7 @@ public class SpringService {
      */
     public Intervention changeResourceState(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2];
+        Log.v(TAG, "changeResourceState URL : "+url);
         Intervention intervention = null;
 
         try {
