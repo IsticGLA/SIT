@@ -213,9 +213,11 @@ public class ListInterventionsActivity extends FragmentActivity
             MapListInterventionsFragment mapFragment = (MapListInterventionsFragment)
                     getSupportFragmentManager().findFragmentById(R.id.map_fragment);
             // Call a method in the ArticleFragment to update its content
-            mapFragment.updateMapView(this.position);
-            ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
-            ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).listViewInterventions.setItemChecked(position,true);
+            if (mapFragment != null) {
+                mapFragment.updateMapView(this.position);
+                ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
+                ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).listViewInterventions.setItemChecked(position, true);
+            }
         }
     }
 

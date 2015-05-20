@@ -13,7 +13,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 
+import java.util.Collections;
+import java.util.Comparator;
+
 import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.TabbedActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
@@ -150,6 +154,10 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
      */
     public Intervention getIntervention(){
         return intervention;
+    }
+
+    public boolean isEditionMode() {
+        return editionMode;
     }
 
     /**
@@ -306,15 +314,35 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
      * @param intervention intervention updated
      */
     public void refreshList(Intervention intervention){
+        Collections.sort(intervention.getWatchPath(), new Comparator<Path>() {
+            @Override
+            public int compare(Path lhs, Path rhs) {
+                return Long.valueOf(lhs.getIdPath()).compareTo(Long.valueOf(rhs.getIdPath()));
+            }
+        });
         this.intervention = intervention;
         DroneListFragment droneListFragment = (DroneListFragment)
                 getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
-        droneListFragment.refresh(intervention);
+        if(droneListFragment != null) {
+            droneListFragment.refresh(intervention);
+        }
+    }
+
+    public void checkListView(int position){
+        DroneListFragment droneListFragment = (DroneListFragment)
+                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
+        droneListFragment.checkListView(position);
     }
 
     @Override
-    public void updateIntervention(Intervention intervention) {
-        refreshList(intervention);
+    public void updateIntervention(Intervention newIntervention) {
+        Intervention oldIntervention = intervention;
+        refreshList(newIntervention);
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        if(mapFragment != null) {
+            mapFragment.refreshMapAfterSynchro(newIntervention, oldIntervention);
+        }
     }
 
     @Override

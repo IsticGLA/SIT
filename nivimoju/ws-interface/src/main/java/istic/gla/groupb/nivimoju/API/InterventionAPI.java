@@ -119,6 +119,7 @@ public class InterventionAPI {
      */
     @GET
     @Path("{inter}/resources")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getResources(@PathParam("inter") Long inter) {
         try {
             Intervention intervention = InterventionContainer.getInstance().getInterventionById(inter);
@@ -137,6 +138,7 @@ public class InterventionAPI {
      */
     @PUT
     @Path("{inter}/resources/{res}/{state}")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response changeResourceState(
             @PathParam("inter") Long inter,
             @PathParam("res") Long res,
@@ -157,6 +159,7 @@ public class InterventionAPI {
      */
     @PUT
     @Path("{inter}/resources/{vehicle}")
+    @Produces(MediaType.APPLICATION_JSON)
     public Response requestVehicle(
             @PathParam("inter") Long inter,
             @PathParam("vehicle") String vehicle) {

@@ -2,7 +2,7 @@ package istic.gla.groupb.nivimoju.entity;
 
 import istic.gla.groupb.nivimoju.util.Constant;
 
-import java.sql.Timestamp;
+import java.util.Arrays;
 
 /**
  * Created by jeremy on 19/05/15.
@@ -10,24 +10,26 @@ import java.sql.Timestamp;
 public class Image extends AbstractEntity {
 
     private double width;
-    private double heigth;
-    private Timestamp timestamp;
+    private double height;
+    private long timestamp;
     private double[] position;
-    private byte[] image;
+    private int[] image;
+    private long idIntervention;
 
     public Image(){
         super();
         this.type = Constant.TYPE_IMAGE;
     }
 
-    public Image(double w, double h, Timestamp t, double[] p, byte[] b){
+    public Image(double width, long timestamp, double[] position, int[] bytes, long idIntervention){
         super();
         this.type = Constant.TYPE_IMAGE;
-        this.width = w;
-        this.heigth = h;
-        this.timestamp = t;
-        this.position = p;
-        this.image = b;
+        this.width = width;
+        this.height = bytes.length / (3 * width);
+        this.timestamp = timestamp;
+        this.position = position;
+        this.image = bytes;
+        this.idIntervention = idIntervention;
     }
 
     public double getWidth() {
@@ -38,19 +40,19 @@ public class Image extends AbstractEntity {
         this.width = width;
     }
 
-    public double getHeigth() {
-        return heigth;
+    public double getHeight() {
+        return height;
     }
 
-    public void setHeigth(double heigth) {
-        this.heigth = heigth;
+    public void setHeight(double height) {
+        this.height = height;
     }
 
-    public Timestamp getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -62,12 +64,20 @@ public class Image extends AbstractEntity {
         this.position = position;
     }
 
-    public byte[] getImage() {
+    public int[] getImage() {
         return image;
     }
 
-    public void setImage(byte[] image) {
+    public void setImage(int[] image) {
         this.image = image;
+    }
+
+    public long getIdIntervention() {
+        return idIntervention;
+    }
+
+    public void setIdIntervention(long idIntervention) {
+        this.idIntervention = idIntervention;
     }
 
     @Override
@@ -77,12 +87,14 @@ public class Image extends AbstractEntity {
 
         Image image1 = (Image) o;
 
+        if (Double.compare(image1.height, height) != 0) return false;
+        if (idIntervention != image1.idIntervention) return false;
+        if (timestamp != image1.timestamp) return false;
         if (Double.compare(image1.width, width) != 0) return false;
-        if (Double.compare(image1.heigth, heigth) != 0) return false;
-        if (!timestamp.equals(image1.timestamp)) return false;
-        if (!position.equals(image1.position)) return false;
-        return image.equals(image1.image);
+        if (!Arrays.equals(image, image1.image)) return false;
+        if (!Arrays.equals(position, image1.position)) return false;
 
+        return true;
     }
 
     @Override
@@ -91,11 +103,12 @@ public class Image extends AbstractEntity {
         long temp;
         temp = Double.doubleToLongBits(width);
         result = (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(heigth);
+        temp = Double.doubleToLongBits(height);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + timestamp.hashCode();
-        result = 31 * result + position.hashCode();
-        result = 31 * result + image.hashCode();
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + Arrays.hashCode(position);
+        result = 31 * result + Arrays.hashCode(image);
+        result = 31 * result + (int) (idIntervention ^ (idIntervention >>> 32));
         return result;
     }
 
@@ -103,10 +116,11 @@ public class Image extends AbstractEntity {
     public String toString() {
         return "Image{" +
                 "width=" + width +
-                ", heigth=" + heigth +
+                ", height=" + height +
                 ", timestamp=" + timestamp +
-                ", position=" + position +
-                ", image=" + image +
+                ", position=" + Arrays.toString(position) +
+                ", image=" + Arrays.toString(image) +
+                ", idIntervention=" + idIntervention +
                 '}';
     }
 }

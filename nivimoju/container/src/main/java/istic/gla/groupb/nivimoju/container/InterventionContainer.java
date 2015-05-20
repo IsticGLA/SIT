@@ -71,6 +71,15 @@ public class InterventionContainer {
     public Intervention createIntervention(Intervention intervention){
         InterventionDAO interventionDAO= new InterventionDAO();
         interventionDAO.connect();
+
+        int id =0;
+        for(Resource res : intervention.getResources()){
+            res.setIdRes(id);
+            res.setLabel(res.getLabel() + id);
+            res.initState();
+            id++;
+        }
+
         Intervention resultat = interventionDAO.create(intervention);
         interventionDAO.disconnect();
         mapInterventionById.put(resultat.getId(), resultat);
@@ -106,6 +115,7 @@ public class InterventionContainer {
         for (Resource resource : intervention.getResources()) {
             if (resource.getIdRes() == res) {
                 resource.setState(State.valueOf(state));
+                resource.setStateDate(State.valueOf(state));
                 break;
             }
         }
@@ -128,7 +138,9 @@ public class InterventionContainer {
             }
         }
         id++;
-        intervention.getResources().add(new Resource(id, vehicleName + id, State.waiting));
+        Resource resource = new Resource(id, vehicleName + id, State.waiting);
+        resource.setStateDate(resource.getState());
+        intervention.getResources().add(resource);
         intervention.updateDate();
         return intervention;
     }
@@ -140,17 +152,19 @@ public class InterventionContainer {
      * @return
      */
     public Intervention placeVehicle(Long idintervention, Resource vehicle) {
-        boolean found = false;
         Intervention intervention = getInterventionById(idintervention);
+        vehicle.setStateDate(vehicle.getState());
         for (Resource resource : intervention.getResources()) {
             if (resource.getIdRes() == vehicle.getIdRes()) {
-                resource = vehicle;
-                found = true;
+                vehicle.setStateDate(vehicle.getState());
+                intervention.getResources().remove(resource);
+                intervention.getResources().add(vehicle);
+                return intervention;
             }
         }
-        if (!found){
-            addResource(idintervention, vehicle.getLabel());
-        }
+
+        intervention = addResource(idintervention, vehicle.getLabel());
+
         intervention.updateDate();
         return intervention;
     }
@@ -187,7 +201,8 @@ public class InterventionContainer {
         Long id = Long.valueOf(0);
         for(Path oldpath : intervention.getWatchPath()) {
             if(oldpath.getIdPath() == path.getIdPath()) {
-                oldpath = path;
+                intervention.getWatchPath().remove(oldpath);
+                intervention.getWatchPath().add(path);
                 intervention.updateDate();
                 return intervention;
             }

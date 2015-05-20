@@ -32,6 +32,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -67,6 +68,22 @@ public class AgentInterventionActivity extends TabbedActivity
             new GetInterventionTask(this, intervention.getId()).execute();
         }
     }
+    /**
+     * Update lists of resources and map
+     * @param intervention
+     */
+    public void updateIntervention(Intervention intervention) {
+        Log.i(TAG, "updateIntervention");
+        this.intervention = intervention;
+        //update lists of resources and map
+        if (firstFragment != null){
+            firstFragment.refresh();
+        }
+        if (mapFragment != null){
+            mapFragment.refresh();
+        }
+    }
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -179,38 +196,6 @@ public class AgentInterventionActivity extends TabbedActivity
         }
     }
 
-    public void resourceUpdated(Resource resource){
-        List<Resource> resList = intervention.getResources();
-        Resource temp = null;
-        for (Resource res : resList){
-            if (res.getIdRes() == resource.getIdRes()){
-                temp = res;
-            }
-        }
-        if (temp != null){
-            resList.remove(temp);
-            resList.add(resource);
-        }
-        UpdateIntervention updateIntervention = new UpdateIntervention();
-        updateIntervention.execute(intervention);
-        //refresh();
-    }
-    /**
-     * Update lists of resources and map
-     * @param intervention
-     */
-    public void updateIntervention(Intervention intervention) {
-        Log.i(TAG, "updateIntervention");
-        this.intervention = intervention;
-        //update lists of resources and map
-        if (firstFragment != null){
-            firstFragment.refresh();
-        }
-        if (mapFragment != null){
-            mapFragment.refresh();
-        }
-    }
-
     @Override
     public Context getContext() {
         return getApplicationContext();
@@ -243,6 +228,8 @@ public class AgentInterventionActivity extends TabbedActivity
 
                     MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
 
+                    GoogleMap googleMap = mapView.getMap();
+
                     int x = (int) event.getX();
                     int y = (int) event.getY();
 
@@ -257,33 +244,17 @@ public class AgentInterventionActivity extends TabbedActivity
 
                     if (((LinearLayout)view).getChildAt(0) instanceof ImageView){
                         resource = resourceList.get(mCurrentPosition);
-                        resource.setLatitude(latLng.latitude);
-                        resource.setLongitude(latLng.longitude);
-                        resource.setState(State.planned);
                         resourceList.remove(mCurrentPosition);
                         firstFragment.getIconBitmapResourceList().remove(mCurrentPosition);
                         firstFragment.getResourceImageAdapter().notifyDataSetChanged();
-                    }else{
+                    } else {
                         resource = additionalResourceList.get(mCurrentPosition);
-                        resource.setLatitude(latLng.latitude);
-                        resource.setLongitude(latLng.longitude);
-                        resource.setState(State.active);
                         List<Resource> resources = intervention.getResources();
                         resources.add(resource);
                     }
 
-                    UpdateIntervention mUpdateIntervention = new UpdateIntervention();
-                    mUpdateIntervention.execute(intervention);
-
-                    /*MarkerOptions marker = new MarkerOptions().position(latLng).title(label);
-                    marker.draggable(true);
-
-                    // Changing marker icons
-                    mapFragment.drawMarker(marker, resource);
-                    // adding marker
-                    Marker markerAdded = googleMap.addMarker(marker);
-                    mapFragment.getLabelsMarkersHashMap().put(label, markerAdded);
-                    mapFragment.getLabelsResourcesHashMap().put(label, resource);*/
+                    updateResourceOnDrop(resource, latLng);
+                    
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     view.setVisibility(View.VISIBLE);
@@ -294,6 +265,36 @@ public class AgentInterventionActivity extends TabbedActivity
             }
             return true;
         }
+    }
+
+    public void resourceUpdated(Resource resource){
+        List<Resource> resList = intervention.getResources();
+        Resource temp = null;
+        for (Resource res : resList){
+            if (res.getIdRes() == resource.getIdRes()){
+                temp = res;
+            }
+        }
+        if (temp != null){
+            resList.remove(temp);
+            resList.add(resource);
+        }
+
+        UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
+        mUpdateResourceIntervention.execute();
+        /*UpdateIntervention updateIntervention = new UpdateIntervention();
+        updateIntervention.execute(intervention);*/
+        //refresh();
+    }
+
+    public void updateResourceOnDrop(Resource resource, LatLng latLng){
+
+        resource.setLatitude(latLng.latitude);
+        resource.setLongitude(latLng.longitude);
+        resource.setState(State.planned);
+
+        UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
+        mUpdateResourceIntervention.execute();
     }
 
     public void showManageResourceDialog(Resource resource){
@@ -316,6 +317,30 @@ public class AgentInterventionActivity extends TabbedActivity
         @Override
         protected void onPostExecute(Intervention intervention){
             Log.i(TAG, "Start onPostExecute updateIntervention");
+            updateIntervention(intervention);
+            Log.i(TAG, "End update intervention");
+        }
+    }
+
+    public class UpdateResourceIntervention extends AsyncTask<Object[], Void, Intervention> {
+        private SpringService service = new SpringService();
+        private long interventionId;
+        private Resource resource;
+
+        public UpdateResourceIntervention(long interventionId, Resource resource){
+            this.interventionId = interventionId;
+            this.resource = resource;
+        }
+
+        @Override
+        protected Intervention doInBackground(Object[]... params) {
+            Log.i(TAG, "Start doInbackground UpdateResourceIntervention");
+            return service.updateResourceIntervention(interventionId,resource);
+        }
+
+        @Override
+        protected void onPostExecute(Intervention intervention){
+            Log.i(TAG, "Start onPostExecute UpdateResourceIntervention");
             updateIntervention(intervention);
             Log.i(TAG, "End update intervention");
         }

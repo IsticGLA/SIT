@@ -1,15 +1,28 @@
 package istic.gla.groupeb.flerjeco.agent.table;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.TabbedActivity;
+import android.widget.TableRow.LayoutParams;
+import android.widget.TextView;
+
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
+import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
@@ -20,10 +33,36 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
 
     private static final String TAG = TableActivity.class.getSimpleName();
 
+    protected Intervention intervention;
+    private TableFragment firstFragment;
+    private  TableLayout headerTable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tableau);
+
+        intervention = new Intervention();
+
+
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null){
+            Log.i(TAG, "getExtras not null");
+            intervention = (Intervention) extras.getSerializable("intervention");
+
+            DisplaySynch displaySynch = new DisplaySynch() {
+                @Override
+                public void ctrlDisplay() {
+                    refresh();
+                }
+            };
+            String url = "notify/intervention/" + intervention.getId();
+            IntentWraper.startService(url, displaySynch);
+        }
+
+        //Init of header table
+        headerTableInit();
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -37,7 +76,7 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
             }
 
             // Create an instance of ExampleFragment
-            TableFragment firstFragment = new TableFragment();
+            firstFragment = new TableFragment();
 
             // In case this activity was started with special instructions from an Intent,
             // pass the Intent's extras to the fragment as arguments
@@ -49,27 +88,62 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
         }
     }
 
+    public void headerTableInit(){
+        headerTable = (TableLayout) findViewById(R.id.headerTable);
 
+        // Recuperation du table layout sur lequel nous allons agir
+        String[] moyen = getResources().getStringArray(R.array.resourceDateState);
+
+        // On va calculer la largeur des colonnes en fonction de la marge de 10
+        // On affiche l'enreg dans une ligne
+        TableRow tableRow = new TableRow(this);
+        headerTable.addView(tableRow,
+                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        headerTable.setBackgroundColor(getResources().getColor(R.color.grey));
+
+        // On crée une ligne de x moyen colonnes
+        tableRow.setLayoutParams(new LayoutParams(moyen.length));
+
+        int i = 0;
+        for (String resourceDateState : moyen) {
+            TextView text = createTextView(false , i == moyen.length - 1);
+            text.setText(resourceDateState);
+            text.setGravity(Gravity.CENTER);
+            text.setWidth(100);
+            tableRow.addView(text, i++);
+        }
+    }
+    private TextView createTextView(boolean endline, boolean endcolumn){
+        TextView text = new TextView(this, null, R.style.frag2HeaderCol);
+        int bottom = endline ? 1 : 0;
+        int right = endcolumn ? 1 :0;
+        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 0.3f);
+        params.setMargins(1, 1, right, bottom);
+        text.setLayoutParams(params);
+        text.setPadding(4, 4, 10, 4);
+        text.setBackgroundColor(getResources().getColor(R.color.white));
+        return text;
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_tableau, menu);
-        return true;
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_logout, menu);
+
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                Intent intent = new Intent(TableActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -84,6 +158,10 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
     public void updateIntervention(Intervention intervention) {
         Log.i(TAG, "updateIntervention");
         this.intervention = intervention;
+
+        if (firstFragment != null){
+            firstFragment.refresh();
+        }
     }
 
 
@@ -113,11 +191,13 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
         super.onStop();
     }
 
+
     @Override
     protected void onPause() {
         super.onPause();
         IntentWraper.stopService();
     }
+
 
     @Override
     public void onFragmentInteraction(Uri uri) {

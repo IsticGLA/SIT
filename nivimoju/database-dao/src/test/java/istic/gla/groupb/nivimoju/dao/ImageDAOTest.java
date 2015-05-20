@@ -8,13 +8,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -41,7 +39,7 @@ public class ImageDAOTest {
         byte[] b = baos.toByteArray();
         Date date= new java.util.Date();
         double[] position = {49.63004, -1.66334};
-        image = new Image(256.0, 256.0, new Timestamp(date.getTime()), position, b);
+        //image = new Image(256.0, DateTime.now().getMillis(), position, b, 1);
         imageDAO = new ImageDAO();
         imageDAO.connect();
     }
@@ -63,7 +61,7 @@ public class ImageDAOTest {
         logger.error(res.getType());
         try {
             FileOutputStream fos = new FileOutputStream("src/test/resources/test.jpg");
-            fos.write(res.getImage());
+            //fos.write(res.getImage());
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();

@@ -83,8 +83,28 @@ public class Resource implements Serializable {
         this.idRes = id;
         this.label = label;
         this.setState(state);
-        this.resourceRole = ResourceRole.otherwise;
+        this.resourceRole = roleByName(label);
         this.resourceCategory = ResourceCategory.vehicule;
+    }
+
+    public void initState() {
+        if (this.state == State.validated) {
+            Timestamp now = new Timestamp(Calendar.getInstance().getTime().getTime());
+            this.validatedHistory = now;
+            this.waitingHistory = now;
+        }
+    }
+
+    private ResourceRole roleByName(String name) {
+        if(name.contains("VSAV") || name.contains("VSR")) {
+            return ResourceRole.people;
+        } else if(name.contains("FPT") || name.contains("EPA")){
+            return ResourceRole.fire;
+        } else if (name.contains("VLCG")) {
+            return ResourceRole.commands;
+        } else {
+            return ResourceRole.otherwise;
+        }
     }
 
     public long getIdRes() {
@@ -109,34 +129,37 @@ public class Resource implements Serializable {
 
     public void setState(State state) {
         this.state = state;
+    }
+
+    public void setStateDate(State state) {
         Timestamp now = new Timestamp(Calendar.getInstance().getTime().getTime());
         switch (state) {
             case active:
-                if(activeHistory != null)
+                if(activeHistory == null)
                     this.activeHistory = now;
                 break;
             case arrived:
-                if(arrivedHistory != null)
+                if(arrivedHistory == null)
                     this.arrivedHistory = now;
                 break;
             case free:
-                if(freeHistory != null)
+                if(freeHistory == null)
                     this.freeHistory = now;
                 break;
             case planned:
-                if(plannedHistory != null)
+                if(plannedHistory == null)
                     this.plannedHistory = now;
                 break;
             case refused:
-                if(refusedHistory != null)
+                if(refusedHistory == null)
                     this.refusedHistory = now;
                 break;
             case validated:
-                if(validatedHistory != null)
+                if(validatedHistory == null)
                     this.validatedHistory = now;
                 break;
             case waiting:
-                if(waitingHistory != null)
+                if(waitingHistory == null)
                     this.waitingHistory = now;
                 break;
             default:

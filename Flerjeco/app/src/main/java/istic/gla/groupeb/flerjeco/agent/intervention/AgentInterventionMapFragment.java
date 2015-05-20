@@ -29,15 +29,16 @@ import java.util.Map;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.entity.StaticData;
+import istic.gla.groupb.nivimoju.util.MarkerType;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.icons.Danger;
 import istic.gla.groupeb.flerjeco.icons.Sensitive;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
-import istic.gla.groupb.nivimoju.util.ResourceCategory;
-import istic.gla.groupb.nivimoju.util.ResourceRole;
-import istic.gla.groupb.nivimoju.util.State;
 
 /**
  * A fragment that launches other parts of the demo application.
@@ -72,8 +73,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     private void clearMapData(){
         for (Resource resource : resources){
-            if (labelsMarkersHashMap.get(resource.getLabel()) != null) {
-                labelsMarkersHashMap.get(resource.getLabel()).remove();
+            if (labelsMarkersHashMap.get(resource.getLabel()+resource.getIdRes()) != null) {
+                labelsMarkersHashMap.get(resource.getLabel()+resource.getIdRes()).remove();
             }
         }
         resources.clear();
@@ -113,7 +114,6 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         if (null != intervention){
             // Create LatLngBound to zoom on the set of positions in the path
             final LatLngBounds.Builder bounds = new LatLngBounds.Builder();
-            boolean isPositionResource = false;
 
             if (intervention.getResources().size()>0){
 
@@ -128,23 +128,20 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
                         if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
 
-                            String resourceLabel = resource.getLabel();
+                            String resourceLabelID = resource.getLabel()+resource.getIdRes();
                             // create marker
-                            MarkerOptions marker = new MarkerOptions().position(latLng).title(resourceLabel);
+                            MarkerOptions marker = new MarkerOptions().position(latLng).title(resourceLabelID);
                             drawMarker(marker, resource);
                             // adding marker
                             Marker markerAdded = googleMap.addMarker(marker);
 
-                            labelsMarkersHashMap.put(resourceLabel, markerAdded);
+                            labelsMarkersHashMap.put(resourceLabelID, markerAdded);
                             resources.add(resource);
-                            labelsResourcesHashMap.put(resourceLabel, resource);
+                            labelsResourcesHashMap.put(resourceLabelID, resource);
 
-                            Log.i(TAG, "Label "+resourceLabel+", Latitude : "+latitude+", Longitude : "+longitude);
+                            Log.i(TAG, "Label "+resourceLabelID+", Latitude : "+latitude+", Longitude : "+longitude);
 
-                            if (intervention.getResources().size()>1) {
-                                isPositionResource = true;
-                                bounds.include(latLng);
-                            }
+                            bounds.include(latLng);
                         }
 
                     }
@@ -153,26 +150,35 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 }
             }
 
-            if(!isPositionResource && initMap) {
+            if(initMap) {
                 CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
+                        .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
 
-                googleMap.animateCamera(CameraUpdateFactory
+                googleMap.moveCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));
                 initMap = false;
-            } else {
-                googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
 
+                googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                     @Override
-                    public void onCameraChange(CameraPosition arg0) {
-                        // Move camera.
-                        try {
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
-                        } catch (IllegalStateException e) {
-                            Log.e(TAG, "Error: no included points for camera update");
+                    public void onMapLoaded() {
+                        if (resources.size()>1) {
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 100));
                         }
-                        // Remove listener to prevent position reset on camera move.
-                        googleMap.setOnCameraChangeListener(null);
+                        else if (resources.size()==1){
+                            CameraPosition cameraPosition = new CameraPosition.Builder()
+                                    .target(new LatLng(resources.get(0).getLatitude(), resources.get(0).getLongitude())).zoom(16).build();
+
+                            googleMap.animateCamera(CameraUpdateFactory
+                                    .newCameraPosition(cameraPosition));
+                        }
+                        else {
+                            CameraPosition cameraPosition = new CameraPosition.Builder()
+                                    .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
+
+                            googleMap.animateCamera(CameraUpdateFactory
+                                    .newCameraPosition(cameraPosition));
+                        }
+                        googleMap.setOnMapLoadedCallback(null);
                     }
                 });
             }
@@ -201,21 +207,12 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
                 @Override
                 public void onMarkerDragEnd(Marker marker) {
-                    /*Resource resource = labelsResourcesHashMap.get(marker.getTitle());
-                    if (resource != null) {
-                        resource.setState(State.planned);
-                        if (null != getActivity()) {
-                            ((AgentInterventionActivity) getActivity()).resourceUpdated(resource);
-                        }
-                    }*/
-                    /*String title = marker.getTitle();
+                    Resource resource = labelsResourcesHashMap.get(marker.getTitle());
                     LatLng latLng = marker.getPosition();
-                    Resource resource = labelsResourcesHashMap.get(title);
-                    resource.setLatitude(latLng.longitude);
-                    resource.setLongitude(latLng.longitude);
-                    if (null != getActivity()){
-                        ((AgentInterventionActivity) getActivity()).resourceUpdated(resource);
-                    }*/
+                    if (resource != null && null != getActivity()) {
+                        ((AgentInterventionActivity) getActivity()).updateResourceOnDrop(resource,latLng);
+                    }
+
                 }
             });
         }
@@ -234,19 +231,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     public void drawStaticMarker(MarkerOptions markerOptions, StaticData data){
         Bitmap bmp = null;
-        switch (data.getMarkerType()){
-            case waterSource:
-                bmp = BitmapFactory.decodeResource(getResources(), R.drawable.watersource);
-                break;
-            case danger:
-                Danger danger = new Danger();
-                bmp = Bitmap.createBitmap(60, 60, Bitmap.Config.ARGB_8888);
-                Canvas mCanvas = new Canvas(bmp);
-                danger.drawIcon(mCanvas);
-                break;
-            case incident:
-                bmp = BitmapFactory.decodeResource(getResources(), R.drawable.incident);
-                break;
+        if (data.getMarkerType().equals(MarkerType.waterSource)){
+            bmp = BitmapFactory.decodeResource(getResources(), R.drawable.watersource);
         }
         if (bmp != null) {
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(bmp));

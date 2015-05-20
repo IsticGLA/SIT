@@ -25,13 +25,11 @@ public abstract class TabbedActivity extends FragmentActivity implements ActionB
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        intervention = new Intervention();
+        ArrayList<Integer> tabs = null;
 
         Bundle extras = getIntent().getExtras();
-        ArrayList<Integer> tabs = null;
+
         if (extras != null){
-            intervention = (Intervention) extras.getSerializable("intervention");
             tabs = extras.getIntegerArrayList("tabs");
         }
 
