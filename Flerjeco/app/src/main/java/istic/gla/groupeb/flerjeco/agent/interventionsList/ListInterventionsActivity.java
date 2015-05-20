@@ -140,7 +140,7 @@ public class ListInterventionsActivity extends FragmentActivity
         Bundle bundle = new Bundle();
 
         bundle.putSerializable("intervention", getInterventions()[position]);
-        ArrayList<Integer> tabs = new ArrayList<Integer>();
+        ArrayList<Integer> tabs = new ArrayList<>();
         tabs.add(R.string.intervention);
         tabs.add(R.string.table);
         tabs.add(R.string.drones);

@@ -193,7 +193,7 @@ public class TableFragment extends Fragment implements ISynchTool{
         String[] moyen = getResources().getStringArray(R.array.resourceDateState);
 
         // get intervention
-        intervention = ((TableActivity) getActivity()).intervention;
+        intervention = ((TableActivity) getActivity()).getIntervention();
 
         TableRow tableRow = new TableRow(getActivity());
         tableRow.setLayoutParams(new LayoutParams(moyen.length));

@@ -44,6 +44,15 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        intervention = new Intervention();
+
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null){
+            Log.i(TAG, "getExtras not null");
+            intervention = (Intervention) extras.getSerializable("intervention");
+        }
+
         // Set the content view with the activity_plan_zone layout
         setContentView(R.layout.activity_plan_zone);
 

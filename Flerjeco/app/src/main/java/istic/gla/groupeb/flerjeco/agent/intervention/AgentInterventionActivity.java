@@ -89,6 +89,15 @@ public class AgentInterventionActivity extends TabbedActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
+        intervention = new Intervention();
+
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null){
+            Log.i(TAG, "getExtras not null");
+            intervention = (Intervention) extras.getSerializable("intervention");
+        }
         /*List<Resource> resourceList = new ArrayList<>();
         resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
         resourceList.add(new Resource("Resource1", State.validated, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));

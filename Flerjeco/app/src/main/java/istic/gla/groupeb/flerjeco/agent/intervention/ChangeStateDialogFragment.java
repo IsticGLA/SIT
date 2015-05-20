@@ -129,7 +129,7 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
     public void releaseResource() {
         updateResourceTask = new UpdateResourceTask(this);
         updateResourceTask.execute(
-                "" + ((AgentInterventionActivity) getActivity()).intervention.getId(),
+                "" + ((AgentInterventionActivity) getActivity()).getIntervention().getId(),
                 "" + resource.getIdRes(),
                 State.free.name());
     }

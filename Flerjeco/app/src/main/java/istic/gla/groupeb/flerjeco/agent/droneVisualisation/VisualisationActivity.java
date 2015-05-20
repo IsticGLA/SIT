@@ -3,6 +3,7 @@ package istic.gla.groupeb.flerjeco.agent.droneVisualisation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,6 +29,15 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        intervention = new Intervention();
+
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null){
+            Log.i(TAG, "getExtras not null");
+            intervention = (Intervention) extras.getSerializable("intervention");
+        }
 
         // Set the content view with the activity_plan_zone layout
         setContentView(R.layout.activity_plan_zone);

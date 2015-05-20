@@ -33,7 +33,6 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
 
     private static final String TAG = TableActivity.class.getSimpleName();
 
-    protected Intervention intervention;
     private TableFragment firstFragment;
     private  TableLayout headerTable;
 
@@ -41,9 +40,6 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tableau);
-
-        intervention = new Intervention();
-
 
         Bundle extras = getIntent().getExtras();
 
