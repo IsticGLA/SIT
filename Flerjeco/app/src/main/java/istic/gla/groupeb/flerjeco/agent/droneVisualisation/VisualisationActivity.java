@@ -40,7 +40,7 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
         }
 
         // Set the content view with the activity_plan_zone layout
-        setContentView(R.layout.activity_plan_zone);
+        setContentView(R.layout.activity_visualisation);
 
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
@@ -101,20 +101,9 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
         return intervention;
     }
 
-    /**
-     * refresh the list in the ListView fragment
-     * @param intervention intervention updated
-     */
-    public void refreshList(Intervention intervention){
-        this.intervention = intervention;
-        DroneListFragment droneListFragment = (DroneListFragment)
-                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
-        droneListFragment.refresh(intervention);
-    }
-
     @Override
     public void updateIntervention(Intervention intervention) {
-        refreshList(intervention);
+
     }
 
     @Override
