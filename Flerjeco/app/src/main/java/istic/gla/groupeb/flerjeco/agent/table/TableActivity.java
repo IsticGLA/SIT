@@ -155,7 +155,7 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
         Log.i(TAG, "updateIntervention");
         this.intervention = intervention;
 
-        if (firstFragment != null){
+        if (firstFragment != null && !firstFragment.isDetached()){
             firstFragment.refresh();
         }
     }

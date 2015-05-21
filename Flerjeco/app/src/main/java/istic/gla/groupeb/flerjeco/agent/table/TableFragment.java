@@ -190,7 +190,10 @@ public class TableFragment extends Fragment implements ISynchTool{
         //Delete all content before painting in containerTable
         containerTable.removeAllViews();
 
-        String[] moyen = getResources().getStringArray(R.array.resourceDateState);
+        String[] moyen = null;
+        try {
+            moyen = getResources().getStringArray(R.array.resourceDateState);
+        } catch (IllegalStateException ex) { return; }
 
         // get intervention
         intervention = ((TableActivity) getActivity()).getIntervention();
