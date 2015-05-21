@@ -44,6 +44,9 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //opening transition animations
+        overridePendingTransition(0, android.R.anim.fade_out);
+
         intervention = new Intervention();
 
         Bundle extras = getIntent().getExtras();
@@ -364,5 +367,13 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         if (null != intervention) {
             new GetInterventionTask(this, intervention.getId()).execute();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //closing transition animations
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
+        IntentWraper.stopService();
     }
 }

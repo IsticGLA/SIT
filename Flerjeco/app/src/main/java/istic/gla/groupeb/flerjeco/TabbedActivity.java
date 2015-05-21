@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentActivity;
 import java.util.ArrayList;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
-import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.droneVisualisation.VisualisationActivity;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
@@ -133,7 +132,7 @@ public abstract class TabbedActivity extends FragmentActivity implements ActionB
 
     @Override
     public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals(tabName)) {
+        if(tab.getText().toString().equals(tabName) && intervention != null) {
             finish();
         }
     }

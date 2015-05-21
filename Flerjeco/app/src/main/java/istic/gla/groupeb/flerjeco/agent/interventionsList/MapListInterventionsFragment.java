@@ -74,6 +74,7 @@ public class MapListInterventionsFragment extends Fragment implements ISynchTool
                 false);
 
         mProgressView = v.findViewById(R.id.map_progress);
+        mProgressView.setVisibility(View.VISIBLE);
 
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -128,6 +129,12 @@ public class MapListInterventionsFragment extends Fragment implements ISynchTool
         // Create LatLngBound to zoom on the set of positions in the path
         bounds = new LatLngBounds.Builder();
 
+
+        if(initMap) {
+            initMap = false;
+            mProgressView.setVisibility(View.INVISIBLE);
+        }
+
         if (interventionTab.length > 0){
             for (Intervention intervention : interventionTab) {
                 double latitude = intervention.getLatitude();
@@ -147,11 +154,6 @@ public class MapListInterventionsFragment extends Fragment implements ISynchTool
                 labelsMarkersHashMap.put(intervention.getName(), markerAdded);
             }
 
-
-            if(initMap) {
-                initMap = false;
-                mProgressView.setVisibility(View.INVISIBLE);
-            }
         }
     }
 

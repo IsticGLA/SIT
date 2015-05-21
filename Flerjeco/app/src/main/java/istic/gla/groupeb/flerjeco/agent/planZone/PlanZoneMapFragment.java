@@ -46,6 +46,7 @@ import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
+import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 /**
@@ -573,7 +574,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                     dronesMarkers.remove(labelToRemove);
                 }
             }
-            new GetPositionDroneTask(this, ((PlanZoneActivity) getActivity()).getIntervention().getId()).execute();
         }
     }
 

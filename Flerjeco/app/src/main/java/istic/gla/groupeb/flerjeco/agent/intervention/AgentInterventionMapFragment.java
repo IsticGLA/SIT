@@ -91,6 +91,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 false);
 
         mProgressView = v.findViewById(R.id.map_progress);
+        mProgressView.setVisibility(View.VISIBLE);
 
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -143,7 +144,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                         resources.add(resource);
                         labelsResourcesHashMap.put(resourceLabelID, resource);
 
-                        Log.i(TAG, "Label "+resourceLabelID+", Latitude : "+latitude+", Longitude : "+longitude);
+                        Log.i(TAG, "Label "+resourceLabelID+", Role : "+resource.getResourceRole());
 
                         bounds.include(latLng);
                     }

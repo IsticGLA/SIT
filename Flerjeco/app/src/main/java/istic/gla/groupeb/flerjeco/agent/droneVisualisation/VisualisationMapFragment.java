@@ -3,24 +3,18 @@ package istic.gla.groupeb.flerjeco.agent.droneVisualisation;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -46,9 +40,7 @@ import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
-import istic.gla.groupeb.flerjeco.agent.planZone.EPathOperation;
-import istic.gla.groupeb.flerjeco.agent.planZone.GetPositionDroneTask;
-import istic.gla.groupeb.flerjeco.agent.planZone.UpdatePathsForInterventionTask;
+import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 /**
@@ -68,12 +60,6 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
 
     // list of all the path of the intervention
     private List<Path> pathList;
-    // current position in the pathList in the intervention
-    int mCurrentPosition = -1;
-    // initialized when we create a new path for the current intervention
-    public Path newPath;
-    // save the path when we edit it to future restore (request to database failed)
-    private Path savePath;
     // current intervention
     private Intervention inter;
     // list all drone of the intevervention
@@ -118,58 +104,33 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     public void onStart() {
         super.onStart();
 
-        // During startup, check if there are arguments passed to the fragment.
-        // onStart is a good place to do this because the layout has already been
-        // applied to the fragment at this point so we can safely call the method
-        // below that sets the article text.
-        Bundle args = getArguments();
-        if (args != null) {
-            // Set article based on argument passed in
-            updateMapView(args.getInt(ARG_POSITION));
-        } else if (mCurrentPosition != -1) {
-            // Set article based on saved instance state defined during onCreateView
-            updateMapView(mCurrentPosition);
-        }
+        updateMapView();
     }
 
     /**
      * Update the Google Map with the path you just clicked
-     * @param position position of the path you clicked in the list
      */
-    public void updateMapView(int position) {
+    public void updateMapView() {
         // clear the Google Map
         clearGoogleMap();
 
         // get the intervention from the main activity
         inter = ((VisualisationActivity) getActivity()).getIntervention();
+        pathList = inter.getWatchPath();
 
-        // if path of the position position in the list is not null, we draw it on the map
-        if (pathList.size() > 0 && position < pathList.size() && null != pathList.get(position)){
-            // Set mCurrentPosition to future resume on fragment
-            mCurrentPosition = position;
+        // Create LatLngBound to zoom on the set of positions in the path
+        LatLngBounds.Builder bounds = new LatLngBounds.Builder();
 
-
-            // set closed property on newPath
-            boolean b = pathList.get(position).isClosed();
-            newPath.setClosed(b);
-
-            // save the old path for future restore if the update doesn't work
-            savePath = new Path();
-            savePath.setClosed(b);
+        for (Path p : pathList){
 
             // get all the positions of the path to draw it
-            List<Position> positions = pathList.get(position).getPositions();
+            List<Position> positions = p.getPositions();
 
-            // Create LatLngBound to zoom on the set of positions in the path
-            LatLngBounds.Builder bounds = new LatLngBounds.Builder();
             for (int i = 0; i < positions.size(); i++){
                 double latitude = positions.get(i).getLatitude();
                 double longitude = positions.get(i).getLongitude();
                 LatLng latLng = new LatLng(latitude, longitude);
                 bounds.include(latLng);
-
-                newPath.getPositions().add(new Position(latitude, longitude, 20));
-                savePath.getPositions().add(new Position(latitude, longitude, 20));
 
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(latLng);
@@ -185,13 +146,13 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                     LatLng previousLatLng = new LatLng(positions.get(i-1).getLatitude(), positions.get(i-1).getLongitude());
                     drawLine(latLng, previousLatLng);
                 // else if it the path is closed, draw line between first and last point
-                } if (i == positions.size()-1 && pathList.get(position).isClosed() && positions.size() > 2){
+                } if (i == positions.size()-1 && p.isClosed() && positions.size() > 2){
                     LatLng firstLatLng = new LatLng(positions.get(0).getLatitude(), positions.get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
                 }
             }
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
         }
+        //googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
     }
 
     /**
@@ -203,7 +164,6 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         this.polylines = new ArrayList<>();
         this.markers = new ArrayList<>();
         this.dronesMarkers = new HashMap<>();
-        this.newPath = new Path();
     }
 
     /**
@@ -213,21 +173,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         googleMap.clear();
         this.polylines.clear();
         this.markers.clear();
-        this.newPath = new Path();
         this.dronesMarkers.clear();
-    }
-
-    /**
-     * Draw the polyline which close the path
-     */
-    public void drawClosePolyline(){
-        // if there are at least two points in the path
-        if (newPath.getPositions().size() > 2) {
-            LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
-            LatLng lastLatLng = new LatLng(newPath.getPositions().get(newPath.getPositions().size() - 1).getLatitude(),
-                    newPath.getPositions().get(newPath.getPositions().size() - 1).getLongitude());
-            drawLine(firstLatLng, lastLatLng);
-        }
     }
 
     /**

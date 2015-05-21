@@ -85,11 +85,7 @@ public class SpringService {
 
     /**
      * Get incident codes
-<<<<<<< Updated upstream
-     * @return array of {@link istic.gla.groupb.nivimoju.entity.IncidentCode}
-=======
      * @return array of {@link IncidentCode}
->>>>>>> Stashed changes
      * @throws HttpStatusCodeException throw exception if status code is bad
      */
     public IncidentCode[] codeSinistreClient() throws HttpStatusCodeException {

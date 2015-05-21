@@ -90,6 +90,8 @@ public class AgentInterventionActivity extends TabbedActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //opening transition animations
+        overridePendingTransition(0, android.R.anim.fade_out);
 
         intervention = new Intervention();
 
@@ -373,6 +375,8 @@ public class AgentInterventionActivity extends TabbedActivity
     @Override
     protected void onPause() {
         super.onPause();
+        //closing transition animations
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
         IntentWraper.stopService();
     }
 }
