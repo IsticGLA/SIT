@@ -61,7 +61,7 @@ public class ImageDAOTest {
         logger.error(res.getType());
         try {
             FileOutputStream fos = new FileOutputStream("src/test/resources/test.jpg");
-            //fos.write(res.getImage());
+            //fos.write(res.getBase64Image());
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();

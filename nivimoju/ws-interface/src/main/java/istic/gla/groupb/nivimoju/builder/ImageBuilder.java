@@ -20,7 +20,7 @@ public class ImageBuilder {
         Drone drone = DroneContainer.getInstance().getDroneByLabel(flaskImage.getDroneLabel());
         if (drone != null) {
             Image result = new Image();
-            result.setImage(flaskImage.getImage());
+            result.setBase64Image(flaskImage.getBase64Image());
             Position position = DroneEngine.converter.getLatLong(flaskImage.getPosition());
             double[] posArray = {position.getLatitude(), position.getLongitude()};
             result.setPosition(posArray);

@@ -35,7 +35,7 @@ public class ImageAPI {
         Image image = new ImageBuilder().buildImage(flaskImage);
         /*BASE64Decoder decoder = new BASE64Decoder();
         try {
-            byte[] img = new sun.misc.BASE64Decoder().decodeBuffer(image.getImage());
+            byte[] img = new sun.misc.BASE64Decoder().decodeBuffer(image.getBase64Image());
             File outputfile = new File("/sit/log/test.jpeg");
             FileOutputStream osf = new FileOutputStream(outputfile);
             osf.write(img);

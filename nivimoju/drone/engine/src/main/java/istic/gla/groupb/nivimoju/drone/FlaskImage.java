@@ -2,15 +2,13 @@ package istic.gla.groupb.nivimoju.drone;
 
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
 
-import java.util.Arrays;
-
 /**
- * Container of infos about a single image
+ * Container of infos about a single base64Image
  */
 public class FlaskImage {
 
     LocalCoordinate position;
-    String image;
+    String base64Image;
     String droneLabel;
     int width;
 
@@ -22,12 +20,12 @@ public class FlaskImage {
         this.position = position;
     }
 
-    public String getImage() {
-        return image;
+    public String getBase64Image() {
+        return base64Image;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setBase64Image(String base64Image) {
+        this.base64Image = base64Image;
     }
 
     public String getDroneLabel() {
@@ -50,7 +48,7 @@ public class FlaskImage {
     public String toString() {
         return "FlaskImage{" +
                 "position=" + position +
-                ", image=" + image +
+                ", base64Image=" + base64Image +
                 ", droneLabel='" + droneLabel + '\'' +
                 ", width=" + width +
                 '}';
