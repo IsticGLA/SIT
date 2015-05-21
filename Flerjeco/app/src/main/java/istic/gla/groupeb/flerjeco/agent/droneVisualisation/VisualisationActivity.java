@@ -22,6 +22,8 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
 
     private static final String TAG = VisualisationActivity.class.getSimpleName();
 
+    private VisualisationMapFragment mapFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +52,9 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
                 return;
             }
         }
+
+        mapFragment = (VisualisationMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
     }
 
 
@@ -93,9 +98,9 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
     @Override
     public void updateIntervention(Intervention intervention) {
         this.intervention = intervention;
-        VisualisationMapFragment mapFragment = (VisualisationMapFragment)
-                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-        mapFragment.updateMapView();
+        if (mapFragment!= null) {
+            mapFragment.updateMapView();
+        }
     }
 
     @Override
