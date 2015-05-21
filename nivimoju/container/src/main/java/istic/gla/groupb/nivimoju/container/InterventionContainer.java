@@ -126,6 +126,30 @@ public class InterventionContainer {
     /**
      * Add Ressource to an intervention
      * @param idintervention
+     * @param vehcileName
+     * @return
+     */
+    public Intervention addVehicle(Long idintervention, String vehcileName) {
+        Intervention intervention = getInterventionById(idintervention);
+        Long idMax = Long.valueOf(0);
+        for(Resource res : intervention.getResources()) {
+            if(res.getIdRes() >= idMax) {
+                idMax = res.getIdRes();
+            }
+        }
+        idMax++;
+        Resource resource = new Resource(idMax, vehcileName, State.waiting);
+        resource.setStateDate(State.waiting);
+        resource.setLabel(resource.getLabel() + idMax);
+
+        intervention.getResources().add(resource);
+        intervention.updateDate();
+        return intervention;
+    }
+
+    /**
+     * Add Ressource to an intervention
+     * @param idintervention
      * @param resource
      * @return
      */

@@ -163,8 +163,8 @@ public class InterventionAPI {
     public Response requestVehicle(
             @PathParam("inter") Long inter,
             @PathParam("vehicle") String vehicle) {
-        //Intervention intervention = InterventionContainer.getInstance().addResource(inter, vehicle);
-        return Response.ok().build();
+        Intervention intervention = InterventionContainer.getInstance().addVehicle(inter, vehicle);
+        return Response.ok(intervention).build();
     }
 
     /**
