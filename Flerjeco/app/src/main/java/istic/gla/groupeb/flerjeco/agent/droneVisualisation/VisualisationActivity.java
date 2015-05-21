@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.TabbedActivity;
-import istic.gla.groupeb.flerjeco.agent.planZone.DroneListFragment;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
@@ -23,14 +22,12 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
 
     private static final String TAG = VisualisationActivity.class.getSimpleName();
 
-    // current intervention
-    private Intervention intervention; /*= new Intervention("Test", 2, 48.399, -1.6554);*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        intervention = new Intervention();
+        //opening transition animations
+        overridePendingTransition(0, android.R.anim.fade_out);
 
         Bundle extras = getIntent().getExtras();
 
@@ -93,17 +90,12 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
         }
     }
 
-    /**
-     * get the intervention set by the init Bundle on the launch of the activity
-     * @return the Intervention
-     */
-    public Intervention getIntervention(){
-        return intervention;
-    }
-
     @Override
     public void updateIntervention(Intervention intervention) {
-
+        this.intervention = intervention;
+        VisualisationMapFragment mapFragment = (VisualisationMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.updateMapView();
     }
 
     @Override
@@ -116,5 +108,13 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
         if (null != intervention) {
             new GetInterventionTask(this, intervention.getId()).execute();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //closing transition animations
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
+        IntentWraper.stopService();
     }
 }

@@ -51,6 +51,9 @@ public class ListInterventionsActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //opening transition animations
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+
         DisplaySynch displaySynch = new DisplaySynch() {
             @Override
             public void ctrlDisplay() {
@@ -202,6 +205,8 @@ public class ListInterventionsActivity extends FragmentActivity
     @Override
     protected void onPause() {
         super.onPause();
+        //closing transition animations
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
         IntentWraper.stopService();
     }
 

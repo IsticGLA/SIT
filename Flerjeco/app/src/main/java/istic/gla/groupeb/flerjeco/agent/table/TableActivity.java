@@ -11,17 +11,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TableLayout;
 import android.widget.TableRow;
-
-import istic.gla.groupb.nivimoju.entity.Intervention;
-import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.TabbedActivity;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
-import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
+import istic.gla.groupeb.flerjeco.TabbedActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
@@ -39,6 +34,10 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //opening transition animations
+        overridePendingTransition(0, android.R.anim.fade_out);
+
         setContentView(R.layout.activity_tableau);
 
         Bundle extras = getIntent().getExtras();
@@ -191,6 +190,8 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
     @Override
     protected void onPause() {
         super.onPause();
+        //closing transition animations
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
         IntentWraper.stopService();
     }
 

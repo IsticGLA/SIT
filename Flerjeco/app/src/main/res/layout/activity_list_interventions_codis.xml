@@ -27,7 +27,7 @@ limitations under the License.
 
     <fragment android:name="istic.gla.groupeb.flerjeco.codis.intervention.InterventionFragment"
         android:id="@+id/interventions_fragment"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:layout_width="0dp"
         android:layout_height="match_parent" />
 
@@ -43,7 +43,7 @@ limitations under the License.
 
     <fragment android:name="istic.gla.groupeb.flerjeco.codis.intervention.ResourcesFragment"
         android:id="@+id/resources_fragment"
-        android:layout_weight="2"
+        android:layout_weight="7"
         android:layout_width="0dp"
         android:layout_height="match_parent" />
 
