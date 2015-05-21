@@ -23,6 +23,7 @@ import istic.gla.groupb.nivimoju.util.ResourceCategory;
 import istic.gla.groupb.nivimoju.util.ResourceRole;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -272,5 +273,21 @@ public class TableFragment extends Fragment implements ISynchTool{
             }
         }
 
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        IntentWraper.stopService();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
     }
 }
