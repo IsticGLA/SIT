@@ -91,6 +91,7 @@ public class InterventionsNamesFragment extends Fragment {
         // (We do this during onStart because at the point the listview is available.)
         if (getFragmentManager().findFragmentById(R.id.resources_fragment) != null) {
             listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            mCallback.onResourceSelected(0);
             listViewInterventions.setItemChecked(0,true);
         }
     }

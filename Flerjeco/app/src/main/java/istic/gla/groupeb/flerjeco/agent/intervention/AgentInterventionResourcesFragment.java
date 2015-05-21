@@ -105,13 +105,6 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         listViewRequests.setAdapter(requestAdapter);
 
         // Add Listeners on listViews
-        listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                mCallback.onResourceSelected(position);
-                listViewResources.setItemChecked(position,true);
-            }
-        });
         listViewResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -223,7 +216,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
             mCallback = (OnResourceSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
+                    + " must implement OnResourceSelectedListener");
         }
     }
 

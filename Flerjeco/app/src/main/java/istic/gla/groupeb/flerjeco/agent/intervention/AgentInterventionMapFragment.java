@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -49,6 +50,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
     private static final String TAG = AgentInterventionMapFragment.class.getSimpleName();
 
     MapView mMapView;
+    private View mProgressView;
     private GoogleMap googleMap;
 
     int position = -1;
@@ -88,6 +90,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         View v = inflater.inflate(R.layout.map_view, container,
                 false);
 
+        mProgressView = v.findViewById(R.id.map_progress);
+
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.onResume();// needed to get the map to refresh immediately
@@ -99,6 +103,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
         }
 
         googleMap = mMapView.getMap();
+        googleMap.getUiSettings().setScrollGesturesEnabled(false);
 
         initMap();
 
@@ -146,34 +151,42 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
             }
 
             if(initMap) {
+
                 CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(12).build();
+                        .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(9).build();
 
                 googleMap.moveCamera(CameraUpdateFactory
                         .newCameraPosition(cameraPosition));
                 initMap = false;
 
-                googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
                     @Override
-                    public void onMapLoaded() {
+                    public void onCameraChange(CameraPosition arg0) {
+                        mProgressView.setVisibility(View.INVISIBLE);
+
+                        CameraUpdate cuf;
+
                         if (resources.size()>1) {
-                            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 100));
+                            cuf = CameraUpdateFactory.newLatLngBounds(bounds.build(), 100);
                         }
                         else if (resources.size()==1){
-                            CameraPosition cameraPosition = new CameraPosition.Builder()
-                                    .target(new LatLng(resources.get(0).getLatitude(), resources.get(0).getLongitude())).zoom(16).build();
-
-                            googleMap.animateCamera(CameraUpdateFactory
-                                    .newCameraPosition(cameraPosition));
+                            cuf = CameraUpdateFactory.newLatLngZoom(new LatLng(resources.get(0).getLatitude(), resources.get(0).getLongitude()),16);
                         }
                         else {
-                            CameraPosition cameraPosition = new CameraPosition.Builder()
-                                    .target(new LatLng(intervention.getLatitude(), intervention.getLongitude())).zoom(16).build();
-
-                            googleMap.animateCamera(CameraUpdateFactory
-                                    .newCameraPosition(cameraPosition));
+                            cuf = CameraUpdateFactory.newLatLngZoom(new LatLng(intervention.getLatitude(), intervention.getLongitude()),16);
                         }
-                        googleMap.setOnMapLoadedCallback(null);
+
+                        googleMap.animateCamera(cuf, new GoogleMap.CancelableCallback() {
+                            @Override
+                            public void onFinish() {
+                                googleMap.getUiSettings().setScrollGesturesEnabled(true);
+                            }
+                            @Override
+                            public void onCancel() {
+                            }
+                        });
+
+                        googleMap.setOnCameraChangeListener(null);
                     }
                 });
             }
@@ -242,6 +255,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
             switch (category){
                 case vehicule:
                     String name = resource.getLabel();
+                    Log.i(TAG,"Etat de la resource : "+resource.getState());
                     ResourceRole role = resource.getResourceRole() != null ? resource.getResourceRole() : ResourceRole.otherwise;
                     Vehicle mVehicle = new Vehicle(name, role, resource.getState());
                     int width = mVehicle.getRect().width();

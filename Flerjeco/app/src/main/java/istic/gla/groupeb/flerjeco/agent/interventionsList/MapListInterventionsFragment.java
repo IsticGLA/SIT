@@ -15,26 +15,55 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashMap;
+import java.util.Map;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
 /**
  * A fragment that launches other parts of the demo application.
  */
-public class MapListInterventionsFragment extends Fragment {
+public class MapListInterventionsFragment extends Fragment implements ISynchTool {
 
     final static String ARG_POSITION = "position";
     private static final String TAG = MapListInterventionsFragment.class.getSimpleName();
 
     MapView mMapView;
+    private View mProgressView;
     private GoogleMap googleMap;
     int mCurrentPosition = -1;
 
+    private boolean initMap = true;
     private Intervention[] interventionTab;
+    private Map<String, Marker> labelsMarkersHashMap = new HashMap<>();
     private LatLngBounds.Builder bounds;
+
+
+    @Override
+    public void refresh() {
+        if (null != getActivity()){
+
+            Log.i(TAG, "refresh, clearMapData");
+
+            // clear lists
+            clearMapData();
+            // fill lists
+            initMap();
+        }
+    }
+
+    private void clearMapData(){
+        for (Intervention intervention : interventionTab){
+            if (labelsMarkersHashMap.get(intervention.getName()) != null){
+                labelsMarkersHashMap.get(intervention.getName()).remove();
+            }
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -43,9 +72,11 @@ public class MapListInterventionsFragment extends Fragment {
         // inflat and return the layout
         View v = inflater.inflate(R.layout.map_view, container,
                 false);
+
+        mProgressView = v.findViewById(R.id.map_progress);
+
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
-
         mMapView.onResume();// needed to get the map to refresh immediately
 
         try {
@@ -56,8 +87,7 @@ public class MapListInterventionsFragment extends Fragment {
 
         googleMap = mMapView.getMap();
 
-        ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
-        initMap(listInterventionsActivity.getInterventions());
+        initMap();
 
         return v;
     }
@@ -92,8 +122,9 @@ public class MapListInterventionsFragment extends Fragment {
         }
     }
 
-    public void initMap(Intervention[] interventionTab){
-        this.interventionTab = interventionTab;
+    public void initMap(){
+
+        interventionTab = ((ListInterventionsActivity) getActivity()).getInterventions();
         // Create LatLngBound to zoom on the set of positions in the path
         bounds = new LatLngBounds.Builder();
 
@@ -111,19 +142,16 @@ public class MapListInterventionsFragment extends Fragment {
                 marker.icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
                 // adding marker
-                googleMap.addMarker(marker);
+                Marker markerAdded = googleMap.addMarker(marker);
+
+                labelsMarkersHashMap.put(intervention.getName(), markerAdded);
             }
 
-            googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
 
-                @Override
-                public void onCameraChange(CameraPosition arg0) {
-                    // Move camera.
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 16));
-                    // Remove listener to prevent position reset on camera move.
-                    googleMap.setOnCameraChangeListener(null);
-                }
-            });
+            if(initMap) {
+                initMap = false;
+                mProgressView.setVisibility(View.INVISIBLE);
+            }
         }
     }
 

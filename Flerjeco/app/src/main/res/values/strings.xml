@@ -52,12 +52,20 @@
         <item>AVP</item>
         <item>FHA</item>
     </string-array>
-    <string-array name="state">
+    <string-array name="stateVehicle">
         <item>@string/human</item>
         <item>@string/risk</item>
         <item>@string/command</item>
         <item>@string/fire</item>
         <item>@string/water</item>
+        <item>@string/other</item>
+    </string-array>
+    <string-array name="stateDraggable">
+        <item>@string/human</item>
+        <item>@string/risk</item>
+        <item>@string/fire</item>
+        <item>@string/water</item>
+        <item>@string/other</item>
     </string-array>
     <string-array name="resourceDateState">
         <item>@string/resource</item>
@@ -80,7 +88,7 @@
     <string name="command">Command</string>
     <string name="fire">Fire</string>
     <string name="water">Water</string>
-
+    <string name="other">Other</string>
 
     <string name="buttonValidateResources">Validate the position of resources</string>
     <string name="create_path">Create path</string>
@@ -99,9 +107,7 @@
     <string name="libelle_moyen_attente">Vehicle awaiting approval</string>
     <string name="libelle_moyen_valide">Vehicle validated</string>
 
-    <string name="drone_update_path_error_not_available">"Aucun drone n'est disponible, la création de trajet est impossible"</string>
     <string name="drone_update_path_error_generic">" The update of the intervention did not work, please try again"</string>
-    <string name="drone_update_path_success">"Les modifications ont été enregistées"</string>
     <string name="button_resource_arrived">Arrived</string>
     <string name="button_resource_released">Released</string>
     <string name="resource_arrived_dialog_title">Vehicle is arrived ?</string>
@@ -121,5 +127,7 @@
     <string name="manage_changeResourceRole"></string>
     <string name="libelle_moyen_marqueur">Markers</string>
     <string name="title_activity_visualisation">Visualisation</string>
+    <string name="drone_update_path_error_not_available">"No drone available, cannot create a route"</string>
+    <string name="drone_update_path_success">"All modifications have been saved"</string>
     <string name="interventions">Interventions</string>
 </resources>

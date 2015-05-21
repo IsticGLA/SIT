@@ -9,11 +9,9 @@ import java.util.Arrays;
  */
 public class Image extends AbstractEntity {
 
-    private double width;
-    private double height;
     private long timestamp;
     private double[] position;
-    private int[] image;
+    private String base64Image;
     private long idIntervention;
 
     public Image(){
@@ -21,31 +19,13 @@ public class Image extends AbstractEntity {
         this.type = Constant.TYPE_IMAGE;
     }
 
-    public Image(double width, long timestamp, double[] position, int[] bytes, long idIntervention){
+    public Image(long timestamp, double[] position, String base64Image, long idIntervention){
         super();
         this.type = Constant.TYPE_IMAGE;
-        this.width = width;
-        this.height = bytes.length / (3 * width);
         this.timestamp = timestamp;
         this.position = position;
-        this.image = bytes;
+        this.base64Image = base64Image;
         this.idIntervention = idIntervention;
-    }
-
-    public double getWidth() {
-        return width;
-    }
-
-    public void setWidth(double width) {
-        this.width = width;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
-    public void setHeight(double height) {
-        this.height = height;
     }
 
     public long getTimestamp() {
@@ -64,12 +44,12 @@ public class Image extends AbstractEntity {
         this.position = position;
     }
 
-    public int[] getImage() {
-        return image;
+    public String getBase64Image() {
+        return base64Image;
     }
 
-    public void setImage(int[] image) {
-        this.image = image;
+    public void setBase64Image(String base64Image) {
+        this.base64Image = base64Image;
     }
 
     public long getIdIntervention() {
@@ -87,11 +67,9 @@ public class Image extends AbstractEntity {
 
         Image image1 = (Image) o;
 
-        if (Double.compare(image1.height, height) != 0) return false;
         if (idIntervention != image1.idIntervention) return false;
         if (timestamp != image1.timestamp) return false;
-        if (Double.compare(image1.width, width) != 0) return false;
-        if (!Arrays.equals(image, image1.image)) return false;
+        if (!base64Image.equals(image1.base64Image)) return false;
         if (!Arrays.equals(position, image1.position)) return false;
 
         return true;
@@ -99,15 +77,9 @@ public class Image extends AbstractEntity {
 
     @Override
     public int hashCode() {
-        int result;
-        long temp;
-        temp = Double.doubleToLongBits(width);
-        result = (int) (temp ^ (temp >>> 32));
-        temp = Double.doubleToLongBits(height);
-        result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
+        int result = (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + Arrays.hashCode(position);
-        result = 31 * result + Arrays.hashCode(image);
+        result = 31 * result + base64Image.hashCode();
         result = 31 * result + (int) (idIntervention ^ (idIntervention >>> 32));
         return result;
     }
@@ -115,11 +87,9 @@ public class Image extends AbstractEntity {
     @Override
     public String toString() {
         return "Image{" +
-                "width=" + width +
-                ", height=" + height +
                 ", timestamp=" + timestamp +
                 ", position=" + Arrays.toString(position) +
-                ", image=" + Arrays.toString(image) +
+                ", base64Image=" + base64Image +
                 ", idIntervention=" + idIntervention +
                 '}';
     }
