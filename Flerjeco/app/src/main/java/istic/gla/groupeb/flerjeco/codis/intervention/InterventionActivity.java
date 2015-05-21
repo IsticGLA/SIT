@@ -20,15 +20,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import java.util.Arrays;
-import java.util.List;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
@@ -36,7 +32,6 @@ import istic.gla.groupeb.flerjeco.TabbedActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
-import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
@@ -54,6 +49,9 @@ public class InterventionActivity extends TabbedActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //opening transition animations
+        overridePendingTransition(0, android.R.anim.fade_out);
+
         DisplaySynch displaySynch = new DisplaySynch() {
             @Override
             public void ctrlDisplay() {
@@ -66,13 +64,11 @@ public class InterventionActivity extends TabbedActivity
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             Object[] objects = (Object[]) extras.getSerializable("interventions");
-            interventionTab = new Intervention[0];
             if(objects != null) {
                 interventionTab = new Intervention[objects.length];
                 for (int i = 0; i < objects.length; i++) {
                     interventionTab[i] = (Intervention) objects[i];
                 }
-                intervention = interventionTab[0];
             }
         }
 
@@ -244,8 +240,10 @@ public class InterventionActivity extends TabbedActivity
     }
 
     @Override
-        protected void onStop() {
+    protected void onStop() {
         super.onStop();
+        //closing transition animations
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
         IntentWraper.stopService();
     }
 

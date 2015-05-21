@@ -144,7 +144,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                         resources.add(resource);
                         labelsResourcesHashMap.put(resourceLabelID, resource);
 
-                        Log.i(TAG, "Label "+resourceLabelID+", Latitude : "+latitude+", Longitude : "+longitude);
+                        Log.i(TAG, "Label "+resourceLabelID+", Role : "+resource.getResourceRole());
 
                         bounds.include(latLng);
                     }

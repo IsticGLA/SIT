@@ -16,7 +16,6 @@
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -24,14 +23,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
@@ -62,7 +58,9 @@ public class InterventionFragment extends Fragment implements ISynchTool {
         InterventionActivity interventionActivity = (InterventionActivity) getActivity();
 
         ArrayList<Intervention> interventions = new ArrayList<>();
-        CollectionUtils.addAll(interventions, interventionActivity.getInterventions());
+        if (interventionActivity.getInterventions()!=null){
+            CollectionUtils.addAll(interventions, interventionActivity.getInterventions());
+        }
         InterventionAdapter adapter = new InterventionAdapter(interventionActivity ,interventions);
 
         listViewInterventions.setAdapter(adapter);
@@ -88,7 +86,12 @@ public class InterventionFragment extends Fragment implements ISynchTool {
         // (We do this during onStart because at the point the listview is available.)
         if (getFragmentManager().findFragmentById(R.id.resources_fragment) != null) {
             listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            listViewInterventions.setItemChecked(0, true);
+
+            if(listViewInterventions.getAdapter().getCount()>0){
+                mCallback.onResourceSelected(0);
+                listViewInterventions.setItemChecked(0, true);
+            }
+
             Log.i(TAG, "onStart setItemChecked");
         }
     }
