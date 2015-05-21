@@ -43,9 +43,13 @@ public abstract class TabbedActivity extends FragmentActivity implements ActionB
                     ActionBar.Tab tabInter = actionBar.newTab();
                     tabInter.setText(R.string.intervention);
                     tabInter.setTabListener(this);
-                    boolean agentInterventionActivity = this.getClass() == AgentInterventionActivity.class;
-                    boolean interventionActivity = this.getClass() == InterventionActivity.class;
-                    actionBar.addTab(tabInter, 0, agentInterventionActivity || interventionActivity);
+                    actionBar.addTab(tabInter, 0, this.getClass() == AgentInterventionActivity.class);
+                }
+                if (tabs.contains(R.string.interventions)) {
+                    ActionBar.Tab tabInter = actionBar.newTab();
+                    tabInter.setText(R.string.interventions);
+                    tabInter.setTabListener(this);
+                    actionBar.addTab(tabInter, 0, this.getClass() == InterventionActivity.class);
                 }
                 if (tabs.contains(R.string.table)) {
                     ActionBar.Tab tabTable = actionBar.newTab();
@@ -70,6 +74,8 @@ public abstract class TabbedActivity extends FragmentActivity implements ActionB
 
         if (this.getClass() == AgentInterventionActivity.class) {
             tabName = getResources().getString(R.string.intervention);
+        } else if (this.getClass() == InterventionActivity.class) {
+            tabName = getResources().getString(R.string.interventions);
         } else if (this.getClass() == TableActivity.class) {
             tabName = getResources().getString(R.string.table);
         } else if (this.getClass() == PlanZoneActivity.class) {
@@ -81,38 +87,47 @@ public abstract class TabbedActivity extends FragmentActivity implements ActionB
 
     @Override
     public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals(getResources().getString(R.string.intervention)) && tabName != null && !tab.getText().toString().equals(tabName)) {
-            Intent intent = new Intent(this, AgentInterventionActivity.class);
+        if(tab.getText().toString().equals(getResources().getString(R.string.interventions)) && tabName != null && !tab.getText().toString().equals(tabName)) {
+            Intent intent = new Intent(this, InterventionActivity.class);
             Bundle bundle = new Bundle();
             bundle.putIntegerArrayList("tabs", tabs);
-            bundle.putSerializable("intervention", intervention);
             intent.putExtras(bundle);
             startActivity(intent);
             finish();
-        } else if(tab.getText().toString().equals(getResources().getString(R.string.table)) && tabName != null && !tab.getText().toString().equals(tabName)) {
-            Intent intent = new Intent(this, TableActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putIntegerArrayList("tabs", tabs);
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
-        } else if(tab.getText().toString().equals(getResources().getString(R.string.drones)) && tabName != null && !tab.getText().toString().equals(tabName)) {
-            Intent intent = new Intent(this, PlanZoneActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putIntegerArrayList("tabs", tabs);
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
-        } else if(tab.getText().toString().equals(getResources().getString(R.string.visualisation)) && tabName != null && !tab.getText().toString().equals(tabName)) {
-            Intent intent = new Intent(this, VisualisationActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putIntegerArrayList("tabs", tabs);
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
+        } else if(intervention != null) {
+            if(tab.getText().toString().equals(getResources().getString(R.string.intervention)) && tabName != null && !tab.getText().toString().equals(tabName)) {
+                Intent intent = new Intent(this, AgentInterventionActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putIntegerArrayList("tabs", tabs);
+                bundle.putSerializable("intervention", intervention);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                finish();
+            } else if(tab.getText().toString().equals(getResources().getString(R.string.table)) && tabName != null && !tab.getText().toString().equals(tabName)) {
+                Intent intent = new Intent(this, TableActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putIntegerArrayList("tabs", tabs);
+                bundle.putSerializable("intervention", intervention);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                finish();
+            } else if(tab.getText().toString().equals(getResources().getString(R.string.drones)) && tabName != null && !tab.getText().toString().equals(tabName)) {
+                Intent intent = new Intent(this, PlanZoneActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putIntegerArrayList("tabs", tabs);
+                bundle.putSerializable("intervention", intervention);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                finish();
+            } else if(tab.getText().toString().equals(getResources().getString(R.string.visualisation)) && tabName != null && !tab.getText().toString().equals(tabName)) {
+                Intent intent = new Intent(this, VisualisationActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putIntegerArrayList("tabs", tabs);
+                bundle.putSerializable("intervention", intervention);
+                intent.putExtras(bundle);
+                startActivity(intent);
+                finish();
+            }
         }
     }
 

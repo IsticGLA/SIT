@@ -126,20 +126,19 @@ public class InterventionContainer {
     /**
      * Add Ressource to an intervention
      * @param idintervention
-     * @param vehicleName
+     * @param resource
      * @return
      */
-    public Intervention addResource(Long idintervention, String vehicleName) {
+    public Intervention addResource(Long idintervention, Resource resource) {
         Intervention intervention = getInterventionById(idintervention);
-        Long id = Long.valueOf(0);
-        for(Resource resource : intervention.getResources()) {
-            if(resource.getIdRes() >= id) {
-                id = resource.getIdRes();
+        Long idMax = Long.valueOf(0);
+        for(Resource res : intervention.getResources()) {
+            if(res.getIdRes() >= idMax) {
+                idMax = res.getIdRes();
             }
         }
-        id++;
-        Resource resource = new Resource(id, vehicleName + id, State.waiting);
-        resource.setStateDate(resource.getState());
+        idMax++;
+        resource.setIdRes(idMax);
         intervention.getResources().add(resource);
         intervention.updateDate();
         return intervention;
@@ -148,22 +147,22 @@ public class InterventionContainer {
     /**
      * Add Ressource to an intervention
      * @param idintervention
-     * @param vehicle
+     * @param resource
      * @return
      */
-    public Intervention placeVehicle(Long idintervention, Resource vehicle) {
+    public Intervention placeResource(Long idintervention, Resource resource) {
         Intervention intervention = getInterventionById(idintervention);
-        vehicle.setStateDate(vehicle.getState());
-        for (Resource resource : intervention.getResources()) {
-            if (resource.getIdRes() == vehicle.getIdRes()) {
-                vehicle.setStateDate(vehicle.getState());
-                intervention.getResources().remove(resource);
-                intervention.getResources().add(vehicle);
+        resource.setStateDate(resource.getState());
+        for (Resource res : intervention.getResources()) {
+            if (res.getIdRes() == resource.getIdRes()) {
+                resource.setStateDate(resource.getState());
+                intervention.getResources().remove(res);
+                intervention.getResources().add(resource);
                 return intervention;
             }
         }
 
-        intervention = addResource(idintervention, vehicle.getLabel());
+        intervention = addResource(idintervention, resource);
 
         intervention.updateDate();
         return intervention;

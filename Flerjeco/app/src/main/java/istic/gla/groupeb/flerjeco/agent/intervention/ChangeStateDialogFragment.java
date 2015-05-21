@@ -13,6 +13,7 @@ import android.widget.Spinner;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupb.nivimoju.util.ResourceRole;
 import istic.gla.groupb.nivimoju.util.State;
@@ -45,6 +46,9 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
         resource = (Resource)getArguments().getSerializable("resource");
 
         validatecheckBox = (CheckBox) v.findViewById(R.id.validateCheckBox);
+        if(resource.getResourceCategory() == ResourceCategory.dragabledata) {
+            validatecheckBox.setVisibility(View.GONE);
+        }
         if(State.active.equals(resource.getState())) {
             validatecheckBox.setChecked(true);
             validatecheckBox.setEnabled(false);
@@ -70,7 +74,14 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
         });
 
         //init state spinner
-        stateSpinner = (Spinner) v.findViewById(R.id.stateSpinner);
+        if (resource.getResourceCategory() == ResourceCategory.dragabledata) {
+            stateSpinner = (Spinner) v.findViewById(R.id.stateSpinnerDraggable);
+            v.findViewById(R.id.stateSpinnerVehicle).setVisibility(View.GONE);
+        } else {
+            stateSpinner = (Spinner) v.findViewById(R.id.stateSpinnerVehicle);
+            v.findViewById(R.id.stateSpinnerDraggable).setVisibility(View.GONE);
+        }
+
         int position = getStatePosition();
         if (position != -1) {
             stateSpinner.setSelection(position);
