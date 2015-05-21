@@ -149,7 +149,6 @@ public class MapListInterventionsFragment extends Fragment implements ISynchTool
 
 
             if(initMap) {
-
                 initMap = false;
                 mProgressView.setVisibility(View.INVISIBLE);
             }
