@@ -123,22 +123,11 @@ public class InterventionDAOTest {
 
     @Test
     public void updateResource(){
-        InterventionDAO interventionDAO = new InterventionDAO();
+        interDAO.connect();
+        List<Intervention> interventions = interDAO.getAll();
 
-
-        Intervention intervention = interventionDAO.getById(43L);
-
-        intervention.updateDate();
-
-        List<Resource> resourceList = new ArrayList<>();
-
-        resourceList.add(new Resource(1L, "VSAV1", State.active));
-
-        intervention.setResources(resourceList);
-
-        interventionDAO.update(intervention);
-
-
-        interventionDAO.getNewerLastUpdate();
+       for(Intervention i : interventions) {
+           interDAO.delete(i);
+       }
     }
 }
