@@ -45,9 +45,9 @@ public class ImageAPI {
         }*/
         ImageDAO imageDAO = new ImageDAO();
         imageDAO.connect();
-        //Image result = imageDAO.create(image);
-        //logger.debug("Image inserted in database : " + result.getId());
+        Image result = imageDAO.addImage(image);
+        logger.debug("Image inserted in database : " + result.getId());
         imageDAO.disconnect();
-        return Response.ok(/*result*/).build();
+        return Response.ok(result).build();
     }
 }

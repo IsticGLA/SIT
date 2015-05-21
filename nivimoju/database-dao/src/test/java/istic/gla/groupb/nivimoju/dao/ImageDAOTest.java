@@ -2,7 +2,9 @@ package istic.gla.groupb.nivimoju.dao;
 
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Position;
+import junit.framework.Assert;
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -38,8 +40,8 @@ public class ImageDAOTest {
         }
         byte[] b = baos.toByteArray();
         Date date= new java.util.Date();
-        double[] position = {49.63004, -1.66334};
-        //image = new Image(256.0, DateTime.now().getMillis(), position, b, 1);
+        double[] position = {49.73004, -1.46334};
+        image = new Image(DateTime.now().getMillis(), position, "testimage", 1);
         imageDAO = new ImageDAO();
         imageDAO.connect();
     }
@@ -56,7 +58,8 @@ public class ImageDAOTest {
 
     @Test
     public void getTest() {
-        Image res = imageDAO.getById(53l);
+        Image res1 = imageDAO.create(image);
+        Image res = imageDAO.getById(res1.getId());
         logger.error(res.toString());
         logger.error(res.getType());
         try {
@@ -69,12 +72,35 @@ public class ImageDAOTest {
     }
 
     @Test
-    public void getSpatialTest() {
-        Position first = new Position(49.6, -1.7);
-        Position last = new Position(50.0, -1.6);
-        List<Image> res = imageDAO.getSpatialImages(first, last);
-        for (Image i : res){
-            logger.info(i.getPosition()[0] + "   " + i.getPosition()[1]);
+    public void deleteAll() {
+        ImageDAO imgDAO = new ImageDAO();
+        List<Image> images = imgDAO.getAll();
+
+        for (Image i : images) {
+            imgDAO.delete(i);
         }
+    }
+
+    @Test
+    public void getSpatialBound(){
+        imageDAO.addImage(image);
+    }
+
+    @Test
+    public void getSpatialTest() {
+        //imageDAO.create(image);
+        Image img = imageDAO.getById(34l);
+        Position[] tab = img.boundAroundPoint();
+        List<Image> res = imageDAO.getSpatialImages(tab[0], tab[1]);
+        logger.info("SIZE of the LIST IMAGE : " + res.size());
+        for (Image i : res){
+            logger.info(i.getBase64Image() + "                   " + i.getPosition()[0] + "   " + i.getPosition()[1]);
+        }
+    }
+
+    @Test
+    public void addImage(){
+        Image i = imageDAO.addImage(image);
+        Assert.assertNotNull(i);
     }
 }
