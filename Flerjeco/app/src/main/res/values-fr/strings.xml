@@ -63,7 +63,7 @@
         <item>FHA</item>
     </string-array>
     <string name="manage_changeResourceRole">Changer la ressource :</string>
-    <string name="manage_activateResource">Activer la ressource</string>
+    <string name="manage_activateResource">Véhicule en position</string>
     <string name="manage_freeResource">Libérer la ressource</string>
     <string name="title_dialog_change_resource">Gestion de la ressource</string>
     <string name="button_resource_arrived">Arrivé</string>
@@ -81,10 +81,11 @@
     <string name="human">Humain</string>
     <string name="risk">Risque</string>
     <string name="water">Eau</string>
-    <string name="activateResource"> Activez la ressource</string>
+    <string name="activateResource">Engager la ressource</string>
     <string name="changeResourceRole">Changer le rôle des ressources</string>
     <string name="drone_update_path_error_generic">"La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer"</string>
     <string name="libelle_moyen_marqueur">Marqueurs</string>
     <string name="libelle_moyen_attente">Moyens en attente de validation</string>
     <string name="libelle_moyen_valide">Moyens validés</string>
+    <string name="table">Tableau</string>
 </resources>
