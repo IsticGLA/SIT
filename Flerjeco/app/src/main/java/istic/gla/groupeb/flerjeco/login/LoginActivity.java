@@ -22,6 +22,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.StaticData;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
@@ -192,13 +194,18 @@ public class LoginActivity extends Activity implements ISynchTool, IIntervention
         showProgress(false);
         if(interventions != null) {
             Intent intent;
+            Bundle bundle = new Bundle();
+
             if (isCodis) {
                 intent = new Intent(LoginActivity.this, InterventionActivity.class);
+                ArrayList<Integer> tabs = new ArrayList<>();
+                tabs.add(R.string.interventions);
+                tabs.add(R.string.table);
+                bundle.putIntegerArrayList("tabs", tabs);
             } else {
                 intent = new Intent(LoginActivity.this, ListInterventionsActivity.class);
             }
 
-            Bundle bundle = new Bundle();
             for (int i = 0; i < interventions.length; i++)
                 Log.d("LoginAct", interventions[i].getName() + " - " + interventions[i].getId());
 

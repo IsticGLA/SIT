@@ -88,4 +88,19 @@
     <string name="libelle_moyen_attente">Moyens en attente de validation</string>
     <string name="libelle_moyen_valide">Moyens validés</string>
     <string name="table">Tableau</string>
+    <string name="other">Autre</string>
+    <string name="resources">Ressources</string>
+    <string name="drone_update_path_error_not_available">"Aucun drone n\'est disponible, la création de trajet est impossible"</string>
+    <string name="drone_update_path_success">"Les modifications ont été enregistées"</string>
+    <string name="drones">Drones</string>
+    <string name="empty_list_interventions">Il n\'y a pas d\'interventions, créez-en une</string>
+    <string name="fail_get_incident_code">Impossible de récuperer le code d\'incident, veuillez réessayer</string>
+    <string name="fail_get_resource_type">Impossible de récupérer la ressource, veuillez réessayer</string>
+    <string name="fail_post_interventions">Impossible d\'envoyer l\'intervention au serveur, veuillez réessayer</string>
+    <string name="freeResource">Libérer la ressource</string>
+    <string name="hello_blank_fragment">Bonjour fragment vide</string>
+    <string name="hello_world">Bonjour le monde !</string>
+    <string name="intervention">Intervention</string>
+    <string name="title_activity_visualisation">Visualisation</string>
+    <string name="visualisation">Visualisation</string>
 </resources>

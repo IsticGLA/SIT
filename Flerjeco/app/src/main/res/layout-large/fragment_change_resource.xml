@@ -67,10 +67,18 @@
                     android:paddingLeft="10dp"/>
 
                 <Spinner
-                    android:id="@+id/stateSpinner"
+                    android:id="@+id/stateSpinnerVehicle"
                     android:layout_width="155dp"
                     android:layout_height="match_parent"
-                    android:entries="@array/state"
+                    android:entries="@array/stateVehicle"
+                    android:layout_weight="0.5"
+                    android:spinnerMode="dialog" />
+
+                <Spinner
+                    android:id="@+id/stateSpinnerDraggable"
+                    android:layout_width="155dp"
+                    android:layout_height="match_parent"
+                    android:entries="@array/stateDraggable"
                     android:layout_weight="0.5"
                     android:spinnerMode="dialog" />
 

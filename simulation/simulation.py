@@ -2,10 +2,12 @@
 
 from flask import Flask, jsonify, request
 from flask_restful import abort
+#import http.client
 import json
 import rospy
 import logging
 import traceback
+import numpy as np
 from logging.handlers import RotatingFileHandler
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseStamped
@@ -13,9 +15,13 @@ from geometry_msgs.msg import Point
 from sensor_msgs.msg import Image, CameraInfo
 import cv2
 import os
+import urllib
+import urllib2
+from urllib2 import Request, urlopen, URLError, HTTPError
+from cv_bridge import CvBridge, CvBridgeError
+import base64
 
 app = Flask(__name__)
-#logging.basicConfig(filename='/sit/log/flask.log',level=logging.DEBUG)
 
 class Drone:
     def __init__(self, label, dest_tolerance_squared):
@@ -26,10 +32,11 @@ class Drone:
         self.path = []  # liste de dict<x,y,z>
         self.forward = True
         self.closed = False
-        self.take_picture = False
         self.currentIndex = 0
         self.pose_sub = None
         self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=1, latch=True)
+        self.camera_sub = None
+        self.bridge = CvBridge()
 
     def pose_callback(self, pose_stamped):
         assert isinstance(pose_stamped, PoseStamped)
@@ -44,6 +51,7 @@ class Drone:
             if distance_squared < self.dest_tolerance_squared:
                 app.logger.info("robot " + self.label + " arrived to destination")
                 if len(self.path) > 1:
+                    self.take_picture()
                     app.logger.info("robot " + self.label + " will go to next waypoint")
                     self.next_waypoint_in_path()
                 else:
@@ -52,17 +60,47 @@ class Drone:
         elif self.path is not None and len(self.path) > 0:
             app.logger.warn("robot " + self.label + "has no destination")
 
-    def picture_callback(self, data):
-        app.logger.info("taking picture")
-        self.camera_sub.unsubscribe()
-        self.camera_sub = None
-        cv_image = self.convert_image(data)
+    def take_picture(self):
+        app.logger.info("activating picture callback")
+        if self.camera_sub is not None:
+            self.camera_sub.unregister()
+        self.camera_sub = rospy.Subscriber(self.label+"/camera/image", Image, self.picture_callback, queue_size=1)
 
-    def convert_image(self, ros_image):
-        #### direct conversion to CV2 ####
-        np_arr = np.fromstring(ros_data.data, np.uint8)
-        image_np = cv2.imdecode(np_arr, cv2.CV_LOAD_IMAGE_COLOR)
-        return image_np
+    def picture_callback(self, ros_data):
+        app.logger.info("picture callback called with data type : " + str(type(ros_data)))
+        self.camera_sub.unregister()
+        try:
+            cv_image = self.bridge.imgmsg_to_cv2(ros_data, "bgr8")
+            encoded_img = cv2.imencode(".jpeg", cv_image)
+            data = base64.b64encode(encoded_img[1].tostring())
+            self.postImage(data, 256)
+        except:
+            app.logger.error(traceback.format_exc()) 
+
+    def postImage(self, image, image_width):
+        try:
+	        app.logger.info("posting image " + str(type(image)))
+	
+	        body = {'image':image,
+	                    'position': self.position,
+	                    'droneLabel': self.label}
+	        jsondata = json.dumps(body)
+
+	        myurl = "http://37.59.58.42:8080/nivimoju/rest/image/create"
+	        req = urllib2.Request(myurl)
+	        req.add_header('Content-Type', 'application/json; charset=utf-8')
+	        jsondataasbytes = jsondata.encode('utf-8')   # needs to be bytes
+	        req.add_header('Content-Length', len(jsondataasbytes))
+	        response = urllib2.urlopen(req, jsondataasbytes) 
+	        app.logger.info("got response : " + str(response.info))
+        except HTTPError as e:
+            app.logger.error('The server couldn\'t fulfill the request.')
+            app.logger.error('Error code: ' + str(e.code))
+        except URLError as e:
+            app.logger.error('We failed to reach a server.')
+            app.logger.error('Reason: ' + str(e.reason))
+        except:
+            app.logger.error(traceback.format_exc()) 
 
     def set_path(self, path, closed):
         app.logger.info("the path has " + str(len(path)) + " waypoints")
@@ -92,7 +130,7 @@ class Drone:
 
     def next_waypoint_in_path(self):
         app.logger.info("setting next waypoint for robot " + self.label)
-        if self.closed:
+        if self.closed or len(self.path) <= 2:
             self.currentIndex = (self.currentIndex + 1) % len(self.path)
         else:
             if self.forward:
@@ -124,12 +162,9 @@ class Drone:
 
     def stop(self):
         self.__init__(self.label, self.dest_tolerance_squared)
-        self.pose_sub.unsubscribe()
+        self.pose_sub.unregister()
         self.pose_sub = None
         app.logger.info("drone " + self.label + " stopped")
-
-    def take_picture(self):
-        self.camera_sub = rospy.Subscriber(label+"/camera/image", Image, self.picture_callback, queue_size=1)
 
 
 class Controller:
@@ -149,7 +184,6 @@ class Controller:
                 drone.stop()
                 return True
         return False
-
 
 controller = Controller(5)
 

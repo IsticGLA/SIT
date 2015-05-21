@@ -66,11 +66,16 @@ public class InterventionActivity extends TabbedActivity
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             Object[] objects = (Object[]) extras.getSerializable("interventions");
-            interventionTab = new Intervention[objects.length];
-            for(int i=0;i<objects.length;i++) {
-                interventionTab[i] = (Intervention) objects[i];
+            interventionTab = new Intervention[0];
+            if(objects != null) {
+                interventionTab = new Intervention[objects.length];
+                for (int i = 0; i < objects.length; i++) {
+                    interventionTab[i] = (Intervention) objects[i];
+                }
+                intervention = interventionTab[0];
             }
         }
+
 
         setContentView(R.layout.activity_list_interventions_codis);
 
@@ -108,6 +113,7 @@ public class InterventionActivity extends TabbedActivity
 
             //save tsuper.onStop();he current position
             this.position = position;
+            intervention = interventionTab[position];
 
             // Call a method in the ArticleFragment to update its content
             resourcesFragment.updateResources(interventionTab[position]);
@@ -157,12 +163,18 @@ public class InterventionActivity extends TabbedActivity
     }
 
     public void updateInterventions() {
-        ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
-        ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).listViewInterventions.setItemChecked(position,true);
+        InterventionFragment fragment = (InterventionFragment)getSupportFragmentManager().getFragments().get(0);
+        if(fragment != null) {
+            fragment.updateList();
+            fragment.listViewInterventions.setItemChecked(position, true);
+            this.intervention = interventionTab[position];
+        }
     }
 
     public void updateCurrentIntervention() {
-        ((ResourcesFragment) getSupportFragmentManager().getFragments().get(1)).updateResources(interventionTab[position]);
+        ResourcesFragment fragment = (ResourcesFragment) getSupportFragmentManager().getFragments().get(1);
+        if(null != fragment)
+            fragment.updateResources(interventionTab[position]);
     }
 
     public void showDialogIntervention(View view) {

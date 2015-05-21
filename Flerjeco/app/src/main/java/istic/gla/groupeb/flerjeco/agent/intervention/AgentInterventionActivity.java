@@ -136,16 +136,18 @@ public class AgentInterventionActivity extends TabbedActivity
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
 
+
+            mapFragment = (AgentInterventionMapFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+
             findViewById(R.id.fragment_container).setOnDragListener(new MyDragListener());
             findViewById(R.id.map_fragment).setOnDragListener(new MyDragListener());
         }
+
     }
 
 
     public void onResourceSelected(int position) {
-
-        mapFragment = (AgentInterventionMapFragment)
-                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
 
         if (mapFragment != null) {
@@ -280,23 +282,8 @@ public class AgentInterventionActivity extends TabbedActivity
     }
 
     public void updateResource(Resource resource){
-        /*List<Resource> resList = intervention.getResources();
-        Resource temp = null;
-        for (Resource res : resList){
-            if (res.getIdRes() == resource.getIdRes()){
-                temp = res;
-            }
-        }
-        if (temp != null){
-            resList.remove(temp);
-            resList.add(resource);
-        }*/
-
         UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
         mUpdateResourceIntervention.execute();
-        /*UpdateIntervention updateIntervention = new UpdateIntervention();
-        updateIntervention.execute(intervention);*/
-        //refresh();
     }
 
     public void updateResourceOnDrop(Resource resource, LatLng latLng){
