@@ -573,7 +573,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                     dronesMarkers.remove(labelToRemove);
                 }
             }
-            new GetPositionDroneTask(this, ((PlanZoneActivity) getActivity()).getIntervention().getId()).execute();
         }
     }
 

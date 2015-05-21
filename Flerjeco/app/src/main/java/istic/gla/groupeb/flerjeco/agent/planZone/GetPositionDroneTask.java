@@ -59,6 +59,7 @@ public class GetPositionDroneTask extends AsyncTask<Object, Void, ResponseEntity
         } else{
             Log.e(TAG, "got null response");
         }
+        new GetPositionDroneTask(fragment, interventionId).execute();
         Date end = new Date();
         Log.v(TAG, "refreshed drones in " + (end.getTime() - start.getTime()) + "ms");
     }

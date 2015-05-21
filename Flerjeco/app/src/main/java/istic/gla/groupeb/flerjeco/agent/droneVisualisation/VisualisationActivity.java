@@ -23,14 +23,9 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
 
     private static final String TAG = VisualisationActivity.class.getSimpleName();
 
-    // current intervention
-    private Intervention intervention; /*= new Intervention("Test", 2, 48.399, -1.6554);*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        intervention = new Intervention();
 
         Bundle extras = getIntent().getExtras();
 
@@ -93,17 +88,12 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
         }
     }
 
-    /**
-     * get the intervention set by the init Bundle on the launch of the activity
-     * @return the Intervention
-     */
-    public Intervention getIntervention(){
-        return intervention;
-    }
-
     @Override
     public void updateIntervention(Intervention intervention) {
-
+        this.intervention = intervention;
+        VisualisationMapFragment mapFragment = (VisualisationMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.updateMapView();
     }
 
     @Override
