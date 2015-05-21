@@ -44,7 +44,7 @@ public class ImageDAO extends AbstractDAO<Image> {
         }
     }
 
-    public final List<Image> getSpatialImages(Long idIntervention, Position southern_west, Position northern_east){
+    protected final List<Image> getSpatialImages(Long idIntervention, Position southern_west, Position northern_east){
         logger.debug(southern_west.getLatitude() + "   " + southern_west.getLongitude() + "              " + northern_east.getLatitude() + "    " + northern_east.getLongitude());
         createSpatialView();
         JsonArray first = JsonArray.from(southern_west.getLatitude(), southern_west.getLongitude());
