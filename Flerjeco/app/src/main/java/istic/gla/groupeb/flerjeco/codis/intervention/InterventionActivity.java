@@ -32,6 +32,7 @@ import java.util.List;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.TabbedActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
@@ -40,7 +41,7 @@ import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
-public class InterventionActivity extends FragmentActivity
+public class InterventionActivity extends TabbedActivity
         implements InterventionFragment.OnResourceSelectedListener, ISynchTool, IInterventionsActivity {
 
     private static final String TAG = InterventionActivity.class.getSimpleName();

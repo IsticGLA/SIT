@@ -61,6 +61,12 @@
             android:label="@string/title_activity_plan_zone"
             android:screenOrientation="landscape" >
         </activity>
+        <activity
+            android:name=".agent.droneVisualisation.VisualisationActivity"
+            android:exported="true"
+            android:label="@string/title_activity_visualisation"
+            android:screenOrientation="landscape" >
+        </activity>
 
         <service
             android:name=".synch.SynchService"

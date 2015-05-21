@@ -113,7 +113,7 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
 
     public void validateResource(){
         resource.setState(State.active);
-        ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
+        ((AgentInterventionActivity)getActivity()).updateResource(resource);
         dismiss();
     }
 
@@ -122,14 +122,14 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
             validateResource();
         }
         resource.setResourceRole(role);
-        ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
+        ((AgentInterventionActivity)getActivity()).updateResource(resource);
         dismiss();
     }
 
     public void releaseResource() {
         updateResourceTask = new UpdateResourceTask(this);
         updateResourceTask.execute(
-                "" + ((AgentInterventionActivity) getActivity()).intervention.getId(),
+                "" + ((AgentInterventionActivity) getActivity()).getIntervention().getId(),
                 "" + resource.getIdRes(),
                 State.free.name());
     }

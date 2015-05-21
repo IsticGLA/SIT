@@ -25,6 +25,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.ArrayList;
+
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
@@ -138,6 +140,12 @@ public class ListInterventionsActivity extends FragmentActivity
         Bundle bundle = new Bundle();
 
         bundle.putSerializable("intervention", getInterventions()[position]);
+        ArrayList<Integer> tabs = new ArrayList<>();
+        tabs.add(R.string.intervention);
+        tabs.add(R.string.table);
+        tabs.add(R.string.drones);
+        tabs.add(R.string.visualisation);
+        bundle.putIntegerArrayList("tabs", tabs);
 
         intent.putExtras(bundle);
         startActivity(intent);

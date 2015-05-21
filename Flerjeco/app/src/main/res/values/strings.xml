@@ -92,7 +92,7 @@
     <string name="action_settings">Settings</string>
     <string name="buttonCancelResources">Remove positioned resources</string>
     <string name="changeResourceRole">Change the resource role</string>
-    <string name="activateResource">Activate the resource</string>
+    <string name="activateResource">Engage the resource</string>
     <string name="freeResource">Free the resource</string>
     <string name="title_dialog_change_resource">Manage the resource</string>
     <string name="empty_list_interventions">There is no interventions, create one</string>
@@ -111,8 +111,14 @@
 
 <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="manage_activateResource"> Enable the resource</string>
-    <string name="manage_changeResourceRole"></string>
-    <string name="libelle_moyen_marqueur">Marker</string>
 
+    <string name="table">Table</string>
+    <string name="visualisation">Visualisation</string>
+    <string name="drones">Drones</string>
+    <string name="intervention">Intervention</string>
+    <string name="resources">Resources</string>
+    <string name="manage_activateResource">Vehicle position</string>
+    <string name="manage_changeResourceRole"></string>
+    <string name="libelle_moyen_marqueur">Markers</string>
+    <string name="title_activity_visualisation">Visualisation</string>
 </resources>
