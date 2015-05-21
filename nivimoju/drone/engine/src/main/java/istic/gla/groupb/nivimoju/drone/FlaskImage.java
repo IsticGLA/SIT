@@ -10,7 +10,7 @@ import java.util.Arrays;
 public class FlaskImage {
 
     LocalCoordinate position;
-    int[] image;
+    String image;
     String droneLabel;
     int width;
 
@@ -22,11 +22,11 @@ public class FlaskImage {
         this.position = position;
     }
 
-    public int[] getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(int[] image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
@@ -50,7 +50,7 @@ public class FlaskImage {
     public String toString() {
         return "FlaskImage{" +
                 "position=" + position +
-                ", image=" + Arrays.toString(image) +
+                ", image=" + image +
                 ", droneLabel='" + droneLabel + '\'' +
                 ", width=" + width +
                 '}';
