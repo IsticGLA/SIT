@@ -47,7 +47,7 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
 
         validatecheckBox = (CheckBox) v.findViewById(R.id.validateCheckBox);
         if(resource.getResourceCategory() == ResourceCategory.dragabledata) {
-            validatecheckBox.setVisibility(View.INVISIBLE);
+            validatecheckBox.setVisibility(View.GONE);
         }
         if(State.active.equals(resource.getState())) {
             validatecheckBox.setChecked(true);
