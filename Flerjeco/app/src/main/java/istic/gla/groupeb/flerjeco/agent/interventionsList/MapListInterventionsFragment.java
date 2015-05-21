@@ -151,18 +151,7 @@ public class MapListInterventionsFragment extends Fragment implements ISynchTool
             if(initMap) {
 
                 initMap = false;
-
-                googleMap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
-
-                    @Override
-                    public void onCameraChange(CameraPosition arg0) {
-                        mProgressView.setVisibility(View.INVISIBLE);
-                        // Move camera.
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 16));
-                        // Remove listener to prevent position reset on camera move.
-                        googleMap.setOnCameraChangeListener(null);
-                    }
-                });
+                mProgressView.setVisibility(View.INVISIBLE);
             }
         }
     }
