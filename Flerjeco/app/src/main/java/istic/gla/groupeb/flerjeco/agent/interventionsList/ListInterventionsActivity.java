@@ -214,7 +214,7 @@ public class ListInterventionsActivity extends FragmentActivity
                     getSupportFragmentManager().findFragmentById(R.id.map_fragment);
             // Call a method in the ArticleFragment to update its content
             if (mapFragment != null) {
-                mapFragment.updateMapView(this.position);
+                mapFragment.refresh();
                 ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
                 ((InterventionsNamesFragment) getSupportFragmentManager().getFragments().get(0)).listViewInterventions.setItemChecked(position, true);
             }
