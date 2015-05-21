@@ -1,4 +1,4 @@
-package istic.gla.groupeb.flerjeco.agent.planZone;
+package istic.gla.groupeb.flerjeco.springRest;
 
 import android.os.AsyncTask;
 import android.util.Log;
@@ -9,8 +9,6 @@ import java.util.Date;
 
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
-import istic.gla.groupeb.flerjeco.agent.droneVisualisation.VisualisationMapFragment;
-import istic.gla.groupeb.flerjeco.springRest.SpringService;
 
 /**
  * Represents an asynchronous call for getting drone position and showing them on the map

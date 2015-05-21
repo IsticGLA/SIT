@@ -1,5 +1,6 @@
 package istic.gla.groupb.nivimoju.dao;
 
+import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import org.junit.AfterClass;
@@ -123,11 +124,18 @@ public class InterventionDAOTest {
 
     @Test
     public void updateResource(){
-        interDAO.connect();
+        /*interDAO.connect();
         List<Intervention> interventions = interDAO.getAll();
 
        for(Intervention i : interventions) {
            interDAO.delete(i);
-       }
+       }*/
+
+        ImageDAO imgDAO = new ImageDAO();
+        List<Image> images = imgDAO.getAll();
+
+        for(Image i : images) {
+            imgDAO.delete(i);
+        }
     }
 }

@@ -3,24 +3,18 @@ package istic.gla.groupeb.flerjeco.agent.droneVisualisation;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -46,9 +40,7 @@ import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
-import istic.gla.groupeb.flerjeco.agent.planZone.EPathOperation;
-import istic.gla.groupeb.flerjeco.agent.planZone.GetPositionDroneTask;
-import istic.gla.groupeb.flerjeco.agent.planZone.UpdatePathsForInterventionTask;
+import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 /**
