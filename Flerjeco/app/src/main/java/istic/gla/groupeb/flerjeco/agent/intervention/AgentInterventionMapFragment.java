@@ -91,6 +91,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 false);
 
         mProgressView = v.findViewById(R.id.map_progress);
+        mProgressView.setVisibility(View.VISIBLE);
 
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
