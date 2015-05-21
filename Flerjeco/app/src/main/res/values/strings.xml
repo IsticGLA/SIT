@@ -119,6 +119,6 @@
     <string name="resources">Resources</string>
     <string name="manage_activateResource"> Enable the resource</string>
     <string name="manage_changeResourceRole"></string>
-    <string name="libelle_moyen_marqueur">Marker</string>
+    <string name="libelle_moyen_marqueur">Markers</string>
     <string name="title_activity_visualisation">Visualisation</string>
 </resources>

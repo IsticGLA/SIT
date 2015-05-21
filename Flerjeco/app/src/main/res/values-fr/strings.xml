@@ -84,7 +84,7 @@
     <string name="activateResource"> Activez la ressource</string>
     <string name="changeResourceRole">Changer le rôle des ressources</string>
     <string name="drone_update_path_error_generic">"La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer"</string>
-    <string name="libelle_moyen_marqueur">Marqueur</string>
+    <string name="libelle_moyen_marqueur">Marqueurs</string>
     <string name="libelle_moyen_attente">Moyens en attente de validation</string>
     <string name="libelle_moyen_valide">Moyens validés</string>
 </resources>

@@ -3,39 +3,54 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/libelle_marcker"
+        android:text="@string/libelle_moyen_marqueur" />
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:id="@+id/listViewAditionalResources"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="1"
-        android:text="Marqueurs"/>
+        android:layout_weight="1" />
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="3dp"
         android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/libelle_valide"
+        android:text="@string/libelle_moyen_valide" />
 
     <ListView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:id="@+id/listViewAgentResources"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="1"
-        android:text="@string/libelle_moyen_valide"/>
+        android:layout_weight="1" />
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="3dp"
         android:background="@android:color/darker_gray"/>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/libelle_waiting"
+        android:text="@string/libelle_moyen_attente" />
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:id="@+id/listViewAgentRequests"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="1"
-        android:text="@string/libelle_moyen_attente"/>
+        android:layout_weight="1" />
 
     <Button
         android:layout_width="match_parent"
