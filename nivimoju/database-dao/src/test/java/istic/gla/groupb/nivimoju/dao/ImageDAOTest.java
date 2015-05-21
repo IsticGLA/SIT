@@ -89,9 +89,9 @@ public class ImageDAOTest {
     @Test
     public void getSpatialTest() {
         //imageDAO.create(image);
-        Image img = imageDAO.getById(34l);
+        Image img = imageDAO.getById(405l);
         Position[] tab = img.boundAroundPoint();
-        List<Image> res = imageDAO.getSpatialImages(tab[0], tab[1]);
+        List<Image> res = imageDAO.getSpatialImages(img.getIdIntervention(), tab[0], tab[1]);
         logger.info("SIZE of the LIST IMAGE : " + res.size());
         for (Image i : res){
             logger.info(i.getBase64Image() + "                   " + i.getPosition()[0] + "   " + i.getPosition()[1]);
