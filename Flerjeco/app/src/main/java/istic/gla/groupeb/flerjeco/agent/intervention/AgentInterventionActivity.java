@@ -32,7 +32,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -241,8 +240,6 @@ public class AgentInterventionActivity extends TabbedActivity
                     }
 
                     MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
-
-                    GoogleMap googleMap = mapView.getMap();
 
                     int x = (int) event.getX();
                     int y = (int) event.getY();
