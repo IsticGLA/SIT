@@ -75,8 +75,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
     private void clearMapData(){
         for (Resource resource : resources){
-            if (labelsMarkersHashMap.get(resource.getLabel()+resource.getIdRes()) != null) {
-                labelsMarkersHashMap.get(resource.getLabel()+resource.getIdRes()).remove();
+            if (labelsMarkersHashMap.get(resource.getLabel()) != null) {
+                labelsMarkersHashMap.get(resource.getLabel()).remove();
             }
         }
         resources.clear();
@@ -133,18 +133,18 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
 
                     if (State.active.equals(resourceState) || State.planned.equals(resourceState)){
 
-                        String resourceLabelID = resource.getLabel()+resource.getIdRes();
+                        String resourceLabel = resource.getLabel();
                         // create marker
-                        MarkerOptions marker = new MarkerOptions().position(latLng).title(resourceLabelID);
+                        MarkerOptions marker = new MarkerOptions().position(latLng).title(resourceLabel);
                         drawMarker(marker, resource);
                         // adding marker
                         Marker markerAdded = googleMap.addMarker(marker);
 
-                        labelsMarkersHashMap.put(resourceLabelID, markerAdded);
+                        labelsMarkersHashMap.put(resourceLabel, markerAdded);
                         resources.add(resource);
-                        labelsResourcesHashMap.put(resourceLabelID, resource);
+                        labelsResourcesHashMap.put(resourceLabel, resource);
 
-                        Log.i(TAG, "Label "+resourceLabelID+", Role : "+resource.getResourceRole());
+                        Log.i(TAG, "Label "+resourceLabel+", Role : "+resource.getResourceRole());
 
                         bounds.include(latLng);
                     }
