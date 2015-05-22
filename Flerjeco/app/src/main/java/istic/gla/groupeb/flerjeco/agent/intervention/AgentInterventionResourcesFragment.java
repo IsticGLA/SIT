@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +45,15 @@ import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 public class AgentInterventionResourcesFragment extends Fragment implements ISynchTool {
     OnResourceSelectedListener mCallback;
 
+    private static final String TAG = AgentInterventionResourcesFragment.class.getSimpleName();
+
     private ListView listViewResources;
     private ListView listViewRequests;
     private ListView listViewAdditionalResources;
     private List<Resource> resourceList = new ArrayList<>();
     private List<Bitmap> iconBitmapResourceList = new ArrayList<>();
     private List<Resource> requestList = new ArrayList<>();
+    private List<Resource> oldRequestList = new ArrayList<>();
     private List<Resource> additionalResourceList = new ArrayList<>();
     private ResourceIconAdapter resourceIconAdapter;
     private ResourceImageAdapter resourceImageAdapter;
@@ -63,6 +67,8 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         fillResourcesAndRequests();
         // notify adapters
         notifyAdapters();
+        // notify user
+        eventRefusedRequest();
     }
 
     // The container Activity must implement this interface so the frag can deliver messages
@@ -74,6 +80,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
     public void clearData(){
         resourceList.clear();
         iconBitmapResourceList.clear();
+        oldRequestList.addAll(requestList);
         requestList.clear();
     }
 
@@ -181,7 +188,20 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                 }
             }
         }
+    }
 
+    private void eventRefusedRequest () {
+        for(Resource r : requestList) {
+            if(State.refused.equals(r.getState())) {
+                for(Resource oldR : oldRequestList) {
+                    if(State.waiting.equals(oldR.getState()) && oldR.getLabel().equals(r.getLabel())) {
+                        Toast.makeText(getActivity(),
+                                "Attention ! Resource : " + r.getLabel() + r.getIdRes() + " refusé par un opérateur Codis !",
+                                Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+        }
     }
 
     private void notifyAdapters(){
