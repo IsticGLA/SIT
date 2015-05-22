@@ -15,6 +15,7 @@ import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.TabbedActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
@@ -59,6 +60,14 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
         //Init of header table
         headerTableInit();
 
+        //Set Title of Activity
+        FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
+        if(flerjecoApplication.isCodisUser()) {
+            setTitle(R.string.activities_codis);
+        } else {
+            setTitle(R.string.activities_agent);
+        }
+
         // Check whether the activity is using the layout version with
         // the fragment_container FrameLayout. If so, we must add the first fragment
         if (findViewById(R.id.fragment_container) != null) {
@@ -79,7 +88,6 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
 
             // Add the fragment to the 'fragment_container' FrameLayout
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, firstFragment).commit();
-
         }
     }
 

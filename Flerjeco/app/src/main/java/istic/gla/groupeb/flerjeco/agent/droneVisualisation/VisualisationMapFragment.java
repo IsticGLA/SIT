@@ -114,6 +114,10 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         // clear the Google Map
         clearGoogleMap();
 
+        if(getActivity() == null) {
+            return;
+        }
+
         // get the intervention from the main activity
         inter = ((VisualisationActivity) getActivity()).getIntervention();
         pathList = inter.getWatchPath();

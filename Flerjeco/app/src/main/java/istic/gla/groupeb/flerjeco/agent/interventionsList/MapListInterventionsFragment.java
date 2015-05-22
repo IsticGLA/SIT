@@ -144,7 +144,7 @@ public class MapListInterventionsFragment extends Fragment implements ISynchTool
 
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(
-                        new LatLng(intervention.getLatitude(), intervention.getLongitude())).title("Hello Maps");
+                        new LatLng(intervention.getLatitude(), intervention.getLongitude())).title(intervention.getName());
                 // Changing marker icon
                 marker.icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_ROSE));
