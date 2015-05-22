@@ -121,11 +121,15 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         // clear the Google Map
         clearGoogleMap();
 
+        if(getActivity() == null) {
+            return;
+        }
+
         for(Image image : images) {
-            byte[] decodedString = Base64.decode(image.getImage(), Base64.DEFAULT);
+            byte[] decodedString = Base64.decode(image.getBase64Image(), Base64.DEFAULT);
             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            double lat = ((VisualisationActivity)getActivity()).getIntervention().getLatitude();
-            double lon = ((VisualisationActivity)getActivity()).getIntervention().getLongitude();
+            double lat = ((VisualisationActivity) getActivity()).getIntervention().getLatitude();
+            double lon = ((VisualisationActivity) getActivity()).getIntervention().getLongitude();
             drawImageMarker(lat, lon, decodedByte, "test");
         }
 

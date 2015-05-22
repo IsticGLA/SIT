@@ -265,8 +265,6 @@ public class AgentInterventionActivity extends TabbedActivity
                         resource = additionalResourceList.get(mCurrentPosition);
                         resource.setIdRes(-1);
                         resource.setResourceCategory(ResourceCategory.dragabledata);
-                        /*List<Resource> resources = intervention.getResources();
-                        resources.add(resource);*/
                     }
 
                     updateResourceOnDrop(resource, latLng);

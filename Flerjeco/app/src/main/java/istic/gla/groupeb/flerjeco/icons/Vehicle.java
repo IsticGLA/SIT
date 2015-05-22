@@ -75,13 +75,13 @@ public class Vehicle implements IIcon {
                 paint.setColor(Color.RED);
                 break;
             case people:
-                paint.setColor(Color.argb(255,102,255,102));
+                paint.setColor(Color.rgb(102,255,102));
                 break;
             case risks:
-                paint.setColor(Color.argb(255,255,102,0));
+                paint.setColor(Color.rgb(255,102,0));
                 break;
             case commands:
-                paint.setColor(Color.argb(255,153,0,102));
+                paint.setColor(Color.rgb(153,0,102));
                 break;
             default:
                 paint.setColor(Color.BLACK);

@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:text="@string/action_select"
-        android:id="@+id/buttonAskResource"
+        android:id="@+id/button_select_intervention"
         android:layout_gravity="center_horizontal"
         android:onClick="selectIntervention"/>
 </LinearLayout>

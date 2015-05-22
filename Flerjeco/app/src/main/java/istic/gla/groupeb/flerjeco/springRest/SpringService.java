@@ -86,11 +86,7 @@ public class SpringService {
 
     /**
      * Get incident codes
-<<<<<<< Updated upstream
-     * @return array of {@link istic.gla.groupb.nivimoju.entity.IncidentCode}
-=======
      * @return array of {@link IncidentCode}
->>>>>>> Stashed changes
      * @throws HttpStatusCodeException throw exception if status code is bad
      */
     public IncidentCode[] codeSinistreClient() throws HttpStatusCodeException {
@@ -335,8 +331,8 @@ public class SpringService {
         try {
             ResponseEntity<Intervention> interventionEntity = restTemplate.exchange(url, HttpMethod.PUT, null, Intervention.class);
             intervention = interventionEntity.getBody();
-            Log.v(TAG, "changeResourceState : " + interventionEntity.getStatusCode().toString());
-            Log.v("SpringService", interventionEntity.getBody().getName());
+            Log.d(TAG, "changeResourceState : " + interventionEntity.getStatusCode().toString());
+            Log.d("SpringService", interventionEntity.getBody().getName());
         } catch (HttpServerErrorException e) {
             Log.e(TAG, e.getMessage());
             return null;
