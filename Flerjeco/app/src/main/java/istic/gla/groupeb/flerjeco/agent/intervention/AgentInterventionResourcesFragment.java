@@ -80,6 +80,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
     public void clearData(){
         resourceList.clear();
         iconBitmapResourceList.clear();
+        oldRequestList.clear();
         oldRequestList.addAll(requestList);
         requestList.clear();
     }
@@ -196,8 +197,8 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                 for(Resource oldR : oldRequestList) {
                     if(State.waiting.equals(oldR.getState()) && oldR.getLabel().equals(r.getLabel())) {
                         Toast.makeText(getActivity(),
-                                "Attention ! Resource : " + r.getLabel() + r.getIdRes() + " refusé par un opérateur Codis !",
-                                Toast.LENGTH_LONG).show();
+                                "Attention ! Resource : " + r.getLabel()+" refusé par un opérateur Codis !",
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
             }
