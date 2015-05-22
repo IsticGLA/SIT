@@ -53,16 +53,13 @@ public class ImageAPI {
     /**
      * Get the last image of given coordinates for an intervention
      * @param inter The id of the intervention
-     * @param lat The latitude coordinate of the image
-     * @param lon The longitude coordinate of the image
-     * @param timestamp The timestamp to check if last image has changed
      * @return OK
      */
     @GET
-    @Path("/last/{inter}/{lat}/{lon}")
+    @Path("/last/{inter}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getLastImage(@PathParam("inter") long inter, @PathParam("lat") double lat, @PathParam("lon") double lon, Timestamp timestamp) {
+    public Response getLastImage(@PathParam("inter") long inter) {
         logger.debug("getting image from database...");
         /*ImageDAO imageDAO = new ImageDAO();
         imageDAO.connect();
