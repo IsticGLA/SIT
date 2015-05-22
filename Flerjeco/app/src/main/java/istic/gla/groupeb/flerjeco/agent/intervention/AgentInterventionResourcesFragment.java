@@ -183,7 +183,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                     Canvas mCanvas = new Canvas(mBitmap);
                     mVehicle.drawIcon(mCanvas);
                     iconBitmapResourceList.add(mBitmap);
-                    Log.i("RESOURCELIST", resource.getLabel() + resource.getIdRes());
+                    Log.i("RESOURCELIST", resource.getLabel());
                 } else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) || State.validated.equals(resourceState)) {
                     requestList.add(resource);
                 }

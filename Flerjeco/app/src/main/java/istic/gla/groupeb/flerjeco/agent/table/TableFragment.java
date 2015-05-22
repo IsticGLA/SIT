@@ -219,7 +219,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                         //Number formatter for minutes ##00
                         DecimalFormat decimalFormat = new DecimalFormat("##00");
 
-                        if (!State.refused.equals(resource.getState())){
+                        if (State.refused.equals(resource.getState())){
                             switch (j) {
                                 case 0:
                                     text.setText(resource.getLabel());
