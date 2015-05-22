@@ -106,13 +106,13 @@ public class TableFragment extends Fragment implements ISynchTool{
                 return Color.RED;
 
             case people:
-                return Color.argb(255,102,255,102);
+                return Color.rgb(102,255,102);
 
             case risks:
-                return Color.argb(255,255,102,0);
+                return Color.rgb(255,102,0);
 
             case commands:
-                return Color.argb(255,153,0,102);
+                return Color.rgb(153,0,102);
 
             default:
                 return Color.BLACK;
