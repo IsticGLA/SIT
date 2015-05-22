@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.sql.Timestamp;
 
 import istic.gla.groupb.nivimoju.entity.Drone;
+import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.IncidentCode;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Path;
@@ -328,7 +329,7 @@ public class SpringService {
      */
     public Intervention changeResourceState(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2];
-        Log.i(TAG, "changeResourceState URL : "+url);
+        Log.i(TAG, "changeResourceState URL : " + url);
         Intervention intervention = null;
 
         try {
@@ -368,5 +369,25 @@ public class SpringService {
         }
 
         return datas;
+    }
+
+    public Image getLastImage(Double lat, Double lon, Long interventionId, Timestamp time) {
+        Log.v(TAG, "getLastImage start");
+        final String url = URL + "image/" + lat + "/" + lon + "/" + interventionId + "/" + time;
+        Image image = null;
+
+        try {
+            ResponseEntity<Image> entity = restTemplate.getForEntity(url, Image.class);
+            image = entity.getBody();
+            Log.v(TAG, "getLastImage: " + entity.getStatusCode());
+        } catch (HttpServerErrorException e) {
+            Log.v(TAG, "getLastImage: " + e.getMessage());
+        } catch (ResourceAccessException e) {
+            Log.v(TAG, "getLastImage: " + e.getLocalizedMessage());
+        } catch (Throwable e) {
+            Log.e(TAG, e.getMessage());
+        }
+
+        return image;
     }
 }

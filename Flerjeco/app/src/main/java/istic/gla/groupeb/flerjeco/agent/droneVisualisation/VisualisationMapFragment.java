@@ -2,9 +2,12 @@ package istic.gla.groupeb.flerjeco.agent.droneVisualisation;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -35,18 +38,20 @@ import java.util.Map;
 import java.util.Set;
 
 import istic.gla.groupb.nivimoju.entity.Drone;
+import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
 import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
+import istic.gla.groupeb.flerjeco.springRest.IImageActivity;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 /**
  * Fragment de carte pour les drones
  */
-public class VisualisationMapFragment extends Fragment implements DronesMapFragment {
+public class VisualisationMapFragment extends Fragment implements DronesMapFragment, IImageActivity {
 
     private static final String TAG = VisualisationMapFragment.class.getSimpleName();
     final static String ARG_POSITION = "position";
@@ -62,10 +67,12 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     private List<Path> pathList;
     // current intervention
     private Intervention inter;
-    // list all drone of the intevervention
+    // list all drone of the intervention
 
     private boolean refreshDrones = false;
 
+    //List of last images to draw
+    private List<Image> images = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -114,6 +121,14 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         // clear the Google Map
         clearGoogleMap();
 
+        for(Image image : images) {
+            byte[] decodedString = Base64.decode(image.getImage(), Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            double lat = ((VisualisationActivity)getActivity()).getIntervention().getLatitude();
+            double lon = ((VisualisationActivity)getActivity()).getIntervention().getLongitude();
+            drawImageMarker(lat, lon, decodedByte, "test");
+        }
+
         // get the intervention from the main activity
         inter = ((VisualisationActivity) getActivity()).getIntervention();
         pathList = inter.getWatchPath();
@@ -153,6 +168,39 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
             }
         }
         //googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+    }
+
+    public void addImage(Image image) {
+        for(Image _image : images) {
+            if(_image.getPosition().equals(image.getPosition())) {
+                images.remove(_image);
+                images.add(image);
+                return;
+            }
+        }
+        images.add(image);
+    }
+
+    public void drawImageMarker(double latitude, double longitude, Bitmap image, String text) {
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+        Bitmap bmp = Bitmap.createBitmap(72, 83, conf);
+        Canvas canvas = new Canvas(bmp);
+
+        Paint color = new Paint();
+        color.setTextSize(20);
+        color.setColor(Color.WHITE);
+
+
+        canvas.drawBitmap(Bitmap.createScaledBitmap(image, 72, 72, true), 0, 0, color);
+        canvas.drawBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.marker), 72, 83, true), 0, 0, color);
+
+        googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+                .anchor(0.5f, 1)
+                .title(text)).showInfoWindow();
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(new LatLng(latitude, longitude)).zoom(3.0f).build();
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     /**
