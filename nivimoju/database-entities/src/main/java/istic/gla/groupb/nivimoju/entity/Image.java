@@ -9,7 +9,7 @@ import java.util.Arrays;
  * Created by jeremy on 19/05/15.
  */
 public class Image extends AbstractEntity {
-    //Logger logger = Logger.getLogger(Image.class);
+    Logger logger = Logger.getLogger(Image.class);
 
     private long timestamp;
     private double[] position;
@@ -71,9 +71,9 @@ public class Image extends AbstractEntity {
         double x2 = lat + Math.toDegrees(radius/R);
         double y1 = lon - Math.toDegrees(radius/R/Math.cos(Math.toRadians(lat)));
         double y2 = lon + Math.toDegrees(radius/R/Math.cos(Math.toRadians(lat)));
-        //logger.debug("Position : " + lat + "   " + lon);
-        //logger.debug("FirstPoint : " + x1 + "   " + y1);
-        //logger.debug("SecondPoint : " + x2 + "   " + y2);
+        logger.debug("Position : " + lat + "   " + lon);
+        logger.debug("FirstPoint : " + x1 + "   " + y1);
+        logger.debug("SecondPoint : " + x2 + "   " + y2);
         Position[] tab = {new Position(x1, y1), new Position(x2, y2)};
         return tab;
     }

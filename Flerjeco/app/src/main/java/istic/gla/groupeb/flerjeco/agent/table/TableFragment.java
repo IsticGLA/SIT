@@ -107,13 +107,13 @@ public class TableFragment extends Fragment implements ISynchTool{
                 return Color.RED;
 
             case people:
-                return Color.rgb(102,255,102);
+                return Color.rgb(102, 255, 102);
 
             case risks:
-                return Color.rgb(255,102,0);
+                return Color.rgb(255, 102, 0);
 
             case commands:
-                return Color.rgb(153,0,102);
+                return Color.rgb(153, 0, 102);
 
             default:
                 return Color.BLACK;
@@ -137,7 +137,7 @@ public class TableFragment extends Fragment implements ISynchTool{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_tableau, container, false);
+        return inflater.inflate(R.layout.fragment_table, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
