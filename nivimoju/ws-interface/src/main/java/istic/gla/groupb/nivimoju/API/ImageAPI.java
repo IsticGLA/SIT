@@ -1,6 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
 import istic.gla.groupb.nivimoju.builder.ImageBuilder;
+import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
 import istic.gla.groupb.nivimoju.dao.ImageDAO;
 import istic.gla.groupb.nivimoju.drone.FlaskImage;
 import istic.gla.groupb.nivimoju.entity.Image;
@@ -59,7 +60,7 @@ public class ImageAPI {
     @Path("/last/{inter}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getLastImage(@PathParam("inter") long inter) {
+    public Response getLastImage(@PathParam("inter") long inter, List<TimestampedPosition> timestampedPositionList) {
         logger.debug("getting image from database...");
         /*ImageDAO imageDAO = new ImageDAO();
         imageDAO.connect();

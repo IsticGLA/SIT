@@ -1,5 +1,6 @@
 package istic.gla.groupb.nivimoju.dao;
 
+import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Position;
 import junit.framework.Assert;
@@ -92,6 +93,7 @@ public class ImageDAOTest {
     public void getSpatialTest() {
         Image img = imageDAO.getById(1100l);
 
+        List<TimestampedPosition> test
 
         List<Image> res = imageDAO.getAllLastSpatialImages(img.getIdIntervention(), img.getTimestamp(), 10, null);
         logger.info("SIZE of the LIST IMAGE : " + res.size());
@@ -103,7 +105,7 @@ public class ImageDAOTest {
         img.setTimestamp(Calendar.getInstance().getTime().getTime());
         imageDAO.addImage(img);
 
-        img.setId(903l);
+        img.setId(1100l);
         img.setTimestamp(1432288824313l);
         res = imageDAO.getLastSpatialImages(img.getIdIntervention(), img.getPosition(), img.getTimestamp(), 20);
     }

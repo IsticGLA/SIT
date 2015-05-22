@@ -59,7 +59,6 @@ public class AgentInterventionActivity extends TabbedActivity
     private AgentInterventionResourcesFragment firstFragment;
     private AgentInterventionMapFragment mapFragment;
 
-
     int mCurrentPosition = -1;
 
     @Override
@@ -229,6 +228,7 @@ public class AgentInterventionActivity extends TabbedActivity
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
                     break;
+
                 case DragEvent.ACTION_DROP:
                     if(!(v instanceof FrameLayout)){
                         view.setVisibility(View.VISIBLE);
@@ -264,7 +264,7 @@ public class AgentInterventionActivity extends TabbedActivity
                         resource.setResourceCategory(ResourceCategory.dragabledata);
                     }
 
-                    updateResourceOnDrop(resource, latLng);
+                    updateResourceOnDrop(resource, latLng, State.planned);
 
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
@@ -283,11 +283,11 @@ public class AgentInterventionActivity extends TabbedActivity
         mUpdateResourceIntervention.execute();
     }
 
-    public void updateResourceOnDrop(Resource resource, LatLng latLng){
+    public void updateResourceOnDrop(Resource resource, LatLng latLng, State state){
 
         resource.setLatitude(latLng.latitude);
         resource.setLongitude(latLng.longitude);
-        resource.setState(State.planned);
+        resource.setState(state);
 
 
         Log.i(TAG, "RESOURCE : ");
@@ -333,6 +333,24 @@ public class AgentInterventionActivity extends TabbedActivity
     @Override
     protected void onResume() {
         super.onResume();
+        startSynchro();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopSynchro();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //closing transition animations
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
+    }
+
+
+    public void startSynchro(){
         if(intervention != null) {
             DisplaySynch displaySynch = new DisplaySynch() {
                 @Override
@@ -345,16 +363,8 @@ public class AgentInterventionActivity extends TabbedActivity
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //closing transition animations
-        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
+    public void stopSynchro(){
         IntentWraper.stopService();
     }
+
 }
