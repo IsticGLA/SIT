@@ -196,7 +196,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                 @Override
                 public boolean onMarkerClick(Marker marker) {
                     Resource resource = labelsResourcesHashMap.get(marker.getTitle());
-                    if (resource != null && !resource.getLabel().contains("incident")) {
+                    if (resource != null) {
                         ((AgentInterventionActivity) getActivity()).showManageResourceDialog(resource);
                     }
                     return false;

@@ -20,10 +20,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import java.util.ArrayList;
 
@@ -142,6 +144,10 @@ public class ListInterventionsActivity extends FragmentActivity
         Intent intent = new Intent(this, AgentInterventionActivity.class);
         Bundle bundle = new Bundle();
 
+        if(getInterventions().length == 0) {
+            return;
+        }
+
         bundle.putSerializable("intervention", getInterventions()[position]);
         ArrayList<Integer> tabs = new ArrayList<>();
         tabs.add(R.string.intervention);
@@ -213,7 +219,9 @@ public class ListInterventionsActivity extends FragmentActivity
 
     @Override
     public void updateInterventions(Intervention[] interventions) {
+        findViewById(R.id.button_select_intervention).setEnabled(false);
         if(interventions != null) {
+            findViewById(R.id.button_select_intervention).setEnabled(true);
             this.interventionTab = interventions;
             MapListInterventionsFragment mapFragment = (MapListInterventionsFragment)
                     getSupportFragmentManager().findFragmentById(R.id.map_fragment);
