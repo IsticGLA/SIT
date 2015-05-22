@@ -41,6 +41,7 @@ public class InterventionActivity extends TabbedActivity
 
     private static final String TAG = InterventionActivity.class.getSimpleName();
     protected Intervention[] interventionTab;
+    protected Intervention intervention;
     private int position=0;
     private InterventionFragment firstFragment;
 
@@ -70,6 +71,7 @@ public class InterventionActivity extends TabbedActivity
                     interventionTab[i] = (Intervention) objects[i];
                 }
             }
+            intervention = (Intervention) extras.getSerializable("intervention");
         }
 
 

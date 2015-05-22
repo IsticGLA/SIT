@@ -90,6 +90,7 @@ public abstract class TabbedActivity extends FragmentActivity implements ActionB
             Intent intent = new Intent(this, InterventionActivity.class);
             Bundle bundle = new Bundle();
             bundle.putIntegerArrayList("tabs", tabs);
+            bundle.putSerializable("intervention", intervention);
             intent.putExtras(bundle);
             startActivity(intent);
             finish();

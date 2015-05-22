@@ -9,6 +9,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
@@ -64,6 +65,8 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
         FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
         if(flerjecoApplication.isCodisUser()) {
             setTitle(R.string.activities_codis);
+            findViewById(R.id.text_intervention_name).setVisibility(View.VISIBLE);
+            ((TextView) findViewById(R.id.text_intervention_name)).setText(intervention.getName());
         } else {
             setTitle(R.string.activities_agent);
         }

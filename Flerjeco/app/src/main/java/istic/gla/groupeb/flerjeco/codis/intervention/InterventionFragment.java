@@ -71,7 +71,6 @@ public class InterventionFragment extends Fragment implements ISynchTool {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
                 listViewInterventions.setItemChecked(position, true);
-                Log.i(TAG, "setOnItemClickListener : " + position);
             }
         });
 
@@ -88,8 +87,19 @@ public class InterventionFragment extends Fragment implements ISynchTool {
             listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
             if(listViewInterventions.getAdapter().getCount()>0){
-                mCallback.onResourceSelected(0);
-                listViewInterventions.setItemChecked(0, true);
+                Intervention inter = ((InterventionActivity)getActivity()).intervention;
+                if(inter == null) {
+                    mCallback.onResourceSelected(0);
+                    listViewInterventions.setItemChecked(0, true);
+                } else {
+                    Intervention[] tabInter = ((InterventionActivity)getActivity()).getInterventions();
+                    for(int i=0;i<tabInter.length;i++) {
+                        if(tabInter[i].getName().equals(inter.getName())) {
+                            mCallback.onResourceSelected(i);
+                            listViewInterventions.setItemChecked(i, true);
+                        }
+                    }
+                }
             }
 
             Log.i(TAG, "onStart setItemChecked");
