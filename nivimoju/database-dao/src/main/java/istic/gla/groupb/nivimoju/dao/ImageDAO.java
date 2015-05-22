@@ -4,13 +4,16 @@ import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.Query;
 import com.couchbase.client.java.view.*;
+import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupb.nivimoju.util.Constant;
 import org.apache.log4j.Logger;
+import org.codehaus.jettison.json.JSONArray;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,66 +30,108 @@ public class ImageDAO extends AbstractDAO<Image> {
     }
 
     public Image addImage(Image img) {
-        Position[] tab = img.boundAroundPoint();
-        List<Image> listImage = this.getSpatialImages(img.getIdIntervention(), tab[0], tab[1]);
-        int size = listImage.size();
-        logger.debug("Taille de la liste : " + size);
-        long idDelete = -1;
-        if (size >= 10) {
-            idDelete = this.delete(listImage.get(size - 1));
-            if (idDelete != -1) {
-                return this.create(img);
-            } else {
-                return null;
-            }
-        } else {
-            return this.create(img);
-        }
+        cleanImageByPosition(img);
+        return create(img);
     }
 
-    protected final List<Image> getSpatialImages(Long idIntervention, Position southern_west, Position northern_east){
-        logger.debug(southern_west.getLatitude() + "   " + southern_west.getLongitude() + "              " + northern_east.getLatitude() + "    " + northern_east.getLongitude());
-        createSpatialView();
-        JsonArray first = JsonArray.from(southern_west.getLatitude(), southern_west.getLongitude());
-        JsonArray last = JsonArray.from(northern_east.getLatitude(), northern_east.getLongitude());
+    public void cleanImageByPosition(Image img) {
+        createSpatialLastView();
+        JsonArray positionValue = JsonArray.from(img.getPosition()[0], img.getPosition()[1]);
 
-        List<SpatialViewRow> result = new ArrayList<>();
-        Iterator<SpatialViewRow> iterator = DAOManager.getCurrentBucket().query(SpatialViewQuery.from("designDoc", "spatial_" + type).stale(Stale.FALSE).startRange(first).endRange(last)).iterator();
+        JsonArray startKeys = JsonArray.from(img.getIdIntervention(), positionValue);
+        JsonArray endKeys = JsonArray.from(img.getIdIntervention(), positionValue, "");
 
-        while(iterator.hasNext()) {
-            SpatialViewRow row = iterator.next();
+        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "single_last_Image").startKey(endKeys).endKey(startKeys).inclusiveEnd(true).descending(true).skip(9)).allRows();
 
-            JsonObject jsonObject = (JsonObject) row.value();
-            if(jsonObject.getLong("idIntervention") == idIntervention) {
-                result.add(row);
+        for(int i=0;i < result.size();i++) {
+            DAOManager.getCurrentBucket().remove(result.get(i).id());
+        }
+
+    }
+
+    protected final List<Image> getAllLastSpatialImages(Long idIntervention, Long timestamp, int nbImage, List<TimestampedPosition> positionList){
+        createSpatialAllLastView();
+        JsonArray startKeys = JsonArray.from(idIntervention, timestamp);
+        JsonArray endKeys = JsonArray.from(idIntervention, "");
+
+        // set a higher limit to get all interesting points
+        int limit = nbImage * 2;
+
+        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "all_last_Image").startKey(endKeys).endKey(startKeys).inclusiveEnd(true).descending(true).limit(limit)).allRows();
+
+        JsonObject jsonObject = null;
+        TimestampedPosition tmpPos = null;
+        JsonArray positionDB = null;
+        Long timestampDB = null;
+
+        if (positionList != null) {
+            for(int i = 0; i < positionList.size();i++) {
+                tmpPos = positionList.get(i);
+                for(int j = 0; j < result.size(); j++) {
+                    jsonObject = (JsonObject) result.get(j).value();
+                    positionDB = (JsonArray) jsonObject.get("position");
+                    timestampDB = (Long) jsonObject.get("timestamp");
+                    if(tmpPos.getPosition().getLatitude() == positionDB.get(0) &&
+                        tmpPos.getPosition().getLongitude() == positionDB.get(1) &&
+                        timestampDB <= tmpPos.getTimestamp()) {
+                        result.remove(result.get(j));
+                    }
+                }
             }
         }
 
-        return viewSpatialRowsToEntities(result);
+        return viewRowsToEntities(result);
     }
 
-    private void createSpatialView()
+    protected final List<Image> getLastSpatialImages(Long idIntervention, double[] position, Long timestamp, int nbImage){
+        logger.debug(position[0] + "   " + position[1]);
+        createSpatialLastView();
+        JsonArray positionValue = JsonArray.from(position[0], position[1]);
+
+        JsonArray startKeys = JsonArray.from(idIntervention, positionValue, timestamp);
+        JsonArray endKeys = JsonArray.from(idIntervention, positionValue, "");
+
+        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "single_last_Image").startKey(endKeys).endKey(startKeys).inclusiveEnd(true).descending(true).limit(nbImage)).allRows();
+
+        return viewRowsToEntities(result);
+    }
+
+    private void createSpatialAllLastView()
     {
         DesignDocument designDoc = DAOManager.getCurrentBucket().bucketManager().getDesignDocument("designDoc");
         if (null == designDoc){
             designDoc = createDesignDocument();
         }
 
-        String viewName = "spatial_" + type;
+        String viewName = "all_last_" + type;
         if (!designDoc.toString().contains(viewName)) {
             String mapFunction =
-                    "function(doc, meta)\n" +
-                    "{\n" +
-                    "  if (doc.position && doc.type && doc.type == '" + type + "')\n" +
-                    "  {\n" +
-                    "     emit(\n" +
-                    "          {\n" +
-                    "             type: \"Point\",\n" +
-                    "             coordinates: doc.position,\n" +
-                    "          }, doc);\n" +
-                    "  }\n" +
-                    "}";
-            designDoc.views().add(SpatialView.create(viewName, mapFunction));
+                    "function (doc, meta) {\n" +
+                            "  if (doc.position && doc.type && doc.type == 'Image'){\n" +
+                            "    emit([doc.idIntervention, doc.timestamp], doc);\n" +
+                            "  }\n" +
+                            "}";
+            designDoc.views().add(DefaultView.create(viewName, mapFunction));
+            DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
+        }
+    }
+
+    private void createSpatialLastView()
+    {
+        DesignDocument designDoc = DAOManager.getCurrentBucket().bucketManager().getDesignDocument("designDoc");
+        if (null == designDoc){
+            designDoc = createDesignDocument();
+        }
+
+        String viewName = "single_last_" + type;
+        if (!designDoc.toString().contains(viewName)) {
+            String mapFunction =
+                    "function (doc, meta) {\n" +
+                            "  if (doc.position && doc.type && doc.type == 'Image'){\n" +
+                            "    emit([doc.idIntervention, doc.position, doc.timestamp], doc);\n" +
+                            "  }\n" +
+                            "}";
+            designDoc.views().add(DefaultView.create(viewName, mapFunction));
             DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
         }
     }
