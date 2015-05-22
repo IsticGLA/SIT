@@ -40,7 +40,7 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
         //opening transition animations
         overridePendingTransition(0, android.R.anim.fade_out);
 
-        setContentView(R.layout.activity_tableau);
+        setContentView(R.layout.activity_table);
 
         Bundle extras = getIntent().getExtras();
 

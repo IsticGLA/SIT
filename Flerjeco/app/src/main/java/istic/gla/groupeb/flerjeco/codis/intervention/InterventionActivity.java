@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -41,7 +42,7 @@ public class InterventionActivity extends TabbedActivity
 
     private static final String TAG = InterventionActivity.class.getSimpleName();
     protected Intervention[] interventionTab;
-    protected Intervention intervention;
+    protected Intervention interFromTable;
     private int position=0;
     private InterventionFragment firstFragment;
 
@@ -71,7 +72,7 @@ public class InterventionActivity extends TabbedActivity
                     interventionTab[i] = (Intervention) objects[i];
                 }
             }
-            intervention = (Intervention) extras.getSerializable("intervention");
+            interFromTable = (Intervention) extras.getSerializable("intervention");
         }
 
 
@@ -248,6 +249,5 @@ public class InterventionActivity extends TabbedActivity
         overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
         IntentWraper.stopService();
     }
-
 
 }

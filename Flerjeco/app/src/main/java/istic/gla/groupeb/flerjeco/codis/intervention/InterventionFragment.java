@@ -39,6 +39,7 @@ public class InterventionFragment extends Fragment implements ISynchTool {
 
     private static final String TAG = InterventionFragment.class.getSimpleName();
     protected ListView listViewInterventions;
+    protected  boolean initList = false;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -87,19 +88,9 @@ public class InterventionFragment extends Fragment implements ISynchTool {
             listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
             if(listViewInterventions.getAdapter().getCount()>0){
-                Intervention inter = ((InterventionActivity)getActivity()).intervention;
-                if(inter == null) {
-                    mCallback.onResourceSelected(0);
-                    listViewInterventions.setItemChecked(0, true);
-                } else {
-                    Intervention[] tabInter = ((InterventionActivity)getActivity()).getInterventions();
-                    for(int i=0;i<tabInter.length;i++) {
-                        if(tabInter[i].getName().equals(inter.getName())) {
-                            mCallback.onResourceSelected(i);
-                            listViewInterventions.setItemChecked(i, true);
-                        }
-                    }
-                }
+                mCallback.onResourceSelected(0);
+                listViewInterventions.setItemChecked(0, true);
+                initList = true;
             }
 
             Log.i(TAG, "onStart setItemChecked");
@@ -131,6 +122,18 @@ public class InterventionFragment extends Fragment implements ISynchTool {
 
         listViewInterventions.setAdapter(adapter);
         listViewInterventions.setEmptyView(interventionActivity.findViewById(R.id.list_empty_interventions_view));
+
+        Intervention inter = interventionActivity.interFromTable;
+        if(inter != null) {
+            initList = true;
+            Intervention[] tabInter = interventionActivity.getInterventions();
+            for(int i=0;i<tabInter.length;i++) {
+                if(tabInter[i].getName().equals(inter.getName())) {
+                    mCallback.onResourceSelected(i);
+                    listViewInterventions.setItemChecked(i, true);
+                }
+            }
+        }
     }
 
     @Override
