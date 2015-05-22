@@ -32,7 +32,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -242,8 +241,6 @@ public class AgentInterventionActivity extends TabbedActivity
 
                     MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
 
-                    GoogleMap googleMap = mapView.getMap();
-
                     int x = (int) event.getX();
                     int y = (int) event.getY();
 
@@ -307,23 +304,6 @@ public class AgentInterventionActivity extends TabbedActivity
         args.putSerializable("resource", resource);
         fragment.setArguments(args);
         fragment.show(getSupportFragmentManager(), "changeState_dialog");
-    }
-
-    public class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
-        private SpringService service = new SpringService();
-
-        @Override
-        protected Intervention doInBackground(Intervention... intervention) {
-            Log.i(TAG, "Start doInbackground updateIntervention");
-            return service.updateIntervention(intervention[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Intervention intervention){
-            Log.i(TAG, "Start onPostExecute updateIntervention");
-            updateIntervention(intervention);
-            Log.i(TAG, "End update intervention");
-        }
     }
 
     public class UpdateResourceIntervention extends AsyncTask<Object[], Void, Intervention> {
