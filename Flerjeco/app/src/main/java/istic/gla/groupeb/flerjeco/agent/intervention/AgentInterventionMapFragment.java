@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -52,6 +54,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
     MapView mMapView;
     private View mProgressView;
     private GoogleMap googleMap;
+    private ImageView imageViewToDrag;
+    private boolean markerOnLeftFragment = false;
 
     int position = -1;
 
@@ -59,6 +63,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
     private Intervention intervention;
     private List<Resource> resources = new ArrayList<>();
     private Map<String, com.google.android.gms.maps.model.Marker> labelsMarkersHashMap = new HashMap<>();
+    private Map<String, Bitmap> labelsBitmapHashMap = new HashMap<>();
     private Map<String, Resource> labelsResourcesHashMap = new HashMap<>();
 
     @Override
@@ -204,23 +209,56 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
             });
 
             googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+
+                FrameLayout frameLayout = (FrameLayout) getActivity().findViewById(R.id.fragment_container);
+
                 @Override
                 public void onMarkerDragStart(Marker marker) {
-
+                    Bitmap bitmap = labelsBitmapHashMap.get(marker.getTitle());
+                    imageViewToDrag = new ImageView(((AgentInterventionActivity) getActivity()).getContext());
+                    imageViewToDrag.setImageBitmap(bitmap);
+                    ((AgentInterventionActivity) getActivity()).stopSynchro();
                 }
 
                 @Override
                 public void onMarkerDrag(Marker marker) {
-                    
+                    Resource resource = labelsResourcesHashMap.get(marker.getTitle());
+
+                    if (googleMap.getProjection().toScreenLocation(marker.getPosition()).x<0
+                            && !markerOnLeftFragment
+                            && !ResourceCategory.dragabledata.equals(resource.getResourceCategory())){
+                        frameLayout.addView(imageViewToDrag);
+                        markerOnLeftFragment = true;
+                        marker.setVisible(false);
+                    }
+                    else if(imageViewToDrag!=null
+                            && googleMap.getProjection().toScreenLocation(marker.getPosition()).x>=0
+                            && markerOnLeftFragment
+                            && !ResourceCategory.dragabledata.equals(resource.getResourceCategory())){
+                        frameLayout.removeView(imageViewToDrag);
+                        markerOnLeftFragment = false;
+                        marker.setVisible(true);
+                        Log.i(TAG,"Marker on map");
+                    }
+
                 }
 
                 @Override
                 public void onMarkerDragEnd(Marker marker) {
                     Resource resource = labelsResourcesHashMap.get(marker.getTitle());
-                    LatLng latLng = marker.getPosition();
+
                     if (resource != null && null != getActivity()) {
-                        ((AgentInterventionActivity) getActivity()).updateResourceOnDrop(resource,latLng);
+                        if (!ResourceCategory.dragabledata.equals(resource.getResourceCategory()) && markerOnLeftFragment){
+                            frameLayout.removeView(imageViewToDrag);
+                            LatLng latLng = new LatLng(0,0);
+                            ((AgentInterventionActivity) getActivity()).updateResourceOnDrop(resource,latLng,State.arrived);
+                        }
+                        else{
+                            LatLng latLng = marker.getPosition();
+                            ((AgentInterventionActivity) getActivity()).updateResourceOnDrop(resource,latLng,State.planned);
+                        }
                     }
+                    ((AgentInterventionActivity) getActivity()).startSynchro();
 
                 }
             });
@@ -285,6 +323,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
             }
             if (mBitmap != null){
                 markerOptions.icon(BitmapDescriptorFactory.fromBitmap(mBitmap));
+                labelsBitmapHashMap.put(resource.getLabel(), mBitmap);
             }
 
         }
@@ -337,5 +376,8 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
     }
     public Map<String, Resource> getLabelsResourcesHashMap() {
         return labelsResourcesHashMap;
+    }
+    public Map<String, Bitmap> getLabelsBitmapHashMap() {
+        return labelsBitmapHashMap;
     }
 }
