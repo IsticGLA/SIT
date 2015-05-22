@@ -4,6 +4,7 @@ import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.query.Query;
 import com.couchbase.client.java.view.*;
+import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Intervention;
@@ -48,7 +49,7 @@ public class ImageDAO extends AbstractDAO<Image> {
 
     }
 
-    protected final List<Image> getAllLastSpatialImages(Long idIntervention, Long timestamp, int nbImage){
+    protected final List<Image> getAllLastSpatialImages(Long idIntervention, Long timestamp, int nbImage, List<TimestampedPosition> positionList){
         createSpatialAllLastView();
         JsonArray startKeys = JsonArray.from(idIntervention, timestamp);
         JsonArray endKeys = JsonArray.from(idIntervention, "");
@@ -57,6 +58,27 @@ public class ImageDAO extends AbstractDAO<Image> {
         int limit = nbImage * 2;
 
         List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "all_last_Image").startKey(endKeys).endKey(startKeys).inclusiveEnd(true).descending(true).limit(limit)).allRows();
+
+        JsonObject jsonObject = null;
+        TimestampedPosition tmpPos = null;
+        JsonArray positionDB = null;
+        Long timestampDB = null;
+
+        if (positionList != null) {
+            for(int i = 0; i < positionList.size();i++) {
+                tmpPos = positionList.get(i);
+                for(int j = 0; j < result.size(); j++) {
+                    jsonObject = (JsonObject) result.get(j).value();
+                    positionDB = (JsonArray) jsonObject.get("position");
+                    timestampDB = (Long) jsonObject.get("timestamp");
+                    if(tmpPos.getPosition().getLatitude() == positionDB.get(0) &&
+                        tmpPos.getPosition().getLongitude() == positionDB.get(1) &&
+                        timestampDB <= tmpPos.getTimestamp()) {
+                        result.remove(result.get(j));
+                    }
+                }
+            }
+        }
 
         return viewRowsToEntities(result);
     }
