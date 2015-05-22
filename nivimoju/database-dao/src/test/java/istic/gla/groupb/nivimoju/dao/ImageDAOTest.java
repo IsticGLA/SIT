@@ -93,7 +93,7 @@ public class ImageDAOTest {
     public void getSpatialTest() {
         Image img = imageDAO.getById(1100l);
 
-        List<TimestampedPosition> test
+        List<TimestampedPosition> timestampedPositionList
 
         List<Image> res = imageDAO.getAllLastSpatialImages(img.getIdIntervention(), img.getTimestamp(), 10, null);
         logger.info("SIZE of the LIST IMAGE : " + res.size());
