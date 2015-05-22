@@ -20,6 +20,11 @@ import java.util.List;
 public class ImageAPI {
     Logger logger = Logger.getLogger(ImageAPI.class);
 
+    /**
+     * Creation of an Image entity to the database
+     * @param flaskImage Image from flask to convert as an entity
+     * @return OK
+     */
     @POST
     @Path("/create")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -45,10 +50,19 @@ public class ImageAPI {
         return Response.ok(result).build();
     }
 
+    /**
+     * Get the last image of given coordinates for an intervention
+     * @param inter The id of the intervention
+     * @param lat The latitude coordinate of the image
+     * @param lon The longitude coordinate of the image
+     * @param timestamp The timestamp to check if last image has changed
+     * @return OK
+     */
     @GET
     @Path("/last/{inter}/{lat}/{lon}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getLastImage(@PathParam("inter") long inter, @PathParam("lat") double lat, @PathParam("lon") double lon) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getLastImage(@PathParam("inter") long inter, @PathParam("lat") double lat, @PathParam("lon") double lon, Timestamp timestamp) {
         logger.debug("getting image from database...");
         /*ImageDAO imageDAO = new ImageDAO();
         imageDAO.connect();
@@ -65,6 +79,13 @@ public class ImageAPI {
         return Response.ok(result).build();
     }
 
+    /**
+     * Get all images (limited to a specific number) of the given coordinates for an intervention
+     * @param inter The id of the intervention
+     * @param lat The latitude coordinate of the image
+     * @param lon The longitude coordinate of the image
+     * @return OK
+     */
     @GET
     @Path("/all/{inter}/{lat}/{lon}")
     @Produces(MediaType.APPLICATION_JSON)

@@ -16,6 +16,13 @@ public class ImageBuilder {
 
     Logger logger = Logger.getLogger(ImageBuilder.class);
 
+    /**
+     * Build an Image entity from a FlaskImage
+     * @see istic.gla.groupb.nivimoju.drone.FlaskImage
+     * @see istic.gla.groupb.nivimoju.entity.Image
+     * @param flaskImage The FlaskImage to be converted
+     * @return The Image entity
+     */
     public Image buildImage(FlaskImage flaskImage) {
         Drone drone = DroneContainer.getInstance().getDroneByLabel(flaskImage.getDroneLabel());
         if (drone != null) {
