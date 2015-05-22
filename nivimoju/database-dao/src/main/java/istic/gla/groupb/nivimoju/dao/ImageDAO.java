@@ -71,8 +71,8 @@ public class ImageDAO extends AbstractDAO<Image> {
                     jsonObject = (JsonObject) result.get(j).value();
                     positionDB = (JsonArray) jsonObject.get("position");
                     timestampDB = (Long) jsonObject.get("timestamp");
-                    if(tmpPos.getPosition().getLatitude() == positionDB.get(0) &&
-                        tmpPos.getPosition().getLongitude() == positionDB.get(1) &&
+                    if(tmpPos.getPosition().getLatitude() == (double) positionDB.get(0) &&
+                        tmpPos.getPosition().getLongitude() == (double) positionDB.get(1) &&
                         timestampDB <= tmpPos.getTimestamp()) {
                         result.remove(result.get(j));
                     }
