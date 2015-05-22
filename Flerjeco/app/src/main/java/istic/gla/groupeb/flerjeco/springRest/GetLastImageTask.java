@@ -26,7 +26,7 @@ public class GetLastImageTask extends AsyncTask<Object, Void, Image> {
     @Override
     protected Image doInBackground(Object... params) {
         Log.i(TAG, "Ask for last image at:" + params[0] + ", " + params[1] + " for intervention: " + params[2]);
-        return service.getLastImage((Double)params[0], (Double)params[1], (Long)params[2], (Timestamp)params[3]);
+        return service.getLastImage((Long)params[0], (Double)params[1], (Double)params[2], (Timestamp)params[3]);
     }
 
     @Override

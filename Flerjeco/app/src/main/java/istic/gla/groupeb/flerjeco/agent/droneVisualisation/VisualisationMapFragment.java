@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,6 +45,7 @@ import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
+import istic.gla.groupeb.flerjeco.springRest.GetLastImageTask;
 import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
 import istic.gla.groupeb.flerjeco.springRest.IImageActivity;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
@@ -96,6 +98,9 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         googleMap = mMapView.getMap();
 
         VisualisationActivity activity = (VisualisationActivity) getActivity();
+        inter = activity.getIntervention();
+
+        new GetLastImageTask(this).execute(inter.getId(), inter.getLatitude(), inter.getLongitude(), new Timestamp(0));
 
         // Center the camera on the intervention position
         CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -103,7 +108,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
 
-        initMap(activity.getIntervention().getWatchPath());
+        initMap(inter.getWatchPath());
         return v;
     }
 

@@ -2,8 +2,11 @@ package istic.gla.groupeb.flerjeco.springRest;
 
 import android.util.Log;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -13,6 +16,9 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.Image;
@@ -367,13 +373,16 @@ public class SpringService {
         return datas;
     }
 
-    public Image getLastImage(Double lat, Double lon, Long interventionId, Timestamp time) {
+    public Image getLastImage(Long interventionId, Double lat, Double lon, Timestamp time) {
         Log.v(TAG, "getLastImage start");
-        final String url = URL + "image/" + lat + "/" + lon + "/" + interventionId + "/" + time;
+        final String url = URL + "image/last/"+ interventionId + "/" + lat + "/" + lon;
         Image image = null;
 
         try {
-            ResponseEntity<Image> entity = restTemplate.getForEntity(url, Image.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Timestamp> timestamp = new HttpEntity<>(time, headers);
+            ResponseEntity<Image> entity = restTemplate.exchange(url, HttpMethod.GET, timestamp, Image.class);
             image = entity.getBody();
             Log.v(TAG, "getLastImage: " + entity.getStatusCode());
         } catch (HttpServerErrorException e) {
