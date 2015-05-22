@@ -106,7 +106,7 @@
     <string name="freeResource">Free the resource</string>
     <string name="title_dialog_change_resource">Manage the resource</string>
     <string name="empty_list_interventions">There is no interventions, create one</string>
-    <string name="libelle_moyen_attente">Vehicle awaiting approval</string>
+    <string name="libelle_moyen_attente">Vehicle awaiting</string>
     <string name="libelle_moyen_valide">Vehicle validated</string>
 
     <string name="drone_update_path_error_generic">" The update of the intervention did not work, please try again"</string>

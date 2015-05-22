@@ -306,23 +306,6 @@ public class AgentInterventionActivity extends TabbedActivity
         fragment.show(getSupportFragmentManager(), "changeState_dialog");
     }
 
-    public class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
-        private SpringService service = new SpringService();
-
-        @Override
-        protected Intervention doInBackground(Intervention... intervention) {
-            Log.i(TAG, "Start doInbackground updateIntervention");
-            return service.updateIntervention(intervention[0]);
-        }
-
-        @Override
-        protected void onPostExecute(Intervention intervention){
-            Log.i(TAG, "Start onPostExecute updateIntervention");
-            updateIntervention(intervention);
-            Log.i(TAG, "End update intervention");
-        }
-    }
-
     public class UpdateResourceIntervention extends AsyncTask<Object[], Void, Intervention> {
         private SpringService service = new SpringService();
         private long interventionId;

@@ -55,7 +55,6 @@ public class InterventionsNamesFragment extends Fragment {
                 false);
 
         listViewInterventions = (ListView) v.findViewById(R.id.listViewInterventions);
-        v.findViewById(R.id.button_select_intervention).setEnabled(false);
 
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
@@ -66,6 +65,10 @@ public class InterventionsNamesFragment extends Fragment {
 
         ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
         Intervention[] interventions = listInterventionsActivity.getInterventions();
+
+        if(interventions.length == 0) {
+            v.findViewById(R.id.button_select_intervention).setEnabled(false);
+        }
 
         for(Intervention inter : interventions) {
             labelsInterventions.add(inter.getName());
