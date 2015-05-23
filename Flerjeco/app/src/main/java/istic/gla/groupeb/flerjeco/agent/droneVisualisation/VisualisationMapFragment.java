@@ -235,7 +235,6 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                     dronesMarkers.remove(labelToRemove);
                 }
             }
-            new GetPositionDroneTask(this, ((VisualisationActivity) getActivity()).getIntervention().getId()).execute();
         }
     }
 
@@ -274,6 +273,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
             new GetPositionDroneTask(this, inter.getId()).execute();
         }
     }
+
 
     @Override
     public boolean onMarkerClick(Marker marker) {
