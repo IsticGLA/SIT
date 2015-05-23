@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
@@ -42,11 +43,12 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
 import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import istic.gla.groupeb.flerjeco.utils.LatLngUtils;
 
 /**
  * Fragment de carte pour les drones
  */
-public class VisualisationMapFragment extends Fragment implements DronesMapFragment {
+public class VisualisationMapFragment extends Fragment implements DronesMapFragment, GoogleMap.OnMarkerClickListener {
 
     private static final String TAG = VisualisationMapFragment.class.getSimpleName();
     final static String ARG_POSITION = "position";
@@ -57,6 +59,8 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     private List<Pair<Polyline, Marker>> polylines;
     private List<Marker> markers;
     private Map<String, Marker> dronesMarkers;
+    private VisualisationActivity activity;
+    private LatLngBounds mBounds;
 
     // list of all the path of the intervention
     private List<Path> pathList;
@@ -88,23 +92,24 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         // get the googleMap
         googleMap = mMapView.getMap();
 
-        VisualisationActivity activity = (VisualisationActivity) getActivity();
+        activity = (VisualisationActivity) getActivity();
 
-        // Center the camera on the intervention position
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(activity.getIntervention().getLatitude(), activity.getIntervention().getLongitude())).zoom(16).build();
-        googleMap.animateCamera(CameraUpdateFactory
-                .newCameraPosition(cameraPosition));
+        this.pathList = activity.getIntervention().getWatchPath();
+        this.polylines = new ArrayList<>();
+        this.markers = new ArrayList<>();
+        this.dronesMarkers = new HashMap<>();
 
-        initMap(activity.getIntervention().getWatchPath());
+        new Handler().postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if(googleMap != null && mBounds != null)
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mBounds, 50));
+            }
+        }, 500);
+
         return v;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        updateMapView();
     }
 
     /**
@@ -113,20 +118,20 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     public void updateMapView() {
         // clear the Google Map
         clearGoogleMap();
+        googleMap.setOnMarkerClickListener(this);
 
         if(getActivity() == null) {
             return;
         }
 
         // get the intervention from the main activity
-        inter = ((VisualisationActivity) getActivity()).getIntervention();
+        inter = activity.getIntervention();
         pathList = inter.getWatchPath();
 
         // Create LatLngBound to zoom on the set of positions in the path
         LatLngBounds.Builder bounds = new LatLngBounds.Builder();
 
         for (Path p : pathList){
-
             // get all the positions of the path to draw it
             List<Position> positions = p.getPositions();
 
@@ -140,7 +145,6 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                 MarkerOptions marker = new MarkerOptions().position(latLng);
                 // Changing marker icon
                 marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                // adding marker
                 Marker m = googleMap.addMarker(marker);
                 // add the marker on the markers list
                 markers.add(m);
@@ -150,24 +154,13 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                     LatLng previousLatLng = new LatLng(positions.get(i-1).getLatitude(), positions.get(i-1).getLongitude());
                     drawLine(latLng, previousLatLng);
                 // else if it the path is closed, draw line between first and last point
-                } if (i == positions.size()-1 && p.isClosed() && positions.size() > 2){
+                } else if (i == positions.size()-1 && p.isClosed() && positions.size() > 2){
                     LatLng firstLatLng = new LatLng(positions.get(0).getLatitude(), positions.get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
                 }
             }
         }
-        //googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
-    }
-
-    /**
-     * Init the Google Map
-     * @param pathList the list of paths
-     */
-    public void initMap(List<Path> pathList){
-        this.pathList = pathList;
-        this.polylines = new ArrayList<>();
-        this.markers = new ArrayList<>();
-        this.dronesMarkers = new HashMap<>();
+        this.mBounds = bounds.build();
     }
 
     /**
@@ -187,13 +180,13 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
      */
     public void drawLine(LatLng first, LatLng last){
         // First you need rotate the bitmap of the arrowhead somewhere in your code
-        float rotationDegrees = (float) angleFromCoordinate(last.latitude, last.longitude, first.latitude, first.longitude);
+        float rotationDegrees = (float) LatLngUtils.angleFromCoordinate(last.latitude, last.longitude, first.latitude, first.longitude);
 
         // Create the rotated arrowhead bitmap
         Bitmap arrow = BitmapFactory.decodeResource(getResources(), R.drawable.arrow);
         BitmapDescriptor bitmapDescriptorFactory = BitmapDescriptorFactory.fromBitmap(arrow);
         // Get the middle position
-        LatLng middlePos = midPoint(first.latitude, first.longitude, last.latitude, last.longitude);
+        LatLng middlePos = LatLngUtils.midPoint(first.latitude, first.longitude, last.latitude, last.longitude);
         // Now we are gonna to add a marker
         Marker mArrowhead = googleMap.addMarker(new MarkerOptions()
                 .position(middlePos)
@@ -209,62 +202,21 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         polylines.add(new Pair<Polyline, Marker>(line, mArrowhead));
     }
 
-    // Get middle point between two coordinates
-    private LatLng midPoint(double lat1,double lon1,double lat2,double lon2){
 
-        double dLon = Math.toRadians(lon2 - lon1);
 
-        //convert to radians
-        lat1 = Math.toRadians(lat1);
-        lat2 = Math.toRadians(lat2);
-        lon1 = Math.toRadians(lon1);
 
-        double Bx = Math.cos(lat2) * Math.cos(dLon);
-        double By = Math.cos(lat2) * Math.sin(dLon);
-        double lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
-        double lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
-
-        //print out in degrees
-        Log.i("TEST", lat1 + "  " + lon1 + "       " + lat2 + "   " + lon2);
-        Log.i("TEST", Math.toDegrees(lat3) + " " + Math.toDegrees(lon3));
-
-        return new LatLng(Math.toDegrees(lat3), Math.toDegrees(lon3));
-    }
-
-    // get angle between two coordinates
-    private double angleFromCoordinate(double lat1, double long1, double lat2, double long2) {
-
-        double dLon = (long2 - long1);
-
-        double y = Math.sin(dLon) * Math.cos(lat2);
-        double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1)
-                * Math.cos(lat2) * Math.cos(dLon);
-
-        double brng = Math.atan2(y, x);
-
-        brng = Math.toDegrees(brng);
-        brng = (brng + 360) % 360;
-        brng = 360 - brng;
-
-        return brng;
-    }
 
     // private variable for reducing object creations
     private Set<String> labels = new HashSet<>();
     /**
      * Show the marker for the drone of the intervention
      */
-    public void showDrones(Drone[] tab, long duration){
+    public void showDrones(Drone[] tab){
         if(refreshDrones) {
             labels.clear();
             for(Drone drone : tab){
                 labels.add(drone.getLabel());
                 if(dronesMarkers.containsKey(drone.getLabel())){
-                    //animate existing marker
-                    /**animateMarker(dronesMarkers.get(drone.getLabel()),
-                            new LatLng(drone.getLatitude(), drone.getLongitude()),
-                            false, duration
-                    );*/
                     dronesMarkers.get(drone.getLabel()).setPosition(new LatLng(drone.getLatitude(), drone.getLongitude()));
                 } else{
                     //create a new marker
@@ -291,10 +243,10 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     public void onResume() {
         super.onResume();
         mMapView.onResume();
+        updateMapView();
 
-        long id = ((VisualisationActivity)getActivity()).getIntervention().getId();
         refreshDrones = true;
-        new GetPositionDroneTask(this, id).execute();
+        new GetPositionDroneTask(this, inter.getId()).execute();
     }
 
     @Override
@@ -317,10 +269,16 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         mMapView.onLowMemory();
     }
 
-    public void refreshDrone() {
-        if(inter != null) {
+    public void refreshDrones() {
+        if(inter != null && refreshDrones) {
             new GetPositionDroneTask(this, inter.getId()).execute();
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        activity.loadImageSlider(marker.getPosition());
+        return false;
     }
 }
 

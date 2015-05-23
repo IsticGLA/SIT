@@ -8,6 +8,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.TabbedActivity;
@@ -23,6 +25,7 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
     private static final String TAG = VisualisationActivity.class.getSimpleName();
 
     private VisualisationMapFragment mapFragment;
+    private ImageSliderFragment imageSliderFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +41,7 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
             intervention = (Intervention) extras.getSerializable("intervention");
         }
 
-        // Set the content view with the activity_plan_zone layout
+        // Set the content view with the activity_visualisation layout
         setContentView(R.layout.activity_visualisation);
 
         // Check whether the activity is using the layout version with
@@ -55,6 +58,8 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
 
         mapFragment = (VisualisationMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        imageSliderFragment = (ImageSliderFragment)
+                getSupportFragmentManager().findFragmentById(R.id.image_fragment);
     }
 
 
@@ -121,5 +126,11 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
         //closing transition animations
         overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
         IntentWraper.stopService();
+    }
+
+    public void loadImageSlider(LatLng position){
+        Log.i(TAG, "loading image slider");
+        imageSliderFragment.setLoading(true);
+        imageSliderFragment.askForImages(position);
     }
 }

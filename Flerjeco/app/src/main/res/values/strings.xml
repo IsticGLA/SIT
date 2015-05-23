@@ -133,4 +133,5 @@
     <string name="drone_update_path_success">"All modifications have been saved"</string>
     <string name="interventions">Interventions</string>
     <string name="remove_resource">Remove Resource</string>
+    <string name="image_slider_empty">Aucune image</string>
 </resources>
