@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -64,6 +65,10 @@ public class InterventionsNamesFragment extends Fragment {
 
         ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
         Intervention[] interventions = listInterventionsActivity.getInterventions();
+
+        if(interventions.length == 0) {
+            v.findViewById(R.id.button_select_intervention).setEnabled(false);
+        }
 
         for(Intervention inter : interventions) {
             labelsInterventions.add(inter.getName());
@@ -121,7 +126,7 @@ public class InterventionsNamesFragment extends Fragment {
         ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
         Intervention[] interventions = listInterventionsActivity.getInterventions();
 
-        for(Intervention inter : interventions) {
+        for (Intervention inter : interventions) {
             labelsInterventions.add(inter.getName());
         }
 

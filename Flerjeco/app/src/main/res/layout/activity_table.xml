@@ -7,6 +7,12 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin" tools:context=".TableActivity">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_intervention_name"
+        android:textSize="70dip"
+        android:visibility="gone" />
 
     <TableLayout
         android:id="@+id/headerTable"

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
@@ -54,6 +55,9 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
             validatecheckBox.setEnabled(false);
         }
         changeRoleButton = (Button) v.findViewById(R.id.buton_change_role);
+        if(resource.getLabel().contains("incident")) {
+            v.findViewById(R.id.layout_change_resource).setVisibility(View.GONE);
+        }
         changeRoleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,6 +70,9 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
         //init fields
 
         freeButton = (Button) v.findViewById(R.id.freeButton);
+        if(ResourceCategory.dragabledata.equals(resource.getResourceCategory())) {
+            freeButton.setText(R.string.remove_resource);
+        }
         freeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

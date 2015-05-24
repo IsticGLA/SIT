@@ -41,30 +41,30 @@
         <activity
             android:name=".agent.intervention.AgentInterventionActivity"
             android:exported="true"
-            android:label="@string/title_activity_second"
+            android:label="@string/activities_agent"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name=".codis.intervention.InterventionActivity"
-            android:label="@string/title_activity_intervention"
+            android:label="@string/activities_codis"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name=".agent.interventionsList.ListInterventionsActivity"
             android:exported="true"
-            android:label="@string/title_activity_list_interventions"
+            android:label="@string/activities_agent"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name=".agent.planZone.PlanZoneActivity"
             android:exported="true"
-            android:label="@string/title_activity_plan_zone"
+            android:label="@string/activities_agent"
             android:screenOrientation="landscape" >
         </activity>
         <activity
             android:name=".agent.droneVisualisation.VisualisationActivity"
             android:exported="true"
-            android:label="@string/title_activity_visualisation"
+            android:label="@string/activities_agent"
             android:screenOrientation="landscape" >
         </activity>
 
@@ -76,9 +76,13 @@
         <activity
             android:name=".agent.table.TableActivity"
             android:exported="true"
-            android:label="@string/title_activity_tableau"
+            android:label="@string/activities_agent"
             android:screenOrientation="landscape" >
         </activity>
     </application>
+
+    <meta-data
+        android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version" />
 
 </manifest>

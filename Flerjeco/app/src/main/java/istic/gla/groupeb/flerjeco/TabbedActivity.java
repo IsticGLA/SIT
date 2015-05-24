@@ -4,11 +4,11 @@ import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import java.util.ArrayList;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
-import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.droneVisualisation.VisualisationActivity;
 import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
 import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
@@ -20,6 +20,7 @@ import istic.gla.groupeb.flerjeco.codis.intervention.InterventionActivity;
  */
 public abstract class TabbedActivity extends FragmentActivity implements ActionBar.TabListener {
 
+    private static final String TAG = TabbedActivity.class.getSimpleName();
     private String tabName;
     protected Intervention intervention;
     private ArrayList<Integer> tabs;
@@ -91,6 +92,7 @@ public abstract class TabbedActivity extends FragmentActivity implements ActionB
             Intent intent = new Intent(this, InterventionActivity.class);
             Bundle bundle = new Bundle();
             bundle.putIntegerArrayList("tabs", tabs);
+            bundle.putSerializable("intervention", intervention);
             intent.putExtras(bundle);
             startActivity(intent);
             finish();
@@ -104,6 +106,7 @@ public abstract class TabbedActivity extends FragmentActivity implements ActionB
                 startActivity(intent);
                 finish();
             } else if(tab.getText().toString().equals(getResources().getString(R.string.table)) && tabName != null && !tab.getText().toString().equals(tabName)) {
+                Log.d(TAG, "TABLE LAUNCH");
                 Intent intent = new Intent(this, TableActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putIntegerArrayList("tabs", tabs);
@@ -133,7 +136,7 @@ public abstract class TabbedActivity extends FragmentActivity implements ActionB
 
     @Override
     public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals(tabName)) {
+        if(tab.getText().toString().equals(tabName) && intervention != null) {
             finish();
         }
     }

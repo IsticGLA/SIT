@@ -21,6 +21,7 @@ import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.util.ResourceCategory;
 import istic.gla.groupb.nivimoju.util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
@@ -106,13 +107,13 @@ public class TableFragment extends Fragment implements ISynchTool{
                 return Color.RED;
 
             case people:
-                return Color.argb(255,102,255,102);
+                return Color.rgb(102, 255, 102);
 
             case risks:
-                return Color.argb(255,255,102,0);
+                return Color.rgb(255, 102, 0);
 
             case commands:
-                return Color.argb(255,153,0,102);
+                return Color.rgb(153, 0, 102);
 
             default:
                 return Color.BLACK;
@@ -136,7 +137,7 @@ public class TableFragment extends Fragment implements ISynchTool{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_tableau, container, false);
+        return inflater.inflate(R.layout.fragment_table, container, false);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -209,6 +210,7 @@ public class TableFragment extends Fragment implements ISynchTool{
                     containerTable.addView(tableRow,
                             new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
                     int i = 0;
+
                     for (int j = 0; j < moyen.length; j++) {
                         TextView text = createTextView(true, true);
 
@@ -216,53 +218,74 @@ public class TableFragment extends Fragment implements ISynchTool{
 
                         //Number formatter for minutes ##00
                         DecimalFormat decimalFormat = new DecimalFormat("##00");
-                        switch (j) {
-                            case 0:
-                                text.setText(resource.getLabel());
-                                break;
-                            case 1:
-                                timestamp = resource.getWaitingHistory();
-                                if (timestamp != null) {
-                                    text.setText(timestamp.getHours()  + decimalFormat.format(timestamp.getMinutes()));
-                                } else {
+
+                        if (State.refused.equals(resource.getState())){
+                            switch (j) {
+                                case 0:
+                                    text.setText(resource.getLabel());
+                                    break;
+                                case 1:
+                                    timestamp = resource.getWaitingHistory();
+                                    if (timestamp != null) {
+                                        text.setText(decimalFormat.format(timestamp.getHours()) + decimalFormat.format(timestamp.getMinutes()));
+                                    } else {
+                                        text.setText("-");
+                                    }
+                                    break;
+                                default:
+                                    text.setText("x");
+                                    break;
+                            }
+                        }
+                        else {
+                            switch (j) {
+                                case 0:
+                                    text.setText(resource.getLabel());
+                                    break;
+                                case 1:
+                                    timestamp = resource.getWaitingHistory();
+                                    if (timestamp != null) {
+                                        text.setText(decimalFormat.format(timestamp.getHours()) + decimalFormat.format(timestamp.getMinutes()));
+                                    } else {
+                                        text.setText("-");
+                                    }
+                                    break;
+                                case 2:
+                                    timestamp = resource.getValidatedHistory();
+                                    if (timestamp != null) {
+                                        text.setText(decimalFormat.format(timestamp.getHours()) + decimalFormat.format(timestamp.getMinutes()));
+                                    } else {
+                                        text.setText("-");
+                                    }
+                                    break;
+                                case 3:
+                                    timestamp = resource.getArrivedHistory();
+                                    if (timestamp != null) {
+                                        text.setText(decimalFormat.format(timestamp.getHours()) + decimalFormat.format(timestamp.getMinutes()));
+                                    } else {
+                                        text.setText("-");
+                                    }
+                                    break;
+                                case 4:
+                                    timestamp = resource.getPlannedHistory();
+                                    if (timestamp != null) {
+                                        text.setText(decimalFormat.format(timestamp.getHours()) + decimalFormat.format(timestamp.getMinutes()));
+                                    } else {
+                                        text.setText("-");
+                                    }
+                                    break;
+                                case 5:
+                                    timestamp = resource.getFreeHistory();
+                                    if (timestamp != null) {
+                                        text.setText(decimalFormat.format(timestamp.getHours()) + decimalFormat.format(timestamp.getMinutes()));
+                                    } else {
+                                        text.setText("-");
+                                    }
+                                    break;
+                                default:
                                     text.setText("-");
-                                }
-                                break;
-                            case 2:
-                                timestamp = resource.getValidatedHistory();
-                                if (timestamp != null) {
-                                    text.setText(timestamp.getHours()  + decimalFormat.format(timestamp.getMinutes()));
-                                } else {
-                                    text.setText("-");
-                                }
-                                break;
-                            case 3:
-                                timestamp = resource.getArrivedHistory();
-                                if (timestamp != null) {
-                                    text.setText(timestamp.getHours()  + decimalFormat.format(timestamp.getMinutes()));
-                                } else {
-                                    text.setText("-");
-                                }
-                                break;
-                            case 4:
-                                timestamp = resource.getPlannedHistory();
-                                if (timestamp != null) {
-                                    text.setText(timestamp.getHours()  + decimalFormat.format(timestamp.getMinutes()));
-                                } else {
-                                    text.setText("-");
-                                }
-                                break;
-                            case 5:
-                                timestamp = resource.getFreeHistory();
-                                if (timestamp != null) {
-                                    text.setText(timestamp.getHours()  + decimalFormat.format(timestamp.getMinutes()));
-                                } else {
-                                    text.setText("-");
-                                }
-                                break;
-                            default:
-                                text.setText("-");
-                                break;
+                                    break;
+                            }
                         }
                         text.setWidth(100);
                         text.setTextColor(getResourceColor(resource.getResourceRole()));

@@ -27,6 +27,8 @@
     <string name="app_name">Flerjeco</string>
     <string name="title_activity_second">Current Intervention</string>
     <string name="title_activity_list_interventions">List of Interventions</string>
+    <string name="activities_agent">Flerjeco - Agent</string>
+    <string name="activities_codis">Flerjeco - Codis</string>
 
     <string name="vehicle_fragment_text">Select the type of vehicle you need :</string>
     <string name="title_activity_display_intervention">DisplayIntervention</string>
@@ -104,7 +106,7 @@
     <string name="freeResource">Free the resource</string>
     <string name="title_dialog_change_resource">Manage the resource</string>
     <string name="empty_list_interventions">There is no interventions, create one</string>
-    <string name="libelle_moyen_attente">Vehicle awaiting approval</string>
+    <string name="libelle_moyen_attente">Vehicle awaiting</string>
     <string name="libelle_moyen_valide">Vehicle validated</string>
 
     <string name="drone_update_path_error_generic">" The update of the intervention did not work, please try again"</string>
@@ -130,4 +132,5 @@
     <string name="drone_update_path_error_not_available">"No drone available, cannot create a route"</string>
     <string name="drone_update_path_success">"All modifications have been saved"</string>
     <string name="interventions">Interventions</string>
+    <string name="remove_resource">Remove Resource</string>
 </resources>

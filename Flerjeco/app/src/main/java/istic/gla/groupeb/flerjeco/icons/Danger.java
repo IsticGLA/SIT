@@ -65,7 +65,7 @@ public class Danger implements IIcon {
                 paint.setColor(Color.RED);
                 break;
             case risks:
-                paint.setColor(Color.argb(0,255,102,0));
+                paint.setColor(Color.rgb(255,102,0));
                 break;
             case water:
                 paint.setColor(Color.BLUE);
