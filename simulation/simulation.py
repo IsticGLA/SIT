@@ -163,8 +163,12 @@ class Drone:
 
     def stop(self):
         self.__init__(self.label, self.dest_tolerance_squared)
-        self.pose_sub.unregister()
+        if self.pose_sub is not None:
+            self.pose_sub.unregister()
+        if self.camera_sub is not None:
+            self.camera_sub.unregister()
         self.pose_sub = None
+        self.camera_sub = None
         app.logger.info("drone " + self.label + " stopped")
 
 
