@@ -160,6 +160,9 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                 }
             }
         }
+        if(markers.size() <= 0) {
+            bounds.include(new LatLng(inter.getLatitude(), inter.getLongitude()));
+        }
         this.mBounds = bounds.build();
     }
 
