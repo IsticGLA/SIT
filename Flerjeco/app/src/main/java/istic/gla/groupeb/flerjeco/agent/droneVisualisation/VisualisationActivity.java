@@ -132,9 +132,10 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
         IntentWraper.stopService();
     }
 
+
     /**
      * charge la gallerie d'image pour cette position
-     * @param position
+     * @param position la position a charger
      */
     public void loadImageSlider(LatLng position){
         Log.i(TAG, "loading image slider");
@@ -156,13 +157,19 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
     }
 
     /**
-     * charge le stream d'image à afficher pour le drone
+     * charge le stream d'image a afficher pour le drone
      * @param droneLabel le label du drone
      */
     public void loadDroneStream(String droneLabel){
         //TODO
     }
 
+    /**
+     * capture la touche retour pour cacher les fragments
+     * @param keyCode
+     * @param event
+     * @return
+     */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && imageSliderFragment != null) {
@@ -176,7 +183,6 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
             imageSliderFragment = null;
             return true;
         }
-
         return super.onKeyDown(keyCode, event);
     }
 }

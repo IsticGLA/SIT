@@ -81,19 +81,23 @@ public class ImageAPI {
     /**
      * Get all images (limited to a specific number) of the given coordinates for an intervention
      * @param inter The id of the intervention
-     * @param lat The latitude coordinate of the image
-     * @param lon The longitude coordinate of the image
+     * @param latitude The latitude coordinate of the image
+     * @param longitude The longitude coordinate of the image
+     * @param timestamp le timestamp de debut (on retourne les images prises apres ce timestamp)
      * @return OK
      */
     @GET
-    @Path("/all/{inter}/{lat}/{lon}")
+    @Path("/all/{inter}/{latitude}/{longitude}/{timestamp}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAllImages(@PathParam("inter") long inter, @PathParam("lat") double lat, @PathParam("lon") double lon) {
-        logger.debug("getting image from database  " + lat + " " + lon);
+    public Response getAllImages(@PathParam("inter") long inter,
+                                 @PathParam("latitude") double latitude,
+                                 @PathParam("longitude") double longitude,
+                                 @PathParam("timestamp") long timestamp) {
+        logger.debug("getting image from database  " + latitude + " " + longitude + " timestamp:" + timestamp);
         ImageDAO imageDAO = new ImageDAO();
         imageDAO.connect();
-        double[] position = {lat, lon};
-        List<Image> result = imageDAO.getLastSpatialImages(inter, position, 0L, 10);
+        double[] position = {latitude, longitude};
+        List<Image> result = imageDAO.getLastSpatialImages(inter, position, timestamp + 1, 10);
         logger.info(String.format("got %d images for inter %d", result == null? 0 : result.size(), inter));
         imageDAO.disconnect();
         return Response.ok(result).build();

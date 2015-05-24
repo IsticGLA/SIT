@@ -49,6 +49,7 @@ public class ImageDAO extends AbstractDAO<Image> {
 
     }
 
+
     protected final List<Image> getAllLastSpatialImages(Long idIntervention, Long timestamp, int nbImage, List<TimestampedPosition> positionList){
         createSpatialAllLastView();
         JsonArray startKeys = JsonArray.from(idIntervention, timestamp);
@@ -83,8 +84,14 @@ public class ImageDAO extends AbstractDAO<Image> {
         return viewRowsToEntities(result);
     }
 
+    /**
+     * retourne les dernières images pour une position
+     * @param idIntervention
+     * @param timestamp
+     * @param nbImage
+     * @return
+     */
     public final List<Image> getLastSpatialImages(Long idIntervention, double[] position, Long timestamp, int nbImage){
-        logger.debug(position[0] + "   " + position[1]);
         createSpatialLastView();
         JsonArray positionValue = JsonArray.from(position[0], position[1]);
 

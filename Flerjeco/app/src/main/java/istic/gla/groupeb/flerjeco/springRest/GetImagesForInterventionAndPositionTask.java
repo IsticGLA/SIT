@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Date;
 
 import istic.gla.groupb.nivimoju.entity.Image;
-import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.droneVisualisation.ImageRefresher;
 
@@ -25,6 +24,7 @@ public class GetImagesForInterventionAndPositionTask extends AsyncTask<Object, V
     private final String TAG = GetImagesForInterventionAndPositionTask.class.getSimpleName();
     private final ImageRefresher refresher;
     private final long interventionId;
+    private final long timestamp;
     private final LatLng position;
     private Date start;
     private SpringService service = new SpringService();
@@ -33,22 +33,22 @@ public class GetImagesForInterventionAndPositionTask extends AsyncTask<Object, V
      * constructor
      * @param refresher the refresher for callbacks
      */
-    public GetImagesForInterventionAndPositionTask(ImageRefresher refresher, Long interventionId, LatLng position){
+    public GetImagesForInterventionAndPositionTask(ImageRefresher refresher, Long interventionId, LatLng position, long timeStamp){
         this.refresher = refresher;
         this.interventionId = interventionId;
         this.position = position;
+        this.timestamp = timeStamp;
     }
 
     @Override
     protected ResponseEntity<Image[]> doInBackground(Object... params) {
         try {
-            Log.v(TAG, "Get the images intervention with id : " + interventionId + " and position : " + position);
+            Log.d(TAG, "Get the images intervention with id : " + interventionId + " and position : " + position + " timestamp:" + timestamp);
             start = new Date();
-            return service.getAllImageForInterventionAndPosition(interventionId, position);
+            return service.getAllImageForInterventionAndPosition(interventionId, position, timestamp);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
-
         return null;
     }
 
@@ -58,7 +58,7 @@ public class GetImagesForInterventionAndPositionTask extends AsyncTask<Object, V
             switch(response.getStatusCode()){
                 case OK:
                     Log.d(TAG, "got response with image and will update resfresher with it");
-                    refresher.updateWithImages(Arrays.asList(response.getBody()));
+                    refresher.loadImages(Arrays.asList(response.getBody()));
                     return;
                 default:
                     Log.w(TAG, "failed to refresh images : " + response.getStatusCode());
@@ -67,6 +67,6 @@ public class GetImagesForInterventionAndPositionTask extends AsyncTask<Object, V
             Log.e(TAG, "got null response");
         }
         Toast.makeText(refresher.getContext(), R.string.fail_get_images, Toast.LENGTH_SHORT).show();
-        refresher.updateWithImages(new ArrayList<Image>());
+        refresher.loadImages(new ArrayList<Image>());
     }
 }

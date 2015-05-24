@@ -10,6 +10,6 @@ import istic.gla.groupb.nivimoju.entity.Image;
  * interface d'une classe utilisant une task de MAJ des image par intervention et position
  */
 public interface ImageRefresher {
-    void updateWithImages(List<Image> images);
+    void loadImages(List<Image> images);
     Context getContext();
 }

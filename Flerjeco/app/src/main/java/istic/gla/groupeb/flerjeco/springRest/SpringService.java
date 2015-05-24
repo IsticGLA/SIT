@@ -325,8 +325,8 @@ public class SpringService {
      * Gets all the image for the intervention and position
      * @return An array of drones
      */
-    public ResponseEntity<Image[]> getAllImageForInterventionAndPosition(Long interventionId, LatLng position) {
-        final String url = URL + "image/all/" + interventionId + "/" + position.latitude + "/" + position.longitude;
+    public ResponseEntity<Image[]> getAllImageForInterventionAndPosition(Long interventionId, LatLng position, long timestamp) {
+        final String url = URL + "image/all/" + interventionId + "/" + position.latitude + "/" + position.longitude + "/" + timestamp;
         Log.v(TAG, "getAllImageForInterventionAndPosition on " + url);
         return restTemplate.getForEntity(url, Image[].class);
     }
