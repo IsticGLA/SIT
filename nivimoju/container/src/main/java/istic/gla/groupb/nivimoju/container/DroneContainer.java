@@ -1,6 +1,7 @@
 package istic.gla.groupb.nivimoju.container;
 
 import istic.gla.groupb.nivimoju.dao.DroneDAO;
+import istic.gla.groupb.nivimoju.drone.client.DroneClient;
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Position;
@@ -172,9 +173,11 @@ public class DroneContainer {
     public boolean freeDrone(Long idInter){
         logger.info("drone release for intervention " + idInter);
         Collection<Drone> affectedDrones = mapDronesByIntervention.get(idInter);
+        DroneClient client = new DroneClient();
         if(affectedDrones != null && affectedDrones.size() > 0){
             Drone drone = affectedDrones.iterator().next();
             drone.setIdIntervention(-1L);
+            client.postStop(drone.getLabel());
             buildMapDronesByIntervention();
             return true;
         } else{
@@ -205,6 +208,8 @@ public class DroneContainer {
             if(droneToFree != null){
                 logger.info("releasing drone " + label + " from intervention " + droneToFree.getIdIntervention());
                 droneToFree.setIdIntervention(-1L);
+                DroneClient client = new DroneClient();
+                client.postStop(label);
                 buildMapDronesByIntervention();
             } else{
                 logger.warn(String.format("cannot free drone because label %s was not found in drone container", label));
