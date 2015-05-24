@@ -3,10 +3,18 @@ package istic.gla.groupeb.flerjeco.agent.droneVisualisation;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.LinearLayout;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
@@ -23,6 +31,7 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
     private static final String TAG = VisualisationActivity.class.getSimpleName();
 
     private VisualisationMapFragment mapFragment;
+    private ImageSliderFragment imageSliderFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +47,7 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
             intervention = (Intervention) extras.getSerializable("intervention");
         }
 
-        // Set the content view with the activity_plan_zone layout
+        // Set the content view with the activity_visualisation layout
         setContentView(R.layout.activity_visualisation);
 
         // Check whether the activity is using the layout version with
@@ -121,5 +130,59 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
         //closing transition animations
         overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
         IntentWraper.stopService();
+    }
+
+
+    /**
+     * charge la gallerie d'image pour cette position
+     * @param position la position a charger
+     */
+    public void loadImageSlider(LatLng position){
+        Log.i(TAG, "loading image slider");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        if(imageSliderFragment != null){
+            fragmentTransaction.remove(imageSliderFragment);
+        }
+        imageSliderFragment = new ImageSliderFragment();
+        Bundle bundle = new Bundle();
+        bundle.putLong("interventionId", intervention.getId());
+        bundle.putDouble("latitude", position.latitude);
+        bundle.putDouble("longitude", position.longitude);
+        imageSliderFragment.setArguments(bundle);
+        fragmentTransaction.add(R.id.image_slider_fragment_container, imageSliderFragment);
+        fragmentTransaction.commit();
+        LinearLayout imageSliderContainer = (LinearLayout) findViewById(R.id.image_slider_fragment_container);
+        imageSliderContainer.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * charge le stream d'image a afficher pour le drone
+     * @param droneLabel le label du drone
+     */
+    public void loadDroneStream(String droneLabel){
+        //TODO
+    }
+
+    /**
+     * capture la touche retour pour cacher les fragments
+     * @param keyCode
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && imageSliderFragment != null) {
+            //on retire le fragment
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.remove(imageSliderFragment);
+            fragmentTransaction.commit();
+            LinearLayout imageSliderContainer = (LinearLayout) findViewById(R.id.image_slider_fragment_container);
+            imageSliderContainer.setVisibility(View.GONE);
+            imageSliderFragment = null;
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

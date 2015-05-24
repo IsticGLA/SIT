@@ -1,0 +1,39 @@
+
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.daimajia.slider.demo.MainActivity">
+
+    <ProgressBar android:id="@+id/loading_bar" style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_gravity="center"/>
+
+
+    <TextView
+        android:id="@+id/text_slider_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/image_slider_empty"
+        android:layout_gravity="center"
+         />
+
+    <com.daimajia.slider.library.SliderLayout
+        android:id="@+id/image_slider"
+        android:layout_width="match_parent"
+        custom:pager_animation="Accordion"
+        custom:auto_cycle="true"
+        custom:indicator_visibility="visible"
+        android:layout_height="match_parent"/>
+
+    <com.daimajia.slider.library.Indicators.PagerIndicator
+        android:id="@+id/image_slider_indicator"
+        style="@style/AndroidImageSlider_Attractive_Rect_Blue"
+        />
+
+
+</FrameLayout>
