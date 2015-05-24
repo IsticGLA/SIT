@@ -51,7 +51,7 @@ class Drone:
             if distance_squared < self.dest_tolerance_squared:
                 app.logger.info("robot " + self.label + " arrived to destination")
                 if len(self.path) > 1:
-                    self.take_picture()
+                    self.take_picture(self.dest)
                     app.logger.info("robot " + self.label + " will go to next waypoint")
                     self.next_waypoint_in_path()
                 else:
@@ -60,8 +60,9 @@ class Drone:
         elif self.path is not None and len(self.path) > 0:
             app.logger.warn("robot " + self.label + "has no destination")
 
-    def take_picture(self):
+    def take_picture(self, position):
         app.logger.info("activating picture callback")
+        self.picture_position = position
         if self.camera_sub is not None:
             self.camera_sub.unregister()
         self.camera_sub = rospy.Subscriber(self.label+"/camera/image", Image, self.picture_callback, queue_size=1)
@@ -73,16 +74,16 @@ class Drone:
             cv_image = self.bridge.imgmsg_to_cv2(ros_data, "bgr8")
             encoded_img = cv2.imencode(".jpeg", cv_image)
             data = base64.b64encode(encoded_img[1].tostring())
-            self.postImage(data, 256)
+            self.postImage(data)
         except:
             app.logger.error(traceback.format_exc()) 
 
-    def postImage(self, image, image_width):
+    def postImage(self, image):
         try:
 	        app.logger.info("posting image " + str(type(image)))
 	
-	        body = {'image':image,
-	                    'position': self.position,
+	        body = {'base64Image':image,
+	                    'position': self.picture_position,
 	                    'droneLabel': self.label}
 	        jsondata = json.dumps(body)
 
