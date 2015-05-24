@@ -32,6 +32,7 @@ public class GetInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
+        intervention = null;
         try {
             Log.i(TAG, "doInBackground, id :" + id);
             intervention = service.getInterventionById(id);

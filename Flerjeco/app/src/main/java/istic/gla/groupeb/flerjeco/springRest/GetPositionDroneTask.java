@@ -49,7 +49,7 @@ public class GetPositionDroneTask extends AsyncTask<Object, Void, ResponseEntity
         if (response != null) {
             switch(response.getStatusCode()){
                 case OK:
-                    fragment.showDrones(response.getBody(), (responseDate.getTime() - start.getTime()));
+                    fragment.showDrones(response.getBody());
                     break;
                 default:
                     Log.w(TAG, "failed to refresh drone position : " + response.getStatusCode());
@@ -57,8 +57,8 @@ public class GetPositionDroneTask extends AsyncTask<Object, Void, ResponseEntity
         } else{
             Log.e(TAG, "got null response");
         }
-        new GetPositionDroneTask(fragment, interventionId).execute();
         Date end = new Date();
         Log.v(TAG, "refreshed drones in " + (end.getTime() - start.getTime()) + "ms");
+        fragment.refreshDrones();
     }
 }

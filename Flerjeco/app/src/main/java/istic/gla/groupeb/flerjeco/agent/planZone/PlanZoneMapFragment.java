@@ -48,6 +48,7 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
 import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import istic.gla.groupeb.flerjeco.utils.LatLngUtils;
 
 /**
  * Fragment de carte pour les drones
@@ -439,13 +440,13 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
      */
     public void drawLine(LatLng first, LatLng last){
         // First you need rotate the bitmap of the arrowhead somewhere in your code
-        float rotationDegrees = (float) angleFromCoordinate(last.latitude, last.longitude, first.latitude, first.longitude);
+        float rotationDegrees = (float) LatLngUtils.angleFromCoordinate(last.latitude, last.longitude, first.latitude, first.longitude);
 
         // Create the rotated arrowhead bitmap
         Bitmap arrow = BitmapFactory.decodeResource(getResources(), R.drawable.arrow);
         BitmapDescriptor bitmapDescriptorFactory = BitmapDescriptorFactory.fromBitmap(arrow);
         // Get the middle position
-        LatLng middlePos = midPoint(first.latitude, first.longitude, last.latitude, last.longitude);
+        LatLng middlePos = LatLngUtils.midPoint(first.latitude, first.longitude, last.latitude, last.longitude);
         // Now we are gonna to add a marker
         Marker mArrowhead = googleMap.addMarker(new MarkerOptions()
                 .position(middlePos)
@@ -459,46 +460,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 .geodesic(true));
 
         polylines.add(new Pair<Polyline, Marker>(line, mArrowhead));
-    }
-
-    // Get middle point between two coordinates
-    private LatLng midPoint(double lat1,double lon1,double lat2,double lon2){
-
-        double dLon = Math.toRadians(lon2 - lon1);
-
-        //convert to radians
-        lat1 = Math.toRadians(lat1);
-        lat2 = Math.toRadians(lat2);
-        lon1 = Math.toRadians(lon1);
-
-        double Bx = Math.cos(lat2) * Math.cos(dLon);
-        double By = Math.cos(lat2) * Math.sin(dLon);
-        double lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
-        double lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
-
-        //print out in degrees
-        Log.i("TEST", lat1 + "  " + lon1 + "       " + lat2 + "   " + lon2);
-        Log.i("TEST", Math.toDegrees(lat3) + " " + Math.toDegrees(lon3));
-
-        return new LatLng(Math.toDegrees(lat3), Math.toDegrees(lon3));
-    }
-
-    // get angle between two coordinates
-    private double angleFromCoordinate(double lat1, double long1, double lat2, double long2) {
-
-        double dLon = (long2 - long1);
-
-        double y = Math.sin(dLon) * Math.cos(lat2);
-        double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1)
-                * Math.cos(lat2) * Math.cos(dLon);
-
-        double brng = Math.atan2(y, x);
-
-        brng = Math.toDegrees(brng);
-        brng = (brng + 360) % 360;
-        brng = 360 - brng;
-
-        return brng;
     }
 
     /**
@@ -545,7 +506,8 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     /**
      * Show the marker for the drone of the intervention
      */
-    public void showDrones(Drone[] tab, long duration){
+    @Override
+    public void showDrones(Drone[] tab){
         if(refreshDrones) {
             labels.clear();
             for(Drone drone : tab){
@@ -607,8 +569,9 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         mMapView.onLowMemory();
     }
 
-    public void refreshDrone() {
-        if(inter != null) {
+    @Override
+    public void refreshDrones() {
+        if(inter != null && refreshDrones) {
             new GetPositionDroneTask(this, inter.getId()).execute();
         }
     }
