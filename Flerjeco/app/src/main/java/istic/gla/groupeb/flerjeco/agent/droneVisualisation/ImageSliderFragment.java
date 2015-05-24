@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,14 +17,20 @@ import com.daimajia.slider.library.SliderTypes.TextSliderView;
 import com.daimajia.slider.library.Tricks.ViewPagerEx;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.util.StringUtils;
 import org.springframework.util.support.Base64;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,10 +44,11 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
 
     private final String TAG = ImageSliderFragment.class.getSimpleName();
     private SliderLayout mDemoSlider;
-    private VisualisationActivity activity;
     private View mProgressView;
     private View mDemoSliderIndicator;
     private TextView mImagesEmptyView;
+    private Long mInterventionId;
+    private LatLng mPosition;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,19 +60,22 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
         mDemoSliderIndicator = v.findViewById(R.id.image_slider_indicator);
         mProgressView = v.findViewById(R.id.loading_bar);
         mImagesEmptyView = (TextView) v.findViewById(R.id.text_slider_empty);
+        Bundle bundle = getArguments();
+        mInterventionId = bundle.getLong("interventionId");
+        mPosition = new LatLng(bundle.getDouble("latitude"), bundle.getDouble("longitude"));
         return v;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        activity = (VisualisationActivity) getActivity();
+        askForImages(mPosition);
     }
 
     public void askForImages(LatLng position){
-        VisualisationActivity activity = (VisualisationActivity) getActivity();
         Log.i(TAG, "starting thread to get images");
-        new GetImagesForInterventionAndPositionTask(this, activity.getIntervention().getId(), position).execute();
+        setLoading(true);
+        new GetImagesForInterventionAndPositionTask(this, mInterventionId, position).execute();
     }
 
     public void setLoading(boolean loading){
@@ -72,61 +83,6 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
         mDemoSlider.setVisibility(loading ? View.GONE : View.VISIBLE);
         mDemoSliderIndicator.setVisibility(loading ? View.GONE : View.VISIBLE);
         mImagesEmptyView.setVisibility(View.GONE);
-    }
-
-
-    /**
-     * charge le slider avec les images eet réinitialise à la première image si resetTop est vrai
-     * @param images les image
-     */
-    public void loadImages(List<Image> images){
-        Log.i(TAG, "loading images");
-        clearCache();
-        mDemoSlider.removeAllSliders();
-        if(images == null || images.size() == 0){
-            mDemoSlider.setVisibility(View.GONE);
-            mDemoSliderIndicator.setVisibility(View.GONE);
-            mImagesEmptyView.setVisibility(View.VISIBLE);
-            return;
-        } else{
-            mDemoSlider.setVisibility(View.VISIBLE);
-            mDemoSliderIndicator.setVisibility(View.VISIBLE);
-            mImagesEmptyView.setVisibility(View.GONE);
-        }
-        //map nom de l'image -> image
-        HashMap<String,File> file_maps = new HashMap<>();
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss");
-        for(Image image : images){
-            File imageAsFile = getTempFile(getActivity().getApplicationContext(), image);
-            if(imageAsFile != null){
-                file_maps.put(dtf.print(image.getTimestamp()), imageAsFile);
-            } else {
-                Log.e(TAG, "erreur à la création du fichier temporaire pour les images");
-            }
-        }
-
-
-        for(Map.Entry<String, File> entry : file_maps.entrySet()){
-            TextSliderView textSliderView = new TextSliderView(getActivity());
-
-            // initialize a SliderLayout
-            textSliderView
-                    .description(entry.getKey())
-                    .image(entry.getValue())
-                    .setScaleType(BaseSliderView.ScaleType.FitCenterCrop)
-                    .setOnSliderClickListener(this);
-
-            //add your extra information
-            textSliderView.bundle(new Bundle());
-            textSliderView.getBundle()
-                    .putString("extra",entry.getKey());
-
-            mDemoSlider.addSlider(textSliderView);
-        }
-        mDemoSlider.setPresetTransformer(SliderLayout.Transformer.Stack);
-        mDemoSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
-        mDemoSlider.stopAutoCycle();
-        setLoading(false);
     }
 
     @Override
@@ -138,9 +94,7 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
     }
 
     @Override
-    public void onSliderClick(BaseSliderView slider) {
-        Toast.makeText(this.getActivity(), slider.getBundle().get("extra") + "", Toast.LENGTH_SHORT).show();
-    }
+    public void onSliderClick(BaseSliderView slider) {}
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
@@ -155,7 +109,62 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
 
     @Override
     public void updateWithImages(List<Image> images) {
-        loadImages(images);
+        Log.i(TAG, "updating with images");
+        clearCache();
+
+        Log.i(TAG, (images == null ? 0 : images.size()) + " images to load");
+
+        if(images == null || images.size() == 0){
+            mProgressView.setVisibility(View.GONE);
+            mDemoSlider.setVisibility(View.GONE);
+            mDemoSliderIndicator.setVisibility(View.GONE);
+            mImagesEmptyView.setVisibility(View.VISIBLE);
+            return;
+        } else{
+            mDemoSlider.setVisibility(View.VISIBLE);
+            mDemoSliderIndicator.setVisibility(View.VISIBLE);
+            mImagesEmptyView.setVisibility(View.GONE);
+        }
+
+        Collections.sort(images, new Comparator<Image>() {
+            @Override
+            public int compare(Image image, Image t1) {
+                return ((Long) image.getTimestamp()).compareTo(t1.getTimestamp());
+            }
+        });
+        List<Pair<String, File>> fileList = new ArrayList<>();
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss");
+        for(Image image : images){
+            Log.d(TAG, "creating temporary image file");
+            File imageAsFile = getTempFile(getActivity().getApplicationContext(), image);
+            if(imageAsFile != null){
+                fileList.add(new Pair<>(dtf.print(image.getTimestamp()), imageAsFile));
+            } else {
+                Log.e(TAG, "erreur à la création du fichier temporaire pour les images");
+            }
+        }
+        mDemoSlider.removeAllSliders();
+
+        for(Pair<String, File> pair : fileList){
+            Log.d(TAG, "adding a slider for " + pair.first);
+            TextSliderView textSliderView = new TextSliderView(getActivity());
+            // initialize a SliderLayout
+            textSliderView
+                    .description(pair.first)
+                    .image(pair.second)
+                    .setScaleType(BaseSliderView.ScaleType.FitCenterCrop);
+            mDemoSlider.addSlider(textSliderView);
+        }
+        mDemoSlider.setPresetTransformer(SliderLayout.Transformer.Stack);
+        mDemoSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
+        mDemoSlider.stopAutoCycle();
+        mDemoSlider.setCurrentPosition(mDemoSlider.getChildCount());
+        setLoading(false);
+    }
+
+    @Override
+    public Context getContext() {
+        return getActivity().getApplicationContext();
     }
 
     public File getTempFile(Context context, Image image) {
@@ -180,8 +189,12 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
         File[] files = cacheDir.listFiles();
 
         if (files != null) {
-            for (File file : files)
-                file.delete();
+            for (File file : files) {
+                if(StringUtils.startsWithIgnoreCase(file.getName(), "sliderimg")){
+                    Log.i(TAG, "deleting " + file.getName());
+                    file.delete();
+                }
+            }
         }
     }
 

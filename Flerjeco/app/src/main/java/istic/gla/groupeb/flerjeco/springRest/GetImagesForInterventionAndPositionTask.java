@@ -2,15 +2,19 @@ package istic.gla.groupeb.flerjeco.springRest;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
 import istic.gla.groupb.nivimoju.entity.Image;
+import istic.gla.groupeb.flerjeco.FlerjecoApplication;
+import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.droneVisualisation.ImageRefresher;
 
 /**
@@ -38,7 +42,7 @@ public class GetImagesForInterventionAndPositionTask extends AsyncTask<Object, V
     @Override
     protected ResponseEntity<Image[]> doInBackground(Object... params) {
         try {
-            Log.v(TAG, "Get the position of the drone for the intervention with id : " + interventionId);
+            Log.v(TAG, "Get the images intervention with id : " + interventionId + " and position : " + position);
             start = new Date();
             return service.getAllImageForInterventionAndPosition(interventionId, position);
         } catch (Exception e) {
@@ -53,13 +57,16 @@ public class GetImagesForInterventionAndPositionTask extends AsyncTask<Object, V
         if (response != null) {
             switch(response.getStatusCode()){
                 case OK:
+                    Log.d(TAG, "got response with image and will update resfresher with it");
                     refresher.updateWithImages(Arrays.asList(response.getBody()));
-                    break;
+                    return;
                 default:
                     Log.w(TAG, "failed to refresh images : " + response.getStatusCode());
             }
         } else{
             Log.e(TAG, "got null response");
         }
+        Toast.makeText(refresher.getContext(), R.string.fail_get_images, Toast.LENGTH_SHORT).show();
+        refresher.updateWithImages(new ArrayList<Image>());
     }
 }

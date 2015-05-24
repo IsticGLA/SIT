@@ -277,7 +277,11 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        activity.loadImageSlider(marker.getPosition());
+        if(dronesMarkers.containsKey(marker.getTitle())){
+            activity.loadDroneStream(marker.getTitle());
+        } else{
+            activity.loadImageSlider(marker.getPosition());
+        }
         return false;
     }
 }

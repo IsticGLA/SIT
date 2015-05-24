@@ -26,10 +26,6 @@ public final class LatLngUtils {
         double lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
         double lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
 
-        //print out in degrees
-        Log.i(TAG, lat1 + "  " + lon1 + "       " + lat2 + "   " + lon2);
-        Log.i(TAG, Math.toDegrees(lat3) + " " + Math.toDegrees(lon3));
-
         return new LatLng(Math.toDegrees(lat3), Math.toDegrees(lon3));
     }
 

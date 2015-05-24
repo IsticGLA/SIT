@@ -1,5 +1,7 @@
 package istic.gla.groupeb.flerjeco.agent.droneVisualisation;
 
+import android.content.Context;
+
 import java.util.List;
 
 import istic.gla.groupb.nivimoju.entity.Image;
@@ -9,4 +11,5 @@ import istic.gla.groupb.nivimoju.entity.Image;
  */
 public interface ImageRefresher {
     void updateWithImages(List<Image> images);
+    Context getContext();
 }
