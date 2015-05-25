@@ -332,6 +332,16 @@ public class SpringService {
     }
 
     /**
+     * Gets the last image taken by a drone
+     * @return an image
+     */
+    public ResponseEntity<Image> getLastImageForDrone(String droneLabel) {
+        final String url = URL + "image/video/" + droneLabel;
+        Log.v(TAG, "getLastImageForDrone on " + url);
+        return restTemplate.getForEntity(url, Image.class);
+    }
+
+    /**
      * Change the state of a resource in parameters (waiting, planned, validated...)
      * @param params The id of the intervention, the resource label and the new state
      * @return The updated intervention

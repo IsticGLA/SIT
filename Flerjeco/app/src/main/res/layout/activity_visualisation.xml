@@ -28,8 +28,18 @@ limitations under the License.
         android:layout_height="match_parent" />
 
     <LinearLayout
+    android:orientation="vertical"
+    android:id="@+id/image_slider_fragment_container"
+    android:layout_weight="2"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:visibility="gone"
+        >
+    </LinearLayout>
+
+    <LinearLayout
         android:orientation="vertical"
-        android:id="@+id/image_slider_fragment_container"
+        android:id="@+id/drone_video_fragment_container"
         android:layout_weight="2"
         android:layout_width="0dp"
         android:layout_height="match_parent"

@@ -15,37 +15,32 @@ import java.util.Date;
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.droneVisualisation.ImageRefresher;
+import istic.gla.groupeb.flerjeco.agent.droneVisualisation.VideoRefresher;
 
 /**
  * Represents an asynchronous call for getting drone position and showing them on the map
  */
-public class GetImagesForInterventionAndPositionTask extends AsyncTask<Object, Void, ResponseEntity<Image[]>> {
+public class GetLastImagesForDrone extends AsyncTask<Object, Void, ResponseEntity<Image>> {
 
-    private final String TAG = GetImagesForInterventionAndPositionTask.class.getSimpleName();
-    private final ImageRefresher refresher;
-    private final long interventionId;
-    private final long timestamp;
-    private final LatLng position;
-    private Date start;
+    private final String TAG = GetLastImagesForDrone.class.getSimpleName();
+    private final VideoRefresher refresher;
+    private final String droneLabel;
     private SpringService service = new SpringService();
 
     /**
      * constructor
      * @param refresher the refresher for callbacks
      */
-    public GetImagesForInterventionAndPositionTask(ImageRefresher refresher, Long interventionId, LatLng position, long timeStamp){
+    public GetLastImagesForDrone(VideoRefresher refresher, String droneLabel){
         this.refresher = refresher;
-        this.interventionId = interventionId;
-        this.position = position;
-        this.timestamp = timeStamp;
+        this.droneLabel = droneLabel;
     }
 
     @Override
-    protected ResponseEntity<Image[]> doInBackground(Object... params) {
+    protected ResponseEntity<Image> doInBackground(Object... params) {
         try {
-            Log.d(TAG, "Get the images intervention with id : " + interventionId + " and position : " + position + " timestamp:" + timestamp);
-            start = new Date();
-            return service.getAllImageForInterventionAndPosition(interventionId, position, timestamp);
+            Log.d(TAG, "Get the image for drone " + droneLabel);
+            return service.getLastImageForDrone(droneLabel);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -53,12 +48,12 @@ public class GetImagesForInterventionAndPositionTask extends AsyncTask<Object, V
     }
 
     @Override
-    protected void onPostExecute(ResponseEntity<Image[]> response) {
+    protected void onPostExecute(ResponseEntity<Image> response) {
         if (response != null) {
             switch(response.getStatusCode()){
                 case OK:
                     Log.d(TAG, "got response with image and will update resfresher with it");
-                    refresher.loadImages(Arrays.asList(response.getBody()));
+                    refresher.setLastImage(response.getBody());
                     return;
                 default:
                     Log.w(TAG, "failed to refresh images : " + response.getStatusCode());
@@ -66,6 +61,5 @@ public class GetImagesForInterventionAndPositionTask extends AsyncTask<Object, V
         } else{
             Log.e(TAG, "got null response");
         }
-        refresher.loadImages(new ArrayList<Image>());
     }
 }

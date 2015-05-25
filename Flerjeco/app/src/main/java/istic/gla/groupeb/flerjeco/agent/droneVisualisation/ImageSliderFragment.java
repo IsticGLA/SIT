@@ -232,12 +232,6 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
         }
     }
 
-
-    @Override
-    public Context getContext() {
-        return getActivity().getApplicationContext();
-    }
-
     /**
      * créé un fichier temporaire dans le cache et le reourne
      * @param context le contexte du cache

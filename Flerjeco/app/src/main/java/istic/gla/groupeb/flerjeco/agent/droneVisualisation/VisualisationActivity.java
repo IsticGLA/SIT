@@ -32,6 +32,7 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
 
     private VisualisationMapFragment mapFragment;
     private ImageSliderFragment imageSliderFragment;
+    private VideoFragment droneVideoFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +145,7 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
         if(imageSliderFragment != null){
             fragmentTransaction.remove(imageSliderFragment);
         }
+        removeDroneVideo();
         imageSliderFragment = new ImageSliderFragment();
         Bundle bundle = new Bundle();
         bundle.putLong("interventionId", intervention.getId());
@@ -161,7 +163,53 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
      * @param droneLabel le label du drone
      */
     public void loadDroneStream(String droneLabel){
-        //TODO
+        Log.i(TAG, "loading drone video");
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        if(droneVideoFragment != null){
+            fragmentTransaction.remove(droneVideoFragment);
+        }
+        removeImageSlider();
+        droneVideoFragment = new VideoFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("droneLabel", droneLabel);
+        droneVideoFragment.setArguments(bundle);
+        fragmentTransaction.add(R.id.drone_video_fragment_container, droneVideoFragment);
+        fragmentTransaction.commit();
+        LinearLayout droneVideoContainer = (LinearLayout) findViewById(R.id.drone_video_fragment_container);
+        droneVideoContainer.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * retire le fragment d'historique d'image
+     */
+    private void removeImageSlider(){
+        //on retire le fragment
+        if(imageSliderFragment != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.remove(imageSliderFragment);
+            fragmentTransaction.commit();
+            LinearLayout imageSliderContainer = (LinearLayout) findViewById(R.id.image_slider_fragment_container);
+            imageSliderContainer.setVisibility(View.GONE);
+            imageSliderFragment = null;
+        }
+    }
+
+    /**
+     * retire le fragment de video de drone
+     */
+    private void removeDroneVideo(){
+        //on retire le fragment
+        if(droneVideoFragment != null) {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.remove(droneVideoFragment);
+            fragmentTransaction.commit();
+            LinearLayout droneVideoContainer = (LinearLayout) findViewById(R.id.drone_video_fragment_container);
+            droneVideoContainer.setVisibility(View.GONE);
+            droneVideoFragment = null;
+        }
     }
 
     /**
@@ -172,15 +220,13 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && imageSliderFragment != null) {
-            //on retire le fragment
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.remove(imageSliderFragment);
-            fragmentTransaction.commit();
-            LinearLayout imageSliderContainer = (LinearLayout) findViewById(R.id.image_slider_fragment_container);
-            imageSliderContainer.setVisibility(View.GONE);
-            imageSliderFragment = null;
+        if (keyCode == KeyEvent.KEYCODE_BACK && (imageSliderFragment != null || droneVideoFragment != null)) {
+            if(imageSliderFragment != null){
+                removeImageSlider();
+            }
+            if(droneVideoFragment != null){
+                removeDroneVideo();
+            }
             return true;
         }
         return super.onKeyDown(keyCode, event);
