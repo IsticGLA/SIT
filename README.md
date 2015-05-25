@@ -77,21 +77,59 @@ puis ajouter les deux lignes suivantes dans le ~/.bashrc:
 et recharger:
 
     source ~/.bashrc
-
-Lancer le système
-------------------
-
-initialiser roscore sur la vm
-
-    roscore
     
-lancer flask sur la vm
+noeuds ROS et configuration
+=======================
 
-    python /dir/toward/project/simulation/simulation.py
-    ou
-    /dir/toward/project/restart_simulation_ws.sh
-    
-lancer morse sur le PC:
+Il y a 3 noeud pour ROS :
 
-    /dir/toward/project/startsimulation.sh
-    
+roscore
+-------
+roscore, qui tourne sur le serveur.
+Pour le lancer :
+
+    nohup /etc/init.d/roscore start &
+
+ce noeud doit être lancé en premier
+
+flask
+-----
+le second noeud est /node_server et il correspond au webservice flask qui lira les position et enverra les ordres à la simulation. Il est présent sur le serveur
+Pour le lancer :
+
+    ./restart_simulation_ws.sh
+
+les logs de flask sont visibles dans /sit/log/simulation_ws.log
+Pour changer la configuration du serveur pour le client qui va appeller le webservice de flask, changer le fichier simulation-client/resources/config.properties
+
+morse
+-----
+le troisième noeud est celui de morse (la simulation). Il est lancé en local sur le PC.
+Pour le lancer
+
+    ./startsimulation.sh
+
+Troubleshooting
+===============
+référence pour comprendre les noeuds ROS : https://vimeo.com/67806888
+http://roscon.ros.org/2013/wp-content/uploads/2013/06/Networking-for-ROS-Users.pdf
+
+Commandes utiles
+----------------
+
+### rqt_graph
+
+Si quelque chose ne marche pas, la première commande utile est
+
+    rqt_graph
+
+elle montre un graphe avec les noeuds et subsriber associés. Si un noeud est en rouge c'est qu'il y a une erreur de configuration dans les ROS_IP. Les commandes suivante permettent de determiner pourquoi. Le graphe habituel devrait ressembler à ça :
+ 
+![graphe ros](https://media.taiga.io/attachments/e/6/8/f/d86a4112ad0f9969f9d3c68d0f7142025e79d6fd740e3d71863fa545a28b/captured.png "Graphe habituel")
+
+### rosnode info
+
+    rosnode info morse
+    rosnode info node_server
+
+Permet de détecter les erreurs de configuration dans les IP
