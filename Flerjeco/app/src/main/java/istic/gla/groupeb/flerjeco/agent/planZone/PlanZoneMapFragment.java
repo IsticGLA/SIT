@@ -343,7 +343,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         PlanZoneActivity p = ((PlanZoneActivity) getActivity());
         pathList = newIntervention.getWatchPath();
         if (p.isEditionMode()){
-            if (mCurrentPosition != -1) {
+            if (mCurrentPosition != -1 && pathList.size() > 0) {
                 Path oldPath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), oldIntervention.getWatchPath());
                 Path updatePath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), newIntervention.getWatchPath());
                 // remove a path
