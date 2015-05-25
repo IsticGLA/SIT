@@ -153,8 +153,8 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                 if (i > 0){
                     LatLng previousLatLng = new LatLng(positions.get(i-1).getLatitude(), positions.get(i-1).getLongitude());
                     drawLine(latLng, previousLatLng);
-                // else if it the path is closed, draw line between first and last point
-                } else if (i == positions.size()-1 && p.isClosed() && positions.size() > 2){
+                }
+                if (i == positions.size()-1 && p.isClosed() && positions.size() > 2){
                     LatLng firstLatLng = new LatLng(positions.get(0).getLatitude(), positions.get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
                 }
