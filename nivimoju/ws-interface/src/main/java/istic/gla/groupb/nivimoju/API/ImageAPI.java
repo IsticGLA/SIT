@@ -97,7 +97,7 @@ public class ImageAPI {
         ImageDAO imageDAO = new ImageDAO();
         imageDAO.connect();
         double[] position = {latitude, longitude};
-        List<Image> result = imageDAO.getLastSpatialImages(inter, position, timestamp + 1, 10);
+        List<Image> result = imageDAO.getLastSpatialImages(inter, position, timestamp + 1L, 10);
         logger.info(String.format("got %d images for inter %d", result == null? 0 : result.size(), inter));
         imageDAO.disconnect();
         return Response.ok(result).build();

@@ -30,6 +30,7 @@ public class ImageDAO extends AbstractDAO<Image> {
     }
 
     public Image addImage(Image img) {
+        logger.debug("creating image in db for position " + img.getPosition()[0] + ";" + img.getPosition()[1] + " and timestamp " +img.getTimestamp());
         cleanImageByPosition(img);
         return create(img);
     }

@@ -167,6 +167,8 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
      * @param images les images à montrer
      */
     public void initializeWithImages(List<Image> images) {
+        if(getActivity() == null)
+            return;
         Log.i(TAG, "initializing with images");
         clearCache();
         Log.i(TAG, (images == null ? 0 : images.size()) + " images to load");

@@ -114,6 +114,15 @@ public class ImageDAOTest {
     }
 
     @Test
+    public void testGetLastSpatialImage(){
+        double[] position = {48.115156566626545, -1.6375452652573586};
+        List<Image> res = imageDAO.getLastSpatialImages(1149L, position, 0L, 10);
+        for (Image i : res){
+            logger.info("image " + i.getPosition()[0] + "   " + i.getPosition()[1] + " timestamp " + i.getTimestamp());
+        }
+    }
+
+    @Test
     public void addImage(){
         Image i = imageDAO.addImage(image);
         Assert.assertNotNull(i);
