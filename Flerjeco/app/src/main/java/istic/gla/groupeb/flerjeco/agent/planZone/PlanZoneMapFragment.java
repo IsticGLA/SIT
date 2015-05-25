@@ -63,7 +63,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     private GoogleMap googleMap;
     private List<Pair<Polyline, Marker>> polylines;
     private List<Marker> markers;
-    private Map<String, Marker> dronesMarkers;
 
     // list of all the path of the intervention
     private List<Path> pathList;
@@ -75,13 +74,13 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     private Path savePath;
     // current intervention
     private Intervention inter;
-    // list all drone of the intevervention
 
     // indicate if we want to remove a path in the intervention
     public boolean removePath = false;
     // indicate if we want to edit a path in the intervention
     public boolean editPath = false;
 
+    private Map<String, Marker> dronesMarkers;
     private boolean refreshDrones = false;
 
 
@@ -115,6 +114,8 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 .newCameraPosition(cameraPosition));
 
         initMap(activity.getIntervention().getWatchPath());
+
+        this.dronesMarkers = new HashMap<>();
         return v;
     }
 
@@ -239,7 +240,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         ((PlanZoneActivity)getActivity()).showProgress(true);
         // remove Click listener
         resetMapListener();
-        inter = ((PlanZoneActivity)getActivity()).getIntervention();
+
         // if we are in edition mode, we set the new path in the intervention we get back from the main activity
         if (editPath){
             //inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
@@ -321,28 +322,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 }
             }
         });
-    }
-
-    /**
-     * callback for when the path create/delete/update fail
-     */
-    public void revertOperation(EPathOperation operation){
-        Log.i(TAG, "reverting after failure for operation " + operation);
-        switch(operation){
-            case CREATE:
-                pathList.remove(pathList.size()-1);
-                clearGoogleMap();
-                break;
-            case UPDATE:
-                pathList.set(mCurrentPosition, savePath);
-                updateMapView(mCurrentPosition);
-                break;
-            case DELETE:
-                pathList.add(mCurrentPosition, savePath);
-                updateMapView(mCurrentPosition);
-                break;
-        }
-        ((PlanZoneActivity)getActivity()).showProgress(false);
     }
 
     /**
@@ -513,11 +492,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
             for(Drone drone : tab){
                 labels.add(drone.getLabel());
                 if(dronesMarkers.containsKey(drone.getLabel())){
-                    //animate existing marker
-                    /**animateMarker(dronesMarkers.get(drone.getLabel()),
-                            new LatLng(drone.getLatitude(), drone.getLongitude()),
-                            false, duration
-                    );*/
                     dronesMarkers.get(drone.getLabel()).setPosition(new LatLng(drone.getLatitude(), drone.getLongitude()));
                 } else{
                     //create a new marker
@@ -542,6 +516,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     @Override
     public void onResume() {
         super.onResume();
+        inter = ((PlanZoneActivity)getActivity()).getIntervention();
         mMapView.onResume();
 
         long id = ((PlanZoneActivity)getActivity()).getIntervention().getId();
@@ -573,43 +548,9 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     public void refreshDrones() {
         if(inter != null && refreshDrones) {
             new GetPositionDroneTask(this, inter.getId()).execute();
+        }else{
+            Log.e(TAG, "inter : " + inter + "refreshDrones : " + refreshDrones);
         }
-    }
-
-    public void animateMarker(final Marker marker, final LatLng toPosition,
-                              final boolean hideMarker, final long duration) {
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        Projection proj = googleMap.getProjection();
-        Point startPoint = proj.toScreenLocation(marker.getPosition());
-        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-
-        final Interpolator interpolator = new LinearInterpolator();
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed
-                        / duration);
-                double lng = t * toPosition.longitude + (1 - t)
-                        * startLatLng.longitude;
-                double lat = t * toPosition.latitude + (1 - t)
-                        * startLatLng.latitude;
-                marker.setPosition(new LatLng(lat, lng));
-
-                if (t < 1.0) {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16);
-                } else {
-                    if (hideMarker) {
-                        marker.setVisible(false);
-                    } else {
-                        marker.setVisible(true);
-                    }
-                }
-            }
-        });
     }
 }
 

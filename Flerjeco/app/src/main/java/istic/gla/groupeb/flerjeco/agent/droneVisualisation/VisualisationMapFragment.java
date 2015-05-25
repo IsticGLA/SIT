@@ -58,7 +58,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     private GoogleMap googleMap;
     private List<Pair<Polyline, Marker>> polylines;
     private List<Marker> markers;
-    private Map<String, Marker> dronesMarkers;
+
     private VisualisationActivity activity;
     private LatLngBounds mBounds;
 
@@ -68,6 +68,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     private Intervention inter;
     // list all drone of the intevervention
 
+    private Map<String, Marker> dronesMarkers;
     private boolean refreshDrones = false;
 
 
@@ -274,6 +275,8 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     public void refreshDrones() {
         if(inter != null && refreshDrones) {
             new GetPositionDroneTask(this, inter.getId()).execute();
+        } else{
+            Log.e(TAG, "inter : " + inter + "refreshDrones : " + refreshDrones);
         }
     }
 
