@@ -1,6 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
 import istic.gla.groupb.nivimoju.builder.ImageBuilder;
+import istic.gla.groupb.nivimoju.container.ImageContainer;
 import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
 import istic.gla.groupb.nivimoju.dao.ImageDAO;
 import istic.gla.groupb.nivimoju.drone.FlaskImage;
@@ -98,8 +99,37 @@ public class ImageAPI {
         imageDAO.connect();
         double[] position = {latitude, longitude};
         List<Image> result = imageDAO.getLastSpatialImages(inter, position, timestamp + 1L, 10);
-        logger.info(String.format("got %d images for inter %d", result == null? 0 : result.size(), inter));
+        logger.info(String.format("got %d images for inter %d", result == null ? 0 : result.size(), inter));
         imageDAO.disconnect();
         return Response.ok(result).build();
+    }
+
+    /**
+     * Creation of an Image entity in the container for video
+     * @param flaskImage Image from flask to convert as an entity
+     * @return OK
+     */
+    @POST
+    @Path("/video")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createImageForVideo(FlaskImage flaskImage) {
+        Image image = new ImageBuilder().buildImage(flaskImage);
+        ImageContainer.getInstance().setLastImageOfDrone(flaskImage.getDroneLabel(), image);
+        return Response.ok("image recorded").build();
+    }
+
+    /**
+     * get the last image of a drone
+     * @param droneLabel label of drone
+     * @return OK
+     */
+    @GET
+    @Path("/video/{droneLabel}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getImageForVideo(@PathParam("droneLabel") String droneLabel) {
+        return Response
+                .ok(ImageContainer.getInstance().getLastImageOfDrone(droneLabel))
+                .build();
     }
 }
