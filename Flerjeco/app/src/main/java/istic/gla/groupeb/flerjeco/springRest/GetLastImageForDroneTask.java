@@ -2,27 +2,18 @@ package istic.gla.groupeb.flerjeco.springRest;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-
 import istic.gla.groupb.nivimoju.entity.Image;
-import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.droneVisualisation.ImageRefresher;
 import istic.gla.groupeb.flerjeco.agent.droneVisualisation.VideoRefresher;
 
 /**
  * Represents an asynchronous call for getting drone position and showing them on the map
  */
-public class GetLastImagesForDrone extends AsyncTask<Object, Void, ResponseEntity<Image>> {
+public class GetLastImageForDroneTask extends AsyncTask<Object, Void, ResponseEntity<Image>> {
 
-    private final String TAG = GetLastImagesForDrone.class.getSimpleName();
+    private final String TAG = GetLastImageForDroneTask.class.getSimpleName();
     private final VideoRefresher refresher;
     private final String droneLabel;
     private SpringService service = new SpringService();
@@ -31,7 +22,7 @@ public class GetLastImagesForDrone extends AsyncTask<Object, Void, ResponseEntit
      * constructor
      * @param refresher the refresher for callbacks
      */
-    public GetLastImagesForDrone(VideoRefresher refresher, String droneLabel){
+    public GetLastImageForDroneTask(VideoRefresher refresher, String droneLabel){
         this.refresher = refresher;
         this.droneLabel = droneLabel;
     }

@@ -1,43 +1,25 @@
 package istic.gla.groupeb.flerjeco.agent.droneVisualisation;
 
-import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.daimajia.slider.library.SliderLayout;
-import com.daimajia.slider.library.SliderTypes.BaseSliderView;
-import com.daimajia.slider.library.SliderTypes.TextSliderView;
-import com.daimajia.slider.library.Tricks.ViewPagerEx;
-import com.google.android.gms.maps.model.LatLng;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.springframework.util.StringUtils;
 import org.springframework.util.support.Base64;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.springRest.GetImagesForInterventionAndPositionTask;
-import istic.gla.groupeb.flerjeco.springRest.GetLastImagesForDrone;
+import istic.gla.groupeb.flerjeco.springRest.GetLastImageForDroneTask;
 
 
 public class VideoFragment extends Fragment implements VideoRefresher{
@@ -72,7 +54,7 @@ public class VideoFragment extends Fragment implements VideoRefresher{
             public void run() {
                 handler.post(new Runnable() {
                     public void run() {
-                        new GetLastImagesForDrone(refresher, mDroneLabel).execute();
+                        new GetLastImageForDroneTask(refresher, mDroneLabel).execute();
                     }
                 });
             }
