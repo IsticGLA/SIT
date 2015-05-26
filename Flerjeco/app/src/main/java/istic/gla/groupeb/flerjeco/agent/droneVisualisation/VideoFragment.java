@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -26,6 +27,7 @@ public class VideoFragment extends Fragment implements VideoRefresher{
 
     private final String TAG = VideoFragment.class.getSimpleName();
     private ImageView mDroneVideoImageView;
+    private TextView mDroneVideoTitleView;
     private String mDroneLabel;
     private DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss");
     Timer timer;
@@ -36,9 +38,12 @@ public class VideoFragment extends Fragment implements VideoRefresher{
         super.onCreate(savedInstanceState);
         View v = inflater.inflate(R.layout.fragment_drone_video, container,
                 false);
+        mDroneVideoTitleView = (TextView) v.findViewById(R.id.drone_video_title);
         mDroneVideoImageView = (ImageView) v.findViewById(R.id.drone_video_image);
         Bundle bundle = getArguments();
         mDroneLabel = bundle.getString("droneLabel");
+        mDroneVideoTitleView.setText(
+                String.format(getString(R.string.drone_video_title), mDroneLabel));
         return v;
     }
 
