@@ -80,6 +80,7 @@ public class InterventionContainerTest {
         Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
 
         interventionContainer = container.addVehicle(interventionContainer.getId(), "vehicle_test");
+        interventionContainer = container.addVehicle(interventionContainer.getId(), "vehicle_test2");
         Resource vehicle = interventionContainer.getResources().get(0);
 
         Assert.assertEquals("vehicle_test" + vehicle.getIdRes(), vehicle.getLabel());
@@ -94,6 +95,13 @@ public class InterventionContainerTest {
         resource.setResourceCategory(ResourceCategory.dragabledata);
         resource.setLabel("res_test");
         interventionContainer = container.addResource(interventionContainer.getId(), resource);
+
+        Resource resource2 = new Resource();
+        resource2.setResourceCategory(ResourceCategory.dragabledata);
+        resource2.setLabel("res_test1");
+        interventionContainer = container.addResource(interventionContainer.getId(), resource2);
+
+        resource = interventionContainer.getResources().get(0);
 
         Assert.assertEquals("res_test", resource.getLabel());
         Assert.assertEquals(ResourceCategory.dragabledata, resource.getResourceCategory());
@@ -116,6 +124,15 @@ public class InterventionContainerTest {
         Assert.assertEquals("res_test", resource.getLabel());
         Assert.assertEquals(ResourceCategory.dragabledata, resource.getResourceCategory());
         Assert.assertEquals(State.planned, resource.getState());
+
+        Resource resource2 = new Resource();
+        resource2.setResourceCategory(ResourceCategory.dragabledata);
+        resource2.setLabel("res_test2");
+        resource2.setState(State.planned);
+        resource2.setStateDate(State.planned);
+        interventionContainer = container.placeResource(interventionContainer.getId() ,resource2);
+
+        Assert.assertEquals("res_test2", interventionContainer.getResources().get(1).getLabel());
     }
 
     @Test
@@ -124,6 +141,10 @@ public class InterventionContainerTest {
         Path path = new Path();
         path.addPosition(new Position(48.0, -1.6));
         interventionContainer = container.addWatchPath(interventionContainer.getId(), path);
+
+        Path path2 = new Path();
+        path2.addPosition(new Position(48.0, -1.6));
+        interventionContainer = container.addWatchPath(interventionContainer.getId(), path2);
 
         Position position = interventionContainer.getWatchPath().get(0).getPositions().get(0);
 
@@ -144,6 +165,11 @@ public class InterventionContainerTest {
         interventionContainer = container.updateWatchPath(interventionContainer.getId(), path);
 
         Assert.assertEquals(2, interventionContainer.getWatchPath().get(0).getPositions().size());
+
+        Path path2 = new Path();
+        Intervention intervention = container.updateWatchPath(interventionContainer.getId(), path2);
+
+        Assert.assertEquals(interventionContainer, intervention);
     }
 
     @Test
@@ -158,6 +184,11 @@ public class InterventionContainerTest {
         interventionContainer = container.deleteWatchPath(interventionContainer.getId(), path);
 
         Assert.assertEquals(0, interventionContainer.getWatchPath().size());
+
+        Path path2 = new Path();
+        Intervention intervention = container.deleteWatchPath(interventionContainer.getId(), path2);
+
+        Assert.assertEquals(interventionContainer, intervention);
     }
 
     @Test
@@ -177,6 +208,7 @@ public class InterventionContainerTest {
         Intervention interventionContainer = container.createIntervention(new Intervention("inter_test2", 2, 48.0, -1.6), true);
 
         Assert.assertNotEquals(null, container.getLastUpdate(interventionContainer.getId()));
+        Assert.assertEquals(null, container.getLastUpdate(10));
     }
 
     @Test
