@@ -28,7 +28,7 @@ class Drone:
     def __init__(self, label, dest_tolerance_squared):
         self.label = label
         self.dest = None
-        self.position = None
+        self.position = dict([('x', 0), ('y', 0), ('z', 0)])
         self.dest_tolerance_squared = dest_tolerance_squared
         self.path = []  # liste de dict<x,y,z>
         self.forward = True
@@ -100,9 +100,8 @@ class Drone:
             self.postImage(data, True)
         except:
             app.logger.error(traceback.format_exc())
-        time.sleep(1)
         if self.auto_reactivate == True:
-            self.activate_video()
+            threading.Timer(1, self.activate_video).start()
 
     def postImage(self, image, isForVideo):
         try:
@@ -123,7 +122,7 @@ class Drone:
             jsondataasbytes = jsondata.encode('utf-8')   # needs to be bytes
             req.add_header('Content-Length', len(jsondataasbytes))
             response = urllib2.urlopen(req, jsondataasbytes) 
-            app.logger.debug("image posted on " + myurl + " with response : " + str(response.info))
+            app.logger.debug("image posted on " + myurl)
         except HTTPError as e:
             app.logger.error('The server couldn\'t fulfill the request. ')
             app.logger.error('Error code: ' + str(e.code))
