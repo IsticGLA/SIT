@@ -7,7 +7,7 @@ import java.util.Map;
  */
 public class Configuration {
     public static String BUCKET_NAME = "sit_bucket";
-    public static String BUCKET_NAME_TEST = "test";
+    public static String BUCKET_NAME_TEST = "sit_test";
     public static String COUCHBASE_HOSTNAME = "37.59.58.42";
 
     /**

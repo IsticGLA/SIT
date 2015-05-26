@@ -24,12 +24,18 @@ public class InterventionContainer {
 
     /**
      * Initialise the InterventionContainer with data from DB
+     * @param connectTest : true if you want to connect to the test DB
      */
-    private InterventionContainer(){
+    private InterventionContainer(boolean connectTest){
         mapInterventionById = new HashMap<>();
         logger.info("updating interventions from database");
         InterventionDAO interventionDAO = new InterventionDAO();
-        interventionDAO.connect();
+        if(connectTest) {
+            interventionDAO.connectTest();
+        } else {
+            interventionDAO.connect();
+        }
+
         List<Intervention> interventions = interventionDAO.getAll();
         interventionDAO.disconnect();
         if(interventions != null && interventions.size() > 0) {
@@ -254,7 +260,14 @@ public class InterventionContainer {
 
     public static synchronized InterventionContainer getInstance(){
         if(instance == null){
-            instance = new InterventionContainer();
+            instance = new InterventionContainer(false);
+        }
+        return instance;
+    }
+
+    public static synchronized InterventionContainer getInstance(boolean connectTest){
+        if(instance == null){
+            instance = new InterventionContainer(connectTest);
         }
         return instance;
     }
