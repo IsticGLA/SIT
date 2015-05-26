@@ -20,7 +20,7 @@ import urllib2
 from urllib2 import Request, urlopen, URLError, HTTPError
 from cv_bridge import CvBridge, CvBridgeError
 import base64
-import time
+import time, threading
 
 app = Flask(__name__)
 
@@ -72,13 +72,11 @@ class Drone:
         self.camera_sub_image = rospy.Subscriber(self.label+"/camera/image", Image, self.picture_callback, queue_size=1)
 
     def activate_video(self):
-        app.logger.info("activating video")
         if self.camera_sub_video is not None:
             self.camera_sub_video.unregister()
         self.camera_sub_video = rospy.Subscriber(self.label+"/camera/image", Image, self.video_callback, queue_size=1)
 
     def desactivate_video(self):
-        app.logger.info("desactivating video")
         if self.camera_sub_video is not None:
             self.camera_sub_video.unregister()
         self.camera_sub_video = None
@@ -116,7 +114,6 @@ class Drone:
             else:
                 myurl = "http://37.59.58.42:8080/nivimoju/rest/image/create"
                 position = self.picture_position
-            app.logger.info("posting image " + str(type(image)) + " on " + myurl)
             body = {'base64Image':image,
                         'position': position,
                         'droneLabel': self.label}
@@ -126,7 +123,7 @@ class Drone:
             jsondataasbytes = jsondata.encode('utf-8')   # needs to be bytes
             req.add_header('Content-Length', len(jsondataasbytes))
             response = urllib2.urlopen(req, jsondataasbytes) 
-            app.logger.info("got response : " + str(response.info))
+            app.logger.debug("image posted on " + myurl + " with response : " + str(response.info))
         except HTTPError as e:
             app.logger.error('The server couldn\'t fulfill the request. ')
             app.logger.error('Error code: ' + str(e.code))
@@ -261,7 +258,7 @@ def set_path_for_drone(drone_label):
             app.logger.warn("cannot use this path")
         else:
             closed = request.json['closed']
-            activate_pictures = request.json['takePictures']
+            takePictures = request.json['takePictures']
             controller.set_path(drone_label, path, closed, takePictures)
     except:
         app.logger.error(traceback.format_exc())
@@ -306,7 +303,7 @@ def hello():
     return "hello", 200
 
 if __name__ == '__main__':
-    handler = RotatingFileHandler('/sit/log/flask.log', maxBytes=1000000, backupCount=1)
+    handler = RotatingFileHandler('/sit/log/flask.log', maxBytes=10000000, backupCount=1)
     #handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
