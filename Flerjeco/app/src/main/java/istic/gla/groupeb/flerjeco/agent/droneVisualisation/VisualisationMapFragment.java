@@ -137,14 +137,6 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
             return;
         }
 
-        for (Image image : images) {
-            byte[] decodedString = Base64.decode(image.getBase64Image(), Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            double lat = ((VisualisationActivity) getActivity()).getIntervention().getLatitude();
-            double lon = ((VisualisationActivity) getActivity()).getIntervention().getLongitude();
-            drawImageMarker(lat, lon, decodedByte, "test");
-        }
-
         // get the intervention from the main activity
         inter = activity.getIntervention();
         pathList = inter.getWatchPath();
@@ -165,13 +157,25 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                 //add position to put an image
                 timestampedPositions.add(new TimestampedPosition(new Position(latitude, longitude), new Timestamp(0).getTime()));
 
-                // create marker
-                MarkerOptions marker = new MarkerOptions().position(latLng);
-                // Changing marker icon
-                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
-                Marker m = googleMap.addMarker(marker);
-                // add the marker on the markers list
-                markers.add(m);
+                Marker _marker = null;
+                for (Image image : images) {
+                    if(image.getPosition()[0] == latitude && image.getPosition()[1] == longitude) {
+                        byte[] decodedString = Base64.decode(image.getBase64Image(), Base64.DEFAULT);
+                        Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                        _marker = drawImageMarker(image.getPosition()[0], image.getPosition()[1], decodedByte, "" + image.getTimestamp());
+                        markers.add(_marker);
+                        break;
+                    }
+                }
+                if(_marker == null) {
+                    // create marker
+                    MarkerOptions marker = new MarkerOptions().position(latLng);
+                    // Changing marker icon
+                    marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                    Marker m = googleMap.addMarker(marker);
+                    // add the marker on the markers list
+                    markers.add(m);
+                }
 
                 // draw line between two points if is not the first
                 if (i > 0) {
@@ -193,7 +197,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         new GetLastImageTask(this).execute(inter.getId(), timestampedPositions);
     }
 
-    public void drawImageMarker(double latitude, double longitude, Bitmap image, String text) {
+    public Marker drawImageMarker(double latitude, double longitude, Bitmap image, String text) {
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
         Bitmap bmp = Bitmap.createBitmap(72, 83, conf);
         Canvas canvas = new Canvas(bmp);
@@ -206,13 +210,11 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         canvas.drawBitmap(Bitmap.createScaledBitmap(image, 72, 72, true), 0, 0, color);
         canvas.drawBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.marker), 72, 83, true), 0, 0, color);
 
-        googleMap.addMarker(new MarkerOptions()
+        return googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(latitude, longitude))
                 .icon(BitmapDescriptorFactory.fromBitmap(bmp))
                 .anchor(0.5f, 1)
-                .title(text)).showInfoWindow();
-        CameraPosition cameraPosition = new CameraPosition.Builder().target(new LatLng(latitude, longitude)).zoom(3.0f).build();
-        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                .title(text));
     }
 
     /**
