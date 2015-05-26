@@ -57,10 +57,10 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         DAOManager.connectTest();
     }
 
-    /**
+/*    *//**
      * return the Newer LastUpdate from a type in the database
      * @return
-     */
+     *//*
     public Timestamp getNewerLastUpdate() {
         try {
             createViewLastUpdate();
@@ -82,11 +82,11 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         return null;
     }
 
-    /**
+    *//**
      * return the LastUpdate from the database
      * @param id
      * @return
-     */
+     *//*
     public Timestamp getLastUpdate(long id) {
         try {
             return this.getById(id).getLastUpdate();
@@ -107,7 +107,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             connect();
         }
         return false;
-    }
+    }*/
 
     /**
      * Create an entity
@@ -213,6 +213,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             } else if (value instanceof Integer) {
                 Integer v = (Integer) value;
                 query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
+            } else if (value instanceof Double) {
+                Double v = (Double) value;
+                query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
             } else {
                 String v = (String) value;
                 query = ViewQuery.from("designDoc", "by_" + key + "_" + type).key(v).stale(Stale.FALSE);
@@ -237,7 +240,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         return res;
     }
 
-    protected List<T> viewSpatialRowsToEntities(List<SpatialViewRow> list){
+/*    protected List<T> viewSpatialRowsToEntities(List<SpatialViewRow> list){
         List<T> res = new ArrayList<>();
         // Iterate through the returned ViewRows
         for (SpatialViewRow row : list) {
@@ -247,7 +250,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             //return null;
         }
         return res;
-    }
+    }*/
 
     /**
      * Transform a jsonDocument to entity
