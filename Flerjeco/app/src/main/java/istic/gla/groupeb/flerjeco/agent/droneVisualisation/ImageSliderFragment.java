@@ -50,6 +50,7 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
     private View mProgressView;
     private View mDemoSliderIndicator;
     private TextView mImagesEmptyView;
+    private TextView mImagesTitleView;
     private Long mInterventionId;
     private LatLng mPosition;
     private long mostRecentTimestamp;
@@ -66,9 +67,11 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
         mDemoSliderIndicator = v.findViewById(R.id.image_slider_indicator);
         mProgressView = v.findViewById(R.id.loading_bar);
         mImagesEmptyView = (TextView) v.findViewById(R.id.text_slider_empty);
+        mImagesTitleView = (TextView) v.findViewById(R.id.drone_image_slider_title);
         Bundle bundle = getArguments();
         mInterventionId = bundle.getLong("interventionId");
         mPosition = new LatLng(bundle.getDouble("latitude"), bundle.getDouble("longitude"));
+        mImagesTitleView.setText(getString(R.string.drone_image_slider_title));
         mostRecentTimestamp = 0L;
         return v;
     }
