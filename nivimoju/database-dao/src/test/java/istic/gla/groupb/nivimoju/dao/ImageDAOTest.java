@@ -110,13 +110,13 @@ public class ImageDAOTest {
 
         img.setId(1146l);
         img.setTimestamp(timestampTEST);
-        res = imageDAO.getLastSpatialImages(img.getIdIntervention(), img.getPosition(), img.getTimestamp(), 20);
+        res = imageDAO.getLastSpatialImages(img.getIdIntervention(), img.getPosition(), img.getTimestamp(), 20, true);
     }
 
     @Test
     public void testGetLastSpatialImage(){
         double[] position = {48.115156566626545, -1.6375452652573586};
-        List<Image> res = imageDAO.getLastSpatialImages(1149L, position, 0L, 10);
+        List<Image> res = imageDAO.getLastSpatialImages(1149L, position, 0L, 10, true);
         for (Image i : res){
             logger.info("image " + i.getPosition()[0] + "   " + i.getPosition()[1] + " timestamp " + i.getTimestamp());
         }

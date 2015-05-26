@@ -39,8 +39,8 @@ public class ImageDAO extends AbstractDAO<Image> {
         createSpatialLastView();
         JsonArray positionValue = JsonArray.from(img.getPosition()[0], img.getPosition()[1]);
 
-        JsonArray startKeys = JsonArray.from(img.getIdIntervention(), positionValue);
-        JsonArray endKeys = JsonArray.from(img.getIdIntervention(), positionValue, "");
+        JsonArray startKeys = JsonArray.from(img.getIdIntervention(), "" + img.getPosition()[0], "" + img.getPosition()[1]);
+        JsonArray endKeys = JsonArray.from(img.getIdIntervention(), "" + img.getPosition()[0], "" + img.getPosition()[1], "");
 
         List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "single_last_Image").startKey(endKeys).endKey(startKeys).inclusiveEnd(true).descending(true).skip(9)).allRows();
 
@@ -51,7 +51,7 @@ public class ImageDAO extends AbstractDAO<Image> {
     }
 
 
-    protected final List<Image> getAllLastSpatialImages(Long idIntervention, Long timestamp, int nbImage, List<TimestampedPosition> positionList){
+    public final List<Image> getAllLastSpatialImages(Long idIntervention, Long timestamp, int nbImage, List<TimestampedPosition> positionList){
         createSpatialAllLastView();
         JsonArray startKeys = JsonArray.from(idIntervention, timestamp);
         JsonArray endKeys = JsonArray.from(idIntervention, "");
@@ -90,16 +90,16 @@ public class ImageDAO extends AbstractDAO<Image> {
      * @param idIntervention
      * @param timestamp
      * @param nbImage
+     * @param inclusive
      * @return
      */
-    public final List<Image> getLastSpatialImages(Long idIntervention, double[] position, Long timestamp, int nbImage){
+    public final List<Image> getLastSpatialImages(Long idIntervention, double[] position, Long timestamp, int nbImage, boolean inclusive){
         createSpatialLastView();
-        JsonArray positionValue = JsonArray.from(position[0], position[1]);
 
-        JsonArray startKeys = JsonArray.from(idIntervention, positionValue, timestamp);
-        JsonArray endKeys = JsonArray.from(idIntervention, positionValue, "");
+        JsonArray startKeys = JsonArray.from(idIntervention, "" + position[0], "" + position[1], timestamp);
+        JsonArray endKeys = JsonArray.from(idIntervention, "" + position[0], "" + position[1], "");
 
-        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "single_last_Image").startKey(endKeys).endKey(startKeys).inclusiveEnd(true).descending(true).limit(nbImage)).allRows();
+        List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "single_last_Image").startKey(endKeys).endKey(startKeys).inclusiveEnd(inclusive).descending(true).limit(nbImage)).allRows();
 
         return viewRowsToEntities(result);
     }
@@ -136,7 +136,7 @@ public class ImageDAO extends AbstractDAO<Image> {
             String mapFunction =
                     "function (doc, meta) {\n" +
                             "  if (doc.position && doc.type && doc.type == 'Image'){\n" +
-                            "    emit([doc.idIntervention, doc.position, doc.timestamp], doc);\n" +
+                            "       emit([doc.idIntervention, \"\" + doc.position[0], \"\" + doc.position[1], doc.timestamp], doc);\n" +
                             "  }\n" +
                             "}";
             designDoc.views().add(DefaultView.create(viewName, mapFunction));

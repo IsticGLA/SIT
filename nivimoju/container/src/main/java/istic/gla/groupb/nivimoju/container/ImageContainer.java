@@ -26,7 +26,7 @@ public class ImageContainer {
     }
 
     /**
-     * retourne la dernière image prise par le drone
+     * retourne la derniere image prise par le drone
      * @param droneLabel le label du drone
      * @return l'image ou null s'il n'y en a pas
      */
@@ -35,7 +35,7 @@ public class ImageContainer {
     }
 
     /**
-     * set la dernière image prise par le drone
+     * set la derniere image prise par le drone
      * @param droneLabel le label du drone
      * @return l'image ou null s'il n'y en a pas
      */
