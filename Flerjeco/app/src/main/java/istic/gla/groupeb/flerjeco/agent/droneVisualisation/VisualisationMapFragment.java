@@ -2,10 +2,13 @@ package istic.gla.groupeb.flerjeco.agent.droneVisualisation;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -28,6 +31,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,20 +39,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
 import istic.gla.groupb.nivimoju.entity.Drone;
+import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
+import istic.gla.groupeb.flerjeco.springRest.GetLastImageTask;
 import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
+import istic.gla.groupeb.flerjeco.springRest.IImageActivity;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 import istic.gla.groupeb.flerjeco.utils.LatLngUtils;
 
 /**
  * Fragment de carte pour les drones
  */
-public class VisualisationMapFragment extends Fragment implements DronesMapFragment, GoogleMap.OnMarkerClickListener {
+public class VisualisationMapFragment extends Fragment implements DronesMapFragment, IImageActivity, GoogleMap.OnMarkerClickListener {
 
     private static final String TAG = VisualisationMapFragment.class.getSimpleName();
     final static String ARG_POSITION = "position";
@@ -66,11 +74,14 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     private List<Path> pathList;
     // current intervention
     private Intervention inter;
-    // list all drone of the intevervention
+    // list all drone of the intervention
 
     private Map<String, Marker> dronesMarkers;
     private boolean refreshDrones = false;
 
+    //List of last images to draw
+    private List<Image> images = new ArrayList<>();
+    private List<TimestampedPosition> timestampedPositions = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -94,6 +105,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         googleMap = mMapView.getMap();
 
         activity = (VisualisationActivity) getActivity();
+        inter = activity.getIntervention();
 
         this.pathList = activity.getIntervention().getWatchPath();
         this.polylines = new ArrayList<>();
@@ -121,8 +133,16 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         clearGoogleMap();
         googleMap.setOnMarkerClickListener(this);
 
-        if(getActivity() == null) {
+        if (getActivity() == null) {
             return;
+        }
+
+        for (Image image : images) {
+            byte[] decodedString = Base64.decode(image.getBase64Image(), Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            double lat = ((VisualisationActivity) getActivity()).getIntervention().getLatitude();
+            double lon = ((VisualisationActivity) getActivity()).getIntervention().getLongitude();
+            drawImageMarker(lat, lon, decodedByte, "test");
         }
 
         // get the intervention from the main activity
@@ -132,15 +152,18 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         // Create LatLngBound to zoom on the set of positions in the path
         LatLngBounds.Builder bounds = new LatLngBounds.Builder();
 
-        for (Path p : pathList){
+        for (Path p : pathList) {
             // get all the positions of the path to draw it
             List<Position> positions = p.getPositions();
 
-            for (int i = 0; i < positions.size(); i++){
+            for (int i = 0; i < positions.size(); i++) {
                 double latitude = positions.get(i).getLatitude();
                 double longitude = positions.get(i).getLongitude();
                 LatLng latLng = new LatLng(latitude, longitude);
                 bounds.include(latLng);
+
+                //add position to put an image
+                timestampedPositions.add(new TimestampedPosition(new Position(latitude, longitude), new Timestamp(0).getTime()));
 
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(latLng);
@@ -151,20 +174,45 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                 markers.add(m);
 
                 // draw line between two points if is not the first
-                if (i > 0){
-                    LatLng previousLatLng = new LatLng(positions.get(i-1).getLatitude(), positions.get(i-1).getLongitude());
+                if (i > 0) {
+                    LatLng previousLatLng = new LatLng(positions.get(i - 1).getLatitude(), positions.get(i - 1).getLongitude());
                     drawLine(latLng, previousLatLng);
                 }
-                if (i == positions.size()-1 && p.isClosed() && positions.size() > 2){
+                if (i == positions.size() - 1 && p.isClosed() && positions.size() > 2) {
                     LatLng firstLatLng = new LatLng(positions.get(0).getLatitude(), positions.get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
                 }
             }
         }
-        if(markers.size() <= 0) {
+        if (markers.size() <= 0) {
             bounds.include(new LatLng(inter.getLatitude(), inter.getLongitude()));
         }
         this.mBounds = bounds.build();
+
+        //Update images
+        new GetLastImageTask(this).execute(inter.getId(), timestampedPositions);
+    }
+
+    public void drawImageMarker(double latitude, double longitude, Bitmap image, String text) {
+        Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+        Bitmap bmp = Bitmap.createBitmap(72, 83, conf);
+        Canvas canvas = new Canvas(bmp);
+
+        Paint color = new Paint();
+        color.setTextSize(20);
+        color.setColor(Color.WHITE);
+
+
+        canvas.drawBitmap(Bitmap.createScaledBitmap(image, 72, 72, true), 0, 0, color);
+        canvas.drawBitmap(Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.marker), 72, 83, true), 0, 0, color);
+
+        googleMap.addMarker(new MarkerOptions()
+                .position(new LatLng(latitude, longitude))
+                .icon(BitmapDescriptorFactory.fromBitmap(bmp))
+                .anchor(0.5f, 1)
+                .title(text)).showInfoWindow();
+        CameraPosition cameraPosition = new CameraPosition.Builder().target(new LatLng(latitude, longitude)).zoom(3.0f).build();
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
     }
 
     /**
@@ -206,12 +254,9 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         polylines.add(new Pair<Polyline, Marker>(line, mArrowhead));
     }
 
-
-
-
-
     // private variable for reducing object creations
     private Set<String> labels = new HashSet<>();
+
     /**
      * Show the marker for the drone of the intervention
      */
@@ -289,6 +334,27 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
             activity.loadImageSlider(marker.getPosition());
         }
         return false;
+    }
+
+    @Override
+    public void updateImages(Image[] images) {
+        for(Image image : images) {
+            for(TimestampedPosition timestampedPosition : timestampedPositions) {
+                if(timestampedPosition.getPosition().equals(image.getPosition())) {
+                    this.timestampedPositions.remove(timestampedPosition);
+                    this.timestampedPositions.add(new TimestampedPosition(new Position(image.getPosition()[0], image.getPosition()[1]), image.getTimestamp()));
+                    break;
+                }
+            }
+            for(Image _image : this.images) {
+                if(_image.getPosition().equals(image.getPosition())) {
+                    this.images.remove(_image);
+                    this.images.add(image);
+                    break;
+                }
+            }
+            this.images.add(image);
+        }
     }
 }
 

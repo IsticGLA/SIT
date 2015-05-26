@@ -2,10 +2,13 @@ package istic.gla.groupeb.flerjeco.springRest;
 
 import android.util.Log;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -16,7 +19,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
 import java.util.Locale;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
+import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.IncidentCode;
@@ -348,7 +356,7 @@ public class SpringService {
      */
     public Intervention changeResourceState(Object[] params) {
         final String url = URL + "intervention/" + params[0] + "/resources/" + params[1] + "/" + params[2];
-        Log.i(TAG, "changeResourceState URL : "+url);
+        Log.i(TAG, "changeResourceState URL : " + url);
         Intervention intervention = null;
 
         try {
@@ -388,5 +396,28 @@ public class SpringService {
         }
 
         return datas;
+    }
+
+    public Image[] getLastImages(Long interventionId, List<TimestampedPosition> timestampedPositions) {
+        Log.v(TAG, "getLastImages start");
+        final String url = URL + "image/last/"+ interventionId;
+        Image[] images = null;
+
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<List<TimestampedPosition>> timestamp = new HttpEntity<>(timestampedPositions, headers);
+            ResponseEntity<Image[]> entity = restTemplate.exchange(url, HttpMethod.GET, timestamp, Image[].class);
+            images = entity.getBody();
+            Log.v(TAG, "getLastImages: " + entity.getStatusCode());
+        } catch (HttpServerErrorException e) {
+            Log.v(TAG, "getLastImages: " + e.getMessage());
+        } catch (ResourceAccessException e) {
+            Log.v(TAG, "getLastImages: " + e.getLocalizedMessage());
+        } catch (Throwable e) {
+            Log.e(TAG, e.getMessage());
+        }
+
+        return images;
     }
 }

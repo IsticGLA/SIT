@@ -107,9 +107,11 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
 
     @Override
     public void updateIntervention(Intervention intervention) {
-        this.intervention = intervention;
-        if (mapFragment!= null) {
-            mapFragment.updateMapView();
+        if(intervention != null) {
+            this.intervention = intervention;
+            if (mapFragment != null) {
+                mapFragment.updateMapView();
+            }
         }
     }
 
@@ -135,7 +137,7 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
 
 
     /**
-     * charge la gallerie d'image pour cette position
+     * charge la galerie d'image pour cette position
      * @param position la position a charger
      */
     public void loadImageSlider(LatLng position){
