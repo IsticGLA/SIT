@@ -162,7 +162,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                     if(image.getPosition()[0] == latitude && image.getPosition()[1] == longitude) {
                         byte[] decodedString = Base64.decode(image.getBase64Image(), Base64.DEFAULT);
                         Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                        _marker = drawImageMarker(image.getPosition()[0], image.getPosition()[1], decodedByte, "" + image.getTimestamp());
+                        _marker = drawImageMarker(image.getPosition()[0], image.getPosition()[1], decodedByte);
                         markers.add(_marker);
                         break;
                     }
@@ -171,7 +171,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                     // create marker
                     MarkerOptions marker = new MarkerOptions().position(latLng);
                     // Changing marker icon
-                    marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+                    marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
                     Marker m = googleMap.addMarker(marker);
                     // add the marker on the markers list
                     markers.add(m);
@@ -197,7 +197,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         new GetLastImageTask(this).execute(inter.getId(), timestampedPositions);
     }
 
-    public Marker drawImageMarker(double latitude, double longitude, Bitmap image, String text) {
+    public Marker drawImageMarker(double latitude, double longitude, Bitmap image) {
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
         Bitmap bmp = Bitmap.createBitmap(72, 83, conf);
         Canvas canvas = new Canvas(bmp);
@@ -213,8 +213,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         return googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(latitude, longitude))
                 .icon(BitmapDescriptorFactory.fromBitmap(bmp))
-                .anchor(0.5f, 1)
-                .title(text));
+                .anchor(0.5f, 1));
     }
 
     /**
