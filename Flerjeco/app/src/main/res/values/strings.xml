@@ -126,15 +126,18 @@
     <string name="intervention">Intervention</string>
     <string name="resources">Resources</string>
     <string name="manage_activateResource">Vehicle position</string>
-    <string name="manage_changeResourceRole"></string>
+    <string name="manage_changeResourceRole">Change the resource</string>
     <string name="libelle_moyen_marqueur">Markers</string>
     <string name="title_activity_visualisation">Visualisation</string>
     <string name="drone_update_path_error_not_available">"No drone available, cannot create a route"</string>
     <string name="drone_update_path_success">"All modifications have been saved"</string>
-    <string name="drone_video_title">Vidéo pour %s</string>
-    <string name="drone_image_slider_title">Historique des images</string>
     <string name="interventions">Interventions</string>
     <string name="remove_resource">Remove Resource</string>
-    <string name="image_slider_empty">Aucune image</string>
-    <string name="fail_get_images">Une erreur est survenue lors de la récupération des images</string>
+    <string name="manage_freeResource">Free the resource</string>
+    <string name="image_slider_empty">No Images</string>
+    <string name="fail_get_images">Error while getting images</string>
+    <string name="drone_video_title">Video for %s</string>
+    <string name="drone_image_slider_title">Image history</string>
+    <string name="codis_intervention_title" translatable="false">Intervention %1$s - %2$s - %3$s</string>
+    <string name="codis_intervention_title_without_address" translatable="false">Intervention %1$s - %2$s</string>
 </resources>

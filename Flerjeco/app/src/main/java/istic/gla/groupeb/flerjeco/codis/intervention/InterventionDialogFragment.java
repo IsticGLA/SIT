@@ -23,6 +23,8 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 
+import org.springframework.util.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -252,6 +254,9 @@ public class InterventionDialogFragment extends DialogFragment
         intervention = new istic.gla.groupb.nivimoju.entity.Intervention(nameInterventionEditText.getText().toString(),
                 spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),
                 address.getLatitude(), address.getLongitude());
+        if(addressEditText.getText().toString() != null && !addressEditText.getText().toString().equals("")){
+            intervention.setAddress(addressEditText.getText().toString());
+        }
         Log.i(TAG, "updateResourceTypeLabels size : "+ resourceTypes.length);
         List<Resource> resources = convertResourcesTypeToResources(resourceTypes);
 
