@@ -19,24 +19,16 @@ public class DroneEngine{
     public static final LatLongConverter converter =
             new LatLongConverter(48.1222, -1.6428, 48.1119, -1.6337, 720, 1200);
     private static DroneEngine instance;
+    private static final double DRONE_SCAN_WIDTH = 5;
 
     //client vers la simulation
     private DroneClient client;
     private final DroneContainer container;
 
-    //map des paths en coordonnées blender
-    private Map<Long, Collection<LocalPath>> localPathsByIntervention;
-    private Map<Long, Collection<Drone>> dronesByIntervention;
-    private Map<String, Drone> droneByLabel;
-    private Map<String, LocalPath> affectationByDroneLabel;
 
     private DroneEngine(){
         client = new DroneClient();
         container = DroneContainer.getInstance();
-        localPathsByIntervention = new HashMap<>();
-        affectationByDroneLabel = new HashMap<>();
-        dronesByIntervention = new HashMap<>();
-        droneByLabel = new HashMap<>();
     }
 
     /**
@@ -81,22 +73,23 @@ public class DroneEngine{
 
     /**
      * transforme l'ensemble des chemins et zones d'une intervention en une liste de chemins locaux
-     * @param intervention
-     * @return
+     * @param intervention l'intervention
+     * @return la liste complete des chemins pour les drones
      */
     private List<LocalPath> computePaths(Intervention intervention){
         //TODO augmenter avec les calculs a partir de zones
-        return transformInLocal(intervention.getWatchPath());
+        List<LocalPath> paths = transformInLocal(intervention.getWatchPath());
         //temporaire pour test
-        /*List<List<Position>> areas = new ArrayList<>();
+        List<List<Position>> areas = new ArrayList<>();
         for(Path p : intervention.getWatchPath()){
             areas.add(p.getPositions());
         }
-        return getPathsForScans(areas, 1);*/
+        paths.addAll(getPathsForScans(areas, DRONE_SCAN_WIDTH));
+        return paths;
     }
 
     /**
-     * transforme un path en latlong vers un path local
+     * transforme un path en latlong vers unsendOrders path local
      * @param paths la liste des path a convertir
      * @return la liste après conversion
      */
@@ -108,6 +101,7 @@ public class DroneEngine{
         for(Path path : paths){
             logger.debug("converting path " + path.toString());
             LocalPath pathConverted = converter.getLocalPath(path);
+            pathConverted.setTakePictures(true);
             localPaths.add(pathConverted);
             logger.debug("conversion : " + pathConverted);
         }
@@ -185,6 +179,11 @@ public class DroneEngine{
         return getPathFromMap(map);
     }
 
+    /**
+     * get a path (list of point) from a map)
+     * @param map the map
+     * @return a path
+     */
     private LocalPath getPathFromMap(Node[][] map){
         StringBuilder builder = new StringBuilder();
         LocalPath path = new LocalPath();
@@ -226,17 +225,26 @@ public class DroneEngine{
 
     public static void main(String[] args) throws Exception{
         DroneEngine engine = new DroneEngine();
-        List<Drone> drones = new ArrayList<>();
-/*        Position piscine = new Position(48.115367,-1.63781);
+        Position piscine = new Position(48.115367,-1.63781);
         Position croisement = new Position(48.11498, -1.63795);
         Position croisement2 = new Position(48.114454, -1.639962);
         Path path = new Path();
+        path.addPosition(piscine);
         path.addPosition(croisement);
         path.addPosition(croisement2);
-        //engine.setPath(path);
-        //engine.updateDrone();
-        List<Path> paths = new ArrayList<>();
+        Intervention inter = new Intervention("name", 1, 0, 0);
+        ArrayList<Path> paths = new ArrayList<>();
         paths.add(path);
-        engine.setPathsForIntervention(1, paths);*/
+        inter.setWatchPath(paths);
+
+        List<Position> area = new ArrayList<>();
+        area.add(piscine);
+        area.add(croisement);
+        area.add(croisement2);
+        List<List<Position>> areas = new ArrayList<>();
+        areas.add(area);
+        inter.setWatchArea(areas);
+
+        engine.computeForIntervention(inter);
     }
 }

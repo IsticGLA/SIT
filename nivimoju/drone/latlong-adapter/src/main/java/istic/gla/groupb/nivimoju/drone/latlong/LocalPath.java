@@ -11,10 +11,12 @@ import java.util.List;
 public class LocalPath {
     List<LocalCoordinate> positions;
     boolean closed;
+    boolean takePictures;
 
     public LocalPath(){
         this.positions = new ArrayList<>();
         this.closed = false;
+        this.takePictures = false;
     }
 
     public List<LocalCoordinate> getPositions() {
@@ -31,6 +33,14 @@ public class LocalPath {
 
     public void setClosed(boolean closed) {
         this.closed = closed;
+    }
+
+    public boolean isTakePictures() {
+        return takePictures;
+    }
+
+    public void setTakePictures(boolean takePictures) {
+        this.takePictures = takePictures;
     }
 
     @Override

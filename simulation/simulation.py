@@ -54,7 +54,8 @@ class Drone:
             if distance_squared < self.dest_tolerance_squared:
                 app.logger.info("robot " + self.label + " arrived to destination")
                 if len(self.path) > 1:
-                    self.take_picture(self.dest)
+                    if self.pictureActivated:
+                        self.take_picture(self.dest)
                     app.logger.info("robot " + self.label + " will go to next waypoint")
                     self.next_waypoint_in_path()
                 else:
@@ -135,11 +136,12 @@ class Drone:
         except:
             app.logger.error(traceback.format_exc()) 
 
-    def set_path(self, path, closed):
+    def set_path(self, path, closed, pictureActivated):
         app.logger.info("the path has " + str(len(path)) + " waypoints")
         self.path = path
         self.forward = True
         self.closed = closed
+        self.pictureActivated = pictureActivated
         target_index = 0
         if self.dest is not None:
             app.logger.info("finding the new waypoint closest to old destination")
@@ -214,10 +216,10 @@ class Controller:
         for i in range(1, nb_drones + 1):
             self.drones.append(Drone("drone_" + str(i), 1))
 
-    def set_path(self, label_drone, path, closed):
+    def set_path(self, label_drone, path, closed, takePictures):
         for drone in self.drones:
             if drone.label == label_drone:
-                drone.set_path(path, closed)
+                drone.set_path(path, closed, takePictures)
 
     def stop(self, label_drone):
         for drone in self.drones:
@@ -259,7 +261,8 @@ def set_path_for_drone(drone_label):
             app.logger.warn("cannot use this path")
         else:
             closed = request.json['closed']
-            controller.set_path(drone_label, path, closed)
+            activate_pictures = request.json['takePictures']
+            controller.set_path(drone_label, path, closed, takePictures)
     except:
         app.logger.error(traceback.format_exc())
         abort(400)
