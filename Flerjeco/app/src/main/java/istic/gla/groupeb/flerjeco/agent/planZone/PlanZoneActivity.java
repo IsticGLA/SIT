@@ -313,6 +313,8 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
             Log.i(TAG, "progressDialog null");
             progressDialog = new ProgressDialog(PlanZoneActivity.this);
             progressDialog.setTitle("Chargement");
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
         }
         if(isProgress) {
             progressDialog.show();

@@ -17,6 +17,7 @@ package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Bundle;
@@ -43,7 +44,6 @@ import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
 public class AgentInterventionResourcesFragment extends Fragment implements ISynchTool {
-    OnResourceSelectedListener mCallback;
 
     private static final String TAG = AgentInterventionResourcesFragment.class.getSimpleName();
 
@@ -69,12 +69,6 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         notifyAdapters();
         // notify user
         eventRefusedRequest();
-    }
-
-    // The container Activity must implement this interface so the frag can deliver messages
-    public interface OnResourceSelectedListener {
-        /** Called by HeadlinesFragment when a list item is selected */
-        public void onResourceSelected(int position);
     }
 
     public void clearData(){
@@ -116,8 +110,12 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         listViewResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
-                mCallback.onResourceSelected(position);
-                ClipData data = ClipData.newPlainText("", "");
+                Intent intent = new Intent();
+                Bundle extras = new Bundle();
+                extras.putSerializable("resource",resourceList.get(position));
+                extras.putInt("position",position);
+                intent.putExtras(extras);
+                ClipData data = ClipData.newIntent("intent",intent);
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
                 view.startDrag(data, shadowBuilder, view, 0);
                 view.setVisibility(View.INVISIBLE);
@@ -127,8 +125,12 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         listViewAdditionalResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                mCallback.onResourceSelected(position);
-                ClipData data = ClipData.newPlainText("", "");
+                Intent intent = new Intent();
+                Bundle extras = new Bundle();
+                extras.putSerializable("resource",additionalResourceList.get(position));
+                extras.putInt("position",position);
+                intent.putExtras(extras);
+                ClipData data = ClipData.newIntent("intent",intent);
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
                 view.startDrag(data, shadowBuilder, view, 0);
                 return true;
@@ -221,7 +223,6 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
             listViewResources.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
             if(resourceList.size()>0){
-                mCallback.onResourceSelected(0);
                 listViewResources.setItemChecked(0,true);
             }
         }
@@ -230,15 +231,6 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception.
-        try {
-            mCallback = (OnResourceSelectedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnResourceSelectedListener");
-        }
     }
 
     /*
