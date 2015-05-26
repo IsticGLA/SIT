@@ -84,7 +84,7 @@ public class InterventionContainer {
         interventionDAO.disconnect();
         mapInterventionById.put(resultat.getId(), resultat);
 
-        return intervention;
+        return resultat;
     }
 
     /**
