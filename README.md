@@ -5,18 +5,10 @@ Système d'Information Tactique pour les pompier avec gestion de flotte de drone
 ROS
 -------------------
 
-Le noeud master ROS doit être installé sur une machine permettant une connection didirectionnelle noeud <-> PC hébergeant la simulation morse, et noeud <-> serveur hébergeant nivimoju
+Le noeud master ROS doit être installé sur une machine permettant une connection bidirectionnelle noeud <-> PC hébergeant la simulation morse, et noeud <-> serveur hébergeant nivimoju
 Dans notre cas, cette machine est une VM hébergée à l'ISTIC.
-
-configuration à ajouter dans le bashrc de la machine hébergeant ROS et Flask (Ubuntu 14.04):
-    export ROS_IP=XX.XX.XX.XX # ip de la machine
-    export ROS_MASTER_URI=http://localhost:11311
     
-configuration à ajouter dans le bashrc de la machine hébergeant la simulation morse:
-    export ROS_IP=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1 -d'/')
-    export ROS_MASTER_URI=http://ip.de.la.vm:11311
-    
-installation de ROS sur la VM :
+Installation de ROS sur la VM :
 --------------------------------
 
     sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -27,10 +19,12 @@ installation de ROS sur la VM :
     sudo rosdep init
     rosdep update
     echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
+    echo "export ROS_IP=XX.XX.XX.XX # ip de la machine" >> ~/.bashrc
+    echo "export ROS_MASTER_URI=http://ip.de.la.vm:11311" >> ~/.bashrc
     source ~/.bashrc
     sudo apt-get install python-rosinstall
 
-installation d'opencv et flask sur la VM (python qui commanderas le drone et enverra des images)
+Installation d'opencv et flask sur la VM (python qui commanderas le drone et enverra des images)
 --------------------------------------------------------------
 
     sudo apt-get install libopencv-dev build-essential checkinstall cmake pkg-config yasm libtiff4-dev libjpeg-dev libjasper-dev libavcodec-dev libavformat-dev libswscale-dev libdc1394-22-dev libxine-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev libv4l-dev python3-dev python3-numpy libtbb-dev libqt4-dev libgtk2.0-dev libfaac-dev libmp3lame-dev libopencore-amrnb-dev libopencore-amrwb-dev libtheora-dev libvorbis-dev libxvidcore-dev x264 v4l-utils python3.4-dev python python-pip
@@ -44,7 +38,7 @@ installation d'opencv et flask sur la VM (python qui commanderas le drone et env
     make
     sudo make install
 
-installation de MORSE sur le PC faisant tourner la simulation
+Installation de MORSE sur le PC faisant tourner la simulation
 -----------------------------------------------------------------
 
     sudo apt-get install -y cmake python3 python3-dev blender python3-yaml python3-setuptools build-essential
@@ -71,17 +65,17 @@ installation de MORSE sur le PC faisant tourner la simulation
     
 puis ajouter les deux lignes suivantes dans le ~/.bashrc:
 
-    export ROS_MASTER_URI=http://ns3002211.ip-37-59-58.eu:11311
+    export ROS_MASTER_URI=http://ip.de.la.vm.de.l.ISTIC:11311
     export ROS_IP=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1 -d'/')
 
 et recharger:
 
     source ~/.bashrc
     
-noeuds ROS et configuration
+Noeuds ROS et configuration
 =======================
 
-Il y a 3 noeud pour ROS :
+Il y a 3 noeuds pour ROS :
 
 roscore
 -------
@@ -133,3 +127,30 @@ elle montre un graphe avec les noeuds et subsriber associés. Si un noeud est en
     rosnode info node_server
 
 Permet de détecter les erreurs de configuration dans les IP
+
+Couchbase
+-------------------
+
+L'installation de Couchbase se fait dans notre cas sur un serveur distant. Il peut se faire sur la même machine ou tourne le noeud ROS master mais pour des raisons de performances (Couchbase nécessitant beaucoup de RAM > 8Go), nous avons décidé de faire l'installation de Couchbase sur une machine dédiée à cette base de donnée.
+
+Pour installer Couchbase, il faut passer par le .deb fournit sur le site de Couchbase :
+
+http://www.couchbase.com/nosql-databases/downloads
+
+Cliquer sur la version de votre choix, remplissez le formulaire et sauvegarder le .deb sur votre machine.
+
+Pour l'installer il faut taper la commande pour installer le .deb :
+    
+    sudo dpkg --instdir=/opt/couchbase -i couchbase-server-version.deb
+
+Une fois l'installation terminée, Couchbase démarre automatiquement. Il faut maintenant se rendre sur l'ip de votre machine distance où est installé Couchbase, pour faire la première configuration de la base de donnée.
+    
+    http://ip.de.votre.machine:8091
+
+Rentrez les informations demandées et lors de la création du bucket, mettez le nom sit_bucket et laissez les paramètres par défauts.
+Sur la page suivante, un login et un mot de passe vous sont demandés. Ces derniers vous serviront à vous connecté sur l'interface web de Couchbase.
+
+Il ne reste plus qu'a populer la base de donnée avec les données statiques, indispensable à l'application.
+Pour cela, taper cette suite de commande à partir du repertoire ou vous avez cloner le git :
+
+    /opt/couchbase/bin/cbrestore -u Administrator -p password /SIT/database/ couchbase://localhost:8091 --bucket-source=sit_bucket
