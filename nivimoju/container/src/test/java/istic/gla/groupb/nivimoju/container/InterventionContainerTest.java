@@ -1,5 +1,6 @@
 package istic.gla.groupb.nivimoju.container;
 
+import istic.gla.groupb.nivimoju.dao.InterventionDAO;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Position;
@@ -7,9 +8,12 @@ import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupb.nivimoju.util.ResourceCategory;
 import istic.gla.groupb.nivimoju.util.State;
 import org.apache.log4j.Logger;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collection;
 
 /**
  * Created by vivien on 26/05/15.
@@ -23,6 +27,20 @@ public class InterventionContainerTest {
         InterventionContainer.destroy();
         // Connect to the test database
         container = InterventionContainer.getInstanceTest();
+    }
+
+    @AfterClass
+    public static void cleanDatabase(){
+        InterventionDAO interDAO = new InterventionDAO();
+        interDAO.connectTest();
+
+        InterventionContainer container = InterventionContainer.getInstanceTest();
+
+        Collection<Intervention> interList = container.getInterventions();
+
+        for(Intervention inter : interList) {
+            interDAO.delete(inter);
+        }
     }
 
     @Test
@@ -114,19 +132,57 @@ public class InterventionContainerTest {
     }
 
     @Test
-    public void testUpdateWatchPath(){Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
+    public void testUpdateWatchPath(){
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
         Path path = new Path();
-        path.addPosition(new Position(48.0, -1.6));
-        interventionContainer = container.addWatchPath(interventionContainer.getId(), path);
+        Position position = new Position(48.0, -1.6);
+        path.addPosition(position);
 
-        Position position = interventionContainer.getWatchPath().get(0).getPositions().get(0);
-        interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
+        interventionContainer = container.addWatchPath(interventionContainer.getId(), path);
 
         path.addPosition(position);
         interventionContainer = container.updateWatchPath(interventionContainer.getId(), path);
 
-        interventionContainer.getWatchPath().get(0).getPositions().size();
+        Assert.assertEquals(2, interventionContainer.getWatchPath().get(0).getPositions().size());
     }
 
+    @Test
+    public void testDeleteWatchPath() {
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
+        Path path = new Path();
+        Position position = new Position(48.0, -1.6);
+        path.addPosition(position);
 
+        interventionContainer = container.addWatchPath(interventionContainer.getId(), path);
+
+        interventionContainer = container.deleteWatchPath(interventionContainer.getId(), path);
+
+        Assert.assertEquals(0, interventionContainer.getWatchPath().size());
+    }
+
+    @Test
+    public void testGetInterventionById() {
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test2", 2, 48.0, -1.6), true);
+        Intervention intervention = container.getInterventionById(interventionContainer.getId());
+
+        Assert.assertEquals(interventionContainer.getId(), intervention.getId());
+        Assert.assertEquals(interventionContainer.getName(), intervention.getName());
+        Assert.assertEquals(interventionContainer.getLatitude(), intervention.getLatitude(), 0);
+        Assert.assertEquals(interventionContainer.getLongitude(), intervention.getLongitude(), 0);
+        Assert.assertEquals(interventionContainer.getIncidentCode(), intervention.getIncidentCode());
+    }
+
+    @Test
+    public void testGetLastUpdate() {
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test2", 2, 48.0, -1.6), true);
+
+        Assert.assertNotEquals(null, container.getLastUpdate(interventionContainer.getId()));
+    }
+
+    @Test
+    public void testGetNewerLastUpdate() {
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test2", 2, 48.0, -1.6), true);
+
+        Assert.assertEquals(interventionContainer.getLastUpdate(), container.getNewerLastUpdate());
+    }
 }

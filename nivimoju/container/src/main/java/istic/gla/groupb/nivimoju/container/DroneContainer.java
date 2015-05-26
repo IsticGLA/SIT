@@ -15,8 +15,9 @@ import java.util.*;
  * This class handles all modifications of drones data and is the reference for every read operation
  */
 public class DroneContainer {
-    Logger logger = Logger.getLogger(DroneContainer.class);
+    private static Logger logger = Logger.getLogger(DroneContainer.class);
     private static DroneContainer instance;
+    private static DroneContainer testInstance;
 
     //the main container, used for read and write operations on drones
     private Map<String, Drone> mapDroneByLabel;
@@ -24,29 +25,55 @@ public class DroneContainer {
     private Map<Long, Collection<Drone>> mapDronesByIntervention;
 
     /**
-     * Initialise the DroneContainer with data from DB
+     * Initialise the DroneContainer
      */
     private DroneContainer(){
         mapDronesByIntervention = new HashMap<>();
         mapDroneByLabel = new HashMap<>();
-        logger.info("updating drones from database");
-        DroneDAO droneDAO = new DroneDAO();
-        droneDAO.connect();
-        List<Drone> drones = droneDAO.getAll();
-        droneDAO.disconnect();
-        if(drones != null && drones.size() > 0) {
-            logger.info("got " + drones.size() + " drones from database");
-            loadDrones(drones);
-        } else{
-            logger.error("failed to load drones");
-        }
     }
 
+    /**
+     * get standard instance, loaded with data grom DB
+     * @return instance of DroneContainer
+     */
     public static synchronized DroneContainer getInstance(){
         if(instance == null){
             instance = new DroneContainer();
+            logger.info("updating drones from database");
+            DroneDAO droneDAO = new DroneDAO();
+            droneDAO.connect();
+            List<Drone> drones = droneDAO.getAll();
+            droneDAO.disconnect();
+            if(drones != null && drones.size() > 0) {
+                logger.info("got " + drones.size() + " drones from database");
+                instance.loadDrones(drones);
+            } else{
+                logger.error("failed to load drones");
+            }
         }
         return instance;
+    }
+
+    /**
+     * get standard instance, loaded with data from test DB
+     * @return test instance of DroneContainer
+     */
+    public static synchronized DroneContainer getTestInstance(){
+        if(testInstance == null){
+            testInstance = new DroneContainer();
+            logger.info("updating drones from test database");
+            DroneDAO droneDAO = new DroneDAO();
+            droneDAO.connectTest();
+            List<Drone> drones = droneDAO.getAll();
+            droneDAO.disconnect();
+            if(drones != null && drones.size() > 0) {
+                logger.info("got " + drones.size() + " drones from test database");
+                testInstance.loadDrones(drones);
+            } else{
+                logger.error("failed to load drones");
+            }
+        }
+        return testInstance;
     }
 
     /**
@@ -57,7 +84,7 @@ public class DroneContainer {
         logger.info("loading drones internally");
         mapDroneByLabel.clear();
         for(Drone drone : drones) {
-            logger.info("loading drone[" + drone.getLabel() + "]");
+            logger.info("loading drone[" + drone.getLabel() + "] intervention:" + drone.getIdIntervention());
             //update des listes interne
             mapDroneByLabel.put(drone.getLabel(), drone);
         }
@@ -95,8 +122,8 @@ public class DroneContainer {
         return mapDronesByIntervention;
     }
 
-    protected static void destroy(){
-        instance = null;
+    protected static void destroyTestInstance(){
+        testInstance = null;
     }
 
     /**
