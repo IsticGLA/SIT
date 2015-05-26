@@ -62,10 +62,6 @@ public class InterventionContainer {
         logger.info("loaded " + mapInterventionById.size() + " interventions : " + mapInterventionById.keySet());
     }
 
-    protected Map<Long, Intervention> getMapInterventionById(){
-        return mapInterventionById;
-    }
-
     protected static void destroy(){
         instance = null;
     }
