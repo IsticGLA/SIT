@@ -107,9 +107,11 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
 
     @Override
     public void updateIntervention(Intervention intervention) {
-        this.intervention = intervention;
-        if (mapFragment!= null) {
-            mapFragment.updateMapView();
+        if(intervention != null) {
+            this.intervention = intervention;
+            if (mapFragment != null) {
+                mapFragment.updateMapView();
+            }
         }
     }
 

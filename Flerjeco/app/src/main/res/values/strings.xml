@@ -131,6 +131,8 @@
     <string name="title_activity_visualisation">Visualisation</string>
     <string name="drone_update_path_error_not_available">"No drone available, cannot create a route"</string>
     <string name="drone_update_path_success">"All modifications have been saved"</string>
+    <string name="drone_video_title">Vidéo pour %s</string>
+    <string name="drone_image_slider_title">Historique des images</string>
     <string name="interventions">Interventions</string>
     <string name="remove_resource">Remove Resource</string>
     <string name="image_slider_empty">Aucune image</string>
