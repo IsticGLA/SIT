@@ -3,6 +3,24 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical|center"
+        android:textAppearance="@style/Base.TextAppearance.AppCompat.Widget.ActionBar.Title"
+        android:textColor="@color/white"
+        android:background="@color/background_material_dark"
+        android:id="@+id/codis_intervention_title"
+        android:text="@string/codis_intervention_title" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/darker_gray"
+        android:id="@+id/libelle_waiting"
+        android:text="@string/libelle_moyen_attente" />
+
     <ListView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -10,10 +28,13 @@
         android:layout_gravity="center_horizontal"
         android:layout_weight="1" />
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="3dp"
-        android:background="@android:color/darker_gray"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:background="@android:color/darker_gray"
+        android:text="@string/libelle_moyen_valide"
+        android:layout_gravity="center_horizontal" />
 
     <ListView
         android:layout_width="match_parent"

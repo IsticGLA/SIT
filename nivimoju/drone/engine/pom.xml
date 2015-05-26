@@ -13,11 +13,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-            <version>2.2.1</version>
-        </dependency>
-        <dependency>
             <groupId>groupeb.gla.istic</groupId>
             <artifactId>drone-latlong-adapter</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -35,6 +30,11 @@
         <dependency>
             <groupId>groupeb.gla.istic</groupId>
             <artifactId>database-dao</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>groupeb.gla.istic</groupId>
+            <artifactId>container</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

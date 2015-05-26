@@ -23,20 +23,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Intervention;
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
-import util.State;
+import istic.gla.groupb.nivimoju.util.State;
 
 public class ResourcesFragment extends Fragment implements ISynchTool {
 
     private ListView listViewResources;
     private ListView listViewRequests;
+    private TextView titleTextView;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -54,9 +60,16 @@ public class ResourcesFragment extends Fragment implements ISynchTool {
 
         listViewResources = (ListView) v.findViewById(R.id.listViewAgentResources);
         listViewRequests = (ListView) v.findViewById(R.id.listViewAgentRequests);
+        titleTextView = (TextView) v.findViewById(R.id.codis_intervention_title);
 
         InterventionActivity interventionActivity = (InterventionActivity) getActivity();
-        updateResources(interventionActivity.getInterventions()[0]);
+        if(interventionActivity!=null) {
+            if (interventionActivity.getInterventions() != null) {
+                if (interventionActivity.getInterventions().length > 0) {
+                    updateResources(interventionActivity.getInterventions()[0]);
+                }
+            }
+        }
 
         return v;
     }
@@ -83,15 +96,32 @@ public class ResourcesFragment extends Fragment implements ISynchTool {
         ((InterventionActivity)getActivity()).updateIntervention(intervention);
         for (Resource resource : intervention.getResources()){
             State resourceState = resource.getState();
-            if (State.active.equals(resourceState) || State.planned.equals(resourceState) || State.validated.equals(resourceState)){
-                labelsResources.add(resource.getLabel());
-            } else if (State.waiting.equals(resourceState)) {
-                requests.add(resource);
+            if(resource.getResourceCategory().equals(ResourceCategory.vehicule)) {
+                if (State.active.equals(resourceState) || State.planned.equals(resourceState) || State.validated.equals(resourceState) || State.arrived.equals(resourceState)) {
+                    labelsResources.add(resource.getLabel());
+                } else if (State.waiting.equals(resourceState)) {
+                    requests.add(resource);
+                }
             }
         }
 
         listViewResources.setAdapter(new ArrayAdapter(getActivity(), layout, labelsResources));
         listViewRequests.setAdapter(new ResourceAdapter(getActivity(), layout, requests, intervention.getId(), this));
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss");
+        String creationDate = dtf.print(intervention.getCreationDate());
+        if(intervention.getAddress() != null){
+            titleTextView.setText(
+                    String.format(getString(R.string.codis_intervention_title),
+                            intervention.getName(),
+                            intervention.getAddress(),
+                            creationDate));
+        } else{
+            titleTextView.setText(
+                    String.format(getString(R.string.codis_intervention_title_without_address),
+                            intervention.getName(),
+                            creationDate));
+        }
+
     }
 
     @Override

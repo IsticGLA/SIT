@@ -20,31 +20,28 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import java.util.Arrays;
-import java.util.List;
 
-import entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.TabbedActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetAllInterventionsTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionsActivity;
-import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
-public class InterventionActivity extends FragmentActivity
+public class InterventionActivity extends TabbedActivity
         implements InterventionFragment.OnResourceSelectedListener, ISynchTool, IInterventionsActivity {
 
     private static final String TAG = InterventionActivity.class.getSimpleName();
     protected Intervention[] interventionTab;
+    protected Intervention interFromTable;
     private int position=0;
     private InterventionFragment firstFragment;
 
@@ -52,6 +49,9 @@ public class InterventionActivity extends FragmentActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //opening transition animations
+        overridePendingTransition(0, android.R.anim.fade_out);
 
         DisplaySynch displaySynch = new DisplaySynch() {
             @Override
@@ -65,11 +65,15 @@ public class InterventionActivity extends FragmentActivity
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             Object[] objects = (Object[]) extras.getSerializable("interventions");
-            interventionTab = new Intervention[objects.length];
-            for(int i=0;i<objects.length;i++) {
-                interventionTab[i] = (Intervention) objects[i];
+            if(objects != null) {
+                interventionTab = new Intervention[objects.length];
+                for (int i = 0; i < objects.length; i++) {
+                    interventionTab[i] = (Intervention) objects[i];
+                }
             }
+            interFromTable = (Intervention) extras.getSerializable("intervention");
         }
+
 
         setContentView(R.layout.activity_list_interventions_codis);
 
@@ -107,6 +111,7 @@ public class InterventionActivity extends FragmentActivity
 
             //save tsuper.onStop();he current position
             this.position = position;
+            intervention = interventionTab[position];
 
             // Call a method in the ArticleFragment to update its content
             resourcesFragment.updateResources(interventionTab[position]);
@@ -156,12 +161,18 @@ public class InterventionActivity extends FragmentActivity
     }
 
     public void updateInterventions() {
-        ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).updateList();
-        ((InterventionFragment) getSupportFragmentManager().getFragments().get(0)).listViewInterventions.setItemChecked(position,true);
+        InterventionFragment fragment = (InterventionFragment)getSupportFragmentManager().getFragments().get(0);
+        if(fragment != null) {
+            fragment.updateList();
+            fragment.listViewInterventions.setItemChecked(position, true);
+            this.intervention = interventionTab[position];
+        }
     }
 
     public void updateCurrentIntervention() {
-        ((ResourcesFragment) getSupportFragmentManager().getFragments().get(1)).updateResources(interventionTab[position]);
+        ResourcesFragment fragment = (ResourcesFragment) getSupportFragmentManager().getFragments().get(1);
+        if(null != fragment)
+            fragment.updateResources(interventionTab[position]);
     }
 
     public void showDialogIntervention(View view) {
@@ -227,14 +238,14 @@ public class InterventionActivity extends FragmentActivity
     @Override
     protected void onPause() {
         super.onPause();
+        //closing transition animations
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
         IntentWraper.stopService();
     }
 
     @Override
-        protected void onStop() {
+    protected void onStop() {
         super.onStop();
-        IntentWraper.stopService();
     }
-
 
 }

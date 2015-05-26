@@ -27,6 +27,8 @@
     <string name="app_name">Flerjeco</string>
     <string name="title_activity_second">Current Intervention</string>
     <string name="title_activity_list_interventions">List of Interventions</string>
+    <string name="activities_agent">Flerjeco - Agent</string>
+    <string name="activities_codis">Flerjeco - Codis</string>
 
     <string name="vehicle_fragment_text">Select the type of vehicle you need :</string>
     <string name="title_activity_display_intervention">DisplayIntervention</string>
@@ -40,7 +42,7 @@
     <string name="nameInterventionHint">Intervention name</string>
     <string name="createInterventionButton">Create Intervention</string>
     <string name="action_create_intervention">Create Intervention</string>
-    <string name="title_fragment_change_resource">change state of resource</string>
+    <string name="title_fragment_change_resource">Change state of resource</string>
     <string name="intervention_address">Intervention address</string>
     <string name="error_required_field">This field is required</string>
     <string name="create_by_address">Address</string>
@@ -52,13 +54,44 @@
         <item>AVP</item>
         <item>FHA</item>
     </string-array>
-    <string-array name="state">
-        <item>Humain</item>
-        <item>Risque</item>
-        <item>Commande</item>
-        <item>Feu</item>
-        <item>Eau</item>
+    <string-array name="stateVehicle">
+        <item>@string/human</item>
+        <item>@string/risk</item>
+        <item>@string/command</item>
+        <item>@string/fire</item>
+        <item>@string/water</item>
+        <item>@string/other</item>
     </string-array>
+    <string-array name="stateDraggable">
+        <item>@string/human</item>
+        <item>@string/risk</item>
+        <item>@string/fire</item>
+        <item>@string/water</item>
+        <item>@string/other</item>
+    </string-array>
+    <string-array name="resourceDateState">
+        <item>@string/resource</item>
+        <item>@string/asked</item>
+        <item>@string/triggered</item>
+        <item>@string/arrived</item>
+        <item>@string/engaged</item>
+        <item>@string/released</item>
+    </string-array>
+
+    <string name="resource">Resource</string>
+    <string name="asked">Asked at</string>
+    <string name="triggered">Triggered at</string>
+    <string name="arrived">Arrived at</string>
+    <string name="engaged">Engaged at</string>
+    <string name="released">Released at</string>
+
+    <string name="human">Human</string>
+    <string name="risk">Risk</string>
+    <string name="command">Command</string>
+    <string name="fire">Fire</string>
+    <string name="water">Water</string>
+    <string name="other">Other</string>
+
     <string name="buttonValidateResources">Validate the position of resources</string>
     <string name="create_path">Create path</string>
     <string name="finish_edition">Terminate</string>
@@ -69,7 +102,42 @@
     <string name="action_settings">Settings</string>
     <string name="buttonCancelResources">Remove positioned resources</string>
     <string name="changeResourceRole">Change the resource role</string>
-    <string name="activateResource">Activate the resource</string>
+    <string name="activateResource">Engage the resource</string>
     <string name="freeResource">Free the resource</string>
     <string name="title_dialog_change_resource">Manage the resource</string>
+    <string name="empty_list_interventions">There is no interventions, create one</string>
+    <string name="libelle_moyen_attente">Vehicle awaiting</string>
+    <string name="libelle_moyen_valide">Vehicle validated</string>
+
+    <string name="drone_update_path_error_generic">" The update of the intervention did not work, please try again"</string>
+    <string name="button_resource_arrived">Arrived</string>
+    <string name="button_resource_released">Released</string>
+    <string name="resource_arrived_dialog_title">Vehicle is arrived ?</string>
+    <string name="title_activity_tableau"> Managing resources</string>
+
+    <string name="hello_world">Hello world!</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="table">Table</string>
+    <string name="visualisation">Visualisation</string>
+    <string name="drones">Drones</string>
+    <string name="intervention">Intervention</string>
+    <string name="resources">Resources</string>
+    <string name="manage_activateResource">Vehicle position</string>
+    <string name="manage_changeResourceRole">Change the resource</string>
+    <string name="libelle_moyen_marqueur">Markers</string>
+    <string name="title_activity_visualisation">Visualisation</string>
+    <string name="drone_update_path_error_not_available">"No drone available, cannot create a route"</string>
+    <string name="drone_update_path_success">"All modifications have been saved"</string>
+    <string name="interventions">Interventions</string>
+    <string name="remove_resource">Remove Resource</string>
+    <string name="manage_freeResource">Free the resource</string>
+    <string name="image_slider_empty">No Images</string>
+    <string name="fail_get_images">Error while getting images</string>
+    <string name="drone_video_title">Video for %s</string>
+    <string name="drone_image_slider_title">Image history</string>
+    <string name="codis_intervention_title" translatable="false">Intervention %1$s - %2$s - %3$s</string>
+    <string name="codis_intervention_title_without_address" translatable="false">Intervention %1$s - %2$s</string>
 </resources>

@@ -30,8 +30,8 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Intervention;
-import entity.Path;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupeb.flerjeco.R;
 
 public class DroneListFragment extends Fragment {
@@ -128,6 +128,11 @@ public class DroneListFragment extends Fragment {
         adapter.addAll(labelsPath);
         adapter.notifyDataSetChanged();
         listViewPath.setItemChecked(labelsPath.size()-1, true);
+    }
+
+    public void checkListView(int position){
+        unCheckedListView();
+        listViewPath.setItemChecked(position, true);
     }
 
     /**

@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import entity.IncidentCode;
+import istic.gla.groupb.nivimoju.entity.IncidentCode;
 import istic.gla.groupeb.flerjeco.R;
 
 /**
@@ -14,6 +14,7 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
     private static final String TAG = GetAllIncidentCodeTask.class.getSimpleName();
     private int count = 0;
     private IIncidentCode activity;
+    private SpringService service = new SpringService();
 
     public GetAllIncidentCodeTask(IIncidentCode activity) {
         this.activity = activity;
@@ -27,7 +28,6 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
     @Override
     protected IncidentCode[] doInBackground(Void... params) {
         try {
-            SpringService service = new SpringService();
             return service.codeSinistreClient();
         } catch (Exception e){
             Log.e(TAG, "ERROR " + e);
@@ -38,7 +38,7 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
     @Override
     protected void onPostExecute(IncidentCode[] codes) {
         if(codes != null) {
-            activity.getIncidentCode(codes);
+            activity.updateIncidentCodes(codes);
         } else {
             count++;
             if(count < 4) {
@@ -46,7 +46,7 @@ public class GetAllIncidentCodeTask extends AsyncTask<Void, Void, IncidentCode[]
                 new GetAllIncidentCodeTask(activity, count).execute();
             }
             else {
-                activity.getIncidentCode(null);
+                activity.updateIncidentCodes(null);
                 Toast.makeText(activity.getContext(), R.string.fail_get_incident_code, Toast.LENGTH_SHORT).show();
             }
         }

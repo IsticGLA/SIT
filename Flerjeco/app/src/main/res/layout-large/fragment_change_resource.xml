@@ -10,6 +10,8 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="istic.gla.groupeb.flerjeco.agent.intervention.ChangeStateDialogFragment">
 
+
+
     <ScrollView
         android:id="@+id/intervention_scroll"
         android:layout_width="match_parent"
@@ -28,7 +30,15 @@
                 android:orientation="horizontal">
 
 
-                <Button
+                <CheckBox
+                    android:id="@+id/validateCheckBox"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="@string/manage_activateResource"
+                    android:checked="false" />
+
+                <!--<Button
                     android:id="@+id/validateButton"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
@@ -36,10 +46,12 @@
                     android:text="@string/manage_activateResource"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:layout_marginBottom="15dp" />
+                    android:layout_marginBottom="15dp" />-->
+
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/layout_change_resource"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -52,24 +64,26 @@
                     android:textSize="20sp"
                     android:layout_weight="0.5"
                     android:singleLine="true"
-                    android:text="@string/manage_changeResourceRole" />
-                    android:paddingLeft="10dp"
-                    android:text="@string/change" />
+                    android:text="@string/manage_changeResourceRole"
+                    android:paddingLeft="10dp"/>
 
                 <Spinner
-                    android:id="@+id/stateSpinner"
+                    android:id="@+id/stateSpinnerVehicle"
                     android:layout_width="155dp"
                     android:layout_height="match_parent"
-                    android:entries="@array/state"
+                    android:entries="@array/stateVehicle"
                     android:layout_weight="0.5"
                     android:spinnerMode="dialog" />
 
-                <Button
-                    android:layout_width="20dp"
+                <Spinner
+                    android:id="@+id/stateSpinnerDraggable"
+                    android:layout_width="155dp"
                     android:layout_height="match_parent"
-                    android:id="@+id/buton_change_role"
+                    android:entries="@array/stateDraggable"
                     android:layout_weight="0.5"
-                    android:text="Ok"/>
+                    android:spinnerMode="dialog" />
+
+
             </LinearLayout>
 
 
@@ -82,8 +96,17 @@
                     android:id="@+id/freeButton"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="0.5"
                     android:text="@string/manage_freeResource"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:layout_marginBottom="15dp" />
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/buton_change_role"
+                    android:layout_weight="0.5"
+                    android:text="Ok"
                     android:maxLines="1"
                     android:singleLine="true"
                     android:layout_marginBottom="15dp" />

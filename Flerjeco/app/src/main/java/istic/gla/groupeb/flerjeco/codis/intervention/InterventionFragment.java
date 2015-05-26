@@ -16,7 +16,6 @@
 package istic.gla.groupeb.flerjeco.codis.intervention;
 
 import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -24,14 +23,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 
-import entity.Intervention;
+import java.util.ArrayList;
+
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.adapter.InterventionAdapter;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 
 public class InterventionFragment extends Fragment implements ISynchTool {
@@ -39,6 +39,7 @@ public class InterventionFragment extends Fragment implements ISynchTool {
 
     private static final String TAG = InterventionFragment.class.getSimpleName();
     protected ListView listViewInterventions;
+    protected  boolean initList = false;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -55,25 +56,22 @@ public class InterventionFragment extends Fragment implements ISynchTool {
                 false);
 
         listViewInterventions = (ListView) v.findViewById(R.id.listViewInterventions_codis);
-
-        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-                android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
-
-        List<String> labelsInterventions = new ArrayList<>();
-
         InterventionActivity interventionActivity = (InterventionActivity) getActivity();
-        for (Intervention intervention : interventionActivity.getInterventions()){
-            labelsInterventions.add(intervention.getName());
-        }
 
-        listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
+        ArrayList<Intervention> interventions = new ArrayList<>();
+        if (interventionActivity.getInterventions()!=null){
+            CollectionUtils.addAll(interventions, interventionActivity.getInterventions());
+        }
+        InterventionAdapter adapter = new InterventionAdapter(interventionActivity ,interventions);
+
+        listViewInterventions.setAdapter(adapter);
+        listViewInterventions.setEmptyView(interventionActivity.findViewById(R.id.list_empty_interventions_view));
 
         listViewInterventions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 mCallback.onResourceSelected(position);
-                listViewInterventions.setItemChecked(position,true);
-                Log.i(TAG, "setOnItemClickListener : " + position);
+                listViewInterventions.setItemChecked(position, true);
             }
         });
 
@@ -88,7 +86,13 @@ public class InterventionFragment extends Fragment implements ISynchTool {
         // (We do this during onStart because at the point the listview is available.)
         if (getFragmentManager().findFragmentById(R.id.resources_fragment) != null) {
             listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            listViewInterventions.setItemChecked(0, true);
+
+            if(listViewInterventions.getAdapter().getCount()>0){
+                mCallback.onResourceSelected(0);
+                listViewInterventions.setItemChecked(0, true);
+                initList = true;
+            }
+
             Log.i(TAG, "onStart setItemChecked");
         }
     }
@@ -109,23 +113,27 @@ public class InterventionFragment extends Fragment implements ISynchTool {
 
     public void updateList() {
         Log.i(TAG, "updateList start");
-        // We need to use a different list item layout for devices older than Honeycomb
-        int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-                android.R.layout.simple_list_item_activated_1 : android.R.layout.simple_list_item_1;
-
-
-        List<String> labelsInterventions = new ArrayList<>();
 
         InterventionActivity interventionActivity = (InterventionActivity) getActivity();
-        if(interventionActivity != null) {
-            for (Intervention intervention : interventionActivity.getInterventions()) {
-                if (intervention != null) {
-                    labelsInterventions.add(intervention.getName());
+
+        ArrayList<Intervention> interventions = new ArrayList<>();
+        CollectionUtils.addAll(interventions, interventionActivity.getInterventions());
+        InterventionAdapter adapter = new InterventionAdapter(interventionActivity ,interventions);
+
+        listViewInterventions.setAdapter(adapter);
+        listViewInterventions.setEmptyView(interventionActivity.findViewById(R.id.list_empty_interventions_view));
+
+        Intervention inter = interventionActivity.interFromTable;
+        if(inter != null) {
+            initList = true;
+            Intervention[] tabInter = interventionActivity.getInterventions();
+            for(int i=0;i<tabInter.length;i++) {
+                if(tabInter[i].getName().equals(inter.getName())) {
+                    mCallback.onResourceSelected(i);
+                    listViewInterventions.setItemChecked(i, true);
                 }
             }
         }
-
-        listViewInterventions.setAdapter(new ArrayAdapter<String>(getActivity(), layout, labelsInterventions));
     }
 
     @Override

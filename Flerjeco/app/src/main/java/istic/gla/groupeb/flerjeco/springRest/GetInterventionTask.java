@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 
 /**
@@ -17,6 +17,7 @@ public class GetInterventionTask extends AsyncTask<Void, Void, Boolean> {
     private Intervention intervention;
     private IInterventionActivity activity;
     private Long id;
+    private SpringService service = new SpringService();
 
     public GetInterventionTask(IInterventionActivity activity, Long id) {
         this.activity = activity;
@@ -31,9 +32,9 @@ public class GetInterventionTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... params) {
+        intervention = null;
         try {
             Log.i(TAG, "doInBackground, id :" + id);
-            SpringService service = new SpringService();
             intervention = service.getInterventionById(id);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage());

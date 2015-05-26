@@ -1,20 +1,27 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.AsyncTask;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.Projection;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -24,23 +31,29 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 
-import entity.Drone;
-import entity.Intervention;
-import entity.Path;
-import entity.Position;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import istic.gla.groupb.nivimoju.entity.Drone;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Path;
+import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
-import istic.gla.groupeb.flerjeco.synch.DisplaySynchDrone;
+import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
+import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import istic.gla.groupeb.flerjeco.utils.LatLngUtils;
 
 /**
- * A fragment that launches other parts of the demo application.
+ * Fragment de carte pour les drones
  */
-public class PlanZoneMapFragment extends Fragment {
+public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
     private static final String TAG = PlanZoneMapFragment.class.getSimpleName();
     final static String ARG_POSITION = "position";
@@ -48,9 +61,8 @@ public class PlanZoneMapFragment extends Fragment {
     // all variables for the Google Map
     MapView mMapView;
     private GoogleMap googleMap;
-    private List<Polyline> polylines;
+    private List<Pair<Polyline, Marker>> polylines;
     private List<Marker> markers;
-    private List<Pair<Long, Marker>> drones;
 
     // list of all the path of the intervention
     private List<Path> pathList;
@@ -62,12 +74,15 @@ public class PlanZoneMapFragment extends Fragment {
     private Path savePath;
     // current intervention
     private Intervention inter;
-    // list all drone of the intevervention
 
     // indicate if we want to remove a path in the intervention
     public boolean removePath = false;
     // indicate if we want to edit a path in the intervention
     public boolean editPath = false;
+
+    private Map<String, Marker> dronesMarkers;
+    private boolean refreshDrones = false;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -99,6 +114,8 @@ public class PlanZoneMapFragment extends Fragment {
                 .newCameraPosition(cameraPosition));
 
         initMap(activity.getIntervention().getWatchPath());
+
+        this.dronesMarkers = new HashMap<>();
         return v;
     }
 
@@ -173,7 +190,7 @@ public class PlanZoneMapFragment extends Fragment {
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(latLng);
                 // Changing marker icon
-                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
                 // adding marker
                 Marker m = googleMap.addMarker(marker);
                 // add the marker on the markers list
@@ -184,7 +201,7 @@ public class PlanZoneMapFragment extends Fragment {
                     LatLng previousLatLng = new LatLng(positions.get(i-1).getLatitude(), positions.get(i-1).getLongitude());
                     drawLine(latLng, previousLatLng);
                 // else if it the path is closed, draw line between first and last point
-                } if (i == positions.size()-1 && pathList.get(position).isClosed()){
+                } if (i == positions.size()-1 && pathList.get(position).isClosed() && positions.size() > 2){
                     LatLng firstLatLng = new LatLng(positions.get(0).getLatitude(), positions.get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
                 }
@@ -195,13 +212,13 @@ public class PlanZoneMapFragment extends Fragment {
 
     /**
      * Init the Google Map
-     * @param pathList
+     * @param pathList the list of paths
      */
     public void initMap(List<Path> pathList){
         this.pathList = pathList;
         this.polylines = new ArrayList<>();
         this.markers = new ArrayList<>();
-        this.drones = new ArrayList<>();
+        this.dronesMarkers = new HashMap<>();
         this.newPath = new Path();
     }
 
@@ -210,37 +227,38 @@ public class PlanZoneMapFragment extends Fragment {
      */
     public void clearGoogleMap(){
         googleMap.clear();
-        this.polylines = new ArrayList<>();
-        this.markers = new ArrayList<>();
+        this.polylines.clear();
+        this.markers.clear();
         this.newPath = new Path();
-
+        this.dronesMarkers.clear();
     }
 
     /**
-     * Send the new path in the database
+     * Send the new path to the server
      */
     public void sendPath(){
+        ((PlanZoneActivity)getActivity()).showProgress(true);
         // remove Click listener
         resetMapListener();
 
-        inter = ((PlanZoneActivity)getActivity()).getIntervention();
-
         // if we are in edition mode, we set the new path in the intervention we get back from the main activity
         if (editPath){
-            inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
-            inter.getWatchPath().get(mCurrentPosition).setClosed(newPath.isClosed());
+            //inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
+            //inter.getWatchPath().get(mCurrentPosition).setClosed(newPath.isClosed());
 
             // send to the database
-            new SendPathToDrone().execute(inter);
+            Path pathToUpdate = inter.getWatchPath().get(mCurrentPosition);
+            pathToUpdate.setPositions(newPath.getPositions());
+            pathToUpdate.setClosed(newPath.isClosed());
+            Object[] tab = {inter.getId(), pathToUpdate};
+            new UpdatePathsForInterventionTask(this, EPathOperation.UPDATE).execute(tab);
 
         // else, we add the new path
         } else {
-            inter.getWatchPath().add(newPath);
-
-            // send to the database
-            new AssignDrone().execute(inter.getId());
+            //inter.getWatchPath().add(newPath);
+            Object[] tab = {inter.getId(), newPath};
+            new UpdatePathsForInterventionTask(this, EPathOperation.CREATE).execute(tab);
         }
-
     }
 
     /**
@@ -248,21 +266,17 @@ public class PlanZoneMapFragment extends Fragment {
      */
     public void removePath(){
         removePath = true;
-
         // remove Click listener
         resetMapListener();
-
         // get back the intervention from the main activity
         inter = ((PlanZoneActivity)getActivity()).getIntervention();
 
         // remove of the path we want to remove
         if (mCurrentPosition >= 0 && inter.getWatchPath().size() > mCurrentPosition) {
-            inter.getWatchPath().remove(mCurrentPosition);
+            //inter.getWatchPath().remove(mCurrentPosition);
             // send to the database
-            if (drones.size() > 0) {
-                Pair p = drones.get(drones.size() - 1);
-                new UnAssignDrone().execute((Long) p.first);
-            }
+            Object[] tab = {inter.getId(), inter.getWatchPath().get(mCurrentPosition)};
+            new UpdatePathsForInterventionTask(this, EPathOperation.DELETE).execute(tab);
         }
     }
 
@@ -311,6 +325,54 @@ public class PlanZoneMapFragment extends Fragment {
     }
 
     /**
+     * callback for when the path create/delete/update succeed
+     */
+    public void applyUpdateAfterOperation(Intervention intervention){
+        pathList = intervention.getWatchPath();
+        updateMapView(intervention.getWatchPath().size() - 1);
+        PlanZoneActivity p = ((PlanZoneActivity) getActivity());
+        p.refreshList(intervention);
+        p.editModeOff();
+        ((PlanZoneActivity)getActivity()).showProgress(false);
+    }
+
+    /**
+     * callback for when the path create/delete/update succeed
+     */
+    public void refreshMapAfterSynchro(Intervention newIntervention, Intervention oldIntervention){
+        PlanZoneActivity p = ((PlanZoneActivity) getActivity());
+        pathList = newIntervention.getWatchPath();
+        if (p.isEditionMode()){
+            if (mCurrentPosition != -1 && pathList.size() > 0) {
+                Path oldPath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), oldIntervention.getWatchPath());
+                Path updatePath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), newIntervention.getWatchPath());
+                // remove a path
+                if (updatePath == null) {
+                    if (newIntervention.getWatchPath().size() > 0) {
+                        updateMapView(newIntervention.getWatchPath().size() - 1);
+                        p.checkListView(newIntervention.getWatchPath().size() - 1);
+                    }
+                // update path
+                } else if (oldPath.isClosed() != updatePath.isClosed() || !oldPath.getPositions().equals(updatePath.getPositions())){
+                    updateMapView(mCurrentPosition);
+                    p.checkListView(mCurrentPosition);
+                } else {
+                    p.checkListView(mCurrentPosition);
+                }
+            }
+        }
+    }
+
+    public Path findPathById(long idPath, List<Path> list){
+        for (Path p : list){
+            if (p.getIdPath() == idPath){
+                return p;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Reset the MapClickListener on the Google Map
      */
     public void resetMapListener(){
@@ -356,10 +418,27 @@ public class PlanZoneMapFragment extends Fragment {
      * @param last last point of the polyline to draw
      */
     public void drawLine(LatLng first, LatLng last){
+        // First you need rotate the bitmap of the arrowhead somewhere in your code
+        float rotationDegrees = (float) LatLngUtils.angleFromCoordinate(last.latitude, last.longitude, first.latitude, first.longitude);
+
+        // Create the rotated arrowhead bitmap
+        Bitmap arrow = BitmapFactory.decodeResource(getResources(), R.drawable.arrow);
+        BitmapDescriptor bitmapDescriptorFactory = BitmapDescriptorFactory.fromBitmap(arrow);
+        // Get the middle position
+        LatLng middlePos = LatLngUtils.midPoint(first.latitude, first.longitude, last.latitude, last.longitude);
+        // Now we are gonna to add a marker
+        Marker mArrowhead = googleMap.addMarker(new MarkerOptions()
+                .position(middlePos)
+                .flat(true)
+                .anchor(0.5f, 0.5f)
+                .rotation(rotationDegrees)
+                .icon(bitmapDescriptorFactory));
+
         Polyline line = googleMap.addPolyline((new PolylineOptions())
-                .add(first, last).width(3).color(Color.BLUE)
+                .add(first, last).width(3).color(Color.parseColor("#9b24a6"))
                 .geodesic(true));
-        polylines.add(line);
+
+        polylines.add(new Pair<Polyline, Marker>(line, mArrowhead));
     }
 
     /**
@@ -369,7 +448,8 @@ public class PlanZoneMapFragment extends Fragment {
     public void removeLine(int i){
         Log.i(TAG, "Remove the polyline at the " + i + " position");
         if (polylines.size() > 0) {
-            polylines.get(i).remove();
+            polylines.get(i).first.remove();
+            polylines.get(i).second.remove();
             polylines.remove(i);
         }
     }
@@ -400,63 +480,54 @@ public class PlanZoneMapFragment extends Fragment {
         }
     }
 
+    // private variable for reducing object creations
+    private Set<String> labels = new HashSet<>();
     /**
      * Show the marker for the drone of the intervention
      */
+    @Override
     public void showDrones(Drone[] tab){
-        // remove the marker on the map
-        for (Pair p : drones){
-            ((Marker)p.second).remove();
+        if(refreshDrones) {
+            labels.clear();
+            for(Drone drone : tab){
+                labels.add(drone.getLabel());
+                if(dronesMarkers.containsKey(drone.getLabel())){
+                    dronesMarkers.get(drone.getLabel()).setPosition(new LatLng(drone.getLatitude(), drone.getLongitude()));
+                } else{
+                    //create a new marker
+                    Marker m = googleMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(drone.getLatitude(), drone.getLongitude()))
+                            .title(drone.getLabel())
+                            .anchor(0.5f, 0.5f)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_drone)));
+                    dronesMarkers.put(drone.getLabel(), m);
+                }
+            }
+            //delete marker for unassigned drones
+            if(!labels.containsAll(dronesMarkers.keySet())){
+                for(String labelToRemove : CollectionUtils.removeAll(dronesMarkers.keySet(), labels)){
+                    dronesMarkers.get(labelToRemove).remove(); //remove the marker
+                    dronesMarkers.remove(labelToRemove);
+                }
+            }
         }
-
-        // Repopulate with drone we get back from the sync service
-        drones = new ArrayList<>();
-        for (Drone d : tab){
-            Log.i(TAG, d.getLabel());
-            showDrone(d);
-        }
-    }
-
-    public void showDrone(Drone d){
-        double latitude = d.getLatitude();
-        double longitude = d.getLongitude();
-        if (latitude == 0 || longitude == 0){
-            latitude = ((PlanZoneActivity) getActivity()).getIntervention().getLatitude();
-            longitude = ((PlanZoneActivity) getActivity()).getIntervention().getLongitude();
-        }
-        Marker m = googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(latitude, longitude))
-                .title(d.getLabel())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_drone)));
-
-        drones.add(new Pair<Long, Marker>(d.getId(), m));
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        inter = ((PlanZoneActivity)getActivity()).getIntervention();
         mMapView.onResume();
-        DisplaySynch displaySynch = new DisplaySynch() {
-            @Override
-            public void ctrlDisplay() {
 
-            }
-        };
-
-        DisplaySynchDrone displayDroneSynch = new DisplaySynchDrone() {
-            @Override
-            public void ctrlDisplay() {
-                refreshDrone();
-            }
-        };
         long id = ((PlanZoneActivity)getActivity()).getIntervention().getId();
-        IntentWraper.startService("notify/intervention/"+id, displaySynch, displayDroneSynch);
+        refreshDrones = true;
+        new GetPositionDroneTask(this, id).execute();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        refreshDrones = false;
         mMapView.onPause();
         IntentWraper.stopService();
     }
@@ -473,220 +544,13 @@ public class PlanZoneMapFragment extends Fragment {
         mMapView.onLowMemory();
     }
 
-    public void refreshDrone() {
-        Log.i(TAG, "REFRESH DRONE");
-        inter = ((PlanZoneActivity)getActivity()).getIntervention();
-        if(inter != null) {
-            Log.i(TAG, "Call to the getPositionDrone");
-            new GetPositionDrone().execute(inter.getId());
-        }
-    }
-
-
-    /**
-     * Represents an asynchronous call for add new path for drone in the current intervention
-     * the user.
-     */
-    public class AssignDrone extends AsyncTask<Long, Void, Drone> {
-
-        private final String TAG = AssignDrone.class.getSimpleName();
-
-        @Override
-        protected Drone doInBackground(Long... params) {
-            try {
-                Log.i(TAG, "Get a drone for the current path we create : "+ params[0]);
-                SpringService springService = new SpringService();
-                Drone drone = springService.assignDrone(params[0]);
-                return drone;
-
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Drone drones) {
-            if (null == drones){
-                Toast.makeText(getActivity().getApplicationContext(), "Il n'y a plus assez de drone pour l'instant", Toast.LENGTH_LONG).show();
-                // update doesn't work
-                if (editPath && !removePath){
-                    Log.i("TEST", "Update");
-                    pathList.set(mCurrentPosition, savePath);
-                    updateMapView(mCurrentPosition);
-
-                    // create doesn't work
-                } else {
-                    Log.i("TEST", "Create");
-                    pathList.remove(pathList.size()-1);
-                    clearGoogleMap();
-                }
-            } else {
-                new SendPathToDrone().execute(inter);
-                Toast.makeText(getActivity().getApplicationContext(), "Drone affecté", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    /**
-     * Represents an asynchronous call for add new path for drone in the current intervention
-     * the user.
-     */
-    public class UnAssignDrone extends AsyncTask<Long, Void, Drone> {
-
-        private final String TAG = UnAssignDrone.class.getSimpleName();
-
-        @Override
-        protected Drone doInBackground(Long... params) {
-            try {
-                Log.i(TAG, "Get a drone for the current path we create : "+ params[0]);
-                SpringService springService = new SpringService();
-                Drone drone = springService.unAssignDrone(params[0]);
-                return drone;
-
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Drone drone) {
-            if (null == drone){
-                Toast.makeText(getActivity().getApplicationContext(), "Le drone n'as pas pu être liberé", Toast.LENGTH_LONG).show();
-                Log.i("TEST", "Delete " + savePath.toString() + "  " + mCurrentPosition);
-                pathList.add(mCurrentPosition, savePath);
-                updateMapView(mCurrentPosition);
-            } else {
-                new SendPathToDrone().execute(inter);
-                Toast.makeText(getActivity().getApplicationContext(), "Drone libéré", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-
-    /**
-     * Represents an asynchronous call for add new path for drone in the current intervention
-     * the user.
-     */
-    public class SendPathToDrone extends AsyncTask<Intervention, Void, Intervention> {
-
-        private final String TAG = SendPathToDrone.class.getSimpleName();
-
-        @Override
-        protected Intervention doInBackground(Intervention... params) {
-            try {
-                Log.i(TAG, "Update of the intervention with id : "+ params[0].getId());
-                SpringService springService = new SpringService();
-                Intervention intervention = springService.updateIntervention(params[0]);
-                return intervention;
-
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Intervention intervention) {
-            if (null == intervention){
-                Log.i(TAG, "La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer");
-
-                // update doesn't work
-                if (editPath && !removePath){
-                    Log.i("TEST", "Update");
-                    pathList.set(mCurrentPosition, savePath);
-                    updateMapView(mCurrentPosition);
-
-                    // remove doesn't work
-                } else if (removePath) {
-                    Log.i("TEST", "Delete " + savePath.toString() + "  " + mCurrentPosition);
-                    pathList.add(mCurrentPosition, savePath);
-                    updateMapView(mCurrentPosition);
-
-                    // create doesn't work
-                } else {
-                    Log.i("TEST", "Create");
-                    pathList.remove(pathList.size()-1);
-                    clearGoogleMap();
-                }
-                Toast.makeText(getActivity().getApplicationContext(), "La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer", Toast.LENGTH_LONG).show();
-            } else {
-                Log.i(TAG, "Intervention was updated !");
-
-                // alert the engine for the creation of the path
-                new AlertEngine().execute(intervention);
-
-                Toast.makeText(getActivity().getApplicationContext(), "Les modifications ont été enregistées", Toast.LENGTH_LONG).show();
-                pathList = intervention.getWatchPath();
-                updateMapView(intervention.getWatchPath().size()-1);
-                PlanZoneActivity p = ((PlanZoneActivity) getActivity());
-                p.refreshList(intervention);
-                p.editModeOff();
-            }
-        }
-    }
-
-    /**
-     * Represents an asynchronous call for add new path for drone in the current intervention
-     * the user.
-     */
-    public class GetPositionDrone extends AsyncTask<Long, Void, Drone[]> {
-
-        private final String TAG = GetPositionDrone.class.getSimpleName();
-
-        @Override
-        protected Drone[] doInBackground(Long... params) {
-            try {
-                Log.i(TAG, "Get the position of the drone for the intervention with id : "+ params[0]);
-                SpringService springService = new SpringService();
-                Drone[] drones = springService.getAllDroneByIntervention(params);
-                return drones;
-
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Drone[] drones) {
-            Log.i(TAG, "OnPostExecute on the getPositionDroneService");
-            if (null != drones){
-                Log.i(TAG, "CALLBACK DRONE");
-                showDrones(drones);
-            }
-        }
-    }
-
-    /**
-     * Represents an asynchronous call for add new path for drone in the current intervention
-     * the user.
-     */
-    public class AlertEngine extends AsyncTask<Intervention, Void, String> {
-
-        private final String TAG = AlertEngine.class.getSimpleName();
-
-        @Override
-        protected String doInBackground(Intervention... params) {
-            try {
-                Log.i(TAG, "Alert the engine : "+ params[0]);
-                SpringService springService = new SpringService();
-                String s = springService.alertEngine(params[0]);
-                return s;
-
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-            return null;
-
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            Log.i(TAG, "OnPostExecute on the alertEngine");
+    @Override
+    public void refreshDrones() {
+        if(inter != null && refreshDrones) {
+            new GetPositionDroneTask(this, inter.getId()).execute();
+        }else{
+            Log.e(TAG, "inter : " + inter + "refreshDrones : " + refreshDrones);
         }
     }
 }
+

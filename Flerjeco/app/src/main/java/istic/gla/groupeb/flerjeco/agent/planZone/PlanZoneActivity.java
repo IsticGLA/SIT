@@ -1,9 +1,9 @@
 package istic.gla.groupeb.flerjeco.agent.planZone;
 
-import android.app.ActionBar;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Menu;
@@ -13,17 +13,23 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 
-import entity.Intervention;
-import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.intervention.AgentInterventionActivity;
-import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import java.util.Collections;
+import java.util.Comparator;
 
-public class PlanZoneActivity extends FragmentActivity implements DroneListFragment.OnResourceSelectedListener, ActionBar.TabListener {
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Path;
+import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.TabbedActivity;
+import istic.gla.groupeb.flerjeco.login.LoginActivity;
+import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
+import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
+import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
+import istic.gla.groupeb.flerjeco.synch.ISynchTool;
+import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+
+public class PlanZoneActivity extends TabbedActivity implements DroneListFragment.OnResourceSelectedListener, ISynchTool, IInterventionActivity {
 
     private static final String TAG = PlanZoneActivity.class.getSimpleName();
-
-    // current intervention
-    private Intervention intervention;
 
     // current position of the path in the ListView DroneListFragment
     private int position=0;
@@ -31,19 +37,22 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
     // save of the edition mode
     private boolean editionMode = false;
 
-
+    private ProgressDialog progressDialog;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Get the Bundle from the intent
+        //opening transition animations
+        overridePendingTransition(0, android.R.anim.fade_out);
+
+        intervention = new Intervention();
+
         Bundle extras = getIntent().getExtras();
 
-        // if we got an extras, we set the intervention to the value of the extras
         if (extras != null){
-            Log.i(TAG, "Get the intervention from the bundle");
+            Log.i(TAG, "getExtras not null");
             intervention = (Intervention) extras.getSerializable("intervention");
         }
 
@@ -72,22 +81,6 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
         }
-
-        final ActionBar actionBar = getActionBar();
-
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // Add 2 tabs, specifying the tab's text and TabListener
-        ActionBar.Tab tabInter = actionBar.newTab();
-        tabInter.setText("Intervention");
-        tabInter.setTabListener(this);
-
-        ActionBar.Tab tabDrone = actionBar.newTab();
-        tabDrone.setText("Drone");
-        tabDrone.setTabListener(this);
-        actionBar.addTab(tabDrone);
-        actionBar.addTab(tabInter, 0, false);
     }
 
 
@@ -110,6 +103,21 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
                 finish();
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(intervention != null) {
+            DisplaySynch displaySynch = new DisplaySynch() {
+                @Override
+                public void ctrlDisplay() {
+                    refresh();
+                }
+            };
+            String url = "notify/intervention/" + intervention.getId();
+            IntentWraper.startService(url, displaySynch);
         }
     }
 
@@ -158,6 +166,10 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
      */
     public Intervention getIntervention(){
         return intervention;
+    }
+
+    public boolean isEditionMode() {
+        return editionMode;
     }
 
     /**
@@ -295,38 +307,75 @@ public class PlanZoneActivity extends FragmentActivity implements DroneListFragm
         checkBox.setChecked(b);
     }
 
+    public void showProgress(boolean isProgress) {
+        Log.i(TAG, "showProgress start");
+        if(progressDialog == null) {
+            Log.i(TAG, "progressDialog null");
+            progressDialog = new ProgressDialog(PlanZoneActivity.this);
+            progressDialog.setTitle("Chargement");
+            progressDialog.setCancelable(false);
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        if(isProgress) {
+            progressDialog.show();
+        } else {
+            progressDialog.dismiss();
+        }
+    }
+
     /**
      * refresh the list in the ListView fragment
      * @param intervention intervention updated
      */
     public void refreshList(Intervention intervention){
+        Collections.sort(intervention.getWatchPath(), new Comparator<Path>() {
+            @Override
+            public int compare(Path lhs, Path rhs) {
+                return Long.valueOf(lhs.getIdPath()).compareTo(Long.valueOf(rhs.getIdPath()));
+            }
+        });
         this.intervention = intervention;
         DroneListFragment droneListFragment = (DroneListFragment)
                 getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
-        droneListFragment.refresh(intervention);
+        if(droneListFragment != null) {
+            droneListFragment.refresh(intervention);
+        }
+    }
+
+    public void checkListView(int position){
+        DroneListFragment droneListFragment = (DroneListFragment)
+                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
+        droneListFragment.checkListView(position);
     }
 
     @Override
-    public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals("Intervention")) {
-            Intent intent = new Intent(PlanZoneActivity.this, AgentInterventionActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
+    public void updateIntervention(Intervention newIntervention) {
+        Intervention oldIntervention = intervention;
+        refreshList(newIntervention);
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        if(mapFragment != null) {
+            mapFragment.refreshMapAfterSynchro(newIntervention, oldIntervention);
         }
     }
 
     @Override
-    public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals("Drone")) {
-            finish();
+    public Context getContext() {
+        return getApplicationContext();
+    }
+
+    @Override
+    public void refresh() {
+        if (null != intervention) {
+            new GetInterventionTask(this, intervention.getId()).execute();
         }
     }
 
     @Override
-    public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-
+    protected void onPause() {
+        super.onPause();
+        //closing transition animations
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
+        IntentWraper.stopService();
     }
 }

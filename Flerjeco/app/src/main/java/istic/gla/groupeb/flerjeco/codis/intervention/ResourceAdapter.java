@@ -16,11 +16,11 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.List;
 
-import entity.Intervention;
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import util.State;
+import istic.gla.groupb.nivimoju.util.State;
 
 /**
  * Created by jules on 13/04/15.
@@ -103,11 +103,11 @@ public class ResourceAdapter extends ArrayAdapter<Resource> {
         return convertView;
     }
     private class ResourceRequestTask extends AsyncTask<String, Void, Intervention> {
-
+        private SpringService service = new SpringService();
         @Override
         protected Intervention doInBackground(String... params) {
             try {
-                return new SpringService().changeResourceState(params);
+                return service.changeResourceState(params);
             } catch (HttpStatusCodeException e) {
                 Log.e("ResourceAdapterCodis", e.getMessage(), e);
             }

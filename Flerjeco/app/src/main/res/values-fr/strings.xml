@@ -49,7 +49,9 @@
     <string name="button_request_resource">Demander</string>
     <string name="change">changer</string>
     <string name="freeButton">libérer</string>
-    <string name="title_fragment_change_resource">changer l\'état de la resource</string>
+    <string name="title_fragment_change_resource">Changer l\'état de la resource</string>
+    <string name="activities_agent">Flerjeco - Agent</string>
+    <string name="activities_codis">Flerjeco - Codis</string>
     <string-array name="state">
         <item>Humain</item>
         <item>Risque</item>
@@ -62,8 +64,51 @@
         <item>AVP</item>
         <item>FHA</item>
     </string-array>
-    <string name="manage_changeResourceRole">Changer le role : </string>
-    <string name="manage_activateResource">Activer la ressource</string>
+    <string name="manage_changeResourceRole">Changer la ressource :</string>
+    <string name="manage_activateResource">Véhicule en position</string>
     <string name="manage_freeResource">Libérer la ressource</string>
     <string name="title_dialog_change_resource">Gestion de la ressource</string>
+    <string name="button_resource_arrived">Arrivé</string>
+    <string name="button_resource_released">Libéré</string>
+    <string name="resource_arrived_dialog_title">Le véhicule est il arrivé ?</string>
+    <string name="title_activity_tableau">Gestion des moyens</string>
+    <string name="resource">Moyen</string>
+    <string name="engaged">Engagé à</string>
+    <string name="released">Libéré à</string>
+    <string name="asked">Demandé à</string>
+    <string name="triggered">Déclenché à</string>
+    <string name="arrived">Arrivé à</string>
+    <string name="command">Commande</string>
+    <string name="fire">Feu</string>
+    <string name="human">Humain</string>
+    <string name="risk">Risque</string>
+    <string name="water">Eau</string>
+    <string name="activateResource">Engager la ressource</string>
+    <string name="changeResourceRole">Changer le rôle des ressources</string>
+    <string name="drone_update_path_error_generic">"La mise à jour de l'intervention n'a pas fonctionnée, veuillez rééssayer"</string>
+    <string name="libelle_moyen_marqueur">Marqueurs</string>
+    <string name="libelle_moyen_attente">Moyens en attente</string>
+    <string name="libelle_moyen_valide">Moyens validés</string>
+    <string name="table">Tableau</string>
+    <string name="other">Autre</string>
+    <string name="resources">Ressources</string>
+    <string name="drone_update_path_error_not_available">"Aucun drone n\'est disponible, la création de trajet est impossible"</string>
+    <string name="drone_update_path_success">"Les modifications ont été enregistées"</string>
+    <string name="drones">Drones</string>
+    <string name="empty_list_interventions">Il n\'y a pas d\'interventions, créez-en une</string>
+    <string name="fail_get_incident_code">Impossible de récuperer le code d\'incident, veuillez réessayer</string>
+    <string name="fail_get_resource_type">Impossible de récupérer la ressource, veuillez réessayer</string>
+    <string name="fail_post_interventions">Impossible d\'envoyer l\'intervention au serveur, veuillez réessayer</string>
+    <string name="freeResource">Libérer la ressource</string>
+    <string name="hello_blank_fragment">Bonjour fragment vide</string>
+    <string name="hello_world">Bonjour le monde !</string>
+    <string name="intervention">Intervention</string>
+    <string name="title_activity_visualisation">Visualisation</string>
+    <string name="visualisation">Visualisation</string>
+    <string name="remove_resource">Supprimer ce marqueur</string>
+    <string name="interventions">Interventions</string>
+    <string name="image_slider_empty">Aucune image</string>
+    <string name="fail_get_images">Une erreur est survenue lors de la récupération des images</string>
+    <string name="drone_video_title">Vidéo pour %s</string>
+    <string name="drone_image_slider_title">Historique des images</string>
 </resources>

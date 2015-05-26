@@ -28,7 +28,7 @@
     </listener>
     <listener>
         <listener-class>
-            istic.gla.groupb.nivimoju.init.JobInit
+            istic.gla.groupb.nivimoju.job.init.JobInit
         </listener-class>
     </listener>
 
@@ -49,8 +49,6 @@
         <servlet-name>nivimoju-servlet</servlet-name>
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping>
-
-
 
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

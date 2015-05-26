@@ -25,12 +25,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 
 public class InterventionsNamesFragment extends Fragment {
@@ -65,6 +66,10 @@ public class InterventionsNamesFragment extends Fragment {
         ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
         Intervention[] interventions = listInterventionsActivity.getInterventions();
 
+        if(interventions.length == 0) {
+            v.findViewById(R.id.button_select_intervention).setEnabled(false);
+        }
+
         for(Intervention inter : interventions) {
             labelsInterventions.add(inter.getName());
         }
@@ -91,6 +96,7 @@ public class InterventionsNamesFragment extends Fragment {
         // (We do this during onStart because at the point the listview is available.)
         if (getFragmentManager().findFragmentById(R.id.resources_fragment) != null) {
             listViewInterventions.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            mCallback.onResourceSelected(0);
             listViewInterventions.setItemChecked(0,true);
         }
     }
@@ -120,7 +126,7 @@ public class InterventionsNamesFragment extends Fragment {
         ListInterventionsActivity listInterventionsActivity = (ListInterventionsActivity) getActivity();
         Intervention[] interventions = listInterventionsActivity.getInterventions();
 
-        for(Intervention inter : interventions) {
+        for (Intervention inter : interventions) {
             labelsInterventions.add(inter.getName());
         }
 

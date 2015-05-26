@@ -15,15 +15,13 @@
  */
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
-import android.app.ActionBar;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
@@ -31,19 +29,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.List;
-
-import entity.Intervention;
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
+import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.agent.planZone.PlanZoneActivity;
+import istic.gla.groupeb.flerjeco.TabbedActivity;
 import istic.gla.groupeb.flerjeco.login.LoginActivity;
 import istic.gla.groupeb.flerjeco.springRest.GetInterventionTask;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
@@ -51,19 +46,14 @@ import istic.gla.groupeb.flerjeco.springRest.SpringService;
 import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
-import util.State;
 
-public class AgentInterventionActivity extends FragmentActivity
-        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ActionBar.TabListener, ISynchTool, IInterventionActivity {
+public class AgentInterventionActivity extends TabbedActivity
+        implements ISynchTool, IInterventionActivity {
 
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
-    protected Intervention intervention;
-
     private AgentInterventionResourcesFragment firstFragment;
     private AgentInterventionMapFragment mapFragment;
-
-    int mCurrentPosition = -1;
 
     @Override
     public void refresh(){
@@ -71,10 +61,29 @@ public class AgentInterventionActivity extends FragmentActivity
             new GetInterventionTask(this, intervention.getId()).execute();
         }
     }
+    /**
+     * Update lists of resources and map
+     * @param intervention
+     */
+    public void updateIntervention(Intervention intervention) {
+        Log.i(TAG, "updateIntervention");
+        this.intervention = intervention;
+        //update lists of resources and map
+        if (firstFragment != null){
+            firstFragment.refresh();
+        }
+        if (mapFragment != null){
+            mapFragment.refresh();
+        }
+    }
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //opening transition animations
+        overridePendingTransition(0, android.R.anim.fade_out);
 
         intervention = new Intervention();
 
@@ -84,19 +93,6 @@ public class AgentInterventionActivity extends FragmentActivity
             Log.i(TAG, "getExtras not null");
             intervention = (Intervention) extras.getSerializable("intervention");
         }
-
-        /*List<Resource> resourceList = new ArrayList<>();
-        resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource1", State.validated, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
-        resourceList.add(new Resource("Resource2", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
-        resourceList.add(new Resource("Resource3", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 48.107749, -1.687297));
-        resourceList.add(new Resource("Resource4", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource5", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("VSAP", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource7", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource8", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        intervention.setResources(resourceList);*/
 
         setContentView(R.layout.activity_intervention_agent);
 
@@ -122,58 +118,14 @@ public class AgentInterventionActivity extends FragmentActivity
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, firstFragment).commit();
 
+
+            mapFragment = (AgentInterventionMapFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+
             findViewById(R.id.fragment_container).setOnDragListener(new MyDragListener());
             findViewById(R.id.map_fragment).setOnDragListener(new MyDragListener());
         }
 
-        final ActionBar actionBar = getActionBar();
-
-        // Specify that tabs should be displayed in the action bar.
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
-        // Add 2 tabs, specifying the tab's text and TabListener
-        ActionBar.Tab tab = actionBar.newTab();
-        tab.setText("Intervention");
-        tab.setTabListener(this);
-        actionBar.addTab(tab);
-
-        tab = actionBar.newTab();
-        tab.setText("Drone");
-        tab.setTabListener(this);
-        actionBar.addTab(tab);
-    }
-
-
-    public void onResourceSelected(int position) {
-
-        mapFragment = (AgentInterventionMapFragment)
-                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-
-
-
-        if (mapFragment != null) {
-            //save the current position
-            mCurrentPosition = position;
-            mapFragment.setPosition(position);
-
-        } else {
-            // If the frag is not available, we're in the one-pane layout and must swap frags...
-
-            // Create fragment and give it an argument for the selected article
-            AgentInterventionMapFragment newFragment = new AgentInterventionMapFragment();
-            Bundle args = new Bundle();
-            args.putInt(AgentInterventionMapFragment.ARG_POSITION, position);
-            newFragment.setArguments(args);
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-            // Replace whatever is in the fragment_container view with this fragment,
-            // and add the transaction to the back stack so the user can navigate back
-            transaction.replace(R.id.fragment_container, newFragment);
-            transaction.addToBackStack(null);
-
-            // Commit the transaction
-            transaction.commit();
-        }
     }
 
     public void showDialogRequest(View view) {
@@ -183,10 +135,6 @@ public class AgentInterventionActivity extends FragmentActivity
         bundle.putLong(VehicleRequestDialog.INTERVENTION,intervention.getId());
         vehicleDialog.setArguments(bundle);
         vehicleDialog.show(getSupportFragmentManager(), "vehicle_dialog");
-    }
-
-    public void cancelResources(View v){
-        mapFragment.cancelResources();
     }
 
     // Action Menu for Logout
@@ -213,39 +161,6 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
-    public void resourceUpdated(Resource resource){
-        List<Resource> resList = intervention.getResources();
-        Resource temp = null;
-        for (Resource res : resList){
-            if (res.getIdRes() == resource.getIdRes()){
-                temp = res;
-            }
-        }
-        if (temp != null){
-            resList.remove(temp);
-            resList.add(resource);
-        }
-        UpdateIntervention updateIntervention = new UpdateIntervention();
-        updateIntervention.execute(intervention);
-        //refresh();
-    }
-
-    /**
-     * Update lists of resources and map
-     * @param intervention
-     */
-    public void updateIntervention(Intervention intervention) {
-        Log.i(TAG, "updateIntervention");
-        this.intervention = intervention;
-        //update lists of resources and map
-        if (firstFragment != null){
-            firstFragment.refresh();
-        }
-        if (mapFragment != null){
-            mapFragment.refresh();
-        }
-    }
-
     @Override
     public Context getContext() {
         return getApplicationContext();
@@ -266,6 +181,7 @@ public class AgentInterventionActivity extends FragmentActivity
                     break;
                 case DragEvent.ACTION_DRAG_EXITED:
                     break;
+
                 case DragEvent.ACTION_DROP:
                     if(!(v instanceof FrameLayout)){
                         view.setVisibility(View.VISIBLE);
@@ -278,8 +194,6 @@ public class AgentInterventionActivity extends FragmentActivity
 
                     MapView mapView = (MapView) ((FrameLayout) v).getChildAt(0);
 
-                    GoogleMap googleMap = mapView.getMap();
-
                     int x = (int) event.getX();
                     int y = (int) event.getY();
 
@@ -289,38 +203,23 @@ public class AgentInterventionActivity extends FragmentActivity
 
                     Resource resource;
 
-                    List<Resource> resourceList = firstFragment.getResourceList();
-                    List<Resource> additionalResourceList = firstFragment.getAdditionalResourceList();
-
-                    if (((LinearLayout)view).getChildAt(0) instanceof ImageView){
-                        resource = resourceList.get(mCurrentPosition);
-                        resource.setLatitude(latLng.latitude);
-                        resource.setLongitude(latLng.longitude);
-                        resource.setState(State.planned);
-                        resourceList.remove(mCurrentPosition);
-                        firstFragment.getIconBitmapResourceList().remove(mCurrentPosition);
-                        firstFragment.getResourceImageAdapter().notifyDataSetChanged();
-                    }else{
-                        resource = additionalResourceList.get(mCurrentPosition);
-                        resource.setLatitude(latLng.latitude);
-                        resource.setLongitude(latLng.longitude);
-                        resource.setState(State.active);
-                        List<Resource> resources = intervention.getResources();
-                        resources.add(resource);
+                    ClipData clipData = event.getClipData();
+                    ClipData.Item item = clipData.getItemAt(0);
+                    Bundle extras = item.getIntent().getExtras();
+                    if (extras!=null){
+                        resource = (Resource) extras.getSerializable("resource");
+                        int position = extras.getInt("position");
+                        if (!ResourceCategory.dragabledata.equals(resource.getResourceCategory())){
+                            firstFragment.getResourceList().remove(resource);
+                            firstFragment.getIconBitmapResourceList().remove(position);
+                            firstFragment.getResourceImageAdapter().notifyDataSetChanged();
+                        }
+                        else{
+                            resource.setIdRes(-1);
+                        }
+                        updateResourceOnDrop(resource, latLng, State.planned);
                     }
 
-                    UpdateIntervention mUpdateIntervention = new UpdateIntervention();
-                    mUpdateIntervention.execute(intervention);
-
-                    /*MarkerOptions marker = new MarkerOptions().position(latLng).title(label);
-                    marker.draggable(true);
-
-                    // Changing marker icons
-                    mapFragment.drawMarker(marker, resource);
-                    // adding marker
-                    Marker markerAdded = googleMap.addMarker(marker);
-                    mapFragment.getMarkers().put(label, markerAdded);
-                    mapFragment.getResourcesMap().put(label, resource);*/
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
                     view.setVisibility(View.VISIBLE);
@@ -333,6 +232,26 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
+    public void updateResource(Resource resource){
+        UpdateResourceIntervention mUpdateResourceIntervention = new UpdateResourceIntervention(intervention.getId(),resource);
+        mUpdateResourceIntervention.execute();
+    }
+
+    public void updateResourceOnDrop(Resource resource, LatLng latLng, State state){
+
+        resource.setLatitude(latLng.latitude);
+        resource.setLongitude(latLng.longitude);
+        resource.setState(state);
+
+
+        Log.i(TAG, "RESOURCE : ");
+        Log.i(TAG, "id : "+resource.getIdRes());
+        Log.i(TAG, "label : "+resource.getLabel());
+        Log.i(TAG, "category : "+resource.getResourceCategory());
+
+        updateResource(resource);
+    }
+
     public void showManageResourceDialog(Resource resource){
         ChangeStateDialogFragment fragment = new ChangeStateDialogFragment();
         Bundle args = new Bundle();
@@ -341,40 +260,25 @@ public class AgentInterventionActivity extends FragmentActivity
         fragment.show(getSupportFragmentManager(), "changeState_dialog");
     }
 
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals("Drone")) {
-            Intent intent = new Intent(AgentInterventionActivity.this, PlanZoneActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("intervention", intervention);
-            intent.putExtras(bundle);
-            startActivity(intent);
-            finish();
+    public class UpdateResourceIntervention extends AsyncTask<Object[], Void, Intervention> {
+        private SpringService service = new SpringService();
+        private long interventionId;
+        private Resource resource;
+
+        public UpdateResourceIntervention(long interventionId, Resource resource){
+            this.interventionId = interventionId;
+            this.resource = resource;
         }
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-        if(tab.getText().toString().equals("Intervention")) {
-            finish();
-        }
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, android.app.FragmentTransaction ft) {
-    }
-
-    public class UpdateIntervention extends AsyncTask<Intervention, Void, Intervention> {
 
         @Override
-        protected Intervention doInBackground(Intervention... intervention) {
-            Log.i(TAG, "Start doInbackground updateIntervention");
-            return new SpringService().updateIntervention(intervention[0]);
+        protected Intervention doInBackground(Object[]... params) {
+            Log.i(TAG, "Start doInbackground UpdateResourceIntervention");
+            return service.updateResourceIntervention(interventionId,resource);
         }
 
         @Override
         protected void onPostExecute(Intervention intervention){
-            Log.i(TAG, "Start onPostExecute updateIntervention");
+            Log.i(TAG, "Start onPostExecute UpdateResourceIntervention");
             updateIntervention(intervention);
             Log.i(TAG, "End update intervention");
         }
@@ -383,6 +287,24 @@ public class AgentInterventionActivity extends FragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
+        startSynchro();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopSynchro();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //closing transition animations
+        overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
+    }
+
+
+    public void startSynchro(){
         if(intervention != null) {
             DisplaySynch displaySynch = new DisplaySynch() {
                 @Override
@@ -395,14 +317,8 @@ public class AgentInterventionActivity extends FragmentActivity
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
+    public void stopSynchro(){
         IntentWraper.stopService();
     }
+
 }

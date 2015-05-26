@@ -23,32 +23,37 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 
+import org.springframework.util.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import entity.IncidentCode;
-import entity.Intervention;
-import entity.Resource;
-import entity.ResourceType;
+import istic.gla.groupb.nivimoju.entity.IncidentCode;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.entity.ResourceType;
+import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.springRest.GetAllIncidentCodeTask;
-import istic.gla.groupeb.flerjeco.springRest.GetResourceTypeTask;
+import istic.gla.groupeb.flerjeco.springRest.GetResourceTypeLabelsTask;
+import istic.gla.groupeb.flerjeco.springRest.GetResourceTypesTask;
 import istic.gla.groupeb.flerjeco.springRest.IIncidentCode;
 import istic.gla.groupeb.flerjeco.springRest.IInterventionActivity;
-import istic.gla.groupeb.flerjeco.springRest.IResourceTypeActivity;
+import istic.gla.groupeb.flerjeco.springRest.IResourceTypeLabelsActivity;
 import istic.gla.groupeb.flerjeco.springRest.InterventionPostTask;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import util.State;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.State;
 
 /**
  * Fragment used for the creation of the intervention of firefighters
  * @see android.support.v4.app.DialogFragment
  */
 public class InterventionDialogFragment extends DialogFragment
-        implements IIncidentCode, IInterventionActivity, IResourceTypeActivity{
+        implements IIncidentCode, IInterventionActivity, IResourceTypeLabelsActivity {
     private static final String TAG = InterventionDialogFragment.class.getSimpleName();
 
     Spinner codeSinistreSpinner;
@@ -67,9 +72,9 @@ public class InterventionDialogFragment extends DialogFragment
     private View mProgressView;
     private View mCreateFormView;
 
-    SpringService springService = new SpringService();
     String[] spinnerArray;
     ArrayAdapter<String> spinnerAdapter;
+    SpringService springService =  new SpringService();
 
     private HashMap<String, Long> spinnerMap;
     private HashMap<String, List<Long>> resourceTypeMap;
@@ -78,7 +83,7 @@ public class InterventionDialogFragment extends DialogFragment
     boolean data_local = false, addressOrCoordinates=true;
     private GetAllIncidentCodeTask incidentCodesTask;
     private InterventionPostTask interventionPostTask;
-    private GetResourceTypeTask resourceGetTask;
+    private GetResourceTypesTask resourceGetTask;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -103,8 +108,12 @@ public class InterventionDialogFragment extends DialogFragment
 
         //Selection of registered claims codes in the database and the list of identifiers of resourceType
         showProgress(true);
-        incidentCodesTask = new GetAllIncidentCodeTask(this);
-        incidentCodesTask.execute();
+        if(FlerjecoApplication.getInstance().getIncidentCodes() != null && FlerjecoApplication.getInstance().getIncidentCodes().length > 0) {
+            updateIncidentCodes(FlerjecoApplication.getInstance().getIncidentCodes());
+        } else {
+            incidentCodesTask = new GetAllIncidentCodeTask(this);
+            incidentCodesTask.execute();
+        }
 
         //  add button listener
         intervention_creation_button.setOnClickListener(new View.OnClickListener() {
@@ -140,7 +149,7 @@ public class InterventionDialogFragment extends DialogFragment
 
                     //  Selecting sinister code selected resources from the list of identifiers of resourceType already recovered
                     //  Note: at the end of this task in the background, it creates intervention
-                    new GetResourceTypeTask(InterventionDialogFragment.this).execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
+                    new GetResourceTypeLabelsTask(InterventionDialogFragment.this).execute(resourceTypeMap.get(codeSinistreSpinner.getSelectedItem().toString()));
 
                 }
             }
@@ -217,9 +226,9 @@ public class InterventionDialogFragment extends DialogFragment
     }
 
     @Override
-    public void getResourceType(List<ResourceType> resourceTypes) {
+    public void updateResourceTypeLabels(ResourceType[] resourceTypes) {
         //Intervention
-        entity.Intervention intervention;
+        istic.gla.groupb.nivimoju.entity.Intervention intervention;
         //Address of the intervention
         Address address = new Address(Locale.getDefault());
 
@@ -242,10 +251,13 @@ public class InterventionDialogFragment extends DialogFragment
         }
 
         //Les champs text sont toujours vérifié
-        intervention = new entity.Intervention(nameInterventionEditText.getText().toString(),
+        intervention = new istic.gla.groupb.nivimoju.entity.Intervention(nameInterventionEditText.getText().toString(),
                 spinnerMap.get(codeSinistreSpinner.getSelectedItem().toString()).intValue(),
                 address.getLatitude(), address.getLongitude());
-        Log.i(TAG, "getResourceType size : "+resourceTypes.size());
+        if(addressEditText.getText().toString() != null && !addressEditText.getText().toString().equals("")){
+            intervention.setAddress(addressEditText.getText().toString());
+        }
+        Log.i(TAG, "updateResourceTypeLabels size : "+ resourceTypes.length);
         List<Resource> resources = convertResourcesTypeToResources(resourceTypes);
 
         //intervention.set
@@ -255,9 +267,10 @@ public class InterventionDialogFragment extends DialogFragment
     }
 
     @Override
-    public void getIncidentCode(IncidentCode[] incidentCodes) {
+    public void updateIncidentCodes(IncidentCode[] incidentCodes) {
         showProgress(false);
         if(incidentCodes != null && incidentCodes.length > 0 ) {
+            FlerjecoApplication.getInstance().setIncidentCodes(incidentCodes);
             int i = 0;
             spinnerArray = new String[incidentCodes.length];
             resourceTypeMap = new HashMap<>();
@@ -302,13 +315,26 @@ public class InterventionDialogFragment extends DialogFragment
         return null;
     }
 
-    public List<Resource> convertResourcesTypeToResources(List<ResourceType> resourcesType){
+    public ResourceRole roleByName(String name) {
+        if(name.contains("VSAV") || name.contains("VSR")) {
+            return ResourceRole.people;
+        } else if(name.contains("FPT") || name.contains("EPA")){
+            return ResourceRole.fire;
+        } else if (name.contains("VLCG")) {
+            return ResourceRole.commands;
+        } else {
+            return ResourceRole.otherwise;
+        }
+    }
+
+    public List<Resource> convertResourcesTypeToResources(ResourceType[] resourcesType){
         List<Resource> resourcesResult= new ArrayList<>();
 
         for(ResourceType rt : resourcesType){
             if(rt != null) {
                 Resource rs = new Resource();
                 rs.setLabel(rt.getLabel());
+                rs.setResourceRole(roleByName(rt.getLabel()));
                 rs.setState(State.validated);
                 resourcesResult.add(rs);
             }

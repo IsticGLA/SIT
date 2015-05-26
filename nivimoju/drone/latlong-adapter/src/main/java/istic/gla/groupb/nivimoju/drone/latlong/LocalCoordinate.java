@@ -1,7 +1,7 @@
 package istic.gla.groupb.nivimoju.drone.latlong;
 
 /**
- * Created by Sacapuces on 4/8/2015.
+ * A coordinate in local (blender)
  */
 public class LocalCoordinate {
     private double x;
@@ -78,11 +78,11 @@ public class LocalCoordinate {
 
     @Override
     public String toString() {
-        return "LocalCoordinate{" +
-                "x=" + x +
-                ", y=" + y +
-                ", z=" + z +
-                '}';
+        return "[" +
+                "x=" + (int)x +
+                ", y=" + (int)y +
+                ", z=" + (int)z +
+                ']';
     }
 
     public double distanceInPlan(LocalCoordinate target){

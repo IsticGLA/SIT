@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import entity.StaticData;
+import istic.gla.groupb.nivimoju.entity.StaticData;
 import istic.gla.groupeb.flerjeco.R;
 
 /**
@@ -14,7 +14,7 @@ public class GetAllStaticDataTask extends AsyncTask<Void, Void, StaticData[]> {
 
     private int count = 0;
     private static final String TAG = GetAllStaticDataTask.class.getName();
-
+    private SpringService service = new SpringService();
     private IStaticDataActivity activity;
 
     public GetAllStaticDataTask(IStaticDataActivity activity) {
@@ -28,7 +28,6 @@ public class GetAllStaticDataTask extends AsyncTask<Void, Void, StaticData[]> {
 
     @Override
     protected StaticData[] doInBackground(Void... params) {
-        SpringService service = new SpringService();
         return service.getAllStaticDatas();
     }
 

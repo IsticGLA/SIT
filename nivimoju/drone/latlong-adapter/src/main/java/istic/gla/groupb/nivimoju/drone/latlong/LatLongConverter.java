@@ -1,7 +1,7 @@
 package istic.gla.groupb.nivimoju.drone.latlong;
 
-import entity.Path;
-import entity.Position;
+import istic.gla.groupb.nivimoju.entity.Path;
+import istic.gla.groupb.nivimoju.entity.Position;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -52,19 +52,6 @@ public class LatLongConverter {
     }
 
     /**
-     * Initialise un convertisseur latlong vers coordonnées locales dans un périmètre donné
-     * Le point de coordonnée s locales (0,0) est considéré comme étant au centre du rectangle déterminé par les latitudes et longitudes renseignées
-     *
-     * @param topLeft le point en haut a gauche du périmètre de travail en coordonnées latlong
-     * @param bottomRight le point en bas a droite du périmètre de travail en coordonnées latlong
-     * @param width la dimension du bord gauche à droite en unités du repère local
-     * @param height la dimension du bord inférieur à supérieur en unités du repère local
-     */
-    public LatLongConverter(Position topLeft, Position bottomRight, double width, double height){
-        this(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude(), width, height);
-    }
-
-    /**
      * Retourne les coordonnées locales correspondantes à une coordonnée latlong
      * @param latlong les coordonnées à transformer
      * @return les coordonnées dans le système local, à une altitude 0
@@ -74,7 +61,7 @@ public class LatLongConverter {
         if(latlong.getLatitude() < latitudeBottom || latlong.getLatitude() > latitudeTop
                 || latlong.getLongitude() < longitudeLeft ||latlong.getLongitude() > longitudeRight){
             logger.error("Les coordonnées sont en dehors du périmètre de travail, conversion impossible");
-            throw  new IllegalArgumentException("Impossible de convertir une position hors du périmètre de travail défini");
+            throw new IllegalArgumentException("Impossible de convertir une position hors du périmètre de travail défini");
         }
         //interpolation linéaire sur x puis y
         double ratioX = (latlong.getLongitude() - longitudeLeft) / (longitudeRight - longitudeLeft);
@@ -86,8 +73,8 @@ public class LatLongConverter {
         x = x*(1+deltaXFactor);
         y = y*(1+deltaYFactor);
 
-        logger.debug(String.format("width:%s, ratioX:%s, offsetX:%s, x=>%s", width, ratioX, offsetX, x));
-        logger.debug(String.format("height:%s, ratioY:%s, offsetY:%s, y=>%s", height, ratioY, offsetY, y));
+        logger.trace(String.format("width:%s, ratioX:%s, offsetX:%s, x=>%s", width, ratioX, offsetX, x));
+        logger.trace(String.format("height:%s, ratioY:%s, offsetY:%s, y=>%s", height, ratioY, offsetY, y));
 
         return new LocalCoordinate(x, y, 0);
     }
@@ -95,8 +82,14 @@ public class LatLongConverter {
     public LocalPath getLocalPath(Path path){
         LocalPath localPath = new LocalPath();
         localPath.setClosed(path.isClosed());
+        localPath.setPositions(getLocal(path.getPositions()));
+        logger.info("converted local path : " + localPath.toString());
+        return localPath;
+    }
+
+    public List<LocalCoordinate> getLocal(List<Position> latlongs){
         List<LocalCoordinate> localCoordinates = new ArrayList<>();
-        for(Position latLong : path.getPositions()){
+        for(Position latLong : latlongs){
             try{
                 LocalCoordinate coord = getLocal(latLong);
                 coord.setZ(20);
@@ -105,9 +98,7 @@ public class LatLongConverter {
                 logger.error("could not transfer " + latLong + " to local coordinates");
             }
         }
-        localPath.setPositions(localCoordinates);
-        logger.info("converted local path : " + localPath.toString());
-        return localPath;
+        return localCoordinates;
     }
 
 

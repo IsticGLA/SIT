@@ -1,41 +1,40 @@
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.os.Build;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 
-import entity.Intervention;
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
 import istic.gla.groupeb.flerjeco.R;
-import istic.gla.groupeb.flerjeco.synch.DisplaySynch;
-import istic.gla.groupeb.flerjeco.synch.IntentWraper;
-import util.ResourceRole;
-import util.State;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.State;
+import istic.gla.groupeb.flerjeco.springRest.IResourceActivity;
+import istic.gla.groupeb.flerjeco.springRest.UpdateResourceTask;
 
 /**
  * Fragment used for change the state of a resource of firefighters
  * @see android.support.v4.app.DialogFragment
  */
-public class ChangeStateDialogFragment extends DialogFragment {
+public class ChangeStateDialogFragment extends DialogFragment implements IResourceActivity {
     private static final String TAG = ChangeStateDialogFragment.class.getSimpleName();
 
     Spinner stateSpinner;
     Resource resource;
     private ResourceRole role;
+    private UpdateResourceTask updateResourceTask;
 
     //fields
-    Button validateButton;
+    CheckBox validatecheckBox;
     Button freeButton;
     Button changeRoleButton;
 
@@ -47,26 +46,49 @@ public class ChangeStateDialogFragment extends DialogFragment {
 
         resource = (Resource)getArguments().getSerializable("resource");
 
+        validatecheckBox = (CheckBox) v.findViewById(R.id.validateCheckBox);
+        if(resource.getResourceCategory() == ResourceCategory.dragabledata) {
+            validatecheckBox.setVisibility(View.GONE);
+        }
+        if(State.active.equals(resource.getState())) {
+            validatecheckBox.setChecked(true);
+            validatecheckBox.setEnabled(false);
+        }
         changeRoleButton = (Button) v.findViewById(R.id.buton_change_role);
+        if(resource.getLabel().contains("incident")) {
+            v.findViewById(R.id.layout_change_resource).setVisibility(View.GONE);
+        }
         changeRoleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeResourceRole(role);
+                if(validatecheckBox != null) {
+                    changeResourceRoleAndActivation(role);
+                }
             }
         });
 
         //init fields
-        validateButton = (Button) v.findViewById(R.id.validateButton);
-        validateButton.setOnClickListener(new View.OnClickListener() {
+
+        freeButton = (Button) v.findViewById(R.id.freeButton);
+        if(ResourceCategory.dragabledata.equals(resource.getResourceCategory())) {
+            freeButton.setText(R.string.remove_resource);
+        }
+        freeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                validateResource();
+                releaseResource();
             }
         });
-        freeButton = (Button) v.findViewById(R.id.freeButton);
 
         //init state spinner
-        stateSpinner = (Spinner) v.findViewById(R.id.stateSpinner);
+        if (resource.getResourceCategory() == ResourceCategory.dragabledata) {
+            stateSpinner = (Spinner) v.findViewById(R.id.stateSpinnerDraggable);
+            v.findViewById(R.id.stateSpinnerVehicle).setVisibility(View.GONE);
+        } else {
+            stateSpinner = (Spinner) v.findViewById(R.id.stateSpinnerVehicle);
+            v.findViewById(R.id.stateSpinnerDraggable).setVisibility(View.GONE);
+        }
+
         int position = getStatePosition();
         if (position != -1) {
             stateSpinner.setSelection(position);
@@ -109,14 +131,25 @@ public class ChangeStateDialogFragment extends DialogFragment {
 
     public void validateResource(){
         resource.setState(State.active);
-        ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
+        ((AgentInterventionActivity)getActivity()).updateResource(resource);
         dismiss();
     }
 
-    public void changeResourceRole(ResourceRole role){
+    public void changeResourceRoleAndActivation(ResourceRole role){
+        if(validatecheckBox.isChecked()){
+            validateResource();
+        }
         resource.setResourceRole(role);
-        ((AgentInterventionActivity)getActivity()).resourceUpdated(resource);
+        ((AgentInterventionActivity)getActivity()).updateResource(resource);
         dismiss();
+    }
+
+    public void releaseResource() {
+        updateResourceTask = new UpdateResourceTask(this);
+        updateResourceTask.execute(
+                "" + ((AgentInterventionActivity) getActivity()).getIntervention().getId(),
+                "" + resource.getIdRes(),
+                State.free.name());
     }
 
     public int getStatePosition(){
@@ -154,8 +187,20 @@ public class ChangeStateDialogFragment extends DialogFragment {
     @Override
     public void onPause() {
         super.onPause();
-
     }
 
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
+        if(updateResourceTask != null) {
+            updateResourceTask.cancel(true);
+        }
+    }
 
+    @Override
+    public void updateResources(Intervention intervention) {
+        if(intervention != null) {
+            dismiss();
+        }
+    }
 }

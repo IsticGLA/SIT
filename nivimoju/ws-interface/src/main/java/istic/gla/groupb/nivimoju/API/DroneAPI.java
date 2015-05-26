@@ -1,20 +1,14 @@
 package istic.gla.groupb.nivimoju.API;
 
-import dao.DroneDAO;
-import entity.Drone;
-import entity.Intervention;
-import entity.Position;
-import istic.gla.goupb.nivimoju.drone.engine.DroneEngine;
-import istic.gla.groupb.nivimoju.drone.client.DroneClient;
-import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
-import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
+import istic.gla.groupb.nivimoju.container.DroneContainer;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.drone.engine.DroneEngine;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
  * API to manipulate drones
@@ -22,6 +16,18 @@ import java.util.List;
 @Path("drone")
 public class DroneAPI {
     Logger logger = Logger.getLogger(DroneAPI.class);
+
+
+    /**
+     * Return all drones
+     * @return a response with all the drones
+     */
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAll() {
+        return Response.ok(DroneContainer.getInstance().getDrones())
+                .build();
+    }
 
     /**
      * Find all drone affected to intervention of id idIntervention
@@ -31,74 +37,25 @@ public class DroneAPI {
     @GET
     @Path("/byIntervention/{idIntervention}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getAll(
+    public Response getAllByIntervention(
             @PathParam("idIntervention") Long idIntervention) {
-        DroneDAO droneDAO = new DroneDAO();
-        droneDAO.connect();
-        List<Drone> droneList = droneDAO.getBy("idIntervention", idIntervention);
-        droneDAO.disconnect();
-        return Response.ok(droneList).build();
+        return Response.ok(DroneContainer.getInstance().getDronesAssignedTo(idIntervention))
+                .build();
     }
 
     /**
-     * Assign a drone to an intervention of id idIntervention
-     * @param idIntervention the intervention that need a drone
-     * @return OK everytime, with a body iff the assignation succeded
-     */
-    @GET
-    @Path("/assign/{idIntervention}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response assign(
-            @PathParam("idIntervention") Long idIntervention) {
-        DroneDAO droneDAO = new DroneDAO();
-        droneDAO.connect();
-
-        // on cherche un drone libre
-        List<Drone> droneList = droneDAO.getBy("idIntervention", -1);
-
-        if (null != droneList && droneList.size() >= 1) {
-            Drone updateDrone = droneList.get(0);
-            updateDrone.setIdIntervention(idIntervention);
-            updateDrone.updateDate();
-            droneDAO.update(updateDrone);
-            droneDAO.disconnect();
-            //notification au droneEngine
-            DroneEngine.getInstance().assignDrone(updateDrone);
-            return Response.ok(droneList.get(0)).build();
-        } else {
-            droneDAO.disconnect();
-            return Response.ok().build();
-        }
-    }
-
-    /**
-     * Unassign a drone from an intervention
-     * @param idDrone the id of the drone to unasign
+     * Unassign a drone from an intervention FOR DEBUG PURPOSES
+     * @param label the id of the drone to unasign
      * @return ok
      */
     @GET
-    @Path("/unassign/{idDrone}")
+    @Path("/unassign/{label}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response unassign(
-            @PathParam("idDrone") Long idDrone) {
-        DroneDAO droneDAO = new DroneDAO();
-        droneDAO.connect();
-
-        // on cherche le drone
-        Drone drone = droneDAO.getById(idDrone);
-
-        if (null != drone) {
-            drone.setIdIntervention(-1);
-            drone.updateDate();
-            droneDAO.update(drone);
-            droneDAO.disconnect();
-            //notification au droneEngine
-            DroneEngine.getInstance().unasignDrone(drone);
-            return Response.ok(drone).build();
-        } else {
-            droneDAO.disconnect();
-            return Response.ok().build();
-        }
+            @PathParam("label") String label) {
+        DroneContainer container = DroneContainer.getInstance();
+        container.freeDrone(label);
+        return Response.ok().build();
     }
 
     /**
@@ -113,8 +70,7 @@ public class DroneAPI {
         if(intervention != null){
             logger.info("alertEngine : intervention = " + intervention.toString());
             logger.info("alertEngine start : " + DateTime.now());
-                    DroneEngine.getInstance().setPathsForIntervention(intervention.getId(),
-                            intervention.getWatchPath());
+                    DroneEngine.getInstance().computeForIntervention(intervention);
             logger.info("alertEngine end : " + DateTime.now());
             return Response.ok().build();
         }

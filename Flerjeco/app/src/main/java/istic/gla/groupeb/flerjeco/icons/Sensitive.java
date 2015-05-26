@@ -6,7 +6,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 
-import util.ResourceRole;
+import istic.gla.groupb.nivimoju.util.ResourceRole;
 
 /**
  * This class allows to draw the representation
@@ -65,7 +65,7 @@ public class Sensitive implements IIcon {
                 paint.setColor(Color.RED);
                 break;
             case risks:
-                paint.setColor(Color.argb(0,255,102,0));
+                paint.setColor(Color.rgb(255,102,0));
                 break;
             case water:
                 paint.setColor(Color.BLUE);

@@ -2,18 +2,27 @@
 
 from flask import Flask, jsonify, request
 from flask_restful import abort
+#import http.client
 import json
 import rospy
 import logging
 import traceback
+import numpy as np
 from logging.handlers import RotatingFileHandler
 from geometry_msgs.msg import Pose
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import Point
+from sensor_msgs.msg import Image, CameraInfo
+import cv2
 import os
+import urllib
+import urllib2
+from urllib2 import Request, urlopen, URLError, HTTPError
+from cv_bridge import CvBridge, CvBridgeError
+import base64
+import time
 
 app = Flask(__name__)
-
 
 class Drone:
     def __init__(self, label, dest_tolerance_squared):
@@ -25,8 +34,12 @@ class Drone:
         self.forward = True
         self.closed = False
         self.currentIndex = 0
-        self.pose_sub = rospy.Subscriber(label+"/pose", PoseStamped, self.pose_callback)
-        self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=10, latch=False)
+        self.pose_sub = None
+        self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=1, latch=True)
+        self.camera_sub_image = None # pour la prise de photo au point
+        self.camera_sub_video = None # pour la prise de photo régulière
+        self.auto_reactivate = False
+        self.bridge = CvBridge()
 
     def pose_callback(self, pose_stamped):
         assert isinstance(pose_stamped, PoseStamped)
@@ -41,10 +54,86 @@ class Drone:
             if distance_squared < self.dest_tolerance_squared:
                 app.logger.info("robot " + self.label + " arrived to destination")
                 if len(self.path) > 1:
+                    self.take_picture(self.dest)
                     app.logger.info("robot " + self.label + " will go to next waypoint")
                     self.next_waypoint_in_path()
                 else:
                     app.logger.info("robot " + self.label + " will stay there")
+                    self.stop()
+        elif self.path is not None and len(self.path) > 0:
+            app.logger.warn("robot " + self.label + "has no destination")
+
+    def take_picture(self, position):
+        app.logger.info("activating picture callback")
+        self.picture_position = position
+        if self.camera_sub_image is not None:
+            self.camera_sub_image.unregister()
+        self.camera_sub_image = rospy.Subscriber(self.label+"/camera/image", Image, self.picture_callback, queue_size=1)
+
+    def activate_video(self):
+        app.logger.info("activating video")
+        if self.camera_sub_video is not None:
+            self.camera_sub_video.unregister()
+        self.camera_sub_video = rospy.Subscriber(self.label+"/camera/image", Image, self.video_callback, queue_size=1)
+
+    def desactivate_video(self):
+        app.logger.info("desactivating video")
+        if self.camera_sub_video is not None:
+            self.camera_sub_video.unregister()
+        self.camera_sub_video = None
+
+    def picture_callback(self, ros_data):
+        self.camera_sub_image.unregister()
+        try:
+            cv_image = self.bridge.imgmsg_to_cv2(ros_data, "bgr8")
+            encoded_img = cv2.imencode(".jpeg", cv_image)
+            data = base64.b64encode(encoded_img[1].tostring())
+            self.postImage(data, False)
+        except:
+            app.logger.error(traceback.format_exc()) 
+
+    def video_callback(self, ros_data):
+        self.desactivate_video()
+        try:
+            cv_image = self.bridge.imgmsg_to_cv2(ros_data, "bgr8")
+            encoded_img = cv2.imencode(".jpeg", cv_image)
+            data = base64.b64encode(encoded_img[1].tostring())
+            self.postImage(data, True)
+        except:
+            app.logger.error(traceback.format_exc())
+        time.sleep(1)
+        if self.auto_reactivate == True:
+            self.activate_video()
+
+    def postImage(self, image, isForVideo):
+        try:
+            myurl = None
+            position = None
+            if isForVideo == True:
+                myurl = "http://37.59.58.42:8080/nivimoju/rest/image/video"
+                position = self.position
+            else:
+                myurl = "http://37.59.58.42:8080/nivimoju/rest/image/create"
+                position = self.picture_position
+            app.logger.info("posting image " + str(type(image)) + " on " + myurl)
+            body = {'base64Image':image,
+                        'position': position,
+                        'droneLabel': self.label}
+            jsondata = json.dumps(body)
+            req = urllib2.Request(myurl)
+            req.add_header('Content-Type', 'application/json; charset=utf-8')
+            jsondataasbytes = jsondata.encode('utf-8')   # needs to be bytes
+            req.add_header('Content-Length', len(jsondataasbytes))
+            response = urllib2.urlopen(req, jsondataasbytes) 
+            app.logger.info("got response : " + str(response.info))
+        except HTTPError as e:
+            app.logger.error('The server couldn\'t fulfill the request. ')
+            app.logger.error('Error code: ' + str(e.code))
+        except URLError as e:
+            app.logger.error('We failed to reach a server.')
+            app.logger.error('Reason: ' + str(e.reason))
+        except:
+            app.logger.error(traceback.format_exc()) 
 
     def set_path(self, path, closed):
         app.logger.info("the path has " + str(len(path)) + " waypoints")
@@ -71,41 +160,52 @@ class Drone:
             app.logger.info("going to waypoint number " + str(target_index))
             self.currentIndex = target_index
             self.goto(self.path[self.currentIndex])
+        self.activate_video()
+        self.auto_reactivate = True
 
     def next_waypoint_in_path(self):
-        app.logger.info("setting next waypoint for robot " +
-                        self.label + "("+str(self.currentIndex+1)+"/"+str(len(self.path))+")")
-        if self.forward:
-            self.currentIndex += 1
-            if self.currentIndex >= len(self.path):
-                if self.closed:
-                    self.currentIndex = 0
-                else:
-                    self.currentIndex = len(self.path) - 1
-                    self.forward = False
+        app.logger.info("setting next waypoint for robot " + self.label)
+        if self.closed or len(self.path) <= 2:
+            self.currentIndex = (self.currentIndex + 1) % len(self.path)
         else:
-            self.currentIndex -= 1
-            if self.currentIndex < 0:
-                self.currentIndex = 0
-                self.forward = True
-        app.logger.info("new waypoint " +
-                        self.label + "("+str(self.currentIndex+1)+"/"+str(len(self.path))+")")
+            if self.forward:
+                self.currentIndex += 1
+                if self.currentIndex >= len(self.path):
+                     app.logger.info(self.label + " reached end of path, going back")
+                     self.currentIndex = (len(self.path) - 2) % len(self.path)
+                     self.forward = False
+            else:
+                self.currentIndex -= 1
+                if self.currentIndex < 0:
+                    app.logger.info(self.label + " reached start of path, going forward")
+                    self.currentIndex = 1 % len(self.path)
+                    self.forward = True
         app.logger.debug("current index " + str(self.currentIndex+1) +
-                         " forward : " + str(self.forward) +
-                         " current destination : " + str(self.dest))
+                         " forward : " + str(self.forward))
         self.goto(self.path[self.currentIndex])
 
     def goto(self, position):
         x = position["x"]
         y = position["y"]
         z = position["z"]
-        app.logger.info("publishing waypoint to " + str(x) + ", " + str(y) + ", " + str(z))
+        app.logger.info("publishing waypoint to point" + str(x) + ", " + str(y) + ", " + str(z))
         pose = Pose(position=Point(x, y, z))
         self.waypoint_pub.publish(pose)
         self.dest = position
+        if self.pose_sub is None:
+            self.pose_sub = rospy.Subscriber(self.label+"/pose", PoseStamped, self.pose_callback)
 
     def stop(self):
         self.__init__(self.label, self.dest_tolerance_squared)
+        if self.pose_sub is not None:
+            self.pose_sub.unregister()
+        if self.camera_sub_image is not None:
+            self.camera_sub_image.unregister()
+        self.pose_sub = None
+        self.camera_sub_image = None
+        self.desactivate_video()
+        self.auto_reactivate = False
+        app.logger.info("drone " + self.label + " stopped")
 
 
 class Controller:
@@ -125,7 +225,6 @@ class Controller:
                 drone.stop()
                 return True
         return False
-
 
 controller = Controller(5)
 
@@ -200,10 +299,12 @@ def get_drones_info():
 
 @app.route('/hello', methods=['GET'])
 def hello():
+    app.logger.info("hello")
     return "hello", 200
 
 if __name__ == '__main__':
-    handler = RotatingFileHandler('flask.log', maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler('/sit/log/flask.log', maxBytes=1000000, backupCount=1)
+    #handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
@@ -213,5 +314,7 @@ if __name__ == '__main__':
         rospy.init_node("node_server")
         app.logger.info("ros node started with ROS_IP:" + os.environ['ROS_IP'])
         app.run(debug=True, host='0.0.0.0', port=5000)
+        app.logger.info("flask webservice started")
     except Exception as e:
         app.logger.error(traceback.format_exc())
+

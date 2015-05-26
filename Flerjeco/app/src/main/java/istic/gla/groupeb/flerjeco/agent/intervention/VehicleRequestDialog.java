@@ -4,6 +4,7 @@ package istic.gla.groupeb.flerjeco.agent.intervention;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,12 +22,15 @@ import org.springframework.web.client.HttpStatusCodeException;
 
 import java.util.HashMap;
 
-import entity.Intervention;
-import entity.Resource;
-import entity.ResourceType;
+import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.entity.ResourceType;
+import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
+import istic.gla.groupeb.flerjeco.springRest.GetResourceTypesTask;
+import istic.gla.groupeb.flerjeco.springRest.IResourceTypesActivity;
 import istic.gla.groupeb.flerjeco.springRest.SpringService;
-import util.ResourceCategory;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
 
 /**
  * Created by jules on 09/04/15.
@@ -48,7 +52,7 @@ import util.ResourceCategory;
  * ft.add(R.id.embedded, vehicleFragment);
  * ft.commit();
  */
-public class VehicleRequestDialog extends DialogFragment {
+public class VehicleRequestDialog extends DialogFragment implements IResourceTypesActivity {
 
     private static final String TAG = VehicleRequestDialog.class.getSimpleName();
     private Spinner spinner;
@@ -58,7 +62,7 @@ public class VehicleRequestDialog extends DialogFragment {
     private View mProgressView;
     private View mVehicleFormView;
 
-    private ResourceTypesTask resourceTypesTask;
+    private GetResourceTypesTask resourceTypesTask;
     private ResourceRequestTask resourceRequestTask;
 
     @Override
@@ -74,8 +78,12 @@ public class VehicleRequestDialog extends DialogFragment {
 
         showProgress(true);
 
-        resourceTypesTask = new ResourceTypesTask();
-        resourceTypesTask.execute();
+        if(FlerjecoApplication.getInstance().getResourceTypes() != null && FlerjecoApplication.getInstance().getResourceTypes().length > 0) {
+            updateResourceTypes(FlerjecoApplication.getInstance().getResourceTypes());
+        } else {
+            resourceTypesTask = new GetResourceTypesTask(this);
+            resourceTypesTask.execute();
+        }
 
         //ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
         //        R.array.vehicles_array, android.R.layout.simple_spinner_item);
@@ -144,53 +152,37 @@ public class VehicleRequestDialog extends DialogFragment {
         }
     }
 
-    private class ResourceTypesTask extends AsyncTask<Void, Void, ResourceType[]> {
-
-        @Override
-        protected ResourceType[] doInBackground(Void... params) {
-            try {
-                ResourceType[] resourceTypes = new SpringService().resourceTypes();
-                return resourceTypes;
-
-            } catch (HttpStatusCodeException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(ResourceType[] resources) {
-            showProgress(false);
-            if(null == resources) {
-                Toast.makeText(getActivity(), "Error", Toast.LENGTH_SHORT).show();
-                dismiss();
-                cancel(true);
-                return;
-            }
-            String[] spinnerArray = new String[resources.length];
+    @Override
+    public void updateResourceTypes(ResourceType[] resourceTypes) {
+        if(resourceTypes != null && resourceTypes.length > 0 ) {
+            String[] spinnerArray = new String[resourceTypes.length];
             spinnerMap = new HashMap();
-            if(resources != null && resources.length > 0 ) {
-                for (int i = 0; i < resources.length; i++) {
-                    spinnerMap.put(resources[i].getLabel(), resources[i].getId());
-                    if(resources[i].getCategory() != null && resources[i].getCategory().equals(ResourceCategory.vehicule));
-                        spinnerArray[i] = resources[i].getLabel();
-                }
+            FlerjecoApplication.getInstance().setResourceTypes(resourceTypes);
+            for (int i = 0; i < resourceTypes.length; i++) {
+                spinnerMap.put(resourceTypes[i].getLabel(), resourceTypes[i].getId());
+                if (resourceTypes[i].getCategory() != null && resourceTypes[i].getCategory().equals(ResourceCategory.vehicule))
+                    ;
+                spinnerArray[i] = resourceTypes[i].getLabel();
             }
 
             ArrayAdapter<String> spinnerAdapter = new ArrayAdapter(VehicleRequestDialog.this.getActivity(), android.R.layout.simple_spinner_item, spinnerArray);
             spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(spinnerAdapter);
-
         }
+        showProgress(false);
+    }
+
+    @Override
+    public Context getContext() {
+        return null;
     }
 
     private class ResourceRequestTask extends AsyncTask<Object, Void, Intervention> {
-
+        private SpringService service = new SpringService();
         @Override
         protected Intervention doInBackground(Object... params) {
             try {
-                return new SpringService().requestVehicle(params);
+                return service.requestVehicle(params);
             } catch (HttpStatusCodeException e) {
                 Log.e(TAG, e.getMessage(), e);
             }

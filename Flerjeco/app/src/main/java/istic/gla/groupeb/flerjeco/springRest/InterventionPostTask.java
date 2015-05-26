@@ -5,7 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 
-import entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.R;
 
 /**
@@ -17,6 +17,7 @@ public class InterventionPostTask extends AsyncTask<Intervention, Void, Interven
     private int count = 0;
     private Intervention intervention;
     private IInterventionActivity activity;
+    private SpringService service = new SpringService();
 
     public InterventionPostTask(IInterventionActivity activity) {
         this.activity = activity;
@@ -28,14 +29,13 @@ public class InterventionPostTask extends AsyncTask<Intervention, Void, Interven
     }
 
     @Override
-    protected entity.Intervention doInBackground(entity.Intervention... params) {
+    protected istic.gla.groupb.nivimoju.entity.Intervention doInBackground(istic.gla.groupb.nivimoju.entity.Intervention... params) {
         intervention = params[0];
-        SpringService service = new SpringService();
         return service.postIntervention(intervention);
     }
 
     @Override
-    protected void onPostExecute(entity.Intervention resultPost) {
+    protected void onPostExecute(istic.gla.groupb.nivimoju.entity.Intervention resultPost) {
         Log.i(TAG, "InterventionPostTask onPostExecute");
         if(resultPost != null) {
             activity.updateIntervention(resultPost);

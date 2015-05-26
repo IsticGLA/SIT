@@ -17,6 +17,7 @@ package istic.gla.groupeb.flerjeco.agent.intervention;
 
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Bundle;
@@ -27,22 +28,24 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import entity.Resource;
+import istic.gla.groupb.nivimoju.entity.Resource;
+import istic.gla.groupb.nivimoju.util.ResourceCategory;
+import istic.gla.groupb.nivimoju.util.State;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.adapter.RequestAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceIconAdapter;
 import istic.gla.groupeb.flerjeco.adapter.ResourceImageAdapter;
 import istic.gla.groupeb.flerjeco.icons.Vehicle;
 import istic.gla.groupeb.flerjeco.synch.ISynchTool;
-import util.ResourceCategory;
-import util.State;
 
 public class AgentInterventionResourcesFragment extends Fragment implements ISynchTool {
-    OnResourceSelectedListener mCallback;
+
+    private static final String TAG = AgentInterventionResourcesFragment.class.getSimpleName();
 
     private ListView listViewResources;
     private ListView listViewRequests;
@@ -50,6 +53,7 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
     private List<Resource> resourceList = new ArrayList<>();
     private List<Bitmap> iconBitmapResourceList = new ArrayList<>();
     private List<Resource> requestList = new ArrayList<>();
+    private List<Resource> oldRequestList = new ArrayList<>();
     private List<Resource> additionalResourceList = new ArrayList<>();
     private ResourceIconAdapter resourceIconAdapter;
     private ResourceImageAdapter resourceImageAdapter;
@@ -63,17 +67,15 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         fillResourcesAndRequests();
         // notify adapters
         notifyAdapters();
-    }
-
-    // The container Activity must implement this interface so the frag can deliver messages
-    public interface OnResourceSelectedListener {
-        /** Called by HeadlinesFragment when a list item is selected */
-        public void onResourceSelected(int position);
+        // notify user
+        eventRefusedRequest();
     }
 
     public void clearData(){
         resourceList.clear();
         iconBitmapResourceList.clear();
+        oldRequestList.clear();
+        oldRequestList.addAll(requestList);
         requestList.clear();
     }
 
@@ -105,18 +107,15 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         listViewRequests.setAdapter(requestAdapter);
 
         // Add Listeners on listViews
-        listViewResources.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                mCallback.onResourceSelected(position);
-                listViewResources.setItemChecked(position,true);
-            }
-        });
         listViewResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
-                mCallback.onResourceSelected(position);
-                ClipData data = ClipData.newPlainText("", "");
+                Intent intent = new Intent();
+                Bundle extras = new Bundle();
+                extras.putSerializable("resource",resourceList.get(position));
+                extras.putInt("position",position);
+                intent.putExtras(extras);
+                ClipData data = ClipData.newIntent("intent",intent);
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
                 view.startDrag(data, shadowBuilder, view, 0);
                 view.setVisibility(View.INVISIBLE);
@@ -126,11 +125,26 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
         listViewAdditionalResources.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                mCallback.onResourceSelected(position);
-                ClipData data = ClipData.newPlainText("", "");
+                Intent intent = new Intent();
+                Bundle extras = new Bundle();
+                extras.putSerializable("resource",additionalResourceList.get(position));
+                extras.putInt("position",position);
+                intent.putExtras(extras);
+                ClipData data = ClipData.newIntent("intent",intent);
                 View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
                 view.startDrag(data, shadowBuilder, view, 0);
                 return true;
+            }
+        });
+        listViewRequests.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+            if(State.validated.equals(requestList.get(position).getState())) {
+                VehicleArrivedDialog vehicleArrivedDialog = new VehicleArrivedDialog();
+                vehicleArrivedDialog.setResource(requestList.get(position));
+                vehicleArrivedDialog.setInterventionId(((AgentInterventionActivity) getActivity()).getIntervention().getId());
+                vehicleArrivedDialog.show(getFragmentManager(), "vehicle_dialog");
+            }
             }
         });
 
@@ -159,10 +173,10 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
      */
     private void fillResourcesAndRequests(){
         AgentInterventionActivity interventionActivity = (AgentInterventionActivity) getActivity();
-        if (null != interventionActivity && null != interventionActivity.intervention) {
-            for (Resource resource : interventionActivity.intervention.getResources()) {
+        if (null != interventionActivity && null != interventionActivity.getIntervention()) {
+            for (Resource resource : interventionActivity.getIntervention().getResources()) {
                 State resourceState = resource.getState();
-                if (State.validated.equals(resourceState)) {
+                if (State.arrived.equals(resourceState)) {
                     resourceList.add(resource);
                     Vehicle mVehicle = new Vehicle(resource.getLabel(), resource.getResourceRole(), resource.getState());
                     int width = mVehicle.getRect().width();
@@ -172,12 +186,25 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
                     mVehicle.drawIcon(mCanvas);
                     iconBitmapResourceList.add(mBitmap);
                     Log.i("RESOURCELIST", resource.getLabel());
-                } else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState)) {
+                } else if (State.waiting.equals(resourceState) || State.refused.equals(resourceState) || State.validated.equals(resourceState)) {
                     requestList.add(resource);
                 }
             }
         }
+    }
 
+    private void eventRefusedRequest () {
+        for(Resource r : requestList) {
+            if(State.refused.equals(r.getState())) {
+                for(Resource oldR : oldRequestList) {
+                    if(State.waiting.equals(oldR.getState()) && oldR.getLabel().equals(r.getLabel())) {
+                        Toast.makeText(getActivity(),
+                                "Attention ! Resource : " + r.getLabel()+" refusé par un opérateur Codis !",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        }
     }
 
     private void notifyAdapters(){
@@ -196,7 +223,6 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
             listViewResources.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
             if(resourceList.size()>0){
-                mCallback.onResourceSelected(0);
                 listViewResources.setItemChecked(0,true);
             }
         }
@@ -205,15 +231,6 @@ public class AgentInterventionResourcesFragment extends Fragment implements ISyn
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception.
-        try {
-            mCallback = (OnResourceSelectedListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
-        }
     }
 
     /*

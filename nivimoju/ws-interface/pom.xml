@@ -59,6 +59,11 @@
             <artifactId>drone-engine</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>groupeb.gla.istic</groupId>
+            <artifactId>job</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,7 +1,7 @@
 package istic.gla.groupb.nivimoju.API;
 
-import dao.UserDAO;
-import entity.User;
+import istic.gla.groupb.nivimoju.dao.UserDAO;
+import istic.gla.groupb.nivimoju.entity.User;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

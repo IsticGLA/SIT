@@ -10,16 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <Button
-        android:visibility="gone"
-        android:id="@+id/buttonCancelResources"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:text="@string/buttonCancelResources"
-        android:padding="10dp"
-        android:layout_marginTop="50dp"
-        android:paddingRight="10dp"
-        android:onClick="cancelResources"/>
+    <ProgressBar
+        android:visibility="invisible"
+        android:id="@+id/map_progress" style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:layout_gravity="center" />
 
 </FrameLayout>
