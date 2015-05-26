@@ -48,6 +48,7 @@ import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
 import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
+import istic.gla.groupeb.flerjeco.utils.LatLngUtils;
 
 /**
  * Fragment de carte pour les drones
@@ -62,7 +63,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     private GoogleMap googleMap;
     private List<Pair<Polyline, Marker>> polylines;
     private List<Marker> markers;
-    private Map<String, Marker> dronesMarkers;
 
     // list of all the path of the intervention
     private List<Path> pathList;
@@ -74,13 +74,13 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     private Path savePath;
     // current intervention
     private Intervention inter;
-    // list all drone of the intevervention
 
     // indicate if we want to remove a path in the intervention
     public boolean removePath = false;
     // indicate if we want to edit a path in the intervention
     public boolean editPath = false;
 
+    private Map<String, Marker> dronesMarkers;
     private boolean refreshDrones = false;
 
 
@@ -114,6 +114,8 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 .newCameraPosition(cameraPosition));
 
         initMap(activity.getIntervention().getWatchPath());
+
+        this.dronesMarkers = new HashMap<>();
         return v;
     }
 
@@ -238,7 +240,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         ((PlanZoneActivity)getActivity()).showProgress(true);
         // remove Click listener
         resetMapListener();
-        inter = ((PlanZoneActivity)getActivity()).getIntervention();
+
         // if we are in edition mode, we set the new path in the intervention we get back from the main activity
         if (editPath){
             //inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
@@ -323,28 +325,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     }
 
     /**
-     * callback for when the path create/delete/update fail
-     */
-    public void revertOperation(EPathOperation operation){
-        Log.i(TAG, "reverting after failure for operation " + operation);
-        switch(operation){
-            case CREATE:
-                pathList.remove(pathList.size()-1);
-                clearGoogleMap();
-                break;
-            case UPDATE:
-                pathList.set(mCurrentPosition, savePath);
-                updateMapView(mCurrentPosition);
-                break;
-            case DELETE:
-                pathList.add(mCurrentPosition, savePath);
-                updateMapView(mCurrentPosition);
-                break;
-        }
-        ((PlanZoneActivity)getActivity()).showProgress(false);
-    }
-
-    /**
      * callback for when the path create/delete/update succeed
      */
     public void applyUpdateAfterOperation(Intervention intervention){
@@ -363,7 +343,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         PlanZoneActivity p = ((PlanZoneActivity) getActivity());
         pathList = newIntervention.getWatchPath();
         if (p.isEditionMode()){
-            if (mCurrentPosition != -1) {
+            if (mCurrentPosition != -1 && pathList.size() > 0) {
                 Path oldPath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), oldIntervention.getWatchPath());
                 Path updatePath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), newIntervention.getWatchPath());
                 // remove a path
@@ -439,13 +419,13 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
      */
     public void drawLine(LatLng first, LatLng last){
         // First you need rotate the bitmap of the arrowhead somewhere in your code
-        float rotationDegrees = (float) angleFromCoordinate(last.latitude, last.longitude, first.latitude, first.longitude);
+        float rotationDegrees = (float) LatLngUtils.angleFromCoordinate(last.latitude, last.longitude, first.latitude, first.longitude);
 
         // Create the rotated arrowhead bitmap
         Bitmap arrow = BitmapFactory.decodeResource(getResources(), R.drawable.arrow);
         BitmapDescriptor bitmapDescriptorFactory = BitmapDescriptorFactory.fromBitmap(arrow);
         // Get the middle position
-        LatLng middlePos = midPoint(first.latitude, first.longitude, last.latitude, last.longitude);
+        LatLng middlePos = LatLngUtils.midPoint(first.latitude, first.longitude, last.latitude, last.longitude);
         // Now we are gonna to add a marker
         Marker mArrowhead = googleMap.addMarker(new MarkerOptions()
                 .position(middlePos)
@@ -459,46 +439,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 .geodesic(true));
 
         polylines.add(new Pair<Polyline, Marker>(line, mArrowhead));
-    }
-
-    // Get middle point between two coordinates
-    private LatLng midPoint(double lat1,double lon1,double lat2,double lon2){
-
-        double dLon = Math.toRadians(lon2 - lon1);
-
-        //convert to radians
-        lat1 = Math.toRadians(lat1);
-        lat2 = Math.toRadians(lat2);
-        lon1 = Math.toRadians(lon1);
-
-        double Bx = Math.cos(lat2) * Math.cos(dLon);
-        double By = Math.cos(lat2) * Math.sin(dLon);
-        double lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2), Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
-        double lon3 = lon1 + Math.atan2(By, Math.cos(lat1) + Bx);
-
-        //print out in degrees
-        Log.i("TEST", lat1 + "  " + lon1 + "       " + lat2 + "   " + lon2);
-        Log.i("TEST", Math.toDegrees(lat3) + " " + Math.toDegrees(lon3));
-
-        return new LatLng(Math.toDegrees(lat3), Math.toDegrees(lon3));
-    }
-
-    // get angle between two coordinates
-    private double angleFromCoordinate(double lat1, double long1, double lat2, double long2) {
-
-        double dLon = (long2 - long1);
-
-        double y = Math.sin(dLon) * Math.cos(lat2);
-        double x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1)
-                * Math.cos(lat2) * Math.cos(dLon);
-
-        double brng = Math.atan2(y, x);
-
-        brng = Math.toDegrees(brng);
-        brng = (brng + 360) % 360;
-        brng = 360 - brng;
-
-        return brng;
     }
 
     /**
@@ -545,17 +485,13 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     /**
      * Show the marker for the drone of the intervention
      */
-    public void showDrones(Drone[] tab, long duration){
+    @Override
+    public void showDrones(Drone[] tab){
         if(refreshDrones) {
             labels.clear();
             for(Drone drone : tab){
                 labels.add(drone.getLabel());
                 if(dronesMarkers.containsKey(drone.getLabel())){
-                    //animate existing marker
-                    /**animateMarker(dronesMarkers.get(drone.getLabel()),
-                            new LatLng(drone.getLatitude(), drone.getLongitude()),
-                            false, duration
-                    );*/
                     dronesMarkers.get(drone.getLabel()).setPosition(new LatLng(drone.getLatitude(), drone.getLongitude()));
                 } else{
                     //create a new marker
@@ -580,6 +516,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     @Override
     public void onResume() {
         super.onResume();
+        inter = ((PlanZoneActivity)getActivity()).getIntervention();
         mMapView.onResume();
 
         long id = ((PlanZoneActivity)getActivity()).getIntervention().getId();
@@ -607,46 +544,13 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         mMapView.onLowMemory();
     }
 
-    public void refreshDrone() {
-        if(inter != null) {
+    @Override
+    public void refreshDrones() {
+        if(inter != null && refreshDrones) {
             new GetPositionDroneTask(this, inter.getId()).execute();
+        }else{
+            Log.e(TAG, "inter : " + inter + "refreshDrones : " + refreshDrones);
         }
-    }
-
-    public void animateMarker(final Marker marker, final LatLng toPosition,
-                              final boolean hideMarker, final long duration) {
-        final Handler handler = new Handler();
-        final long start = SystemClock.uptimeMillis();
-        Projection proj = googleMap.getProjection();
-        Point startPoint = proj.toScreenLocation(marker.getPosition());
-        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
-
-        final Interpolator interpolator = new LinearInterpolator();
-
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                long elapsed = SystemClock.uptimeMillis() - start;
-                float t = interpolator.getInterpolation((float) elapsed
-                        / duration);
-                double lng = t * toPosition.longitude + (1 - t)
-                        * startLatLng.longitude;
-                double lat = t * toPosition.latitude + (1 - t)
-                        * startLatLng.latitude;
-                marker.setPosition(new LatLng(lat, lng));
-
-                if (t < 1.0) {
-                    // Post again 16ms later.
-                    handler.postDelayed(this, 16);
-                } else {
-                    if (hideMarker) {
-                        marker.setVisible(false);
-                    } else {
-                        marker.setVisible(true);
-                    }
-                }
-            }
-        });
     }
 }
 

@@ -4,6 +4,8 @@ import android.util.Log;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import com.google.android.gms.maps.model.LatLng;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +18,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
+import java.util.Locale;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -324,6 +327,26 @@ public class SpringService {
             Log.e(TAG, "erreur à l'update d'un path", e);
             throw e;
         }
+    }
+
+    /**
+     * Gets all the image for the intervention and position
+     * @return An array of drones
+     */
+    public ResponseEntity<Image[]> getAllImageForInterventionAndPosition(Long interventionId, LatLng position, long timestamp) {
+        final String url = URL + "image/all/" + interventionId + "/" + position.latitude + "/" + position.longitude + "/" + timestamp;
+        Log.v(TAG, "getAllImageForInterventionAndPosition on " + url);
+        return restTemplate.getForEntity(url, Image[].class);
+    }
+
+    /**
+     * Gets the last image taken by a drone
+     * @return an image
+     */
+    public ResponseEntity<Image> getLastImageForDrone(String droneLabel) {
+        final String url = URL + "image/video/" + droneLabel;
+        Log.v(TAG, "getLastImageForDrone on " + url);
+        return restTemplate.getForEntity(url, Image.class);
     }
 
     /**

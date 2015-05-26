@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -91,23 +92,34 @@ public class ImageDAOTest {
 
     @Test
     public void getSpatialTest() {
-        Image img = imageDAO.getById(1100l);
+        Image img = imageDAO.getById(1146l);
 
-        List<TimestampedPosition> timestampedPositionList;
-
-        List<Image> res = imageDAO.getAllLastSpatialImages(img.getIdIntervention(), img.getTimestamp(), 10, null);
+        List<TimestampedPosition> timestampedPositionList = new ArrayList<>();
+        timestampedPositionList.add(new TimestampedPosition(new Position(img.getPosition()[0], img.getPosition()[1]), img.getTimestamp()));
+        List<Image> res = imageDAO.getAllLastSpatialImages(img.getIdIntervention(), img.getTimestamp(), 500, timestampedPositionList);
         logger.info("SIZE of the LIST IMAGE : " + res.size());
         for (Image i : res){
             logger.info(i.getBase64Image() + "                   " + i.getPosition()[0] + "   " + i.getPosition()[1]);
         }
 
+        long timestampTEST = img.getTimestamp();
+
         img.setId(-1);
         img.setTimestamp(Calendar.getInstance().getTime().getTime());
         imageDAO.addImage(img);
 
-        img.setId(1100l);
-        img.setTimestamp(1432288824313l);
+        img.setId(1146l);
+        img.setTimestamp(timestampTEST);
         res = imageDAO.getLastSpatialImages(img.getIdIntervention(), img.getPosition(), img.getTimestamp(), 20);
+    }
+
+    @Test
+    public void testGetLastSpatialImage(){
+        double[] position = {48.115156566626545, -1.6375452652573586};
+        List<Image> res = imageDAO.getLastSpatialImages(1149L, position, 0L, 10);
+        for (Image i : res){
+            logger.info("image " + i.getPosition()[0] + "   " + i.getPosition()[1] + " timestamp " + i.getTimestamp());
+        }
     }
 
     @Test

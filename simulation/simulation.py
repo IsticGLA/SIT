@@ -20,6 +20,7 @@ import urllib2
 from urllib2 import Request, urlopen, URLError, HTTPError
 from cv_bridge import CvBridge, CvBridgeError
 import base64
+import time
 
 app = Flask(__name__)
 
@@ -35,7 +36,9 @@ class Drone:
         self.currentIndex = 0
         self.pose_sub = None
         self.waypoint_pub = rospy.Publisher(label+"/waypoint", Pose, queue_size=1, latch=True)
-        self.camera_sub = None
+        self.camera_sub_image = None # pour la prise de photo au point
+        self.camera_sub_video = None # pour la prise de photo régulière
+        self.auto_reactivate = False
         self.bridge = CvBridge()
 
     def pose_callback(self, pose_stamped):
@@ -51,7 +54,7 @@ class Drone:
             if distance_squared < self.dest_tolerance_squared:
                 app.logger.info("robot " + self.label + " arrived to destination")
                 if len(self.path) > 1:
-                    self.take_picture()
+                    self.take_picture(self.dest)
                     app.logger.info("robot " + self.label + " will go to next waypoint")
                     self.next_waypoint_in_path()
                 else:
@@ -60,41 +63,71 @@ class Drone:
         elif self.path is not None and len(self.path) > 0:
             app.logger.warn("robot " + self.label + "has no destination")
 
-    def take_picture(self):
+    def take_picture(self, position):
         app.logger.info("activating picture callback")
-        if self.camera_sub is not None:
-            self.camera_sub.unregister()
-        self.camera_sub = rospy.Subscriber(self.label+"/camera/image", Image, self.picture_callback, queue_size=1)
+        self.picture_position = position
+        if self.camera_sub_image is not None:
+            self.camera_sub_image.unregister()
+        self.camera_sub_image = rospy.Subscriber(self.label+"/camera/image", Image, self.picture_callback, queue_size=1)
+
+    def activate_video(self):
+        app.logger.info("activating video")
+        if self.camera_sub_video is not None:
+            self.camera_sub_video.unregister()
+        self.camera_sub_video = rospy.Subscriber(self.label+"/camera/image", Image, self.video_callback, queue_size=1)
+
+    def desactivate_video(self):
+        app.logger.info("desactivating video")
+        if self.camera_sub_video is not None:
+            self.camera_sub_video.unregister()
+        self.camera_sub_video = None
 
     def picture_callback(self, ros_data):
-        app.logger.info("picture callback called with data type : " + str(type(ros_data)))
-        self.camera_sub.unregister()
+        self.camera_sub_image.unregister()
         try:
             cv_image = self.bridge.imgmsg_to_cv2(ros_data, "bgr8")
             encoded_img = cv2.imencode(".jpeg", cv_image)
             data = base64.b64encode(encoded_img[1].tostring())
-            self.postImage(data, 256)
+            self.postImage(data, False)
         except:
             app.logger.error(traceback.format_exc()) 
 
-    def postImage(self, image, image_width):
+    def video_callback(self, ros_data):
+        self.desactivate_video()
         try:
-	        app.logger.info("posting image " + str(type(image)))
-	
-	        body = {'image':image,
-	                    'position': self.position,
-	                    'droneLabel': self.label}
-	        jsondata = json.dumps(body)
+            cv_image = self.bridge.imgmsg_to_cv2(ros_data, "bgr8")
+            encoded_img = cv2.imencode(".jpeg", cv_image)
+            data = base64.b64encode(encoded_img[1].tostring())
+            self.postImage(data, True)
+        except:
+            app.logger.error(traceback.format_exc())
+        time.sleep(1)
+        if self.auto_reactivate == True:
+            self.activate_video()
 
-	        myurl = "http://37.59.58.42:8080/nivimoju/rest/image/create"
-	        req = urllib2.Request(myurl)
-	        req.add_header('Content-Type', 'application/json; charset=utf-8')
-	        jsondataasbytes = jsondata.encode('utf-8')   # needs to be bytes
-	        req.add_header('Content-Length', len(jsondataasbytes))
-	        response = urllib2.urlopen(req, jsondataasbytes) 
-	        app.logger.info("got response : " + str(response.info))
+    def postImage(self, image, isForVideo):
+        try:
+            myurl = None
+            position = None
+            if isForVideo == True:
+                myurl = "http://37.59.58.42:8080/nivimoju/rest/image/video"
+                position = self.position
+            else:
+                myurl = "http://37.59.58.42:8080/nivimoju/rest/image/create"
+                position = self.picture_position
+            app.logger.info("posting image " + str(type(image)) + " on " + myurl)
+            body = {'base64Image':image,
+                        'position': position,
+                        'droneLabel': self.label}
+            jsondata = json.dumps(body)
+            req = urllib2.Request(myurl)
+            req.add_header('Content-Type', 'application/json; charset=utf-8')
+            jsondataasbytes = jsondata.encode('utf-8')   # needs to be bytes
+            req.add_header('Content-Length', len(jsondataasbytes))
+            response = urllib2.urlopen(req, jsondataasbytes) 
+            app.logger.info("got response : " + str(response.info))
         except HTTPError as e:
-            app.logger.error('The server couldn\'t fulfill the request.')
+            app.logger.error('The server couldn\'t fulfill the request. ')
             app.logger.error('Error code: ' + str(e.code))
         except URLError as e:
             app.logger.error('We failed to reach a server.')
@@ -127,6 +160,8 @@ class Drone:
             app.logger.info("going to waypoint number " + str(target_index))
             self.currentIndex = target_index
             self.goto(self.path[self.currentIndex])
+        self.activate_video()
+        self.auto_reactivate = True
 
     def next_waypoint_in_path(self):
         app.logger.info("setting next waypoint for robot " + self.label)
@@ -162,8 +197,14 @@ class Drone:
 
     def stop(self):
         self.__init__(self.label, self.dest_tolerance_squared)
-        self.pose_sub.unregister()
+        if self.pose_sub is not None:
+            self.pose_sub.unregister()
+        if self.camera_sub_image is not None:
+            self.camera_sub_image.unregister()
         self.pose_sub = None
+        self.camera_sub_image = None
+        self.desactivate_video()
+        self.auto_reactivate = False
         app.logger.info("drone " + self.label + " stopped")
 
 
