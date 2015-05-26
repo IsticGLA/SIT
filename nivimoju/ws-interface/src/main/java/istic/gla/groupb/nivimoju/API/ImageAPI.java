@@ -58,7 +58,7 @@ public class ImageAPI {
      * @param inter The id of the intervention
      * @return OK
      */
-    @GET
+    @POST
     @Path("/last/{inter}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)

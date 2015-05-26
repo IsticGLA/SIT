@@ -2,10 +2,12 @@ package istic.gla.groupb.nivimoju.customObjects;
 
 import istic.gla.groupb.nivimoju.entity.Position;
 
+import java.io.Serializable;
+
 /**
  * Created by vivien on 22/05/15.
  */
-public class TimestampedPosition {
+public class TimestampedPosition implements Serializable {
     private Position position;
     private long timestamp;
 
