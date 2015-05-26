@@ -75,9 +75,14 @@ public class InterventionContainer {
      * @param intervention
      * @return Cree l'intervention intervention
      */
-    public Intervention createIntervention(Intervention intervention){
+    public Intervention createIntervention(Intervention intervention, boolean connectTest){
         InterventionDAO interventionDAO= new InterventionDAO();
-        interventionDAO.connect();
+
+        if(connectTest) {
+            interventionDAO.connectTest();
+        } else {
+            interventionDAO.connect();
+        }
 
         int id =0;
         for(Resource res : intervention.getResources()){
@@ -266,9 +271,9 @@ public class InterventionContainer {
         return instance;
     }
 
-    public static synchronized InterventionContainer getInstance(boolean connectTest){
+    public static synchronized InterventionContainer getInstanceTest(){
         if(instance == null){
-            instance = new InterventionContainer(connectTest);
+            instance = new InterventionContainer(true);
         }
         return instance;
     }

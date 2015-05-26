@@ -22,12 +22,12 @@ public class InterventionContainerTest {
     public void init(){
         InterventionContainer.destroy();
         // Connect to the test database
-        container = InterventionContainer.getInstance(true);
+        container = InterventionContainer.getInstanceTest();
     }
 
     @Test
     public void testCreateIntervention(){
-        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test1", 1, 48.0, -1.6));
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test1", 1, 48.0, -1.6), true);
 
         Assert.assertEquals("inter_test1", interventionContainer.getName());
         Assert.assertEquals(48.0, interventionContainer.getLatitude(), 0);
@@ -37,7 +37,7 @@ public class InterventionContainerTest {
 
     @Test
     public void testUpdateIntervention(){
-        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test2", 2, 48.0, -1.6));
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test2", 2, 48.0, -1.6), true);
 
         interventionContainer.setName("inter_test2_updated");
         interventionContainer = container.updateIntervention(interventionContainer);
@@ -50,7 +50,7 @@ public class InterventionContainerTest {
         Intervention intervention = new Intervention("inter_test3", 3, 48.0, -1.6);
         Resource res = new Resource();
         intervention.getResources().add(0, res);
-        Intervention interventionContainer = container.createIntervention(intervention);
+        Intervention interventionContainer = container.createIntervention(intervention, true);
 
         interventionContainer = container.changeResourceState(interventionContainer.getId(), 0L, State.arrived.toString());
 
@@ -59,7 +59,7 @@ public class InterventionContainerTest {
 
     @Test
     public void testAddVehicle(){
-        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6));
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
 
         interventionContainer = container.addVehicle(interventionContainer.getId(), "vehicle_test");
         Resource vehicle = interventionContainer.getResources().get(0);
@@ -70,7 +70,7 @@ public class InterventionContainerTest {
 
     @Test
     public void testAddResource(){
-        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6));
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
 
         Resource resource = new Resource();
         resource.setResourceCategory(ResourceCategory.dragabledata);
@@ -83,7 +83,7 @@ public class InterventionContainerTest {
 
     @Test
     public void testPlaceResource(){
-        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6));
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
 
         Resource resource = new Resource();
         resource.setResourceCategory(ResourceCategory.dragabledata);
@@ -102,7 +102,7 @@ public class InterventionContainerTest {
 
     @Test
     public void testAddWatchPath(){
-        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6));
+        Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
         Path path = new Path();
         path.addPosition(new Position(48.0, -1.6));
         interventionContainer = container.addWatchPath(interventionContainer.getId(), path);
@@ -114,21 +114,19 @@ public class InterventionContainerTest {
     }
 
     @Test
-    public void testUpdateWatchPath(){Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6));
+    public void testUpdateWatchPath(){Intervention interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
         Path path = new Path();
         path.addPosition(new Position(48.0, -1.6));
         interventionContainer = container.addWatchPath(interventionContainer.getId(), path);
 
         Position position = interventionContainer.getWatchPath().get(0).getPositions().get(0);
-         interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6));
-        Path path2 = new Path();
-        path2.addPosition(new Position(48.0, -1.6));
-        interventionContainer = container.addWatchPath(interventionContainer.getId(), path2);
+        interventionContainer = container.createIntervention(new Intervention("inter_test4", 3, 48.0, -1.6), true);
 
-        container.updateIntervention(interventionContainer);
+        path.addPosition(position);
+        interventionContainer = container.updateWatchPath(interventionContainer.getId(), path);
 
-        position = interventionContainer.getWatchPath().get(0).getPositions().get(0);
-
-
+        interventionContainer.getWatchPath().get(0).getPositions().size();
     }
+
+
 }
