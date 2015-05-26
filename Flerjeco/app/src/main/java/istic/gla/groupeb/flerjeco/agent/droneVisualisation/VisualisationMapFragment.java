@@ -78,6 +78,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
 
     private Map<String, Marker> dronesMarkers;
     private boolean refreshDrones = false;
+    GetPositionDroneTask getPositionDroneTask;
 
     //List of last images to draw
     private List<Image> images = new ArrayList<>();
@@ -295,12 +296,14 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         updateMapView();
 
         refreshDrones = true;
-        new GetPositionDroneTask(this, inter.getId()).execute();
+        getPositionDroneTask = new GetPositionDroneTask(this, inter.getId());
+        getPositionDroneTask.execute();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        getPositionDroneTask.cancel((true));
         refreshDrones = false;
         mMapView.onPause();
         IntentWraper.stopService();
@@ -320,7 +323,8 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
 
     public void refreshDrones() {
         if(inter != null && refreshDrones) {
-            new GetPositionDroneTask(this, inter.getId()).execute();
+            getPositionDroneTask = new GetPositionDroneTask(this, inter.getId());
+            getPositionDroneTask.execute();
         } else{
             Log.e(TAG, "inter : " + inter + "refreshDrones : " + refreshDrones);
         }
