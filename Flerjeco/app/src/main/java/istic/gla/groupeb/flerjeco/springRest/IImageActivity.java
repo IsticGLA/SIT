@@ -8,5 +8,5 @@ import istic.gla.groupb.nivimoju.entity.Image;
  * Created by jules on 21/05/15.
  */
 public interface IImageActivity {
-    void addImage(Image image);
+    void updateImages(Image[] images);
 }

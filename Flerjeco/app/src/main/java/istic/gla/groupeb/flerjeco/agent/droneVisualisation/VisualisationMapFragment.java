@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Intervention;
@@ -75,6 +76,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
 
     //List of last images to draw
     private List<Image> images = new ArrayList<>();
+    private List<TimestampedPosition> timestampedPositions = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -100,8 +102,6 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         VisualisationActivity activity = (VisualisationActivity) getActivity();
         inter = activity.getIntervention();
 
-        new GetLastImageTask(this).execute(inter.getId(), inter.getLatitude(), inter.getLongitude(), new Timestamp(0));
-
         // Center the camera on the intervention position
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(new LatLng(activity.getIntervention().getLatitude(), activity.getIntervention().getLongitude())).zoom(16).build();
@@ -125,6 +125,8 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     public void updateMapView() {
         // clear the Google Map
         clearGoogleMap();
+
+        new GetLastImageTask(this).execute(inter.getId(), timestampedPositions);
 
         if(getActivity() == null) {
             return;
@@ -177,17 +179,6 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
             }
         }
         //googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
-    }
-
-    public void addImage(Image image) {
-        for(Image _image : images) {
-            if(_image.getPosition().equals(image.getPosition())) {
-                images.remove(_image);
-                images.add(image);
-                return;
-            }
-        }
-        images.add(image);
     }
 
     public void drawImageMarker(double latitude, double longitude, Bitmap image, String text) {
@@ -373,6 +364,27 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     public void refreshDrone() {
         if(inter != null) {
             new GetPositionDroneTask(this, inter.getId()).execute();
+        }
+    }
+
+    @Override
+    public void updateImages(Image[] images) {
+        for(Image image : images) {
+            for(TimestampedPosition timestampedPosition : timestampedPositions) {
+                if(timestampedPosition.getPosition().equals(image.getPosition())) {
+                    this.timestampedPositions.remove(timestampedPosition);
+                    this.timestampedPositions.add(new TimestampedPosition(new Position(image.getPosition()[0], image.getPosition()[1]), image.getTimestamp()));
+                    break;
+                }
+            }
+            for(Image _image : this.images) {
+                if(_image.getPosition().equals(image.getPosition())) {
+                    this.images.remove(_image);
+                    this.images.add(image);
+                    break;
+                }
+            }
+            this.images.add(image);
         }
     }
 }

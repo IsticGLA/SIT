@@ -17,9 +17,11 @@ import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.IncidentCode;
@@ -373,26 +375,26 @@ public class SpringService {
         return datas;
     }
 
-    public Image getLastImage(Long interventionId, Double lat, Double lon, Timestamp time) {
-        Log.v(TAG, "getLastImage start");
-        final String url = URL + "image/last/"+ interventionId + "/" + lat + "/" + lon;
-        Image image = null;
+    public Image[] getLastImages(Long interventionId, List<TimestampedPosition> timestampedPositions) {
+        Log.v(TAG, "getLastImages start");
+        final String url = URL + "image/last/"+ interventionId;
+        Image[] images = null;
 
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<Timestamp> timestamp = new HttpEntity<>(time, headers);
-            ResponseEntity<Image> entity = restTemplate.exchange(url, HttpMethod.GET, timestamp, Image.class);
-            image = entity.getBody();
-            Log.v(TAG, "getLastImage: " + entity.getStatusCode());
+            HttpEntity<List<TimestampedPosition>> timestamp = new HttpEntity<>(timestampedPositions, headers);
+            ResponseEntity<Image[]> entity = restTemplate.exchange(url, HttpMethod.GET, timestamp, Image[].class);
+            images = entity.getBody();
+            Log.v(TAG, "getLastImages: " + entity.getStatusCode());
         } catch (HttpServerErrorException e) {
-            Log.v(TAG, "getLastImage: " + e.getMessage());
+            Log.v(TAG, "getLastImages: " + e.getMessage());
         } catch (ResourceAccessException e) {
-            Log.v(TAG, "getLastImage: " + e.getLocalizedMessage());
+            Log.v(TAG, "getLastImages: " + e.getLocalizedMessage());
         } catch (Throwable e) {
             Log.e(TAG, e.getMessage());
         }
 
-        return image;
+        return images;
     }
 }
