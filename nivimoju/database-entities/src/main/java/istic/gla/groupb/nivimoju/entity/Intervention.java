@@ -13,6 +13,8 @@ import java.util.List;
 public class Intervention extends AbstractEntity implements Serializable {
 
     private String name;
+    private String address;
+    private long creationDate;
     private int incidentCode;
     private double latitude;
     private double longitude;
@@ -34,7 +36,7 @@ public class Intervention extends AbstractEntity implements Serializable {
     }
 
     /**
-     * Build an Intervenntion
+     * Build an Intervention
      * @param incidentCode
      * @param latitude
      * @param longitude
@@ -116,20 +118,40 @@ public class Intervention extends AbstractEntity implements Serializable {
         this.watchPath = watchPath;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public long getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(long creationDate) {
+        this.creationDate = creationDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Intervention)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Intervention that = (Intervention) o;
 
+        if (creationDate != that.creationDate) return false;
         if (incidentCode != that.incidentCode) return false;
         if (Double.compare(that.latitude, latitude) != 0) return false;
         if (Double.compare(that.longitude, longitude) != 0) return false;
-        if (!resources.equals(that.resources)) return false;
-        if (!exclusionArea.equals(that.exclusionArea)) return false;
-        if (!watchArea.equals(that.watchArea)) return false;
-        return watchPath.equals(that.watchPath);
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (address != null ? !address.equals(that.address) : that.address != null) return false;
+        if (resources != null ? !resources.equals(that.resources) : that.resources != null) return false;
+        if (exclusionArea != null ? !exclusionArea.equals(that.exclusionArea) : that.exclusionArea != null)
+            return false;
+        if (watchArea != null ? !watchArea.equals(that.watchArea) : that.watchArea != null) return false;
+        return !(watchPath != null ? !watchPath.equals(that.watchPath) : that.watchPath != null);
 
     }
 
@@ -137,15 +159,18 @@ public class Intervention extends AbstractEntity implements Serializable {
     public int hashCode() {
         int result;
         long temp;
-        result = incidentCode;
+        result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (address != null ? address.hashCode() : 0);
+        result = 31 * result + (int) (creationDate ^ (creationDate >>> 32));
+        result = 31 * result + incidentCode;
         temp = Double.doubleToLongBits(latitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(longitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + resources.hashCode();
-        result = 31 * result + exclusionArea.hashCode();
-        result = 31 * result + watchArea.hashCode();
-        result = 31 * result + watchPath.hashCode();
+        result = 31 * result + (resources != null ? resources.hashCode() : 0);
+        result = 31 * result + (exclusionArea != null ? exclusionArea.hashCode() : 0);
+        result = 31 * result + (watchArea != null ? watchArea.hashCode() : 0);
+        result = 31 * result + (watchPath != null ? watchPath.hashCode() : 0);
         return result;
     }
 }
