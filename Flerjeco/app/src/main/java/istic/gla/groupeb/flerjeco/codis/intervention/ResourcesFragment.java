@@ -23,6 +23,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +42,7 @@ public class ResourcesFragment extends Fragment implements ISynchTool {
 
     private ListView listViewResources;
     private ListView listViewRequests;
+    private TextView titleTextView;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
@@ -55,6 +60,7 @@ public class ResourcesFragment extends Fragment implements ISynchTool {
 
         listViewResources = (ListView) v.findViewById(R.id.listViewAgentResources);
         listViewRequests = (ListView) v.findViewById(R.id.listViewAgentRequests);
+        titleTextView = (TextView) v.findViewById(R.id.codis_intervention_title);
 
         InterventionActivity interventionActivity = (InterventionActivity) getActivity();
         if(interventionActivity!=null) {
@@ -101,6 +107,22 @@ public class ResourcesFragment extends Fragment implements ISynchTool {
 
         listViewResources.setAdapter(new ArrayAdapter(getActivity(), layout, labelsResources));
         listViewRequests.setAdapter(new ResourceAdapter(getActivity(), layout, requests, intervention.getId(), this));
+        titleTextView.setVisibility(View.VISIBLE);
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
+        String creationDate = dtf.print(intervention.getCreationDate());
+        if(intervention.getAddress() != null){
+            titleTextView.setText(
+                    String.format(getString(R.string.codis_intervention_title),
+                            intervention.getName(),
+                            intervention.getAddress(),
+                            creationDate));
+        } else{
+            titleTextView.setText(
+                    String.format(getString(R.string.codis_intervention_title_without_address),
+                            intervention.getName(),
+                            creationDate));
+        }
+
     }
 
     @Override

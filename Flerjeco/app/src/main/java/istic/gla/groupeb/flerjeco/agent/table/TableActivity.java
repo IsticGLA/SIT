@@ -15,6 +15,9 @@ import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
 import android.widget.TextView;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupeb.flerjeco.FlerjecoApplication;
 import istic.gla.groupeb.flerjeco.R;
@@ -65,10 +68,23 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
         FlerjecoApplication flerjecoApplication = FlerjecoApplication.getInstance();
         if(flerjecoApplication.isCodisUser()) {
             setTitle(R.string.activities_codis);
-            findViewById(R.id.text_intervention_name).setVisibility(View.VISIBLE);
-            ((TextView) findViewById(R.id.text_intervention_name)).setText(intervention.getName());
         } else {
             setTitle(R.string.activities_agent);
+        }
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
+        String creationDate = dtf.print(intervention.getCreationDate());
+        findViewById(R.id.text_intervention_title).setVisibility(View.VISIBLE);
+        if(intervention.getAddress() != null){
+            ((TextView) findViewById(R.id.text_intervention_title)).setText(
+                    String.format(getString(R.string.codis_intervention_title),
+                            intervention.getName(),
+                            intervention.getAddress(),
+                            creationDate));
+        } else{
+            ((TextView) findViewById(R.id.text_intervention_title)).setText(
+                    String.format(getString(R.string.codis_intervention_title_without_address),
+                            intervention.getName(),
+                            creationDate));
         }
 
         // Check whether the activity is using the layout version with

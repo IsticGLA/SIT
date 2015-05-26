@@ -56,7 +56,7 @@ public class InterventionAPI {
     @Produces(MediaType.APPLICATION_JSON)
     public Response createIntervention(
             Intervention intervention) {
-        Intervention resultat = InterventionContainer.getInstance().createIntervention(intervention);
+        Intervention resultat = InterventionContainer.getInstance().createIntervention(intervention, false);
         return  Response.ok(resultat).build();
     }
 

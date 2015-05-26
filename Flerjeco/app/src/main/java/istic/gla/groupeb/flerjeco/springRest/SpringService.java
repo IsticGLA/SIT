@@ -407,7 +407,7 @@ public class SpringService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<List<TimestampedPosition>> timestamp = new HttpEntity<>(timestampedPositions, headers);
-            ResponseEntity<Image[]> entity = restTemplate.exchange(url, HttpMethod.GET, timestamp, Image[].class);
+            ResponseEntity<Image[]> entity = restTemplate.postForEntity(url, timestamp, Image[].class);
             images = entity.getBody();
             Log.v(TAG, "getLastImages: " + entity.getStatusCode());
         } catch (HttpServerErrorException e) {

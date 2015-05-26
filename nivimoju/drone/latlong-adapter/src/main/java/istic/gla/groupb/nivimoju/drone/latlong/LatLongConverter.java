@@ -52,19 +52,6 @@ public class LatLongConverter {
     }
 
     /**
-     * Initialise un convertisseur latlong vers coordonnées locales dans un périmètre donné
-     * Le point de coordonnée s locales (0,0) est considéré comme étant au centre du rectangle déterminé par les latitudes et longitudes renseignées
-     *
-     * @param topLeft le point en haut a gauche du périmètre de travail en coordonnées latlong
-     * @param bottomRight le point en bas a droite du périmètre de travail en coordonnées latlong
-     * @param width la dimension du bord gauche à droite en unités du repère local
-     * @param height la dimension du bord inférieur à supérieur en unités du repère local
-     */
-    public LatLongConverter(Position topLeft, Position bottomRight, double width, double height){
-        this(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude(), width, height);
-    }
-
-    /**
      * Retourne les coordonnées locales correspondantes à une coordonnée latlong
      * @param latlong les coordonnées à transformer
      * @return les coordonnées dans le système local, à une altitude 0
@@ -74,7 +61,7 @@ public class LatLongConverter {
         if(latlong.getLatitude() < latitudeBottom || latlong.getLatitude() > latitudeTop
                 || latlong.getLongitude() < longitudeLeft ||latlong.getLongitude() > longitudeRight){
             logger.error("Les coordonnées sont en dehors du périmètre de travail, conversion impossible");
-            throw  new IllegalArgumentException("Impossible de convertir une position hors du périmètre de travail défini");
+            throw new IllegalArgumentException("Impossible de convertir une position hors du périmètre de travail défini");
         }
         //interpolation linéaire sur x puis y
         double ratioX = (latlong.getLongitude() - longitudeLeft) / (longitudeRight - longitudeLeft);
@@ -95,17 +82,7 @@ public class LatLongConverter {
     public LocalPath getLocalPath(Path path){
         LocalPath localPath = new LocalPath();
         localPath.setClosed(path.isClosed());
-        List<LocalCoordinate> localCoordinates = new ArrayList<>();
-        for(Position latLong : path.getPositions()){
-            try{
-                LocalCoordinate coord = getLocal(latLong);
-                coord.setZ(20);
-                localCoordinates.add(coord);
-            } catch (IllegalArgumentException e){
-                logger.error("could not transfer " + latLong + " to local coordinates");
-            }
-        }
-        localPath.setPositions(localCoordinates);
+        localPath.setPositions(getLocal(path.getPositions()));
         logger.info("converted local path : " + localPath.toString());
         return localPath;
     }

@@ -54,7 +54,7 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
     private Long mInterventionId;
     private LatLng mPosition;
     private long mostRecentTimestamp;
-    private DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss");
+    private DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
     Timer timer;
 
     @Override
@@ -212,7 +212,9 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
         mDemoSlider.setPresetTransformer(SliderLayout.Transformer.Stack);
         mDemoSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
         mDemoSlider.stopAutoCycle();
-        mDemoSlider.setCurrentPosition(mDemoSlider.getChildCount());
+        if(mDemoSlider.getChildCount() > 0) {
+            mDemoSlider.setCurrentPosition(mDemoSlider.getChildCount() - 1);
+        }
         setLoading(false);
 
     }
