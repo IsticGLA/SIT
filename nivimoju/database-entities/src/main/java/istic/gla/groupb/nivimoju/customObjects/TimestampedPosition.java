@@ -11,6 +11,9 @@ public class TimestampedPosition implements Serializable {
     private Position position;
     private long timestamp;
 
+    public TimestampedPosition() {
+    }
+
     public TimestampedPosition(Position position, long timestamp) {
         this.position = position;
         this.timestamp = timestamp;
