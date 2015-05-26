@@ -1,13 +1,14 @@
 package istic.gla.groupb.nivimoju.container;
 
-import istic.gla.groupb.nivimoju.container.DroneContainer;
+import istic.gla.groupb.nivimoju.dao.DroneDAO;
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.Position;
 import org.apache.log4j.Logger;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -15,10 +16,33 @@ public class DroneContainerTest {
     Logger logger = Logger.getLogger(DroneContainerTest.class);
     DroneContainer container;
 
+    @BeforeClass
+    public static void initDronesInDb(){
+        emptyDatabase();
+        DroneDAO droneDAO = new DroneDAO();
+        droneDAO.connectTest();
+        droneDAO.create(new Drone("drone_1", 0, 0, -1));
+        droneDAO.create(new Drone("drone_2", 0, 0, -1));
+        droneDAO.create(new Drone("drone_3", 0, 0, -1));
+        droneDAO.create(new Drone("drone_4", 0, 0, -1));
+        droneDAO.create(new Drone("drone_5", 0, 0, -1));
+        droneDAO.disconnect();
+    }
+
+    @AfterClass
+    public static void emptyDatabase(){
+        DroneDAO droneDAO = new DroneDAO();
+        droneDAO.connectTest();
+        for(Drone droneToDelete : droneDAO.getAll()){
+            droneDAO.delete(droneToDelete);
+        }
+        droneDAO.disconnect();
+    }
+
     @Before
     public void init(){
-        DroneContainer.destroy();
-        container = DroneContainer.getInstance();
+        DroneContainer.destroyTestInstance();
+        container = DroneContainer.getTestInstance();
     }
 
     @Test
@@ -26,10 +50,19 @@ public class DroneContainerTest {
         container.updateDrone("drone_1", new Position(1, 2, 3));
         assertEquals(1L, container.getDroneByLabel("drone_1").getLatitude(), 0);
         assertEquals(2L, container.getDroneByLabel("drone_1").getLongitude(), 0);
+
+        Collection<Drone> drones = container.getDrones();
+        Assert.assertEquals(5, drones.size());
+        for(Drone drone : drones){
+            if(!drone.getLabel().equals("drone_1")){
+                assertEquals(0L, drone.getLatitude(), 0);
+                assertEquals(0L, drone.getLongitude(), 0);
+            }
+        }
     }
 
     @Test
-         public void testRequestDrones(){
+    public void testRequestDrones(){
         Drone drone = container.requestDrone(2L);
         assertNotNull(drone);
 
@@ -37,6 +70,22 @@ public class DroneContainerTest {
         assertEquals(2L, container.getMapDroneByLabel().get(drone.getLabel()).getIdIntervention());
         assertEquals(1, container.getMapDronesByIntervention().get(2L).size());
         assertEquals(1, container.getDronesAssignedTo(2L).size());
+    }
+
+    @Test
+    public void testRequestAndFreeDrones(){
+        container.requestDrones(2L, 6);
+
+        Collection<Drone> drones = container.getDrones();
+        Assert.assertEquals(5, drones.size());
+
+        for(Drone drone : drones){
+            assertEquals(2L, drone.getIdIntervention(), 0);
+        }
+
+        container.freeDrones(2L, 3);
+        drones = container.getDronesAssignedTo(2L);
+        Assert.assertEquals(2, drones.size());
     }
 
     @Test
