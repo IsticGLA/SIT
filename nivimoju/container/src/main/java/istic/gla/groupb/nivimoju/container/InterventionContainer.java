@@ -6,6 +6,7 @@ import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Resource;
 import org.apache.log4j.Logger;
 import istic.gla.groupb.nivimoju.util.State;
+import org.joda.time.DateTime;
 
 import java.sql.Timestamp;
 import java.util.*;
@@ -85,7 +86,7 @@ public class InterventionContainer {
             res.initState();
             id++;
         }
-
+        intervention.setCreationDate(DateTime.now().getMillis());
         Intervention resultat = interventionDAO.create(intervention);
         interventionDAO.disconnect();
         mapInterventionById.put(resultat.getId(), resultat);

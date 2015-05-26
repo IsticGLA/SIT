@@ -190,7 +190,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 // create marker
                 MarkerOptions marker = new MarkerOptions().position(latLng);
                 // Changing marker icon
-                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
                 // adding marker
                 Marker m = googleMap.addMarker(marker);
                 // add the marker on the markers list

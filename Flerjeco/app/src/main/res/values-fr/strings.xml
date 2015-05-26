@@ -106,4 +106,9 @@
     <string name="title_activity_visualisation">Visualisation</string>
     <string name="visualisation">Visualisation</string>
     <string name="remove_resource">Supprimer ce marqueur</string>
+    <string name="interventions">Interventions</string>
+    <string name="image_slider_empty">Aucune image</string>
+    <string name="fail_get_images">Une erreur est survenue lors de la récupération des images</string>
+    <string name="drone_video_title">Vidéo pour %s</string>
+    <string name="drone_image_slider_title">Historique des images</string>
 </resources>
