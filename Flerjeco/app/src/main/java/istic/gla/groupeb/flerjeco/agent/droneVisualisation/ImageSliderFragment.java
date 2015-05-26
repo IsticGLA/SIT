@@ -212,7 +212,9 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
         mDemoSlider.setPresetTransformer(SliderLayout.Transformer.Stack);
         mDemoSlider.setPresetIndicator(SliderLayout.PresetIndicators.Center_Bottom);
         mDemoSlider.stopAutoCycle();
-        mDemoSlider.setCurrentPosition(mDemoSlider.getChildCount());
+        if(mDemoSlider.getChildCount() > 0) {
+            mDemoSlider.setCurrentPosition(mDemoSlider.getChildCount() - 1);
+        }
         setLoading(false);
 
     }
