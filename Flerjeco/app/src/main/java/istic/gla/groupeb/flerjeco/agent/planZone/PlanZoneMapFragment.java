@@ -82,6 +82,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
     private Map<String, Marker> dronesMarkers;
     private boolean refreshDrones = false;
+    GetPositionDroneTask getPositionDroneTask;
 
 
     @Override
@@ -521,13 +522,15 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
         long id = ((PlanZoneActivity)getActivity()).getIntervention().getId();
         refreshDrones = true;
-        new GetPositionDroneTask(this, id).execute();
+        getPositionDroneTask = new GetPositionDroneTask(this, id);
+        getPositionDroneTask.execute();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         refreshDrones = false;
+        getPositionDroneTask.cancel(true);
         mMapView.onPause();
         IntentWraper.stopService();
     }
@@ -547,7 +550,8 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     @Override
     public void refreshDrones() {
         if(inter != null && refreshDrones) {
-            new GetPositionDroneTask(this, inter.getId()).execute();
+            getPositionDroneTask = new GetPositionDroneTask(this, inter.getId());
+            getPositionDroneTask.execute();
         }else{
             Log.e(TAG, "inter : " + inter + "refreshDrones : " + refreshDrones);
         }
