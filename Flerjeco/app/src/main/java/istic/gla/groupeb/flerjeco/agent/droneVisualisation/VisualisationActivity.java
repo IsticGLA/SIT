@@ -135,7 +135,7 @@ public class VisualisationActivity extends TabbedActivity implements ISynchTool,
 
 
     /**
-     * charge la gallerie d'image pour cette position
+     * charge la galerie d'image pour cette position
      * @param position la position a charger
      */
     public void loadImageSlider(LatLng position){
