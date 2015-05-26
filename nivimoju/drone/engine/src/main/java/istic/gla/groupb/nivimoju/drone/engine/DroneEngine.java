@@ -79,12 +79,7 @@ public class DroneEngine{
     private List<LocalPath> computePaths(Intervention intervention){
         //TODO augmenter avec les calculs a partir de zones
         List<LocalPath> paths = transformInLocal(intervention.getWatchPath());
-        //temporaire pour test
-        List<List<Position>> areas = new ArrayList<>();
-        for(Path p : intervention.getWatchPath()){
-            areas.add(p.getPositions());
-        }
-        paths.addAll(getPathsForScans(areas, DRONE_SCAN_WIDTH));
+        paths.addAll(getPathsForScans(intervention.getWatchArea(), DRONE_SCAN_WIDTH));
         return paths;
     }
 

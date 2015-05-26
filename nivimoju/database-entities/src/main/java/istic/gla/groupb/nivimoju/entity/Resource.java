@@ -251,16 +251,30 @@ public class Resource implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Resource)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Resource resource = (Resource) o;
 
+        if (idRes != resource.idRes) return false;
         if (Double.compare(resource.latitude, latitude) != 0) return false;
         if (Double.compare(resource.longitude, longitude) != 0) return false;
-        if (!label.equals(resource.label)) return false;
+        if (label != null ? !label.equals(resource.label) : resource.label != null) return false;
         if (state != resource.state) return false;
         if (resourceRole != resource.resourceRole) return false;
-        return resourceCategory == resource.resourceCategory;
+        if (resourceCategory != resource.resourceCategory) return false;
+        if (plannedHistory != null ? !plannedHistory.equals(resource.plannedHistory) : resource.plannedHistory != null)
+            return false;
+        if (arrivedHistory != null ? !arrivedHistory.equals(resource.arrivedHistory) : resource.arrivedHistory != null)
+            return false;
+        if (activeHistory != null ? !activeHistory.equals(resource.activeHistory) : resource.activeHistory != null)
+            return false;
+        if (waitingHistory != null ? !waitingHistory.equals(resource.waitingHistory) : resource.waitingHistory != null)
+            return false;
+        if (validatedHistory != null ? !validatedHistory.equals(resource.validatedHistory) : resource.validatedHistory != null)
+            return false;
+        if (refusedHistory != null ? !refusedHistory.equals(resource.refusedHistory) : resource.refusedHistory != null)
+            return false;
+        return !(freeHistory != null ? !freeHistory.equals(resource.freeHistory) : resource.freeHistory != null);
 
     }
 
@@ -268,14 +282,22 @@ public class Resource implements Serializable {
     public int hashCode() {
         int result;
         long temp;
-        result = label.hashCode();
-        result = 31 * result + state.hashCode();
-        result = 31 * result + resourceRole.hashCode();
-        result = 31 * result + resourceCategory.hashCode();
+        result = (int) (idRes ^ (idRes >>> 32));
+        result = 31 * result + (label != null ? label.hashCode() : 0);
+        result = 31 * result + (state != null ? state.hashCode() : 0);
+        result = 31 * result + (resourceRole != null ? resourceRole.hashCode() : 0);
+        result = 31 * result + (resourceCategory != null ? resourceCategory.hashCode() : 0);
         temp = Double.doubleToLongBits(latitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(longitude);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (plannedHistory != null ? plannedHistory.hashCode() : 0);
+        result = 31 * result + (arrivedHistory != null ? arrivedHistory.hashCode() : 0);
+        result = 31 * result + (activeHistory != null ? activeHistory.hashCode() : 0);
+        result = 31 * result + (waitingHistory != null ? waitingHistory.hashCode() : 0);
+        result = 31 * result + (validatedHistory != null ? validatedHistory.hashCode() : 0);
+        result = 31 * result + (refusedHistory != null ? refusedHistory.hashCode() : 0);
+        result = 31 * result + (freeHistory != null ? freeHistory.hashCode() : 0);
         return result;
     }
 }
