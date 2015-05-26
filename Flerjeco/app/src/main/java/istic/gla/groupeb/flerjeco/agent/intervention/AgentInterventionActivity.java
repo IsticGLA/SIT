@@ -15,13 +15,13 @@
  */
 package istic.gla.groupeb.flerjeco.agent.intervention;
 
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.Menu;
@@ -29,13 +29,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
-
-import java.util.List;
 
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Resource;
@@ -52,14 +48,12 @@ import istic.gla.groupeb.flerjeco.synch.ISynchTool;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 
 public class AgentInterventionActivity extends TabbedActivity
-        implements AgentInterventionResourcesFragment.OnResourceSelectedListener, ISynchTool, IInterventionActivity {
+        implements ISynchTool, IInterventionActivity {
 
     private static final String TAG = AgentInterventionActivity.class.getSimpleName();
 
     private AgentInterventionResourcesFragment firstFragment;
     private AgentInterventionMapFragment mapFragment;
-
-    int mCurrentPosition = -1;
 
     @Override
     public void refresh(){
@@ -99,18 +93,6 @@ public class AgentInterventionActivity extends TabbedActivity
             Log.i(TAG, "getExtras not null");
             intervention = (Intervention) extras.getSerializable("intervention");
         }
-        /*List<Resource> resourceList = new ArrayList<>();
-        resourceList.add(new Resource("Resource0", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource1", State.validated, ResourceRole.people, ResourceCategory.vehicule, 48.117749, -1.677297));
-        resourceList.add(new Resource("Resource2", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 48.127749, -1.657297));
-        resourceList.add(new Resource("Resource3", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 48.107749, -1.687297));
-        resourceList.add(new Resource("Resource4", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource5", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("VSAP", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource7", State.validated, ResourceRole.people, ResourceCategory.vehicule, 0, 0));
-        resourceList.add(new Resource("Resource8", State.validated, ResourceRole.commands, ResourceCategory.vehicule, 0, 0));
-        reprivate TableJavaFragment frag3 = new TableJavaFragment();sourceList.add(new Resource("Resource9", State.validated, ResourceRole.fire, ResourceCategory.vehicule, 0, 0));
-        intervention.setResources(resourceList);*/
 
         setContentView(R.layout.activity_intervention_agent);
 
@@ -144,35 +126,6 @@ public class AgentInterventionActivity extends TabbedActivity
             findViewById(R.id.map_fragment).setOnDragListener(new MyDragListener());
         }
 
-    }
-
-
-    public void onResourceSelected(int position) {
-
-
-        if (mapFragment != null) {
-            //save the current position
-            mCurrentPosition = position;
-            mapFragment.setPosition(position);
-
-        } else {
-            // If the frag is not available, we're in the one-pane layout and must swap frags...
-
-            // Create fragment and give it an argument for the selected article
-            AgentInterventionMapFragment newFragment = new AgentInterventionMapFragment();
-            Bundle args = new Bundle();
-            args.putInt(AgentInterventionMapFragment.ARG_POSITION, position);
-            newFragment.setArguments(args);
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
-            // Replace whatever is in the fragment_container view with this fragment,
-            // and add the transaction to the back stack so the user can navigate back
-            transaction.replace(R.id.fragment_container, newFragment);
-            transaction.addToBackStack(null);
-
-            // Commit the transaction
-            transaction.commit();
-        }
     }
 
     public void showDialogRequest(View view) {
@@ -250,21 +203,22 @@ public class AgentInterventionActivity extends TabbedActivity
 
                     Resource resource;
 
-                    List<Resource> resourceList = firstFragment.getResourceList();
-                    List<Resource> additionalResourceList = firstFragment.getAdditionalResourceList();
-
-                    if (((LinearLayout)view).getChildAt(0) instanceof ImageView){
-                        resource = resourceList.get(mCurrentPosition);
-                        resourceList.remove(mCurrentPosition);
-                        firstFragment.getIconBitmapResourceList().remove(mCurrentPosition);
-                        firstFragment.getResourceImageAdapter().notifyDataSetChanged();
-                    } else {
-                        resource = additionalResourceList.get(mCurrentPosition);
-                        resource.setIdRes(-1);
-                        resource.setResourceCategory(ResourceCategory.dragabledata);
+                    ClipData clipData = event.getClipData();
+                    ClipData.Item item = clipData.getItemAt(0);
+                    Bundle extras = item.getIntent().getExtras();
+                    if (extras!=null){
+                        resource = (Resource) extras.getSerializable("resource");
+                        int position = extras.getInt("position");
+                        if (!ResourceCategory.dragabledata.equals(resource.getResourceCategory())){
+                            firstFragment.getResourceList().remove(resource);
+                            firstFragment.getIconBitmapResourceList().remove(position);
+                            firstFragment.getResourceImageAdapter().notifyDataSetChanged();
+                        }
+                        else{
+                            resource.setIdRes(-1);
+                        }
+                        updateResourceOnDrop(resource, latLng, State.planned);
                     }
-
-                    updateResourceOnDrop(resource, latLng, State.planned);
 
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
