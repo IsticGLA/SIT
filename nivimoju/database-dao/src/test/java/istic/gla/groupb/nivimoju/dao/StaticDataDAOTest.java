@@ -12,78 +12,94 @@ import java.util.List;
 public class StaticDataDAOTest {
 
     private static StaticData stData;
+    private static StaticData stDataTemp;
     private static StaticDataDAO stDAO;
 
     @BeforeClass
     public static void init(){
         stDAO = new StaticDataDAO();
-        DAOManager.connectTest();
+        stDAO.connectTest();
+        stData = new StaticData(48.5323354, -1.6766565, MarkerType.danger);
+        stData = stDAO.create(stData);
     }
 
     @AfterClass
     public static void close(){
+        stDAO.delete(stData);
         stDAO.disconnect();
     }
 
     @Before
     public void instantiate(){
-        stData = new StaticData(48.666, -1.64000, MarkerType.danger);
+        stDataTemp = new StaticData(48.666, -1.64000, MarkerType.incident);
     }
 
     @Test
     public void createTest(){
-        StaticData originalStaticData = stDAO.cloneEntity(stData);
-        StaticData insertStaticData = stDAO.create(stData);
-        originalStaticData.setId(insertStaticData.getId());
-        Assert.assertEquals(originalStaticData, insertStaticData);
-    }
-
-    @Test
-    public void updateTest(){
-        StaticData res = stDAO.create(stData);
-        res.setLatitude(47.6334);
-        StaticData updateStaticData = stDAO.update(res);
-        Assert.assertEquals(47.6334, updateStaticData.getLatitude(), 0.0000);
-    }
-
-    @Test
-    public void deleteTest(){
-        StaticData insertStaticData = stDAO.create(stData);
-        long id = stDAO.delete(insertStaticData);
-        Assert.assertEquals(id, insertStaticData.getId());
-        StaticData nullStaticData = stDAO.getById(insertStaticData.getId());
-        Assert.assertNull(nullStaticData);
+        // Save the data to insert
+        StaticData originalStaticData = stDAO.cloneEntity(stDataTemp);
+        // Insert the data in database
+        StaticData insertedStaticData = stDAO.create(stDataTemp);
+        // Update the id of the original data to match the inserted data
+        originalStaticData.setId(insertedStaticData.getId());
+        // Assert the equality of datas
+        Assert.assertEquals(originalStaticData, insertedStaticData);
+        // clean the database
+        stDAO.delete(originalStaticData);
     }
 
     @Test
     public void getByIdTest(){
-        StaticData nullStaticData = stDAO.getById(stData.getId());
-        Assert.assertNull(nullStaticData);
+        StaticData res = stDAO.getById(-1l);
+        Assert.assertNull(res);
 
-        StaticData insertStaticData = stDAO.create(stData);
-        StaticData getByIdStaticData = stDAO.getById(insertStaticData.getId());
-        Assert.assertEquals(insertStaticData, getByIdStaticData);
+        res = stDAO.getById(stData.getId());
+        Assert.assertEquals(res, stData);
+    }
+
+    @Test
+    public void getByTest(){
+        stData = stDAO.create(stData);
+        List<StaticData> res = stDAO.getBy("markerType", MarkerType.danger.toString());
+        Assert.assertEquals(stData.getMarkerType(), res.get(0).getMarkerType());
+        stDAO.delete(stData);
+
+    }
+
+    @Test
+    public void updateTest(){
+        long newLat = (long) 47.6334;
+        stData.setLatitude(newLat);
+        StaticData updateStaticData = stDAO.update(stData);
+        Assert.assertEquals(newLat, updateStaticData.getLatitude(), 0.0000);
     }
 
     @Test
     public void getAllTest() throws InterruptedException {
+        // insert three other data
+        stDAO.create(stData);
+        stDAO.create(stData);
+        stDAO.create(stData);
 
-        StaticData st1 = stDAO.create(stData);
-        StaticData st2 = stDAO.create(stData);
-        StaticData st3 = stDAO.create(stData);
-        StaticData st4 = stDAO.create(stData);
-
+        // check that we have 4 data in database and clean the database
         int counter = 0;
         List<StaticData> list = stDAO.getAll();
 
         for (StaticData st : list){
-            if ((st.getId() == st1.getId()) ||
-                    (st.getId() == st2.getId()) ||
-                    (st.getId() == st3.getId()) ||
-                    (st.getId() == st4.getId())) {
-                counter++;
-            }
+            counter++;
+            stDAO.delete(st);
         }
         Assert.assertEquals(4, counter);
+    }
+
+    @Test
+    public void deleteTest(){
+        long id = stDAO.delete(stDataTemp);
+        Assert.assertEquals(-1, id);
+        stData = stDAO.create(stData);
+        id = stDAO.delete(stData);
+        Assert.assertEquals(id, stData.getId());
+        StaticData nullStaticData = stDAO.getById(stData.getId());
+        Assert.assertNull(nullStaticData);
     }
 }
