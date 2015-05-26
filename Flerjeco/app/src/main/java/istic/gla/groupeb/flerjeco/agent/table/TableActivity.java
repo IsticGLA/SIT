@@ -71,7 +71,7 @@ public class TableActivity extends TabbedActivity implements ISynchTool, IInterv
         } else {
             setTitle(R.string.activities_agent);
         }
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
         String creationDate = dtf.print(intervention.getCreationDate());
         findViewById(R.id.text_intervention_title).setVisibility(View.VISIBLE);
         if(intervention.getAddress() != null){

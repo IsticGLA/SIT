@@ -108,7 +108,7 @@ public class ResourcesFragment extends Fragment implements ISynchTool {
         listViewResources.setAdapter(new ArrayAdapter(getActivity(), layout, labelsResources));
         listViewRequests.setAdapter(new ResourceAdapter(getActivity(), layout, requests, intervention.getId(), this));
         titleTextView.setVisibility(View.VISIBLE);
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss");
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
         String creationDate = dtf.print(intervention.getCreationDate());
         if(intervention.getAddress() != null){
             titleTextView.setText(

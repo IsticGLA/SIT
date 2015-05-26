@@ -36,6 +36,7 @@ public class ResourceType extends AbstractEntity {
      */
     public ResourceType(String label, ResourceCategory category) {
         this.label = label;
+        this.type = Constant.TYPE_RESOURCE_TYPE;
         this.category = category;
     }
 

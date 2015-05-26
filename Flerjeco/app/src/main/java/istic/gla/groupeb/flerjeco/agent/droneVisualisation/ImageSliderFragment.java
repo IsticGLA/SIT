@@ -54,7 +54,7 @@ public class ImageSliderFragment extends Fragment implements BaseSliderView.OnSl
     private Long mInterventionId;
     private LatLng mPosition;
     private long mostRecentTimestamp;
-    private DateTimeFormatter dtf = DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss");
+    private DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
     Timer timer;
 
     @Override
