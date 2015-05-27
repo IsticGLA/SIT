@@ -10,9 +10,6 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
-import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -66,6 +63,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     private List<Marker> markers;
 
     private PolygonOptions polygonOptions;
+    private List<LatLng> polygonPoints;
     private Polygon polygon;
 
     // list of all the path of the intervention
@@ -230,6 +228,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 .strokeColor(Color.parseColor("#9b24a6"))
                 .fillColor(Color.argb(40,238,238,0))
                 .strokeWidth((float) 2);
+        this.polygonPoints = new ArrayList<>();
     }
 
     /**
@@ -246,6 +245,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
             this.polygon = null;
         }
         this.polygonOptions = null;
+        this.polygonPoints.clear();
     }
 
     /**
@@ -340,7 +340,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                     LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
                 }
-                ((PlanZoneActivity)getActivity()).enableCreatePathButton();
+                ((PlanZoneActivity) getActivity()).enableCreatePathButton();
             }
         });
     }
@@ -501,7 +501,21 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                     drawClosePolyline();
                 }
             } else if (creationType == ECreationType.AREA) {
-                //TODO implement me !
+                int i = markers.size() - 1;
+                markers.get(i).remove();
+                markers.remove(i);
+                polygonOptions = new PolygonOptions()
+                        .strokeColor(Color.parseColor("#9b24a6"))
+                        .fillColor(Color.argb(40,238,238,0))
+                        .strokeWidth((float) 2);
+
+                polygonPoints.remove(i);
+                polygonOptions.addAll(polygonPoints);
+                polygon.remove();
+                polygon = null;
+                if (i>0) {
+                    polygon = googleMap.addPolygon(polygonOptions);
+                }
             }
 
             if(markers.size() == 0) {
@@ -615,21 +629,21 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 // add the marker on the markers list
                 markers.add(m);
 
-                if(polygonOptions == null){
+                if (polygonOptions == null) {
                     polygonOptions = new PolygonOptions()
                             .strokeColor(Color.parseColor("#9b24a6"))
-                            .fillColor(Color.argb(40,238,238,0))
+                            .fillColor(Color.argb(40, 238, 238, 0))
                             .strokeWidth((float) 2);
                 }
 
-                if(polygon != null){
+                if (polygon != null) {
                     polygon.remove();
                     polygon = null;
                 }
 
                 polygonOptions.add(latLng);
+                polygonPoints.add(latLng);
                 polygon = googleMap.addPolygon(polygonOptions);
-
             }
         });
     }
