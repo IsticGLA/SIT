@@ -203,6 +203,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
     public void closePath(View v){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        enableCreatePathButton();
         mapFragment.closePath();
     }
 
@@ -213,6 +214,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
     public void removeLastPoint(View v){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        enableCreatePathButton();
         mapFragment.removeLastPoint();
     }
 
