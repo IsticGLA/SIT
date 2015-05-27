@@ -257,6 +257,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         Button removePath = (Button) findViewById(R.id.buttonRemove);
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
         button.setText(getString(R.string.create_path));
+        button.setEnabled(true);
         checkBox.setChecked(false);
         checkBox.setVisibility(View.GONE);
         removeLast.setVisibility(View.GONE);
@@ -286,6 +287,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
 
         // show edit mode buttons
         button.setText(getString(R.string.finish_edition));
+        button.setEnabled(false);
         cancel.setVisibility(View.VISIBLE);
         removeLast.setVisibility(View.VISIBLE);
         checkBox.setVisibility(View.VISIBLE);
@@ -377,5 +379,13 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         //closing transition animations
         overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
         IntentWraper.stopService();
+    }
+
+    public void disableCreatePathButton() {
+        findViewById(R.id.buttonCreatePath).setEnabled(false);
+    }
+
+    public void enableCreatePathButton() {
+        findViewById(R.id.buttonCreatePath).setEnabled(true);
     }
 }

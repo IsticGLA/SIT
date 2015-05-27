@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -301,7 +302,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 MarkerOptions marker = new MarkerOptions().position(
                         new LatLng(latitude, longitude)).title("new Path");
                 // Changing marker icon
-                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
                 // adding marker
                 Marker m = googleMap.addMarker(marker);
                 // add the marker on the markers list
@@ -321,6 +322,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                     LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
                 }
+                ((PlanZoneActivity)getActivity()).enableCreatePathButton();
             }
         });
     }
@@ -477,6 +479,10 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 removeLine(polylines.size() - 1);
                 // closed the path
                 drawClosePolyline();
+            }
+
+            if(markers.size() == 0) {
+                ((PlanZoneActivity)getActivity()).disableCreatePathButton();
             }
         }
     }
