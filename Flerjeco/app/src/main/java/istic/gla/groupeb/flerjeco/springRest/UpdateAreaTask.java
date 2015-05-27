@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.Collections;
 import java.util.Comparator;
 
+import istic.gla.groupb.nivimoju.entity.Area;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupeb.flerjeco.R;
@@ -53,8 +54,8 @@ public class UpdateAreaTask extends AsyncTask<Object[], Void, ResponseEntity<Int
                     PlanZoneActivity p = ((PlanZoneActivity) fragment.getActivity());
                     Collections.sort(intervention.getWatchArea(), new Comparator<Area>() {
                         @Override
-                        public int compare(Area lhs, Camera.Area rhs) {
-                            return Long.valueOf(lhs.getId()).compareTo(Long.valueOf(rhs.getId()));
+                        public int compare(Area lhs, Area rhs) {
+                            return Long.valueOf(lhs.getIdArea()).compareTo(Long.valueOf(rhs.getIdArea()));
                         }
                     });
                     p.refreshList(intervention);
