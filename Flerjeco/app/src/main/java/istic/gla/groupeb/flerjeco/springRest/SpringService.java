@@ -420,4 +420,21 @@ public class SpringService {
 
         return images;
     }
+
+    public ResponseEntity<Intervention> updateInterventionArea(Object[] param, EPathOperation operation) {
+        String url = null;
+        if (operation == EPathOperation.CREATE){
+            url = URL + "intervention/" + param[0] + "/watcharea/create";
+        } else if (operation == EPathOperation.UPDATE) {
+            url = URL + "intervention/" + param[0] + "/watcharea/update";
+        } else {
+            url = URL + "intervention/" + param[0] + "/watcharea/delete";
+        }
+        try {
+            return restTemplate.postForEntity(url, param[1], Intervention.class);
+        } catch (HttpServerErrorException e){
+            Log.e(TAG, "erreur à l'update d'un path", e);
+            throw e;
+        }
+    }
 }
