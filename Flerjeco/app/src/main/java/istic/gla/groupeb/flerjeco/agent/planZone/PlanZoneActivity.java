@@ -424,16 +424,17 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
             // else, hide edit buttons and send the path on the database
         } else  {
             // Reset button and checkbox
-            editModeOffArea();
-            // send the newPath on databse
-            mapFragment.sendPath();
+            editModeOff();
+            // send the newPath on database
+            mapFragment.sendArea();
         }
     }
 
+    //TODO verify if necessary
     /**
      * clear the edit button on the ListView fragment
      */
-    public void editModeOffArea(){
+    /*public void editModeOffArea(){
         Button buttonP = (Button) findViewById(R.id.buttonCreatePath);
         Button buttonA = (Button) findViewById(R.id.buttonCreateArea);
         Button cancel = (Button) findViewById(R.id.buttonCancel);
@@ -448,5 +449,5 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         removePath.setVisibility(View.GONE);
         buttonA.setVisibility(View.VISIBLE);
         editionMode = false;
-    }
+    }*/
 }

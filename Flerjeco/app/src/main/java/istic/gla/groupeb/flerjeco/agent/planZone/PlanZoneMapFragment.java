@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import istic.gla.groupb.nivimoju.entity.Area;
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Path;
@@ -43,6 +44,7 @@ import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupeb.flerjeco.R;
 import istic.gla.groupeb.flerjeco.agent.DronesMapFragment;
 import istic.gla.groupeb.flerjeco.springRest.GetPositionDroneTask;
+import istic.gla.groupeb.flerjeco.springRest.UpdateAreaTask;
 import istic.gla.groupeb.flerjeco.synch.IntentWraper;
 import istic.gla.groupeb.flerjeco.utils.LatLngUtils;
 
@@ -82,6 +84,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     private Map<String, Marker> dronesMarkers;
     private boolean refreshDrones = false;
     GetPositionDroneTask getPositionDroneTask;
+    private Area newArea;
 
 
     @Override
@@ -621,6 +624,27 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
             }
         });
+    }
+
+    public void sendArea() {
+        ((PlanZoneActivity)getActivity()).showProgress(true);
+        // remove Click listener
+        resetMapListener();
+
+        // if we are in edition mode, we set the new area in the intervention we get back from the main activity
+        if (editPath){
+            // send to the database
+            Area areaToUpdate = inter.getWatchArea().get(mCurrentPosition);
+            //TODO maybe something to do here before sending
+            Object[] tab = {inter.getId(), areaToUpdate};
+            new UpdateAreaTask(this, EPathOperation.UPDATE).execute(tab);
+
+            // else, we add the new area
+        } else {
+            //TODO set newArea during creation
+            Object[] tab = {inter.getId(), newArea};
+            new UpdateAreaTask(this, EPathOperation.CREATE).execute(tab);
+        }
     }
 }
 
