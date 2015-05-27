@@ -309,7 +309,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         ((PlanZoneActivity)getActivity()).showProgress(true);
         // remove Click listener
         resetMapListener();
-
+        this.type = ECreationType.PATH;
         // if we are in edition mode, we set the new path in the intervention we get back from the main activity
         if (editPath){
 
@@ -418,18 +418,18 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
         pathList = p.getIntervention().getWatchPath();
         areaList = p.getIntervention().getWatchArea();
-
+        Log.i("JVG", "Ceci est une test " + this.type);
         if (this.type == ECreationType.PATH) {
             if (editPath && intervention.getWatchPath().size() > 0 && mCurrentPosition >= 0 && mCurrentPosition < intervention.getWatchPath().size()){
                 updateMapView(mCurrentPosition, ECreationType.PATH);
                 p.checkListView(mCurrentPosition);
             } else {
-                updateMapView(intervention.getWatchPath().size() - 1, this.type);
+                updateMapView(intervention.getWatchPath().size() - 1, ECreationType.PATH);
                 p.checkListView(intervention.getWatchPath().size() - 1);
             }
         } else {
             if (editPath && intervention.getWatchArea().size() > 0 && mCurrentPositionArea >= 0 && mCurrentPositionArea < intervention.getWatchArea().size()){
-                updateMapView(mCurrentPositionArea, this.type);
+                updateMapView(mCurrentPositionArea, ECreationType.AREA);
                 p.checkListViewArea(mCurrentPositionArea);
             } else {
                 updateMapView(intervention.getWatchArea().size() - 1, ECreationType.AREA);
@@ -773,7 +773,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         ((PlanZoneActivity)getActivity()).showProgress(true);
         // remove Click listener
         resetMapListener();
-
+        this.type = ECreationType.AREA;
         // if we are in edition mode, we set the new area in the intervention we get back from the main activity
         if (editPath){
             // send to the database
