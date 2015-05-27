@@ -134,7 +134,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
 
             // Set edition Mode on
             mapFragment.editPath = true;
-            editModeOn();
+            editModeOn(ECreationType.AREA);
 
             // Call a method in the ArticleFragment to update its content
             mapFragment.updateMapView(position);
@@ -183,7 +183,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         // if we are in edition mode, initi of the edit buttons
         if (!editionMode) {
             Log.i(TAG, "Mode d'édition du trajet");
-            editModeOn();
+            editModeOn(ECreationType.PATH);
             checkCloseBox(false);
             // begin the creation of the new path (add event on Google Map)
             mapFragment.createPath();
@@ -208,12 +208,11 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
 
     /**
      * remove last point on the current path when we click on the remove_last_point button
-     * @param v the view of the activity
      */
-    public void removeLastPoint(View v){
+    public void removeLastPoint(ECreationType creationType){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-        mapFragment.removeLastPoint();
+        mapFragment.removeLastPoint(creationType);
     }
 
     /**
@@ -239,12 +238,12 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
 
     /**
      * remove the current path
-     * @param v the view of the activity
+     * @param creationType the view of the activity
      */
-    public void removePath(View v){
+    public void removePath(ECreationType creationType){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
-        mapFragment.removePath();
+        mapFragment.removePath(creationType);
     }
 
     /**
@@ -258,26 +257,29 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         Button removePath = (Button) findViewById(R.id.buttonRemove);
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
         buttonP.setText(getString(R.string.create_path));
+        buttonA.setText(R.string.create_area);
         checkBox.setChecked(false);
         checkBox.setVisibility(View.GONE);
         removeLast.setVisibility(View.GONE);
         cancel.setVisibility(View.GONE);
         removePath.setVisibility(View.GONE);
+        buttonP.setVisibility(View.VISIBLE);
         buttonA.setVisibility(View.VISIBLE);
         editionMode = false;
     }
 
     /**
      * show the edit button on the ListView fragment
+     * @param creationType
      */
-    public void editModeOn(){
+    public void editModeOn(final ECreationType creationType){
         editionMode = true;
 
         Button buttonP = (Button) findViewById(R.id.buttonCreatePath);
         Button buttonA = (Button) findViewById(R.id.buttonCreateArea);
         Button cancel = (Button) findViewById(R.id.buttonCancel);
         Button removePath = (Button) findViewById(R.id.buttonRemove);
-        Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
+        final Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
@@ -289,10 +291,31 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
 
         // show edit mode buttons
         buttonP.setText(getString(R.string.finish_edition));
+        buttonA.setText(getString(R.string.finish_edition));
         cancel.setVisibility(View.VISIBLE);
         removeLast.setVisibility(View.VISIBLE);
         checkBox.setVisibility(View.VISIBLE);
-        buttonA.setVisibility(View.GONE);
+        if(creationType == ECreationType.AREA) {
+            buttonP.setVisibility(View.GONE);
+            buttonA.setVisibility(View.VISIBLE);
+        } else if(creationType == ECreationType.PATH) {
+            buttonA.setVisibility(View.GONE);
+            buttonP.setVisibility(View.VISIBLE);
+        }
+
+        removeLast.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeLastPoint(creationType);
+            }
+        });
+
+        removePath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removePath(creationType);
+            }
+        });
 
         // if we are in edition mode, we show the remove path button
         if (mapFragment.editPath){
@@ -394,7 +417,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         // if we are in edition mode, initi of the edit buttons
         if (!editionMode) {
             Log.i(TAG, "Mode d'édition de la zone");
-            editModeOn();
+            editModeOn(ECreationType.AREA);
             checkCloseBox(false);
             // begin the creation of the new path (add event on Google Map)
             mapFragment.createArea();

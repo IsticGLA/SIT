@@ -272,20 +272,25 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
     /**
      * Remove path on the database
+     * @param creationType
      */
-    public void removePath(){
+    public void removePath(ECreationType creationType){
         removePath = true;
         // remove Click listener
         resetMapListener();
         // get back the intervention from the main activity
         inter = ((PlanZoneActivity)getActivity()).getIntervention();
 
-        // remove of the path we want to remove
-        if (mCurrentPosition >= 0 && inter.getWatchPath().size() > mCurrentPosition) {
-            //inter.getWatchPath().remove(mCurrentPosition);
-            // send to the database
-            Object[] tab = {inter.getId(), inter.getWatchPath().get(mCurrentPosition)};
-            new UpdatePathsForInterventionTask(this, EPathOperation.DELETE).execute(tab);
+        if(creationType == ECreationType.PATH) {
+            // remove of the path we want to remove
+            if (mCurrentPosition >= 0 && inter.getWatchPath().size() > mCurrentPosition) {
+                //inter.getWatchPath().remove(mCurrentPosition);
+                // send to the database
+                Object[] tab = {inter.getId(), inter.getWatchPath().get(mCurrentPosition)};
+                new UpdatePathsForInterventionTask(this, EPathOperation.DELETE).execute(tab);
+            }
+        } else if (creationType == ECreationType.AREA) {
+            //TODO implement me !
         }
     }
 
@@ -465,26 +470,31 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
     /**
      * Remove the last point of the new path
+     * @param creationType
      */
-    public void removeLastPoint(){
+    public void removeLastPoint(ECreationType creationType){
         Log.i(TAG, "Remove the last position on the path");
         if (markers.size() > 0) {
 
-            // remove the last marker on the Google Map
-            int i = markers.size()-1;
-            markers.get(i).remove();
-            markers.remove(i);
-            newPath.getPositions().remove(i);
+            if(creationType == ECreationType.PATH) {
+                // remove the last marker on the Google Map
+                int i = markers.size() - 1;
+                markers.get(i).remove();
+                markers.remove(i);
+                newPath.getPositions().remove(i);
 
-            // remove the last polyline if there is at least one polyline
-            if (polylines.size() > 0) {
-                removeLine(polylines.size() - 1);
-            }
-            // remove the polyline which close the path is isClosed is true
-            if (polylines.size() > 1 && newPath.isClosed()) {
-                removeLine(polylines.size() - 1);
-                // closed the path
-                drawClosePolyline();
+                // remove the last polyline if there is at least one polyline
+                if (polylines.size() > 0) {
+                    removeLine(polylines.size() - 1);
+                }
+                // remove the polyline which close the path is isClosed is true
+                if (polylines.size() > 1 && newPath.isClosed()) {
+                    removeLine(polylines.size() - 1);
+                    // closed the path
+                    drawClosePolyline();
+                }
+            } else if (creationType == ECreationType.AREA) {
+                //TODO implement me !
             }
         }
     }

@@ -30,7 +30,6 @@
         android:text="@string/remove_marker"
         android:id="@+id/buttonRemoveLastPoint"
         android:layout_gravity="center_horizontal"
-        android:onClick="removeLastPoint"
         android:visibility="gone"/>
 
     <Button
