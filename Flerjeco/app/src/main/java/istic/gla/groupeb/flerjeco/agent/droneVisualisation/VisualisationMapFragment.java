@@ -26,6 +26,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -40,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 
 import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
+import istic.gla.groupb.nivimoju.entity.Area;
 import istic.gla.groupb.nivimoju.entity.Drone;
 import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Intervention;
@@ -66,20 +69,24 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     private GoogleMap googleMap;
     private List<Pair<Polyline, Marker>> polylines;
     private List<Marker> markers;
+    private List<Polygon> polygons;
+    private PolygonOptions polygonOptions;
 
     private VisualisationActivity activity;
-    private LatLngBounds mBounds;
 
+    private LatLngBounds mBounds;
     // list of all the path of the intervention
     private List<Path> pathList;
+    // list of all the area of the intervention
+    private List<Area> areaList;
     // current intervention
     private Intervention inter;
-    // list all drone of the intervention
 
+    // list all drone of the intervention
     private Map<String, Marker> dronesMarkers;
     private boolean refreshDrones = false;
-    GetPositionDroneTask getPositionDroneTask;
 
+    GetPositionDroneTask getPositionDroneTask;
     //List of last images to draw
     private List<Image> images = new ArrayList<>();
     private List<TimestampedPosition> timestampedPositions = new ArrayList<>();
@@ -109,9 +116,15 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         inter = activity.getIntervention();
 
         this.pathList = activity.getIntervention().getWatchPath();
+        this.areaList = activity.getIntervention().getWatchArea();
         this.polylines = new ArrayList<>();
+        this.polygons = new ArrayList<>();
         this.markers = new ArrayList<>();
         this.dronesMarkers = new HashMap<>();
+        this.polygonOptions = new PolygonOptions()
+                .strokeColor(Color.parseColor("#9b24a6"))
+                .fillColor(Color.argb(40, 238, 238, 0))
+                .strokeWidth((float) 2);
 
         new Handler().postDelayed(new Runnable()
         {
@@ -141,10 +154,12 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         // get the intervention from the main activity
         inter = activity.getIntervention();
         pathList = inter.getWatchPath();
+        areaList = inter.getWatchArea();
 
         // Create LatLngBound to zoom on the set of positions in the path
         LatLngBounds.Builder bounds = new LatLngBounds.Builder();
 
+        // Draw paths of the intervention
         for (Path p : pathList) {
             // get all the positions of the path to draw it
             List<Position> positions = p.getPositions();
@@ -189,6 +204,16 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                 }
             }
         }
+
+        // Draw area of the intervention
+        Log.i("JVG", "" + areaList.size());
+        for (Area area : areaList){
+            for (Position pos : area.getPositions()) {
+                polygonOptions.add(new LatLng(pos.getLatitude(), pos.getLongitude()));
+            }
+            polygons.add(googleMap.addPolygon(polygonOptions));
+        }
+
         if (markers.size() <= 0) {
             bounds.include(new LatLng(inter.getLatitude(), inter.getLongitude()));
         }
@@ -225,6 +250,11 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         this.polylines.clear();
         this.markers.clear();
         this.dronesMarkers.clear();
+        this.polygons.clear();
+        this.polygonOptions = new PolygonOptions()
+                .strokeColor(Color.parseColor("#9b24a6"))
+                .fillColor(Color.argb(40, 238, 238, 0))
+                .strokeWidth((float) 2);
     }
 
     /**

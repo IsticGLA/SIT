@@ -1,8 +1,12 @@
 package istic.gla.groupb.nivimoju.dao;
 
+import istic.gla.groupb.nivimoju.entity.Area;
 import istic.gla.groupb.nivimoju.entity.Intervention;
+import istic.gla.groupb.nivimoju.entity.Position;
 import istic.gla.groupb.nivimoju.util.MarkerType;
 import org.junit.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,6 +21,7 @@ public class InterventionDAOTest {
     public static void init() {
         iDAO = new InterventionDAO();
         iDAO.connectTest();
+        //iDAO.connect();
         iData = new Intervention("Test", 2, 48.6445, -1.68454);
         iData = iDAO.create(iData);
     }
@@ -53,6 +58,19 @@ public class InterventionDAOTest {
 
         res = iDAO.getById(iData.getId());
         Assert.assertEquals(res, iData);
+
+//        Intervention res = iDAO.getById(268l);
+//        Assert.assertNotNull(res);
+//        List<Area> areas = new ArrayList<>();
+//        List<Position> positions = new ArrayList<>();
+//        positions.add(new Position(48.115434, -1.638722));
+//        positions.add(new Position(48.115710, -1.637843));
+//        positions.add(new Position(48.115194, -1.638143));
+//        Area a = new Area(3l);
+//        a.setPositions(positions);
+//        areas.add(a);
+//        res.setWatchArea(areas);
+//        Assert.assertEquals(268l, iDAO.update(res));
     }
 
     @Test
