@@ -204,7 +204,7 @@ public class AgentInterventionMapFragment extends Fragment implements ISynchTool
                     if (resource != null) {
                         ((AgentInterventionActivity) getActivity()).showManageResourceDialog(resource);
                     }
-                    return false;
+                    return true;
                 }
             });
 

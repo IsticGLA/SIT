@@ -102,7 +102,6 @@ public class VehicleRequestDialog extends DialogFragment implements IResourceTyp
     }
 
     public void validate(String vehicle) {
-        Toast.makeText(getActivity(), vehicle, Toast.LENGTH_SHORT).show();
         resourceRequestTask = new ResourceRequestTask();
         resourceRequestTask.execute(interventionId, vehicle);
     }
