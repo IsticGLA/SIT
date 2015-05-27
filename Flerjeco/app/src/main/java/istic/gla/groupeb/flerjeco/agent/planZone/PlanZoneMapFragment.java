@@ -237,7 +237,18 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 for (Position pos : a.getPositions()) {
                     LatLng latLng = new LatLng(pos.getLatitude(), pos.getLongitude());
                     bounds.include(latLng);
+
+                    // create marker
+                    MarkerOptions marker = new MarkerOptions().position(latLng);
+                    // Changing marker icon
+                    marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                    // adding marker
+                    Marker m = googleMap.addMarker(marker);
+                    // add the marker on the markers list
+                    markers.add(m);
+
                     polygonOptions.add(latLng);
+                    polygonPoints.add(latLng);
                 }
                 polygon = googleMap.addPolygon(polygonOptions);
 
@@ -571,6 +582,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
             if(markers.size() == 0) {
                 ((PlanZoneActivity)getActivity()).disableCreatePathButton();
+                ((PlanZoneActivity)getActivity()).disableCreateAreaButton();
             }
         }
     }
@@ -701,6 +713,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 polygonPoints.add(latLng);
 
                 polygon = googleMap.addPolygon(polygonOptions);
+                ((PlanZoneActivity) getActivity()).enableCreateAreaButton();
             }
         });
     }
@@ -728,6 +741,14 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         }
     }
 
+    public void checkIfEnableCreateButton() {
+        if (markers.size() > 0){
+            PlanZoneActivity pl = (PlanZoneActivity) getActivity();
+            pl.enableCreatePathButton();
+            pl.enableCreateAreaButton();
 
+        }
+    }
+    
 }
 

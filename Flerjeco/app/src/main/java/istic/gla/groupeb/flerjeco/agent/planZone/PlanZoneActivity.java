@@ -209,6 +209,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
     public void closePath(View v){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.checkIfEnableCreateButton();
         mapFragment.closePath();
     }
 
@@ -218,6 +219,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
     public void removeLastPoint(ECreationType creationType){
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+        mapFragment.checkIfEnableCreateButton();
         mapFragment.removeLastPoint(creationType);
     }
 
@@ -271,6 +273,8 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         removePath.setVisibility(View.GONE);
         buttonP.setVisibility(View.VISIBLE);
         buttonA.setVisibility(View.VISIBLE);
+        enableCreatePathButton();
+        enableCreateAreaButton();
         editionMode = false;
     }
 
@@ -298,6 +302,8 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         // show edit mode buttons
         buttonP.setText(getString(R.string.finish_edition));
         buttonA.setText(getString(R.string.finish_edition));
+        disableCreatePathButton();
+        disableCreateAreaButton();
         cancel.setVisibility(View.VISIBLE);
         removeLast.setVisibility(View.VISIBLE);
         checkBox.setVisibility(View.VISIBLE);
@@ -467,4 +473,13 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
     public void enableCreatePathButton() {
         findViewById(R.id.buttonCreatePath).setEnabled(true);
     }
+
+    public void disableCreateAreaButton() {
+        findViewById(R.id.buttonCreateArea).setEnabled(false);
+    }
+
+    public void enableCreateAreaButton() {
+        findViewById(R.id.buttonCreateArea).setEnabled(true);
+    }
+
 }
