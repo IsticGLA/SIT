@@ -2,6 +2,7 @@ package istic.gla.groupb.nivimoju.dao;
 
 import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
+import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.couchbase.client.java.query.Query;
 import com.couchbase.client.java.view.*;
 import istic.gla.groupb.nivimoju.customObjects.TimestampedPosition;
@@ -37,7 +38,6 @@ public class ImageDAO extends AbstractDAO<Image> {
 
     public void cleanImageByPosition(Image img) {
         createSpatialLastView();
-        JsonArray positionValue = JsonArray.from(img.getPosition()[0], img.getPosition()[1]);
 
         JsonArray startKeys = JsonArray.from(img.getIdIntervention(), "" + img.getPosition()[0], "" + img.getPosition()[1]);
         JsonArray endKeys = JsonArray.from(img.getIdIntervention(), "" + img.getPosition()[0], "" + img.getPosition()[1], "");
@@ -45,9 +45,12 @@ public class ImageDAO extends AbstractDAO<Image> {
         List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "single_last_Image").startKey(endKeys).endKey(startKeys).inclusiveEnd(true).descending(true).skip(9)).allRows();
 
         for(int i=0;i < result.size();i++) {
-            DAOManager.getCurrentBucket().remove(result.get(i).id());
+            try {
+                DAOManager.getCurrentBucket().remove(result.get(i).id());
+            } catch (DocumentDoesNotExistException e){
+                logger.debug("L'objet n'existe pas :", e);
+            }
         }
-
     }
 
 
@@ -72,7 +75,8 @@ public class ImageDAO extends AbstractDAO<Image> {
                 for(int j = 0; j < result.size(); j++) {
                     jsonObject = (JsonObject) result.get(j).value();
                     positionDB = (JsonArray) jsonObject.get("position");
-                    timestampDB = (Long) jsonObject.get("timestamp");
+                    String timestampDBTemp = "" + jsonObject.get("timestamp");
+                    timestampDB = Long.valueOf(timestampDBTemp);
                     if(tmpPos.getPosition().getLatitude() == (double) positionDB.get(0) &&
                         tmpPos.getPosition().getLongitude() == (double) positionDB.get(1) &&
                         timestampDB <= tmpPos.getTimestamp()) {

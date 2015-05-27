@@ -62,6 +62,10 @@ public class StaticDataDAOTest {
         stData = stDAO.create(stData);
         List<StaticData> res = stDAO.getBy("markerType", MarkerType.danger.toString());
         Assert.assertEquals(stData.getMarkerType(), res.get(0).getMarkerType());
+
+        res  = stDAO.getBy("latitude", stData.getLatitude());
+        Assert.assertEquals(stData.getLatitude(), res.get(0).getLatitude(), 0.00000);
+
         stDAO.delete(stData);
 
     }
@@ -69,6 +73,13 @@ public class StaticDataDAOTest {
     @Test
     public void updateTest(){
         long newLat = (long) 47.6334;
+
+        // Update an unexisting data
+        stDataTemp.setLatitude(newLat);
+        StaticData unexistData = stDAO.update(stDataTemp);
+        Assert.assertNull(unexistData);
+
+        // Update existing data
         stData.setLatitude(newLat);
         StaticData updateStaticData = stDAO.update(stData);
         Assert.assertEquals(newLat, updateStaticData.getLatitude(), 0.0000);

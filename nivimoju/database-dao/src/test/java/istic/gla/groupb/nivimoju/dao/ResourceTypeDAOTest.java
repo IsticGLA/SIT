@@ -62,6 +62,13 @@ public class ResourceTypeDAOTest {
     @Test
     public void updateTest(){
         String stringTest = "coucou";
+
+        // Update an unexisting data
+        rtDataTemp.setLabel(stringTest);
+        ResourceType unexistData = rtDAO.update(rtDataTemp);
+        Assert.assertNull(unexistData);
+
+        // Update existing data
         rtData.setLabel(stringTest);
         ResourceType updateResourceType = rtDAO.update(rtData);
         Assert.assertEquals(stringTest, updateResourceType.getLabel());
