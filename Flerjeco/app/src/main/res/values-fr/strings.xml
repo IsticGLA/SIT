@@ -111,4 +111,5 @@
     <string name="fail_get_images">Une erreur est survenue lors de la récupération des images</string>
     <string name="drone_video_title">Vidéo pour %s</string>
     <string name="drone_image_slider_title">Historique des images</string>
+    <string name="create_area">Créer une zone</string>
 </resources>

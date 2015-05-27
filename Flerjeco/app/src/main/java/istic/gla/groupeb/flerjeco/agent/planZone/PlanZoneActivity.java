@@ -251,17 +251,19 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
      * clear the edit button on the ListView fragment
      */
     public void editModeOff(){
-        Button button = (Button) findViewById(R.id.buttonCreatePath);
+        Button buttonP = (Button) findViewById(R.id.buttonCreatePath);
+        Button buttonA = (Button) findViewById(R.id.buttonCreateArea);
         Button cancel = (Button) findViewById(R.id.buttonCancel);
         Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
         Button removePath = (Button) findViewById(R.id.buttonRemove);
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
-        button.setText(getString(R.string.create_path));
+        buttonP.setText(getString(R.string.create_path));
         checkBox.setChecked(false);
         checkBox.setVisibility(View.GONE);
         removeLast.setVisibility(View.GONE);
         cancel.setVisibility(View.GONE);
         removePath.setVisibility(View.GONE);
+        buttonA.setVisibility(View.VISIBLE);
         editionMode = false;
     }
 
@@ -271,7 +273,8 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
     public void editModeOn(){
         editionMode = true;
 
-        Button button = (Button) findViewById(R.id.buttonCreatePath);
+        Button buttonP = (Button) findViewById(R.id.buttonCreatePath);
+        Button buttonA = (Button) findViewById(R.id.buttonCreateArea);
         Button cancel = (Button) findViewById(R.id.buttonCancel);
         Button removePath = (Button) findViewById(R.id.buttonRemove);
         Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
@@ -285,10 +288,11 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         droneListFragment.unCheckedListView();
 
         // show edit mode buttons
-        button.setText(getString(R.string.finish_edition));
+        buttonP.setText(getString(R.string.finish_edition));
         cancel.setVisibility(View.VISIBLE);
         removeLast.setVisibility(View.VISIBLE);
         checkBox.setVisibility(View.VISIBLE);
+        buttonA.setVisibility(View.GONE);
 
         // if we are in edition mode, we show the remove path button
         if (mapFragment.editPath){
@@ -377,5 +381,49 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         //closing transition animations
         overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
         IntentWraper.stopService();
+    }
+
+    /**
+     * create a new path on the current activity when we click on create button
+     * @param v the view of the activity
+     */
+    public void createArea(View v){
+        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
+                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
+
+        // if we are in edition mode, initi of the edit buttons
+        if (!editionMode) {
+            Log.i(TAG, "Mode d'édition de la zone");
+            editModeOn();
+            checkCloseBox(false);
+            // begin the creation of the new path (add event on Google Map)
+            mapFragment.createArea();
+            // else, hide edit buttons and send the path on the database
+        } else  {
+            // Reset button and checkbox
+            editModeOffArea();
+            // send the newPath on databse
+            mapFragment.sendPath();
+        }
+    }
+
+    /**
+     * clear the edit button on the ListView fragment
+     */
+    public void editModeOffArea(){
+        Button buttonP = (Button) findViewById(R.id.buttonCreatePath);
+        Button buttonA = (Button) findViewById(R.id.buttonCreateArea);
+        Button cancel = (Button) findViewById(R.id.buttonCancel);
+        Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
+        Button removePath = (Button) findViewById(R.id.buttonRemove);
+        CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
+        buttonP.setText(getString(R.string.create_path));
+        checkBox.setChecked(false);
+        checkBox.setVisibility(View.GONE);
+        removeLast.setVisibility(View.GONE);
+        cancel.setVisibility(View.GONE);
+        removePath.setVisibility(View.GONE);
+        buttonA.setVisibility(View.VISIBLE);
+        editionMode = false;
     }
 }

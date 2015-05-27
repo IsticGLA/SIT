@@ -94,6 +94,7 @@
 
     <string name="buttonValidateResources">Validate the position of resources</string>
     <string name="create_path">Create path</string>
+    <string name="create_area">Create area</string>
     <string name="finish_edition">Terminate</string>
     <string name="closed_path">Close the path</string>
     <string name="cancel">Cancel</string>

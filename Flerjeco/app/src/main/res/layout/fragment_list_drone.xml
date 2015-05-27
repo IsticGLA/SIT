@@ -64,4 +64,12 @@
         android:layout_gravity="center_horizontal"
         android:onClick="createPath"/>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="@string/create_area"
+        android:id="@+id/buttonCreateArea"
+        android:layout_gravity="center_horizontal"
+        android:onClick="createArea"/>
+
 </LinearLayout>

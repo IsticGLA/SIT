@@ -3,24 +3,18 @@ package istic.gla.groupeb.flerjeco.agent.planZone;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Interpolator;
-import android.view.animation.LinearInterpolator;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -28,6 +22,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -63,6 +59,9 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     private GoogleMap googleMap;
     private List<Pair<Polyline, Marker>> polylines;
     private List<Marker> markers;
+
+    private PolygonOptions polygonOptions;
+    private Polygon polygon;
 
     // list of all the path of the intervention
     private List<Path> pathList;
@@ -221,6 +220,10 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         this.markers = new ArrayList<>();
         this.dronesMarkers = new HashMap<>();
         this.newPath = new Path();
+        this.polygonOptions = new PolygonOptions()
+                .strokeColor(Color.parseColor("#9b24a6"))
+                .fillColor(Color.argb(40,238,238,0))
+                .strokeWidth((float) 2);
     }
 
     /**
@@ -232,6 +235,11 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         this.markers.clear();
         this.newPath = new Path();
         this.dronesMarkers.clear();
+        if (this.polygon!=null){
+            this.polygon.remove();
+            this.polygon = null;
+        }
+        this.polygonOptions = null;
     }
 
     /**
@@ -301,7 +309,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 MarkerOptions marker = new MarkerOptions().position(
                         new LatLng(latitude, longitude)).title("new Path");
                 // Changing marker icon
-                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE));
+                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
                 // adding marker
                 Marker m = googleMap.addMarker(marker);
                 // add the marker on the markers list
@@ -555,6 +563,54 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         }else{
             Log.e(TAG, "inter : " + inter + "refreshDrones : " + refreshDrones);
         }
+    }
+
+
+    /**
+     * Creation of the new path
+     */
+    public void createArea(){
+        // clear the Google Map
+        clearGoogleMap();
+        editPath = false;
+        addMapClickListenerArea();
+    }
+
+    /**
+     * Add Map Click listener on the Google Map
+     */
+    public void addMapClickListenerArea(){
+        // Add clickListener on the map two save positions in new path
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+
+                // create marker
+                MarkerOptions marker = new MarkerOptions().position(latLng);
+                // Changing marker icon
+                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                // adding marker
+                Marker m = googleMap.addMarker(marker);
+                // add the marker on the markers list
+                markers.add(m);
+
+                if(polygonOptions == null){
+                    polygonOptions = new PolygonOptions()
+                            .strokeColor(Color.parseColor("#9b24a6"))
+                            .fillColor(Color.argb(40,238,238,0))
+                            .strokeWidth((float) 2);
+                }
+
+                if(polygon != null){
+                    polygon.remove();
+                    polygon = null;
+                }
+
+                polygonOptions.add(latLng);
+                polygon = googleMap.addPolygon(polygonOptions);
+
+            }
+        });
     }
 }
 
