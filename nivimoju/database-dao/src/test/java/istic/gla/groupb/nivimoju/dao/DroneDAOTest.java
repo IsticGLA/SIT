@@ -1,12 +1,8 @@
 package istic.gla.groupb.nivimoju.dao;
 
 import istic.gla.groupb.nivimoju.entity.Drone;
-import istic.gla.groupb.nivimoju.entity.User;
-import org.apache.log4j.Logger;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import istic.gla.groupb.nivimoju.util.MarkerType;
+import org.junit.*;
 
 import java.util.List;
 
@@ -14,89 +10,103 @@ import java.util.List;
  * Created by jeremy on 14/04/15.
  */
 public class DroneDAOTest {
-    Logger logger = Logger.getLogger(DroneDAOTest.class);
-    private static Drone drone;
-    private static DroneDAO droneDAO;
+    private static Drone dData;
+    private static Drone dDataTemp;
+    private static DroneDAO dDAO;
 
     @BeforeClass
-    public static void init() {
-        drone = new Drone("Drone 1");
-        droneDAO = new DroneDAO();
-        droneDAO.connect();
+    public static void init(){
+        dDAO = new DroneDAO();
+        dDAO.connectTest();
+        dData = new Drone("drone_1", 48.666, -1.64000, 2l);
+        dData = dDAO.create(dData);
     }
 
     @AfterClass
-    public static void close() {
-        droneDAO.disconnect();
+    public static void close(){
+        dDAO.delete(dData);
+        dDAO.disconnect();
+    }
+
+    @Before
+    public void instantiate(){
+        dDataTemp = new Drone("drone_2", 48.666, -1.64000, 1l);
     }
 
     @Test
-    public void createTest() {
-        Drone originalDrone = droneDAO.cloneEntity(drone);
-        //Drone res = droneDAO.create(drone);
-        String login = "a";
-        List<User> u = new UserDAO().getBy("login", login);
-        logger.info(u.size());
-        logger.info(u.get(0).getLogin() + "  " + u.get(0).getPassword());
+    public void createTest(){
+        // Save the data to insert
+        Drone originalDrone = dDAO.cloneEntity(dDataTemp);
+        // Insert the data in database
+        Drone insertedDrone = dDAO.create(dDataTemp);
+        // Update the id of the original data to match the inserted data
+        originalDrone.setId(insertedDrone.getId());
+        // Assert the equality of datas
+        Assert.assertEquals(originalDrone, insertedDrone);
+        // clean the database
+        dDAO.delete(originalDrone);
+    }
 
-        //originalDrone.setId(res.getId());
-        //Assert.assertEquals(originalDrone, res);
+    @Test
+    public void getByIdTest(){
+        Drone res = dDAO.getById(-1l);
+        Assert.assertNull(res);
+
+        res = dDAO.getById(dData.getId());
+        Assert.assertEquals(res, dData);
+    }
+
+    @Test
+    public void getByTest(){
+        dData = dDAO.create(dData);
+        List<Drone> res = dDAO.getBy("label", dData.getLabel());
+        Assert.assertEquals(dData.getLabel(), res.get(0).getLabel());
+
+        dDAO.delete(dData);
 
     }
 
     @Test
-    public void getByIdIntervention() {
-        List<Drone> list = droneDAO.getBy("idIntervention", 10);
-        logger.info(list);
-        for (Drone d : list){
-            logger.info(d.getLabel());
+    public void updateTest(){
+        long newLat = (long) 47.6334;
+
+        // Update an unexisting data
+        dDataTemp.setLatitude(newLat);
+        Drone unexidData = dDAO.update(dDataTemp);
+        Assert.assertNull(unexidData);
+
+        // Update existing data
+        dData.setLatitude(newLat);
+        Drone updateDrone = dDAO.update(dData);
+        Assert.assertEquals(newLat, updateDrone.getLatitude(), 0.0000);
+    }
+
+    @Test
+    public void getAllTest() throws InterruptedException {
+        // insert three other data
+        dDAO.create(dData);
+        dDAO.create(dData);
+        dDAO.create(dData);
+
+        // check that we have 4 data in database and clean the database
+        int counter = 0;
+        List<Drone> list = dDAO.getAll();
+
+        for (Drone st : list){
+            counter++;
+            dDAO.delete(st);
         }
-
+        Assert.assertEquals(4, counter);
     }
 
     @Test
-    public void getAll() {
-        List<Drone> list = droneDAO.getAll();
-        logger.info(list);
-        for (Drone d : list){
-            logger.info(d.getLabel());
-        }
-    }
-
-    @Test
-    public void getUnassign() {
-        List<Drone> list = droneDAO.getBy("idIntervention", -1l);
-        logger.info(list);
-        for (Drone d : list){
-            logger.info(d.getLabel());
-            logger.info(d.getIdIntervention());
-        }
-    }
-
-    @Test
-    public void testAssign() {
-
-        List<Drone> droneList = droneDAO.getBy("idIntervention", -1);
-        if (null != droneList && droneList.size() > 1) {
-            logger.info(droneList.size());
-            Drone updateDrone = droneList.get(0);
-            updateDrone.setIdIntervention(46);
-            updateDrone.updateDate();
-            logger.info(updateDrone.getIdIntervention() + "  " + updateDrone.getId());
-            Drone d = droneDAO.update(updateDrone);
-            logger.info(d.getIdIntervention() + "  " + d.getId());
-            Assert.assertEquals(updateDrone, d);
-
-        }
-    }
-
-    @Test
-    public void update() {
-        drone = droneDAO.getById(25l);
-        drone.setIdIntervention(10);
-        drone.updateDate();
-        Drone updatedDrone = droneDAO.update(drone);
-        logger.info(updatedDrone);
-        Assert.assertEquals(10, updatedDrone.getIdIntervention());
+    public void deleteTest(){
+        long id = dDAO.delete(dDataTemp);
+        Assert.assertEquals(-1, id);
+        dData = dDAO.create(dData);
+        id = dDAO.delete(dData);
+        Assert.assertEquals(id, dData.getId());
+        Drone nullDrone = dDAO.getById(dData.getId());
+        Assert.assertNull(nullDrone);
     }
 }

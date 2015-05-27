@@ -57,6 +57,7 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
         changeRoleButton = (Button) v.findViewById(R.id.buton_change_role);
         if(resource.getLabel().contains("incident")) {
             v.findViewById(R.id.layout_change_resource).setVisibility(View.GONE);
+            changeRoleButton.setVisibility(View.GONE);
         }
         changeRoleButton.setOnClickListener(new View.OnClickListener() {
             @Override

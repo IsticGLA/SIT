@@ -450,4 +450,12 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         buttonA.setVisibility(View.VISIBLE);
         editionMode = false;
     }*/
+
+    public void disableCreatePathButton() {
+        findViewById(R.id.buttonCreatePath).setEnabled(false);
+    }
+
+    public void enableCreatePathButton() {
+        findViewById(R.id.buttonCreatePath).setEnabled(true);
+    }
 }

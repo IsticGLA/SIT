@@ -16,7 +16,7 @@ public class InterventionDAO extends AbstractDAO<Intervention> {
         this.type = Constant.TYPE_INTERVENTION;
     }
 
-    public final List<Intervention> getWaitingResources(){
+    /*public final List<Intervention> getWaitingResources(){
         createViewOnDemandResource();
         List<ViewRow> result = DAOManager.getCurrentBucket().query(ViewQuery.from("designDoc", "by_waiting_resource_" + type).stale(Stale.FALSE)).allRows();
         return viewRowsToEntities(result);
@@ -43,5 +43,5 @@ public class InterventionDAO extends AbstractDAO<Intervention> {
             designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
             DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
         }
-    }
+    }*/
 }
