@@ -171,6 +171,9 @@ public class ChangeStateDialogFragment extends DialogFragment implements IResour
             case commands:
                 toCompare = "Commande";
                 break;
+            case otherwise:
+                toCompare = "Autre";
+                break;
             default:
                 break;
         }
