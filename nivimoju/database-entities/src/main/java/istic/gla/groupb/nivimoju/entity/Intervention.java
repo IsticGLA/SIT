@@ -20,7 +20,7 @@ public class Intervention extends AbstractEntity implements Serializable {
     private double longitude;
     private List<Resource> resources;
     private List<List<Position>> exclusionArea;
-    private List<List<Position>> watchArea;
+    private List<Area> watchArea;
     private List<Path> watchPath;
 
     /**
@@ -102,11 +102,11 @@ public class Intervention extends AbstractEntity implements Serializable {
         this.exclusionArea = exclusionArea;
     }
 
-    public List<List<Position>> getWatchArea() {
+    public List<Area> getWatchArea() {
         return watchArea;
     }
 
-    public void setWatchArea(List<List<Position>> watchArea) {
+    public void setWatchArea(List<Area> watchArea) {
         this.watchArea = watchArea;
     }
 
