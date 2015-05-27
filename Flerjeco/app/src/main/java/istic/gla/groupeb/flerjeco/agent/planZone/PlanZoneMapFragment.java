@@ -231,10 +231,10 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
             if (areaList.size() > 0 && position < areaList.size() && null != areaList.get(position)){
                 mCurrentPositionArea = position;
 
-                Area a = areaList.get(position);
+                newArea = areaList.get(position);
                 LatLngBounds.Builder bounds = new LatLngBounds.Builder();
 
-                for (Position pos : a.getPositions()) {
+                for (Position pos : newArea.getPositions()) {
                     LatLng latLng = new LatLng(pos.getLatitude(), pos.getLongitude());
                     bounds.include(latLng);
 
@@ -268,6 +268,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         this.markers = new ArrayList<>();
         this.dronesMarkers = new HashMap<>();
         this.newPath = new Path();
+        this.newArea = new Area();
         this.polygonOptions = new PolygonOptions()
                 .strokeColor(Color.parseColor("#9b24a6"))
                 .fillColor(Color.argb(40,238,238,0))
@@ -283,6 +284,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         this.polylines.clear();
         this.markers.clear();
         this.newPath = new Path();
+        this.newArea = new Area();
         this.dronesMarkers.clear();
         if (this.polygon!=null){
             this.polygon.remove();
@@ -305,8 +307,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
         // if we are in edition mode, we set the new path in the intervention we get back from the main activity
         if (editPath){
-            //inter.getWatchPath().get(mCurrentPosition).setPositions(newPath.getPositions());
-            //inter.getWatchPath().get(mCurrentPosition).setClosed(newPath.isClosed());
 
             // send to the database
             Path pathToUpdate = inter.getWatchPath().get(mCurrentPosition);
@@ -318,7 +318,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
         // else, we add the new path
         } else {
-            //inter.getWatchPath().add(newPath);
             Object[] tab = {inter.getId(), newPath};
             updatePathsForInter = new UpdatePathsForInterventionTask(this, EPathOperation.CREATE);
             updatePathsForInter.execute(tab);
@@ -566,6 +565,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 int i = markers.size() - 1;
                 markers.get(i).remove();
                 markers.remove(i);
+                newArea.getPositions().remove(i);
                 polygonOptions = new PolygonOptions()
                         .strokeColor(Color.parseColor("#9b24a6"))
                         .fillColor(Color.argb(40,238,238,0))
@@ -696,6 +696,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 Marker m = googleMap.addMarker(marker);
                 // add the marker on the markers list
                 markers.add(m);
+                newArea.addPosition(new Position(latLng.latitude, latLng.longitude, 20));
 
                 if (polygonOptions == null) {
                     polygonOptions = new PolygonOptions()
@@ -719,6 +720,26 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     }
 
     public void sendArea() {
+
+        // if we are in edition mode, we set the new path in the intervention we get back from the main activity
+        if (editPath){
+
+            // send to the database
+            Path pathToUpdate = inter.getWatchPath().get(mCurrentPosition);
+            pathToUpdate.setPositions(newPath.getPositions());
+            pathToUpdate.setClosed(newPath.isClosed());
+            Object[] tab = {inter.getId(), pathToUpdate};
+            updatePathsForInter = new UpdatePathsForInterventionTask(this, EPathOperation.UPDATE);
+            updatePathsForInter.execute(tab);
+
+            // else, we add the new path
+        } else {
+            Object[] tab = {inter.getId(), newPath};
+            updatePathsForInter = new UpdatePathsForInterventionTask(this, EPathOperation.CREATE);
+            updatePathsForInter.execute(tab);
+        }
+
+
         ((PlanZoneActivity)getActivity()).showProgress(true);
         // remove Click listener
         resetMapListener();
@@ -726,7 +747,8 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         // if we are in edition mode, we set the new area in the intervention we get back from the main activity
         if (editPath){
             // send to the database
-            Area areaToUpdate = inter.getWatchArea().get(mCurrentPosition);
+            Area areaToUpdate = inter.getWatchArea().get(mCurrentPositionArea);
+            areaToUpdate.setPositions(polygonPoints);
             //TODO maybe something to do here before sending
             Object[] tab = {inter.getId(), areaToUpdate};
             updateAreaTask = new UpdateAreaTask(this, EPathOperation.UPDATE);
