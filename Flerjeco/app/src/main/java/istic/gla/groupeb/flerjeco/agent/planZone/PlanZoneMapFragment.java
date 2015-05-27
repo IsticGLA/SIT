@@ -86,6 +86,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     private boolean refreshDrones = false;
     GetPositionDroneTask getPositionDroneTask;
     UpdatePathsForInterventionTask updatePathsForInter;
+    UpdateAreaTask updateAreaTask;
     private Area newArea;
 
 
@@ -300,7 +301,14 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 updatePathsForInter.execute(tab);
             }
         } else if (creationType == ECreationType.AREA) {
-            //TODO implement me !
+            // remove of the area we want to remove
+            if (mCurrentPosition >= 0 && inter.getWatchArea().size() > mCurrentPosition) {
+                //inter.getWatchPath().remove(mCurrentPosition);
+                // send to the database
+                Object[] tab = {inter.getId(), inter.getWatchPath().get(mCurrentPosition)};
+                updateAreaTask = new UpdateAreaTask(this, EPathOperation.DELETE);
+                updateAreaTask.execute(tab);
+            }
         }
     }
 
@@ -665,13 +673,15 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
             Area areaToUpdate = inter.getWatchArea().get(mCurrentPosition);
             //TODO maybe something to do here before sending
             Object[] tab = {inter.getId(), areaToUpdate};
-            new UpdateAreaTask(this, EPathOperation.UPDATE).execute(tab);
+            updateAreaTask = new UpdateAreaTask(this, EPathOperation.UPDATE);
+            updateAreaTask.execute(tab);
 
             // else, we add the new area
         } else {
             //TODO set newArea during creation
             Object[] tab = {inter.getId(), newArea};
-            new UpdateAreaTask(this, EPathOperation.CREATE).execute(tab);
+            updateAreaTask = new UpdateAreaTask(this, EPathOperation.CREATE);
+            updateAreaTask.execute(tab);
         }
     }
 
