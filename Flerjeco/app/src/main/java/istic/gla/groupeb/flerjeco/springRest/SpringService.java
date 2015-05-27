@@ -162,15 +162,15 @@ public class SpringService {
 
         try {
             ResponseEntity<Intervention> interventionResult = restTemplate.postForEntity(url, resource, Intervention.class);
-            intervention = interventionResult.getBody();
-            Log.v(TAG, "updateResourceIntervention : "+interventionResult.getStatusCode().toString());
             if (interventionResult == null) {
                 Log.v(TAG, "updateResourceIntervention interventionResult = null");
             } else {
+                intervention = interventionResult.getBody();
                 Log.v(TAG, "Intervention up to date : "+interventionResult.toString());
+                Log.v(TAG, "updateResourceIntervention : "+interventionResult.getStatusCode().toString());
             }
         } catch (Throwable e) {
-            Log.e(TAG, e.getMessage());
+            Log.e(TAG, "error while updating intervention", e);
         }
 
         return intervention;
