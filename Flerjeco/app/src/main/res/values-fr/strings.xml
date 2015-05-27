@@ -113,4 +113,5 @@
     <string name="drone_image_slider_title">Historique des images</string>
     <string name="create_area">Créer une zone</string>
     <string name="drone_update_area_error_not_available">Aucun drone n\'est disponible, la création de zone est impossible</string>
+    <string name="remove_area">Supprimer la zone</string>
 </resources>

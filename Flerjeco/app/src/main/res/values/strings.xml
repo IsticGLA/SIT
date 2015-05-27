@@ -142,4 +142,5 @@
     <string name="codis_intervention_title" translatable="false">Intervention %1$s - %2$s - %3$s</string>
     <string name="codis_intervention_title_without_address" translatable="false">Intervention %1$s - %2$s</string>
     <string name="drone_update_area_error_not_available">Cannot create area, no drone available</string>
+    <string name="remove_area">Delete the area</string>
 </resources>

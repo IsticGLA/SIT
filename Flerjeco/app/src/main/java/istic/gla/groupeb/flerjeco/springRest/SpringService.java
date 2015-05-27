@@ -41,7 +41,7 @@ import istic.gla.groupeb.flerjeco.agent.planZone.EPathOperation;
 public class SpringService {
 
     private static final String TAG = SpringService.class.getSimpleName();
-    private static final String URL = "http://ns3002211.ip-37-59-58.eu:8080/nivimoju/rest/";
+    private static final String URL = "http://37.59.58.42:8080/nivimoju/rest/";
     private RestTemplate restTemplate;
 
     /**

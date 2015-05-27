@@ -206,15 +206,16 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         }
 
         // Draw area of the intervention
-        Log.i("JVG", "" + areaList.size());
         for (Area area : areaList){
             for (Position pos : area.getPositions()) {
-                polygonOptions.add(new LatLng(pos.getLatitude(), pos.getLongitude()));
+                LatLng latLng = new LatLng(pos.getLatitude(), pos.getLongitude());
+                bounds.include(latLng);
+                polygonOptions.add(latLng);
             }
             polygons.add(googleMap.addPolygon(polygonOptions));
         }
 
-        if (markers.size() <= 0) {
+        if (markers.size() <= 0 && polygons.size() <= 0) {
             bounds.include(new LatLng(inter.getLatitude(), inter.getLongitude()));
         }
         this.mBounds = bounds.build();

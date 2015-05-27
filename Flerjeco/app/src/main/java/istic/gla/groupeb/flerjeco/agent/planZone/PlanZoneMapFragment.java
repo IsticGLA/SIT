@@ -56,6 +56,8 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     private static final String TAG = PlanZoneMapFragment.class.getSimpleName();
     final static String ARG_POSITION = "position";
 
+    ECreationType type = ECreationType.PATH;
+
     // all variables for the Google Map
     MapView mMapView;
     private GoogleMap googleMap;
@@ -74,6 +76,14 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     public Path newPath;
     // save the path when we edit it to future restore (request to database failed)
     private Path savePath;
+
+    // list of all the area of the intervention
+    private List<Area> areaList;
+    // current position in the areaList in the intervention
+    int mCurrentPositionArea = -1;
+    // initialized when we create a new area for the current intervention
+    public Area newArea;
+
     // current intervention
     private Intervention inter;
 
@@ -87,7 +97,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     GetPositionDroneTask getPositionDroneTask;
     UpdatePathsForInterventionTask updatePathsForInter;
     UpdateAreaTask updateAreaTask;
-    private Area newArea;
 
 
     @Override
@@ -119,7 +128,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
 
-        initMap(activity.getIntervention().getWatchPath());
+        initMap(activity.getIntervention().getWatchPath(), activity.getIntervention().getWatchArea());
 
         this.dronesMarkers = new HashMap<>();
         return v;
@@ -136,10 +145,10 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         Bundle args = getArguments();
         if (args != null) {
             // Set article based on argument passed in
-            updateMapView(args.getInt(ARG_POSITION));
+            updateMapView(args.getInt(ARG_POSITION), ECreationType.PATH);
         } else if (mCurrentPosition != -1) {
             // Set article based on saved instance state defined during onCreateView
-            updateMapView(mCurrentPosition);
+            updateMapView(mCurrentPosition, ECreationType.PATH);
         }
     }
 
@@ -157,62 +166,83 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
      * Update the Google Map with the path you just clicked
      * @param position position of the path you clicked in the list
      */
-    public void updateMapView(int position) {
+    public void updateMapView(int position, ECreationType type) {
         // clear the Google Map
         clearGoogleMap();
+        this.type = type;
 
         // get the intervention from the main activity
         inter = ((PlanZoneActivity) getActivity()).getIntervention();
+        Log.i("JVG", type.toString());
+        if (type == ECreationType.PATH) {
 
-        // if path of the position position in the list is not null, we draw it on the map
-        if (pathList.size() > 0 && position < pathList.size() && null != pathList.get(position)){
-            // Set mCurrentPosition to future resume on fragment
-            mCurrentPosition = position;
+            // if path of the position position in the list is not null, we draw it on the map
+            if (pathList.size() > 0 && position < pathList.size() && null != pathList.get(position)) {
+                // Set mCurrentPosition to future resume on fragment
+                mCurrentPosition = position;
 
 
-            // set closed property on newPath
-            boolean b = pathList.get(position).isClosed();
-            newPath.setClosed(b);
-            ((PlanZoneActivity) getActivity()).checkCloseBox(b);
+                // set closed property on newPath
+                boolean b = pathList.get(position).isClosed();
+                newPath.setClosed(b);
+                ((PlanZoneActivity) getActivity()).checkCloseBox(b);
 
-            // save the old path for future restore if the update doesn't work
-            savePath = new Path();
-            savePath.setClosed(b);
+                // save the old path for future restore if the update doesn't work
+                savePath = new Path();
+                savePath.setClosed(b);
 
-            // get all the positions of the path to draw it
-            List<Position> positions = pathList.get(position).getPositions();
+                // get all the positions of the path to draw it
+                List<Position> positions = pathList.get(position).getPositions();
 
-            // Create LatLngBound to zoom on the set of positions in the path
-            LatLngBounds.Builder bounds = new LatLngBounds.Builder();
-            for (int i = 0; i < positions.size(); i++){
-                double latitude = positions.get(i).getLatitude();
-                double longitude = positions.get(i).getLongitude();
-                LatLng latLng = new LatLng(latitude, longitude);
-                bounds.include(latLng);
+                // Create LatLngBound to zoom on the set of positions in the path
+                LatLngBounds.Builder bounds = new LatLngBounds.Builder();
+                for (int i = 0; i < positions.size(); i++) {
+                    double latitude = positions.get(i).getLatitude();
+                    double longitude = positions.get(i).getLongitude();
+                    LatLng latLng = new LatLng(latitude, longitude);
+                    bounds.include(latLng);
 
-                newPath.getPositions().add(new Position(latitude, longitude, 20));
-                savePath.getPositions().add(new Position(latitude, longitude, 20));
+                    newPath.getPositions().add(new Position(latitude, longitude, 20));
+                    savePath.getPositions().add(new Position(latitude, longitude, 20));
 
-                // create marker
-                MarkerOptions marker = new MarkerOptions().position(latLng);
-                // Changing marker icon
-                marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
-                // adding marker
-                Marker m = googleMap.addMarker(marker);
-                // add the marker on the markers list
-                markers.add(m);
+                    // create marker
+                    MarkerOptions marker = new MarkerOptions().position(latLng);
+                    // Changing marker icon
+                    marker.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET));
+                    // adding marker
+                    Marker m = googleMap.addMarker(marker);
+                    // add the marker on the markers list
+                    markers.add(m);
 
-                // draw line between two points if is not the first
-                if (i > 0){
-                    LatLng previousLatLng = new LatLng(positions.get(i-1).getLatitude(), positions.get(i-1).getLongitude());
-                    drawLine(latLng, previousLatLng);
-                // else if it the path is closed, draw line between first and last point
-                } if (i == positions.size()-1 && pathList.get(position).isClosed() && positions.size() > 2){
-                    LatLng firstLatLng = new LatLng(positions.get(0).getLatitude(), positions.get(0).getLongitude());
-                    drawLine(firstLatLng, latLng);
+                    // draw line between two points if is not the first
+                    if (i > 0) {
+                        LatLng previousLatLng = new LatLng(positions.get(i - 1).getLatitude(), positions.get(i - 1).getLongitude());
+                        drawLine(latLng, previousLatLng);
+                        // else if it the path is closed, draw line between first and last point
+                    }
+                    if (i == positions.size() - 1 && pathList.get(position).isClosed() && positions.size() > 2) {
+                        LatLng firstLatLng = new LatLng(positions.get(0).getLatitude(), positions.get(0).getLongitude());
+                        drawLine(firstLatLng, latLng);
+                    }
                 }
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
             }
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+        } else {
+            if (areaList.size() > 0 && position < areaList.size() && null != areaList.get(position)){
+                mCurrentPositionArea = position;
+
+                Area a = areaList.get(position);
+                LatLngBounds.Builder bounds = new LatLngBounds.Builder();
+
+                for (Position pos : a.getPositions()) {
+                    LatLng latLng = new LatLng(pos.getLatitude(), pos.getLongitude());
+                    bounds.include(latLng);
+                    polygonOptions.add(latLng);
+                }
+                polygon = googleMap.addPolygon(polygonOptions);
+
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+            }
         }
     }
 
@@ -220,8 +250,9 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
      * Init the Google Map
      * @param pathList the list of paths
      */
-    public void initMap(List<Path> pathList){
+    public void initMap(List<Path> pathList, List<Area> areaList){
         this.pathList = pathList;
+        this.areaList = areaList;
         this.polylines = new ArrayList<>();
         this.markers = new ArrayList<>();
         this.dronesMarkers = new HashMap<>();
@@ -246,7 +277,10 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
             this.polygon.remove();
             this.polygon = null;
         }
-        this.polygonOptions = null;
+        this.polygonOptions = new PolygonOptions()
+                .strokeColor(Color.parseColor("#9b24a6"))
+                .fillColor(Color.argb(40,238,238,0))
+                .strokeWidth((float) 2);;
         this.polygonPoints.clear();
     }
 
@@ -362,7 +396,12 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
      */
     public void applyUpdateAfterOperation(Intervention intervention){
         pathList = intervention.getWatchPath();
-        updateMapView(intervention.getWatchPath().size() - 1);
+        areaList = intervention.getWatchArea();
+        if (this.type == ECreationType.PATH) {
+            updateMapView(intervention.getWatchPath().size() - 1, this.type);
+        } else {
+            updateMapView(intervention.getWatchArea().size() - 1, this.type);
+        }
         PlanZoneActivity p = ((PlanZoneActivity) getActivity());
         p.refreshList(intervention);
         p.editModeOff();
@@ -382,12 +421,12 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 // remove a path
                 if (updatePath == null) {
                     if (newIntervention.getWatchPath().size() > 0) {
-                        updateMapView(newIntervention.getWatchPath().size() - 1);
+                        updateMapView(newIntervention.getWatchPath().size() - 1, ECreationType.PATH);
                         p.checkListView(newIntervention.getWatchPath().size() - 1);
                     }
                 // update path
                 } else if (oldPath.isClosed() != updatePath.isClosed() || !oldPath.getPositions().equals(updatePath.getPositions())){
-                    updateMapView(mCurrentPosition);
+                    updateMapView(mCurrentPosition, ECreationType.PATH);
                     p.checkListView(mCurrentPosition);
                 } else {
                     p.checkListView(mCurrentPosition);
@@ -585,9 +624,13 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     public void onPause() {
         super.onPause();
         refreshDrones = false;
-        getPositionDroneTask.cancel(true);
+        if (null != getPositionDroneTask) {
+            getPositionDroneTask.cancel(true);
+        }
         mMapView.onPause();
-        updatePathsForInter.cancel(true);
+        if (null != updatePathsForInter) {
+            updatePathsForInter.cancel(true);
+        }
         IntentWraper.stopService();
     }
 

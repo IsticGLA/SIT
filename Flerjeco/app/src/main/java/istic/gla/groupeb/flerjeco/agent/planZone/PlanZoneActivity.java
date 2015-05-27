@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ListView;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -122,7 +123,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
     }
 
     @Override
-    public void onResourceSelected(int position) {
+    public void onResourceSelected(int position, ECreationType type) {
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
@@ -134,11 +135,16 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
 
             // Set edition Mode on
             mapFragment.editPath = true;
-            editModeOn(ECreationType.AREA);
+
+            editModeOn(type);
 
             // Call a method in the ArticleFragment to update its content
-            mapFragment.updateMapView(position);
-            mapFragment.addMapClickListener();
+            mapFragment.updateMapView(position, type);
+            if (type == ECreationType.PATH) {
+                mapFragment.addMapClickListener();
+            } else {
+                mapFragment.addMapClickListenerArea();
+            }
 
         // If the frag is not available, we're in the one-pane layout and must swap frags...
         } else {
@@ -180,7 +186,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
 	PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
-        // if we are in edition mode, initi of the edit buttons
+        // if we are in edition mode, init of the edit buttons
         if (!editionMode) {
             Log.i(TAG, "Mode d'édition du trajet");
             editModeOn(ECreationType.PATH);
@@ -228,7 +234,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         mapFragment.resetMapListener();
         // if we are in edition mode, we clear the path we are updating
         if (mapFragment.editPath) {
-            mapFragment.updateMapView(position);
+            mapFragment.updateMapView(position, mapFragment.type);
             mapFragment.editPath = false;
         // else, we clear the Google Map
         } else {
@@ -297,10 +303,13 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         checkBox.setVisibility(View.VISIBLE);
         if(creationType == ECreationType.AREA) {
             buttonP.setVisibility(View.GONE);
+            checkBox.setVisibility(View.GONE);
             buttonA.setVisibility(View.VISIBLE);
+            removePath.setText(R.string.remove_area);
         } else if(creationType == ECreationType.PATH) {
             buttonA.setVisibility(View.GONE);
             buttonP.setVisibility(View.VISIBLE);
+            removePath.setText(R.string.remove_path);
         }
 
         removeLast.setOnClickListener(new View.OnClickListener() {

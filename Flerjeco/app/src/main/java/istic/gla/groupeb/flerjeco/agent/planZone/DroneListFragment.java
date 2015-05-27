@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +29,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import istic.gla.groupb.nivimoju.entity.Area;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupeb.flerjeco.R;
@@ -41,17 +41,23 @@ public class DroneListFragment extends Fragment {
     // callback for the selected Listener
     OnResourceSelectedListener mCallback;
 
-    // the listView of the fragment
+    // the listView of the fragment for paths
     private ListView listViewPath;
+    // the listView of the fragment for areas
+    private ListView listViewArea;
     // Adapter for the ListView
-    private ArrayAdapter adapter;
+    private ArrayAdapter adapterPath;
+    // Adapter for the ListView
+    private ArrayAdapter adapterArea;
     // List of the label path in the current intervention
     private List<String> labelsPath;
+    // List of the label area in the current intervention
+    private List<String> labelsArea;
 
     // The container Activity must implement this interface so the frag can deliver messages
     public interface OnResourceSelectedListener {
         /** Called by HeadlinesFragment when a list item is selected */
-        public void onResourceSelected(int position);
+        public void onResourceSelected(int position, ECreationType type);
     }
 
     @Override
@@ -62,6 +68,7 @@ public class DroneListFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_list_drone, container, false);
 
         listViewPath = (ListView) v.findViewById(R.id.listViewPath);
+        listViewArea = (ListView) v.findViewById(R.id.listViewArea);
 
         // We need to use a different list item layout for devices older than Honeycomb
         int layout = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
@@ -73,15 +80,36 @@ public class DroneListFragment extends Fragment {
         for(int i = 0; i < pathList.size(); i++) {
             labelsPath.add("Trajet " + (i+1));
         }
-        adapter = new ArrayAdapter<>(getActivity(), layout, labelsPath);
+        adapterPath = new ArrayAdapter<>(getActivity(), layout, labelsPath);
 
         // set adapter on the listView and set the listener
-        listViewPath.setAdapter(adapter);
+        listViewPath.setAdapter(adapterPath);
         listViewPath.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                mCallback.onResourceSelected(position);
+                mCallback.onResourceSelected(position, ECreationType.PATH
+                );
                 listViewPath.setItemChecked(position, true);
+                listViewArea.setItemChecked(listViewArea.getCheckedItemPosition(), false);
+            }
+        });
+
+        // init of the label area list
+        labelsArea = new ArrayList<>();
+        List<Area> areaList = ((PlanZoneActivity) getActivity()).getIntervention().getWatchArea();
+        for(int i = 0; i < areaList.size(); i++) {
+            labelsArea.add("Zone " + (i+1));
+        }
+        adapterArea = new ArrayAdapter<>(getActivity(), layout, labelsArea);
+
+        // set adapter on the listView and set the listener
+        listViewArea.setAdapter(adapterArea);
+        listViewArea.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                mCallback.onResourceSelected(position, ECreationType.AREA);
+                listViewArea.setItemChecked(position, true);
+                listViewPath.setItemChecked(listViewPath.getCheckedItemPosition(), false);
             }
         });
 
@@ -98,6 +126,8 @@ public class DroneListFragment extends Fragment {
         if (mapFragment != null) {
             listViewPath.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
             listViewPath.setItemChecked(0,true);
+
+            listViewArea.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
         }
     }
 
@@ -120,14 +150,25 @@ public class DroneListFragment extends Fragment {
      * @param intervention
      */
     public void refresh(Intervention intervention){
-        adapter.clear();
+        // Paths
+        adapterPath.clear();
         labelsPath = new ArrayList<>();
         for(int i = 0; i < intervention.getWatchPath().size(); i++) {
             labelsPath.add("Trajet " + (i+1));
         }
-        adapter.addAll(labelsPath);
-        adapter.notifyDataSetChanged();
-        listViewPath.setItemChecked(labelsPath.size()-1, true);
+        adapterPath.addAll(labelsPath);
+        adapterPath.notifyDataSetChanged();
+        listViewPath.setItemChecked(labelsPath.size() - 1, true);
+
+        // Areas
+        adapterArea.clear();
+        labelsArea = new ArrayList<>();
+        for(int i = 0; i < intervention.getWatchArea().size(); i++) {
+            labelsArea.add("Zone " + (i+1));
+        }
+        adapterArea.addAll(labelsArea);
+        adapterArea.notifyDataSetChanged();
+        listViewArea.setItemChecked(labelsArea.size() - 1, true);
     }
 
     public void checkListView(int position){
