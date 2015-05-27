@@ -141,12 +141,17 @@ public class DroneEngine{
         //construit la map de nodes
         logger.info("building node map");
         Node[][] map = new Node[sizeX][sizeY];
+        StringBuilder builder = new StringBuilder();
         for (int i = 0; i < sizeX; i++) {
+            builder.append("\n");
             for (int j = 0; j < sizeY; j++) {
                 Node node = new Node();
                 LocalCoordinate positionNode = new LocalCoordinate(x0 + i * scanWidth, y0 + j * scanWidth, 30);
                 if(poly.contains(positionNode.getX() - x0, positionNode.getY() - y0)){
                     node.setToScan(true);
+                    builder.append("x ");
+                } else{
+                    builder.append("- ");
                 }
                 node.setObstacle(false);
                 node.setVisited(false);
@@ -154,33 +159,46 @@ public class DroneEngine{
                 map[i][j] = node;
             }
         }
-
+        if(sizeX > 0 && sizeY > 0) {
+            logger.debug("built map : topleft : " + map[0][0].getPosition()
+                    + "\nbotright : " + map[sizeX - 1][sizeY - 1].getPosition()
+                    + builder.toString());
+        }
         return getPathFromMap(map);
     }
 
     /**
-     * get a path (list of point) from a map)
+     * get a path (list of point) from a map, passing by each point needing scan
      * @param map the map
      * @return a path
      */
     private LocalPath getPathFromMap(Node[][] map){
-        StringBuilder builder = new StringBuilder();
         LocalPath path = new LocalPath();
         path.setClosed(false);
         List<LocalCoordinate> positions = new ArrayList<>();
+        StringBuilder builder = new StringBuilder("path : ");
         for (int i = 0; i < map.length; i++) {
             builder.append("\n");
-            for (int j = 0; j < map[i].length; j++) {
-                if(map[i][j].isToScan()){
-                    positions.add(map[i][j].getPosition());
-                    builder.append("x");
-                }else{
-                    builder.append("-");
+            if(i%2 == 0){
+                for (int j = 0; j < map[i].length; j++) {
+                    if(map[i][j].isToScan()) {
+                        positions.add(map[i][j].getPosition());
+                        builder.append("(").append(i).append(",").append(j).append(")->");
+                    }
                 }
             }
+            else{
+                for (int j = map[i].length -1 ; j >= 0; j--) {
+                    if(map[i][j].isToScan()) {
+                        positions.add(map[i][j].getPosition());
+                        builder.append("(").append(i).append(",").append(j).append(")->");
+                    }
+                }
+            }
+
         }
         path.setPositions(positions);
-        logger.info(builder.toString());
+        logger.debug(builder.toString());
         return path;
     }
 

@@ -20,6 +20,6 @@ public class DroneEngineTest {
         positions.add(new Position(48.115196, -1.637826));
         positions.add(new Position(48.115369,-1.638118));
         positions.add(new Position(48.115607, -1.638259));
-        engine.getPathForScan(positions, 1);
+        engine.getPathForScan(positions, 3);
     }
 }
