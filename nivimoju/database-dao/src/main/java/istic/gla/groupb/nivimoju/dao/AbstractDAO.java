@@ -330,7 +330,7 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
         }
     }
 
-    private void createViewLastUpdate()
+    /*private void createViewLastUpdate()
     {
         DesignDocument designDoc = DAOManager.getCurrentBucket().bucketManager().getDesignDocument("designDoc");
         if (null == designDoc){
@@ -347,9 +347,9 @@ public abstract class AbstractDAO<T extends AbstractEntity> {
             designDoc.views().add(DefaultView.create(viewName, mapFunction, ""));
             DAOManager.getCurrentBucket().bucketManager().upsertDesignDocument(designDoc);
         }
-    }
+    }*/
 
-    public DesignDocument createDesignDocument()
+    protected DesignDocument createDesignDocument()
     {
         List<View> views = new ArrayList<>();
         DesignDocument designDoc = DesignDocument.create("designDoc", views);
