@@ -1,141 +1,114 @@
 package istic.gla.groupb.nivimoju.dao;
 
-import istic.gla.groupb.nivimoju.entity.Image;
 import istic.gla.groupb.nivimoju.entity.Intervention;
-import istic.gla.groupb.nivimoju.entity.Resource;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import istic.gla.groupb.nivimoju.util.State;
-
-import java.util.ArrayList;
+import istic.gla.groupb.nivimoju.util.MarkerType;
+import org.junit.*;
 import java.util.List;
 
 /**
  * Created by jeremy on 10/04/15.
  */
 public class InterventionDAOTest {
-
-    private static Intervention interData;
-    private static InterventionDAO interDAO;
+    private static Intervention iData;
+    private static Intervention iDataTemp;
+    private static InterventionDAO iDAO;
 
     @BeforeClass
-    public static void init(){
-        interDAO = new InterventionDAO();
-        DAOManager.connect();
+    public static void init() {
+        iDAO = new InterventionDAO();
+        iDAO.connectTest();
+        iData = new Intervention("Test", 2, 48.6445, -1.68454);
+        iData = iDAO.create(iData);
     }
 
     @AfterClass
-    public static void close(){
-        interDAO.disconnect();
+    public static void close() {
+        iDAO.delete(iData);
+        iDAO.disconnect();
     }
 
     @Before
-    public void instantiate(){
-        List<Resource> ressources = new ArrayList<>();
-        ressources.add(new Resource(1l, "VSAV", State.planned));
-        ressources.add(new Resource(2l, "VLCG", State.planned));
-        interData = new Intervention("test_insert", 4, 48.11, -1.61);
-        interData.setResources(ressources);
-    }
-
-    /*@Test
-    public void createTest(){
-        Intervention originalIntervention = interDAO.cloneEntity(interData);
-        Intervention insertIntervention = interDAO.create(interData);
-        originalIntervention.setId(insertIntervention.getId());
-        Assert.assertEquals(originalIntervention, insertIntervention);
+    public void instantiate() {
+        iDataTemp = new Intervention("Coucou", 3, 48.6445, -1.68454);
     }
 
     @Test
-    public void updateTest(){
-        Intervention res = interDAO.create(interData);
-
-        res.setName("test_updated");
-        res.getResources().add(new Resource(1l, "TEST", State.waiting));
-
-        Intervention updateIntervention = interDAO.update(res);
-        Assert.assertEquals(res.getResources(), updateIntervention.getResources());
-        Assert.assertEquals("test_updated", updateIntervention.getName());
+    public void createTest() {
+        // Save the data to insert
+        Intervention originalIntervention = iDAO.cloneEntity(iDataTemp);
+        // Insert the data in database
+        Intervention insertedIntervention = iDAO.create(iDataTemp);
+        // Update the id of the original data to match the inserted data
+        originalIntervention.setId(insertedIntervention.getId());
+        // Assert the equality of datas
+        Assert.assertEquals(originalIntervention, insertedIntervention);
+        // clean the database
+        iDAO.delete(originalIntervention);
     }
 
     @Test
-    public void deleteTest(){
-        Intervention insertIntervention = interDAO.create(interData);
-        long id = interDAO.delete(insertIntervention);
-        Assert.assertEquals(id, insertIntervention.getId());
-        Intervention nullIntervention = interDAO.getById(insertIntervention.getId());
-        Assert.assertNull(nullIntervention);
+    public void getByIdTest() {
+        Intervention res = iDAO.getById(-1l);
+        Assert.assertNull(res);
+
+        res = iDAO.getById(iData.getId());
+        Assert.assertEquals(res, iData);
     }
 
     @Test
-    public void getByIdTest(){
-        Intervention nullIntervention = interDAO.getById(interData.getId());
-        Assert.assertNull(nullIntervention);
+    public void getByTest() {
+        iData = iDAO.create(iData);
+        List<Intervention> res = iDAO.getBy("incidentCode", 2);
+        Assert.assertEquals(iData.getIncidentCode(), res.get(0).getIncidentCode());
 
-        UserDAO uDAO = new UserDAO();
+        res = iDAO.getBy("creationDate", iData.getCreationDate());
+        Assert.assertEquals(iData.getCreationDate(), res.get(0).getCreationDate(), 0.00000);
 
-        Intervention insertIntervention = interDAO.create(interData);
-        Intervention getByIdIntervention = interDAO.getById(insertIntervention.getId());
-        Assert.assertEquals(insertIntervention, getByIdIntervention);
+        iDAO.delete(iData);
+
+    }
+
+    @Test
+    public void updateTest() {
+        long newLat = (long) 47.6334;
+
+        // Update an unexisting data
+        iDataTemp.setLatitude(newLat);
+        Intervention unexiiData = iDAO.update(iDataTemp);
+        Assert.assertNull(unexiiData);
+
+        // Update existing data
+        iData.setLatitude(newLat);
+        Intervention updateIntervention = iDAO.update(iData);
+        Assert.assertEquals(newLat, updateIntervention.getLatitude(), 0.0000);
     }
 
     @Test
     public void getAllTest() throws InterruptedException {
+        // insert three other data
+        iDAO.create(iData);
+        iDAO.create(iData);
+        iDAO.create(iData);
 
-        Intervention st1 = interDAO.create(interData);
-        Intervention st2 = interDAO.create(interData);
-        Intervention st3 = interDAO.create(interData);
-        Intervention st4 = interDAO.create(interData);
-
+        // check that we have 4 data in database and clean the database
         int counter = 0;
-        List<Intervention> list = interDAO.getAll();
+        List<Intervention> list = iDAO.getAll();
 
-        for (Intervention st : list){
-            if ((st.getId() == st1.getId()) ||
-                    (st.getId() == st2.getId()) ||
-                    (st.getId() == st3.getId()) ||
-                    (st.getId() == st4.getId())) {
-                counter++;
-            }
+        for (Intervention st : list) {
+            counter++;
+            iDAO.delete(st);
         }
         Assert.assertEquals(4, counter);
     }
 
     @Test
-    public void getWaitingResourcesTest(){
-        interData.getResources().add(new Resource(1l, "VSAP", State.waiting));
-        interDAO.create(interData);
-        List<Intervention> list = interDAO.getWaitingResources();
-        boolean ok = true;
-        for (Intervention i : list){
-            boolean waiting = false;
-            for (Resource r : i.getResources()){
-                if (r.getState() == State.waiting){
-                    waiting = true;
-                    break;
-                }
-            }
-            ok = ok && waiting;
-        }
-        Assert.assertTrue(ok);
-    }*/
-
-    @Test
-    public void updateResource(){
-        /*interDAO.connect();
-        List<Intervention> interventions = interDAO.getAll();
-
-       for(Intervention i : interventions) {
-           interDAO.delete(i);
-       }*/
-
-        ImageDAO imgDAO = new ImageDAO();
-        List<Image> images = imgDAO.getAll();
-
-        for(Image i : images) {
-            imgDAO.delete(i);
-        }
+    public void deleteTest() {
+        long id = iDAO.delete(iDataTemp);
+        Assert.assertEquals(-1, id);
+        iData = iDAO.create(iData);
+        id = iDAO.delete(iData);
+        Assert.assertEquals(id, iData.getId());
+        Intervention nullIntervention = iDAO.getById(iData.getId());
+        Assert.assertNull(nullIntervention);
     }
 }

@@ -10,6 +10,9 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -334,6 +337,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                     LatLng firstLatLng = new LatLng(newPath.getPositions().get(0).getLatitude(), newPath.getPositions().get(0).getLongitude());
                     drawLine(firstLatLng, latLng);
                 }
+                ((PlanZoneActivity)getActivity()).enableCreatePathButton();
             }
         });
     }
@@ -495,6 +499,10 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 }
             } else if (creationType == ECreationType.AREA) {
                 //TODO implement me !
+            }
+
+            if(markers.size() == 0) {
+                ((PlanZoneActivity)getActivity()).disableCreatePathButton();
             }
         }
     }

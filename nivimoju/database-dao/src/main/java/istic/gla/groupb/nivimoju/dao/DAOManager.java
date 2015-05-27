@@ -71,28 +71,6 @@ public class DAOManager {
         }
     }
 
-
-    /**
-     * flush our bucket
-     * @return
-     */
-    public synchronized static boolean flush()
-    {
-        if(currentBucket!=null && currentCluster!=null)
-        {
-            try
-            {
-                return currentBucket.bucketManager().flush();
-            }
-            catch (FlushDisabledException e)
-            {
-                e.printStackTrace();
-                return false;
-            }
-        }
-        return false;
-    }
-
     public synchronized static Bucket getCurrentBucket() {
         return currentBucket;
     }
