@@ -1,10 +1,7 @@
 package istic.gla.groupb.nivimoju.drone.engine;
 
 import istic.gla.groupb.nivimoju.container.DroneContainer;
-import istic.gla.groupb.nivimoju.entity.Drone;
-import istic.gla.groupb.nivimoju.entity.Intervention;
-import istic.gla.groupb.nivimoju.entity.Path;
-import istic.gla.groupb.nivimoju.entity.Position;
+import istic.gla.groupb.nivimoju.entity.*;
 import istic.gla.groupb.nivimoju.drone.client.DroneClient;
 import istic.gla.groupb.nivimoju.drone.latlong.LatLongConverter;
 import istic.gla.groupb.nivimoju.drone.latlong.LocalCoordinate;
@@ -119,23 +116,10 @@ public class DroneEngine{
         }
     }
 
-    /**
-     * return the paths to scan the zones of an intervention
-     * @param intervention
-     * @return
-     */
-    protected List<LocalPath> computeScans(Intervention intervention){
-        for(List<Position> area : intervention.getWatchArea()){
-            //convertir en liste de positions locales
-        }
-        //TODO
-        return null;
-    }
-
-    public List<LocalPath> getPathsForScans(List<List<Position>> wathAreas, double scanWidth){
+    public List<LocalPath> getPathsForScans(List<Area> wathAreas, double scanWidth){
         List<LocalPath> paths = new ArrayList<>();
-        for(List<Position> area : wathAreas){
-            paths.add(getPathForScan(area, scanWidth));
+        for(Area area : wathAreas){
+            paths.add(getPathForScan(area.getPositions(), scanWidth));
         }
         return paths;
     }
@@ -236,8 +220,10 @@ public class DroneEngine{
         area.add(piscine);
         area.add(croisement);
         area.add(croisement2);
-        List<List<Position>> areas = new ArrayList<>();
-        areas.add(area);
+        Area area1 = new Area();
+        area1.setPositions(area);
+        List<Area> areas = new ArrayList<>();
+        areas.add(area1);
         inter.setWatchArea(areas);
 
         engine.computeForIntervention(inter);

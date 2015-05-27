@@ -1,6 +1,7 @@
 package istic.gla.groupb.nivimoju.container;
 
 import istic.gla.groupb.nivimoju.dao.InterventionDAO;
+import istic.gla.groupb.nivimoju.entity.Area;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupb.nivimoju.entity.Resource;
@@ -222,6 +223,27 @@ public class InterventionContainer {
     }
 
     /**
+     * Add watcharea to an intervention
+     * @param idintervention the id
+     * @param area the area to add
+     * @return
+     */
+    public Intervention addWatchArea(Long idintervention, Area area) {
+        Intervention intervention = getInterventionById(idintervention);
+        Long id = Long.valueOf(0);
+        for(Area oldArea : intervention.getWatchArea()) {
+            if(oldArea.getIdArea() >= id) {
+                id = oldArea.getIdArea();
+            }
+        }
+        id++;
+        area.setIdArea(id);
+        intervention.getWatchArea().add(area);
+        intervention.updateDate();
+        return intervention;
+    }
+
+    /**
      * Update Watchpath to an intervention
      * @param idintervention
      * @param path
@@ -242,6 +264,26 @@ public class InterventionContainer {
     }
 
     /**
+     * Update watchArea to an intervention
+     * @param idintervention the id
+     * @param area the area
+     * @return
+     */
+    public Intervention updateWatchArea(Long idintervention, Area area) {
+        Intervention intervention = getInterventionById(idintervention);
+        Long id = Long.valueOf(0);
+        for(Area oldarea : intervention.getWatchArea()) {
+            if(oldarea.getIdArea() == area.getIdArea()) {
+                intervention.getWatchArea().remove(oldarea);
+                intervention.getWatchArea().add(area);
+                intervention.updateDate();
+                return intervention;
+            }
+        }
+        return intervention;
+    }
+
+    /**
      * Delete Watchpath to an intervention
      * @param idintervention
      * @param path
@@ -253,6 +295,25 @@ public class InterventionContainer {
         for(Path oldpath : intervention.getWatchPath()) {
             if(oldpath.getIdPath() == path.getIdPath()) {
                 intervention.getWatchPath().remove(oldpath);
+                intervention.updateDate();
+                return intervention;
+            }
+        }
+        return intervention;
+    }
+
+    /**
+     * Delete watchArea to an intervention
+     * @param idintervention the id
+     * @param area
+     * @return
+     */
+    public Intervention deleteWatchArea(Long idintervention, Area area) {
+        Intervention intervention = getInterventionById(idintervention);
+        Long id = Long.valueOf(0);
+        for(Area oldarea : intervention.getWatchArea()) {
+            if(oldarea.getIdArea() == area.getIdArea()) {
+                intervention.getWatchPath().remove(oldarea);
                 intervention.updateDate();
                 return intervention;
             }

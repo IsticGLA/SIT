@@ -205,6 +205,26 @@ public class InterventionAPI {
     }
 
     /**
+     * Add the watcharea
+     * @param inter The id of the intervention
+     * @param newArea resource
+     * @return OK
+     */
+    @POST
+    @Path("{inter}/watcharea/create")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response newWatcharea(
+            @PathParam("inter") Long inter,
+            istic.gla.groupb.nivimoju.entity.Area newArea) {
+        Intervention intervention = InterventionContainer.getInstance().addWatchArea(inter, newArea);
+
+        requestOrFreeDrone(intervention);
+
+        return Response.ok(intervention).build();
+    }
+
+    /**
      * create a path for an intervention and assign a drone to it
      * @return CREATED if successful, SERVICE_UNAVAILABLE if no drone is available, NOT_FOUND if the intervention does not exist
      */
@@ -232,9 +252,36 @@ public class InterventionAPI {
     }
 
     /**
+     * update an area
+     */
+    @POST
+    @Path("{inter}/watcharea/update")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updatePaths(@PathParam("inter") Long inter,
+                                istic.gla.groupb.nivimoju.entity.Area area) {
+        logger.info("updating area for intervention " + inter);
+
+        Intervention oldInter = InterventionContainer.getInstance().getInterventionById(inter);
+        if(oldInter == null){
+            logger.warn("intervention does not seem to exist in db");
+            return Response.status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+
+        Intervention intervention = InterventionContainer.getInstance().updateWatchArea(inter, area);
+
+        requestOrFreeDrone(intervention);
+
+        return  Response.status(Response.Status.OK)
+                .entity(intervention)
+                .build();
+    }
+
+    /**
      * Delete the watchPath
      * @param inter The id of the intervention
-     * @param newPath resource
+     * @param pathToDelete resource
      * @return OK
      */
     @POST
@@ -243,8 +290,28 @@ public class InterventionAPI {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteWatchpath(
             @PathParam("inter") Long inter,
-            istic.gla.groupb.nivimoju.entity.Path newPath) {
-        Intervention intervention = InterventionContainer.getInstance().deleteWatchPath(inter, newPath);
+            istic.gla.groupb.nivimoju.entity.Path pathToDelete) {
+        Intervention intervention = InterventionContainer.getInstance().deleteWatchPath(inter, pathToDelete);
+
+        requestOrFreeDrone(intervention);
+
+        return Response.ok(intervention).build();
+    }
+
+    /**
+     * Delete the watcharea
+     * @param inter The id of the intervention
+     * @param areaToDelete resource
+     * @return OK
+     */
+    @POST
+    @Path("{inter}/watcharea/delete")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteWatchpath(
+            @PathParam("inter") Long inter,
+            istic.gla.groupb.nivimoju.entity.Area areaToDelete) {
+        Intervention intervention = InterventionContainer.getInstance().deleteWatchArea(inter, areaToDelete);
 
         requestOrFreeDrone(intervention);
 
