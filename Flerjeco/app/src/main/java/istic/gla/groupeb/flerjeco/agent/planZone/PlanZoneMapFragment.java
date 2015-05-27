@@ -85,6 +85,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     private Map<String, Marker> dronesMarkers;
     private boolean refreshDrones = false;
     GetPositionDroneTask getPositionDroneTask;
+    UpdatePathsForInterventionTask updatePathsForInter;
     private Area newArea;
 
 
@@ -266,13 +267,15 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
             pathToUpdate.setPositions(newPath.getPositions());
             pathToUpdate.setClosed(newPath.isClosed());
             Object[] tab = {inter.getId(), pathToUpdate};
-            new UpdatePathsForInterventionTask(this, EPathOperation.UPDATE).execute(tab);
+            updatePathsForInter = new UpdatePathsForInterventionTask(this, EPathOperation.UPDATE);
+            updatePathsForInter.execute(tab);
 
         // else, we add the new path
         } else {
             //inter.getWatchPath().add(newPath);
             Object[] tab = {inter.getId(), newPath};
-            new UpdatePathsForInterventionTask(this, EPathOperation.CREATE).execute(tab);
+            updatePathsForInter = new UpdatePathsForInterventionTask(this, EPathOperation.CREATE);
+            updatePathsForInter.execute(tab);
         }
     }
 
@@ -293,7 +296,8 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 //inter.getWatchPath().remove(mCurrentPosition);
                 // send to the database
                 Object[] tab = {inter.getId(), inter.getWatchPath().get(mCurrentPosition)};
-                new UpdatePathsForInterventionTask(this, EPathOperation.DELETE).execute(tab);
+                updatePathsForInter = new UpdatePathsForInterventionTask(this, EPathOperation.DELETE);
+                updatePathsForInter.execute(tab);
             }
         } else if (creationType == ECreationType.AREA) {
             //TODO implement me !
@@ -575,6 +579,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         refreshDrones = false;
         getPositionDroneTask.cancel(true);
         mMapView.onPause();
+        updatePathsForInter.cancel(true);
         IntentWraper.stopService();
     }
 
@@ -643,6 +648,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
                 polygonOptions.add(latLng);
                 polygonPoints.add(latLng);
+
                 polygon = googleMap.addPolygon(polygonOptions);
             }
         });
@@ -668,5 +674,7 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
             new UpdateAreaTask(this, EPathOperation.CREATE).execute(tab);
         }
     }
+
+
 }
 
