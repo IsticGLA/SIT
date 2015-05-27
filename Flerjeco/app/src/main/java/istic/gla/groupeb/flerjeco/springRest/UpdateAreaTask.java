@@ -36,7 +36,7 @@ public class UpdateAreaTask extends AsyncTask<Object[], Void, ResponseEntity<Int
     @Override
     protected ResponseEntity<Intervention> doInBackground(Object[]... params) {
         try {
-            Log.i(TAG, "Update paths of the intervention with id : " + params[0][0]);
+            Log.i(TAG, "Update area of the intervention with id : " + params[0][0]);
             return service.updateInterventionArea(params[0], this.operation);
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
@@ -46,23 +46,11 @@ public class UpdateAreaTask extends AsyncTask<Object[], Void, ResponseEntity<Int
 
     @Override
     protected void onPostExecute(ResponseEntity<Intervention> response) {
-        //boolean revert = true;
         if(response != null){
             switch(response.getStatusCode()){
                 case OK:
                     Intervention intervention = response.getBody();
-                    PlanZoneActivity p = ((PlanZoneActivity) fragment.getActivity());
-                    Collections.sort(intervention.getWatchArea(), new Comparator<Area>() {
-                        @Override
-                        public int compare(Area lhs, Area rhs) {
-                            return Long.valueOf(lhs.getIdArea()).compareTo(Long.valueOf(rhs.getIdArea()));
-                        }
-                    });
-                    p.refreshList(intervention);
-                    Toast.makeText(p.getApplicationContext(),
-                            fragment.getActivity().getResources().getString(R.string.drone_update_path_success),
-                            Toast.LENGTH_LONG).show();
-                    //revert = false;
+
                     fragment.applyUpdateAfterOperation(intervention);
                     break;
                 case SERVICE_UNAVAILABLE:

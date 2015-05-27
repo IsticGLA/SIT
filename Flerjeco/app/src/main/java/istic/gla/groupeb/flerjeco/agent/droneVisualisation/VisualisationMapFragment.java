@@ -121,10 +121,6 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         this.polygons = new ArrayList<>();
         this.markers = new ArrayList<>();
         this.dronesMarkers = new HashMap<>();
-        this.polygonOptions = new PolygonOptions()
-                .strokeColor(Color.parseColor("#9b24a6"))
-                .fillColor(Color.argb(40, 238, 238, 0))
-                .strokeWidth((float) 2);
 
         new Handler().postDelayed(new Runnable()
         {
@@ -207,6 +203,10 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
 
         // Draw area of the intervention
         for (Area area : areaList){
+            this.polygonOptions = new PolygonOptions()
+                    .strokeColor(Color.parseColor("#9b24a6"))
+                    .fillColor(Color.argb(40, 238, 238, 0))
+                    .strokeWidth((float) 2);
             for (Position pos : area.getPositions()) {
                 LatLng latLng = new LatLng(pos.getLatitude(), pos.getLongitude());
                 bounds.include(latLng);
@@ -252,10 +252,6 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
         this.markers.clear();
         this.dronesMarkers.clear();
         this.polygons.clear();
-        this.polygonOptions = new PolygonOptions()
-                .strokeColor(Color.parseColor("#9b24a6"))
-                .fillColor(Color.argb(40, 238, 238, 0))
-                .strokeWidth((float) 2);
     }
 
     /**

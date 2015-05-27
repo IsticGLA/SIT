@@ -51,23 +51,11 @@ public class UpdatePathsForInterventionTask extends AsyncTask<Object[], Void, Re
 
     @Override
     protected void onPostExecute(ResponseEntity<Intervention> response) {
-        //boolean revert = true;
         if(response != null){
             switch(response.getStatusCode()){
                 case OK:
                     Intervention intervention = response.getBody();
-                    PlanZoneActivity p = ((PlanZoneActivity) fragment.getActivity());
-                    Collections.sort(intervention.getWatchPath(), new Comparator<Path>() {
-                        @Override
-                        public int compare(Path lhs, Path rhs) {
-                            return Long.valueOf(lhs.getIdPath()).compareTo(Long.valueOf(rhs.getIdPath()));
-                        }
-                    });
-                    p.refreshList(intervention);
-                    Toast.makeText(p.getApplicationContext(),
-                            fragment.getActivity().getResources().getString(R.string.drone_update_path_success),
-                            Toast.LENGTH_LONG).show();
-                    //revert = false;
+
                     fragment.applyUpdateAfterOperation(intervention);
                     break;
                 case SERVICE_UNAVAILABLE:

@@ -17,6 +17,7 @@ import android.widget.ListView;
 import java.util.Collections;
 import java.util.Comparator;
 
+import istic.gla.groupb.nivimoju.entity.Area;
 import istic.gla.groupb.nivimoju.entity.Intervention;
 import istic.gla.groupb.nivimoju.entity.Path;
 import istic.gla.groupeb.flerjeco.R;
@@ -294,10 +295,10 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
-        // unselect on the listView
+/*        // unselect on the listView
         DroneListFragment droneListFragment = (DroneListFragment)
                 getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
-        droneListFragment.unCheckedListView();
+        droneListFragment.unCheckedListView();*/
 
         // show edit mode buttons
         buttonP.setText(getString(R.string.finish_edition));
@@ -343,8 +344,6 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
      * @param b if b check else uncheck
      */
     public void checkCloseBox(boolean b){
-        PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
-                getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
         checkBox.setChecked(b);
     }
@@ -376,6 +375,12 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
                 return Long.valueOf(lhs.getIdPath()).compareTo(Long.valueOf(rhs.getIdPath()));
             }
         });
+        Collections.sort(intervention.getWatchArea(), new Comparator<Area>() {
+            @Override
+            public int compare(Area lhs, Area rhs) {
+                return Long.valueOf(lhs.getIdArea()).compareTo(Long.valueOf(rhs.getIdArea()));
+            }
+        });
         this.intervention = intervention;
         DroneListFragment droneListFragment = (DroneListFragment)
                 getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
@@ -388,6 +393,12 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         DroneListFragment droneListFragment = (DroneListFragment)
                 getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
         droneListFragment.checkListView(position);
+    }
+
+    public void checkListViewArea(int position){
+        DroneListFragment droneListFragment = (DroneListFragment)
+                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
+        droneListFragment.checkListViewArea(position);
     }
 
     @Override
@@ -433,7 +444,6 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         if (!editionMode) {
             Log.i(TAG, "Mode d'édition de la zone");
             editModeOn(ECreationType.AREA);
-            checkCloseBox(false);
             // begin the creation of the new path (add event on Google Map)
             mapFragment.createArea();
             // else, hide edit buttons and send the path on the database
@@ -444,27 +454,6 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
             mapFragment.sendArea();
         }
     }
-
-    //TODO verify if necessary
-    /**
-     * clear the edit button on the ListView fragment
-     */
-    /*public void editModeOffArea(){
-        Button buttonP = (Button) findViewById(R.id.buttonCreatePath);
-        Button buttonA = (Button) findViewById(R.id.buttonCreateArea);
-        Button cancel = (Button) findViewById(R.id.buttonCancel);
-        Button removeLast = (Button) findViewById(R.id.buttonRemoveLastPoint);
-        Button removePath = (Button) findViewById(R.id.buttonRemove);
-        CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox_closed_path);
-        buttonP.setText(getString(R.string.create_path));
-        checkBox.setChecked(false);
-        checkBox.setVisibility(View.GONE);
-        removeLast.setVisibility(View.GONE);
-        cancel.setVisibility(View.GONE);
-        removePath.setVisibility(View.GONE);
-        buttonA.setVisibility(View.VISIBLE);
-        editionMode = false;
-    }*/
 
     public void disableCreatePathButton() {
         findViewById(R.id.buttonCreatePath).setEnabled(false);
@@ -481,5 +470,4 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
     public void enableCreateAreaButton() {
         findViewById(R.id.buttonCreateArea).setEnabled(true);
     }
-
 }

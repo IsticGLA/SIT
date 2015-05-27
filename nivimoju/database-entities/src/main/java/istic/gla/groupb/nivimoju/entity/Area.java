@@ -46,7 +46,7 @@ public class Area implements Serializable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Path{")
+        builder.append("Area{")
                 .append("positions=[");
         for(Position pos : positions){
             builder.append(pos.toString());

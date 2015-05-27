@@ -158,7 +158,7 @@ public class DroneListFragment extends Fragment {
         }
         adapterPath.addAll(labelsPath);
         adapterPath.notifyDataSetChanged();
-        listViewPath.setItemChecked(labelsPath.size() - 1, true);
+        //listViewPath.setItemChecked(labelsPath.size() - 1, true);
 
         // Areas
         adapterArea.clear();
@@ -168,7 +168,7 @@ public class DroneListFragment extends Fragment {
         }
         adapterArea.addAll(labelsArea);
         adapterArea.notifyDataSetChanged();
-        listViewArea.setItemChecked(labelsArea.size() - 1, true);
+        //listViewArea.setItemChecked(labelsArea.size() - 1, true);
     }
 
     public void checkListView(int position){
@@ -181,5 +181,17 @@ public class DroneListFragment extends Fragment {
      */
     public void unCheckedListView(){
         listViewPath.setItemChecked(listViewPath.getCheckedItemPosition(), false);
+    }
+
+    public void checkListViewArea(int position){
+        unCheckedListViewArea();
+        listViewArea.setItemChecked(position, true);
+    }
+
+    /**
+     * unchecked the listView when you create a new area
+     */
+    public void unCheckedListViewArea(){
+        listViewArea.setItemChecked(listViewArea.getCheckedItemPosition(), false);
     }
 }

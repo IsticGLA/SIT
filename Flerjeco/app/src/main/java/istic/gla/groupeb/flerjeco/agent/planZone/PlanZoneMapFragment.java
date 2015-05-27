@@ -10,6 +10,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -174,6 +175,8 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         // get the intervention from the main activity
         inter = ((PlanZoneActivity) getActivity()).getIntervention();
         Log.i("JVG", type.toString());
+        LatLngBounds.Builder bounds = new LatLngBounds.Builder();
+
         if (type == ECreationType.PATH) {
 
             // if path of the position position in the list is not null, we draw it on the map
@@ -194,8 +197,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 // get all the positions of the path to draw it
                 List<Position> positions = pathList.get(position).getPositions();
 
-                // Create LatLngBound to zoom on the set of positions in the path
-                LatLngBounds.Builder bounds = new LatLngBounds.Builder();
                 for (int i = 0; i < positions.size(); i++) {
                     double latitude = positions.get(i).getLatitude();
                     double longitude = positions.get(i).getLongitude();
@@ -225,14 +226,12 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                         drawLine(firstLatLng, latLng);
                     }
                 }
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
             }
         } else {
             if (areaList.size() > 0 && position < areaList.size() && null != areaList.get(position)){
                 mCurrentPositionArea = position;
 
                 newArea = areaList.get(position);
-                LatLngBounds.Builder bounds = new LatLngBounds.Builder();
 
                 for (Position pos : newArea.getPositions()) {
                     LatLng latLng = new LatLng(pos.getLatitude(), pos.getLongitude());
@@ -251,10 +250,16 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                     polygonPoints.add(latLng);
                 }
                 polygon = googleMap.addPolygon(polygonOptions);
-
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
+                if (markers.size() <= 0) {
+                    bounds.include(new LatLng(inter.getLatitude(), inter.getLongitude()));
+                }
             }
         }
+
+        if (markers.size() <= 0) {
+            bounds.include(new LatLng(inter.getLatitude(), inter.getLongitude()));
+        }
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds.build(), 50));
     }
 
     /**
@@ -338,7 +343,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         if(creationType == ECreationType.PATH) {
             // remove of the path we want to remove
             if (mCurrentPosition >= 0 && inter.getWatchPath().size() > mCurrentPosition) {
-                //inter.getWatchPath().remove(mCurrentPosition);
                 // send to the database
                 Object[] tab = {inter.getId(), inter.getWatchPath().get(mCurrentPosition)};
                 updatePathsForInter = new UpdatePathsForInterventionTask(this, EPathOperation.DELETE);
@@ -346,10 +350,9 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
             }
         } else if (creationType == ECreationType.AREA) {
             // remove of the area we want to remove
-            if (mCurrentPosition >= 0 && inter.getWatchArea().size() > mCurrentPosition) {
-                //inter.getWatchPath().remove(mCurrentPosition);
+            if (mCurrentPositionArea >= 0 && inter.getWatchArea().size() > mCurrentPositionArea) {
                 // send to the database
-                Object[] tab = {inter.getId(), inter.getWatchPath().get(mCurrentPosition)};
+                Object[] tab = {inter.getId(), inter.getWatchArea().get(mCurrentPositionArea)};
                 updateAreaTask = new UpdateAreaTask(this, EPathOperation.DELETE);
                 updateAreaTask.execute(tab);
             }
@@ -405,17 +408,34 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
      * callback for when the path create/delete/update succeed
      */
     public void applyUpdateAfterOperation(Intervention intervention){
-        pathList = intervention.getWatchPath();
-        areaList = intervention.getWatchArea();
-        if (this.type == ECreationType.PATH) {
-            updateMapView(intervention.getWatchPath().size() - 1, this.type);
-        } else {
-            updateMapView(intervention.getWatchArea().size() - 1, this.type);
-        }
         PlanZoneActivity p = ((PlanZoneActivity) getActivity());
+        Toast.makeText(p.getApplicationContext(),
+                p.getResources().getString(R.string.drone_update_path_success),
+                Toast.LENGTH_LONG).show();
         p.refreshList(intervention);
         p.editModeOff();
-        ((PlanZoneActivity)getActivity()).showProgress(false);
+        p.showProgress(false);
+
+        pathList = p.getIntervention().getWatchPath();
+        areaList = p.getIntervention().getWatchArea();
+
+        if (this.type == ECreationType.PATH) {
+            if (editPath && intervention.getWatchPath().size() > 0 && mCurrentPosition >= 0 && mCurrentPosition < intervention.getWatchPath().size()){
+                updateMapView(mCurrentPosition, ECreationType.PATH);
+                p.checkListView(mCurrentPosition);
+            } else {
+                updateMapView(intervention.getWatchPath().size() - 1, this.type);
+                p.checkListView(intervention.getWatchPath().size() - 1);
+            }
+        } else {
+            if (editPath && intervention.getWatchArea().size() > 0 && mCurrentPositionArea >= 0 && mCurrentPositionArea < intervention.getWatchArea().size()){
+                updateMapView(mCurrentPositionArea, this.type);
+                p.checkListViewArea(mCurrentPositionArea);
+            } else {
+                updateMapView(intervention.getWatchArea().size() - 1, ECreationType.AREA);
+                p.checkListViewArea(intervention.getWatchArea().size() - 1);
+            }
+        }
     }
 
     /**
@@ -424,22 +444,43 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     public void refreshMapAfterSynchro(Intervention newIntervention, Intervention oldIntervention){
         PlanZoneActivity p = ((PlanZoneActivity) getActivity());
         pathList = newIntervention.getWatchPath();
+        areaList = newIntervention.getWatchArea();
         if (p.isEditionMode()){
-            if (mCurrentPosition != -1 && pathList.size() > 0) {
-                Path oldPath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), oldIntervention.getWatchPath());
-                Path updatePath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), newIntervention.getWatchPath());
-                // remove a path
-                if (updatePath == null) {
-                    if (newIntervention.getWatchPath().size() > 0) {
-                        updateMapView(newIntervention.getWatchPath().size() - 1, ECreationType.PATH);
-                        p.checkListView(newIntervention.getWatchPath().size() - 1);
+            if (this.type == ECreationType.PATH) {
+                if (mCurrentPosition != -1 && pathList.size() > 0 && mCurrentPosition < pathList.size()) {
+                    Path oldPath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), oldIntervention.getWatchPath());
+                    Path updatePath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), newIntervention.getWatchPath());
+                    // remove a path
+                    if (updatePath == null) {
+                        if (newIntervention.getWatchPath().size() > 0) {
+                            updateMapView(newIntervention.getWatchPath().size() - 1, ECreationType.PATH);
+                            p.checkListView(newIntervention.getWatchPath().size() - 1);
+                        }
+                        // update path
+                    } else if (oldPath.isClosed() != updatePath.isClosed() || !oldPath.getPositions().equals(updatePath.getPositions())) {
+                        updateMapView(mCurrentPosition, ECreationType.PATH);
+                        p.checkListView(mCurrentPosition);
+                    } else {
+                        p.checkListView(mCurrentPosition);
                     }
-                // update path
-                } else if (oldPath.isClosed() != updatePath.isClosed() || !oldPath.getPositions().equals(updatePath.getPositions())){
-                    updateMapView(mCurrentPosition, ECreationType.PATH);
-                    p.checkListView(mCurrentPosition);
-                } else {
-                    p.checkListView(mCurrentPosition);
+                }
+            } else {
+                if (mCurrentPositionArea != -1 && areaList.size() > 0 && mCurrentPositionArea < areaList.size()) {
+                    Area oldArea = findAreaById(oldIntervention.getWatchArea().get(mCurrentPositionArea).getIdArea(), oldIntervention.getWatchArea());
+                    Area updateArea = findAreaById(oldIntervention.getWatchArea().get(mCurrentPositionArea).getIdArea(), newIntervention.getWatchArea());
+                    // remove an area
+                    if (updateArea == null) {
+                        if (newIntervention.getWatchArea().size() > 0) {
+                            updateMapView(newIntervention.getWatchArea().size() - 1, ECreationType.AREA);
+                            p.checkListViewArea(newIntervention.getWatchArea().size() - 1);
+                        }
+                        // update area
+                    } else if (!oldArea.getPositions().equals(updateArea.getPositions())) {
+                        updateMapView(mCurrentPositionArea, ECreationType.AREA);
+                        p.checkListViewArea(mCurrentPositionArea);
+                    } else {
+                        p.checkListViewArea(mCurrentPositionArea);
+                    }
                 }
             }
         }
@@ -448,6 +489,15 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     public Path findPathById(long idPath, List<Path> list){
         for (Path p : list){
             if (p.getIdPath() == idPath){
+                return p;
+            }
+        }
+        return null;
+    }
+
+    public Area findAreaById(long idArea, List<Area> list){
+        for (Area p : list){
+            if (p.getIdArea() == idArea){
                 return p;
             }
         }
@@ -720,26 +770,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     }
 
     public void sendArea() {
-
-        // if we are in edition mode, we set the new path in the intervention we get back from the main activity
-        if (editPath){
-
-            // send to the database
-            Path pathToUpdate = inter.getWatchPath().get(mCurrentPosition);
-            pathToUpdate.setPositions(newPath.getPositions());
-            pathToUpdate.setClosed(newPath.isClosed());
-            Object[] tab = {inter.getId(), pathToUpdate};
-            updatePathsForInter = new UpdatePathsForInterventionTask(this, EPathOperation.UPDATE);
-            updatePathsForInter.execute(tab);
-
-            // else, we add the new path
-        } else {
-            Object[] tab = {inter.getId(), newPath};
-            updatePathsForInter = new UpdatePathsForInterventionTask(this, EPathOperation.CREATE);
-            updatePathsForInter.execute(tab);
-        }
-
-
         ((PlanZoneActivity)getActivity()).showProgress(true);
         // remove Click listener
         resetMapListener();
@@ -748,15 +778,13 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         if (editPath){
             // send to the database
             Area areaToUpdate = inter.getWatchArea().get(mCurrentPositionArea);
-            areaToUpdate.setPositions(polygonPoints);
-            //TODO maybe something to do here before sending
+            areaToUpdate.setPositions(newArea.getPositions());
             Object[] tab = {inter.getId(), areaToUpdate};
             updateAreaTask = new UpdateAreaTask(this, EPathOperation.UPDATE);
             updateAreaTask.execute(tab);
 
             // else, we add the new area
         } else {
-            //TODO set newArea during creation
             Object[] tab = {inter.getId(), newArea};
             updateAreaTask = new UpdateAreaTask(this, EPathOperation.CREATE);
             updateAreaTask.execute(tab);
