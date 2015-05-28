@@ -311,6 +311,7 @@ public class InterventionAPI {
     public Response deleteWatchpath(
             @PathParam("inter") Long inter,
             istic.gla.groupb.nivimoju.entity.Area areaToDelete) {
+        logger.info("got request on delete area : " + areaToDelete + " inter : " + inter);
         Intervention intervention = InterventionContainer.getInstance().deleteWatchArea(inter, areaToDelete);
 
         requestOrFreeDrone(intervention);
