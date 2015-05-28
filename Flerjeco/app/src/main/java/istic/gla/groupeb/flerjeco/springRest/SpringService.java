@@ -304,7 +304,14 @@ public class SpringService {
     public ResponseEntity<Drone[]> getAllDroneByIntervention(Long interventionId) {
         Log.v(TAG, "getAllDroneByIntervention start");
         final String url = URL + "drone/byIntervention/" + interventionId;
-        return restTemplate.getForEntity(url, Drone[].class);
+        try {
+            return restTemplate.getForEntity(url, Drone[].class);
+        } catch (ResourceAccessException|HttpServerErrorException e){
+            Log.e(TAG, "getAllDroneByIntervention : " + e.getLocalizedMessage());
+        } catch (Throwable e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return new ResponseEntity<Drone[]>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -336,7 +343,14 @@ public class SpringService {
     public ResponseEntity<Image[]> getAllImageForInterventionAndPosition(Long interventionId, LatLng position, long timestamp) {
         final String url = URL + "image/all/" + interventionId + "/" + position.latitude + "/" + position.longitude + "/" + timestamp;
         Log.v(TAG, "getAllImageForInterventionAndPosition on " + url);
-        return restTemplate.getForEntity(url, Image[].class);
+        try {
+            return restTemplate.getForEntity(url, Image[].class);
+        } catch (ResourceAccessException|HttpServerErrorException e){
+            Log.e(TAG, "getAllImageByIntervention : " + e.getLocalizedMessage());
+        } catch (Throwable e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return new ResponseEntity<Image[]>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -346,7 +360,14 @@ public class SpringService {
     public ResponseEntity<Image> getLastImageForDrone(String droneLabel) {
         final String url = URL + "image/video/" + droneLabel;
         Log.v(TAG, "getLastImageForDrone on " + url);
-        return restTemplate.getForEntity(url, Image.class);
+        try {
+            return restTemplate.getForEntity(url, Image.class);
+        } catch (ResourceAccessException|HttpServerErrorException e){
+            Log.e(TAG, "getLastImageByIntervention : " + e.getLocalizedMessage());
+        } catch (Throwable e) {
+            Log.e(TAG, e.getMessage());
+        }
+        return new ResponseEntity<Image>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**

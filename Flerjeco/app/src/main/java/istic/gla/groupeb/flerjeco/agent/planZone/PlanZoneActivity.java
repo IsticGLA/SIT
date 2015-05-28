@@ -299,11 +299,6 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
 
-/*        // unselect on the listView
-        DroneListFragment droneListFragment = (DroneListFragment)
-                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
-        droneListFragment.unCheckedListView();*/
-
         // show edit mode buttons
         buttonP.setText(getString(R.string.finish_edition));
         buttonA.setText(getString(R.string.finish_edition));
