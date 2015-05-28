@@ -273,6 +273,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
                 .position(middlePos)
                 .flat(true)
                 .anchor(0.5f, 0.5f)
+                .title("fleche")
                 .rotation(rotationDegrees)
                 .icon(bitmapDescriptorFactory));
 
@@ -362,7 +363,7 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     public boolean onMarkerClick(Marker marker) {
         if(dronesMarkers.containsKey(marker.getTitle())){
             activity.loadDroneStream(marker.getTitle());
-        } else{
+        } else if(!marker.getTitle().equals("fleche")){
             activity.loadImageSlider(marker.getPosition());
         }
         return false;
