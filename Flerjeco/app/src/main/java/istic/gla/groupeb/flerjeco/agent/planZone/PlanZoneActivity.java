@@ -190,6 +190,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         // if we are in edition mode, init of the edit buttons
         if (!editionMode) {
             Log.i(TAG, "Mode d'édition du trajet");
+            unCheckListViewArea();
             editModeOn(ECreationType.PATH);
             checkCloseBox(false);
             // begin the creation of the new path (add event on Google Map)
@@ -458,6 +459,7 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         // if we are in edition mode, initi of the edit buttons
         if (!editionMode) {
             Log.i(TAG, "Mode d'édition de la zone");
+            unCheckListView();
             editModeOn(ECreationType.AREA);
             // begin the creation of the new path (add event on Google Map)
             mapFragment.createArea();
