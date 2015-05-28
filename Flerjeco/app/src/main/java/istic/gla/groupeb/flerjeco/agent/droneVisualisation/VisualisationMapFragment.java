@@ -363,8 +363,10 @@ public class VisualisationMapFragment extends Fragment implements DronesMapFragm
     public boolean onMarkerClick(Marker marker) {
         if(dronesMarkers.containsKey(marker.getTitle())){
             activity.loadDroneStream(marker.getTitle());
-        } else if(!marker.getTitle().equals("fleche")){
+        } else if(marker.getTitle() == null || !marker.getTitle().equals("fleche")){
             activity.loadImageSlider(marker.getPosition());
+        } else {
+            return true;
         }
         return false;
     }

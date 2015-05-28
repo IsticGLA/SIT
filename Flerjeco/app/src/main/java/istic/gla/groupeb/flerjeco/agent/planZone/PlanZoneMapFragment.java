@@ -412,17 +412,17 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         if (this.type == ECreationType.PATH) {
             if (editPath && intervention.getWatchPath().size() > 0 && mCurrentPosition >= 0 && mCurrentPosition < intervention.getWatchPath().size()){
                 updateMapView(mCurrentPosition, ECreationType.PATH);
-                p.checkListView(mCurrentPosition);
+                p.unCheckListView();
             } else {
-                clearGoogleMap();
+                updateMapView(pathList.size()-1, ECreationType.PATH);
                 p.unCheckListView();
             }
         } else {
             if (editPath && intervention.getWatchArea().size() > 0 && mCurrentPositionArea >= 0 && mCurrentPositionArea < intervention.getWatchArea().size()){
                 updateMapView(mCurrentPositionArea, ECreationType.AREA);
-                p.checkListViewArea(mCurrentPositionArea);
+                p.unCheckListViewArea();
             } else {
-                clearGoogleMap();
+                updateMapView(areaList.size()-1, ECreationType.AREA);
                 p.unCheckListViewArea();
             }
         }
