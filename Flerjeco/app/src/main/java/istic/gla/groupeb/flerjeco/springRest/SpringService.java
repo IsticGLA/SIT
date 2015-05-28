@@ -431,6 +431,7 @@ public class SpringService {
             url = URL + "intervention/" + param[0] + "/watcharea/delete";
         }
         try {
+            Log.i("JVG", url);
             return restTemplate.postForEntity(url, param[1], Intervention.class);
         } catch (HttpServerErrorException e){
             Log.e(TAG, "erreur à l'update d'un path", e);

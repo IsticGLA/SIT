@@ -75,8 +75,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     int mCurrentPosition = -1;
     // initialized when we create a new path for the current intervention
     public Path newPath;
-    // save the path when we edit it to future restore (request to database failed)
-    private Path savePath;
 
     // list of all the area of the intervention
     private List<Area> areaList;
@@ -88,8 +86,6 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
     // current intervention
     private Intervention inter;
 
-    // indicate if we want to remove a path in the intervention
-    public boolean removePath = false;
     // indicate if we want to edit a path in the intervention
     public boolean editPath = false;
 
@@ -185,26 +181,19 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
                 mCurrentPosition = position;
 
 
-                // set closed property on newPath
-                boolean b = pathList.get(position).isClosed();
-                newPath.setClosed(b);
-                ((PlanZoneActivity) getActivity()).checkCloseBox(b);
+                // set newPath
+                newPath = pathList.get(position);
+                ((PlanZoneActivity) getActivity()).checkCloseBox(newPath.isClosed());
 
-                // save the old path for future restore if the update doesn't work
-                savePath = new Path();
-                savePath.setClosed(b);
 
                 // get all the positions of the path to draw it
-                List<Position> positions = pathList.get(position).getPositions();
+                List<Position> positions = newPath.getPositions();
 
                 for (int i = 0; i < positions.size(); i++) {
                     double latitude = positions.get(i).getLatitude();
                     double longitude = positions.get(i).getLongitude();
                     LatLng latLng = new LatLng(latitude, longitude);
                     bounds.include(latLng);
-
-                    newPath.getPositions().add(new Position(latitude, longitude, 20));
-                    savePath.getPositions().add(new Position(latitude, longitude, 20));
 
                     // create marker
                     MarkerOptions marker = new MarkerOptions().position(latLng);
@@ -334,12 +323,14 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
      * @param creationType
      */
     public void removePath(ECreationType creationType){
-        removePath = true;
+        PlanZoneActivity pl = (PlanZoneActivity)getActivity();
+        pl.showProgress(true);
         // remove Click listener
         resetMapListener();
-        // get back the intervention from the main activity
-        inter = ((PlanZoneActivity)getActivity()).getIntervention();
 
+        // get back the intervention from the main activity
+        inter = pl.getIntervention();
+        Log.i("JVG", "Test " + type);
         if(creationType == ECreationType.PATH) {
             // remove of the path we want to remove
             if (mCurrentPosition >= 0 && inter.getWatchPath().size() > mCurrentPosition) {
