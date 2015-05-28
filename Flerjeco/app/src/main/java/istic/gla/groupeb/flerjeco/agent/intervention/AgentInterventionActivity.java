@@ -293,7 +293,6 @@ public class AgentInterventionActivity extends TabbedActivity
     @Override
     protected void onStop() {
         super.onStop();
-        stopSynchro();
     }
 
     @Override
@@ -301,6 +300,7 @@ public class AgentInterventionActivity extends TabbedActivity
         super.onPause();
         //closing transition animations
         overridePendingTransition(R.anim.activity_open_scale,R.anim.activity_close_translate);
+        stopSynchro();
     }
 
 

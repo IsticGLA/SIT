@@ -229,20 +229,23 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
      * @param v the view of the activity
      */
     public void cancel(View v){
+        cancelAfterUpdate();
+    }
+
+    public void cancelAfterUpdate(){
         // hide edit buttons
         editModeOff();
+        DroneListFragment droneListFragment = (DroneListFragment)
+                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
+        droneListFragment.unCheckedListView();
+        droneListFragment.unCheckedListViewArea();
         PlanZoneMapFragment mapFragment = (PlanZoneMapFragment)
                 getSupportFragmentManager().findFragmentById(R.id.map_fragment);
         // remove the click Listener on the Google Map
         mapFragment.resetMapListener();
-        // if we are in edition mode, we clear the path we are updating
-        if (mapFragment.editPath) {
-            mapFragment.updateMapView(position, mapFragment.type);
-            mapFragment.editPath = false;
-        // else, we clear the Google Map
-        } else {
-            mapFragment.clearGoogleMap();
-        }
+        mapFragment.editPath = false;
+        mapFragment.clearGoogleMap();
+
     }
 
     /**
@@ -395,10 +398,22 @@ public class PlanZoneActivity extends TabbedActivity implements DroneListFragmen
         droneListFragment.checkListView(position);
     }
 
+    public void unCheckListView(){
+        DroneListFragment droneListFragment = (DroneListFragment)
+                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
+        droneListFragment.unCheckedListView();
+    }
+
     public void checkListViewArea(int position){
         DroneListFragment droneListFragment = (DroneListFragment)
                 getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
         droneListFragment.checkListViewArea(position);
+    }
+
+    public void unCheckListViewArea(){
+        DroneListFragment droneListFragment = (DroneListFragment)
+                getSupportFragmentManager().findFragmentById(R.id.resources_fragment);
+        droneListFragment.unCheckedListViewArea();
     }
 
     @Override

@@ -409,22 +409,21 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
 
         pathList = p.getIntervention().getWatchPath();
         areaList = p.getIntervention().getWatchArea();
-        Log.i("JVG", "Ceci est une test " + this.type);
         if (this.type == ECreationType.PATH) {
             if (editPath && intervention.getWatchPath().size() > 0 && mCurrentPosition >= 0 && mCurrentPosition < intervention.getWatchPath().size()){
                 updateMapView(mCurrentPosition, ECreationType.PATH);
                 p.checkListView(mCurrentPosition);
             } else {
-                updateMapView(intervention.getWatchPath().size() - 1, ECreationType.PATH);
-                p.checkListView(intervention.getWatchPath().size() - 1);
+                clearGoogleMap();
+                p.unCheckListView();
             }
         } else {
             if (editPath && intervention.getWatchArea().size() > 0 && mCurrentPositionArea >= 0 && mCurrentPositionArea < intervention.getWatchArea().size()){
                 updateMapView(mCurrentPositionArea, ECreationType.AREA);
                 p.checkListViewArea(mCurrentPositionArea);
             } else {
-                updateMapView(intervention.getWatchArea().size() - 1, ECreationType.AREA);
-                p.checkListViewArea(intervention.getWatchArea().size() - 1);
+                clearGoogleMap();
+                p.unCheckListViewArea();
             }
         }
     }
@@ -436,41 +435,46 @@ public class PlanZoneMapFragment extends Fragment implements DronesMapFragment {
         PlanZoneActivity p = ((PlanZoneActivity) getActivity());
         pathList = newIntervention.getWatchPath();
         areaList = newIntervention.getWatchArea();
+        Log.i(TAG, "SYNCHRO on");
         if (p.isEditionMode()){
             if (this.type == ECreationType.PATH) {
-                if (mCurrentPosition != -1 && pathList.size() > 0 && mCurrentPosition < pathList.size()) {
-                    Path oldPath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), oldIntervention.getWatchPath());
-                    Path updatePath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), newIntervention.getWatchPath());
+                if (mCurrentPosition != -1) {
                     // remove a path
-                    if (updatePath == null) {
-                        if (newIntervention.getWatchPath().size() > 0) {
-                            updateMapView(newIntervention.getWatchPath().size() - 1, ECreationType.PATH);
-                            p.checkListView(newIntervention.getWatchPath().size() - 1);
-                        }
-                        // update path
-                    } else if (oldPath.isClosed() != updatePath.isClosed() || !oldPath.getPositions().equals(updatePath.getPositions())) {
-                        updateMapView(mCurrentPosition, ECreationType.PATH);
-                        p.checkListView(mCurrentPosition);
+                    if (pathList.size() >= 0 && mCurrentPosition >= pathList.size()){
+                        Log.i(TAG, "SYNCHRO : remove a path");
+                        p.cancelAfterUpdate();
+                    // update path
                     } else {
-                        p.checkListView(mCurrentPosition);
+                        Path oldPath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), oldIntervention.getWatchPath());
+                        Path updatePath = findPathById(oldIntervention.getWatchPath().get(mCurrentPosition).getIdPath(), newIntervention.getWatchPath());
+                        if (oldPath.isClosed() != updatePath.isClosed() || !oldPath.getPositions().equals(updatePath.getPositions())) {
+                            Log.i(TAG, "SYNCHRO : update a path");
+                            updateMapView(mCurrentPosition, ECreationType.PATH);
+                            p.checkListView(mCurrentPosition);
+                        } else {
+                            Log.i(TAG, "SYNCHRO : create a path");
+                            p.checkListView(mCurrentPosition);
+                        }
                     }
                 }
             } else {
-                if (mCurrentPositionArea != -1 && areaList.size() > 0 && mCurrentPositionArea < areaList.size()) {
-                    Area oldArea = findAreaById(oldIntervention.getWatchArea().get(mCurrentPositionArea).getIdArea(), oldIntervention.getWatchArea());
-                    Area updateArea = findAreaById(oldIntervention.getWatchArea().get(mCurrentPositionArea).getIdArea(), newIntervention.getWatchArea());
-                    // remove an area
-                    if (updateArea == null) {
-                        if (newIntervention.getWatchArea().size() > 0) {
-                            updateMapView(newIntervention.getWatchArea().size() - 1, ECreationType.AREA);
-                            p.checkListViewArea(newIntervention.getWatchArea().size() - 1);
-                        }
-                        // update area
-                    } else if (!oldArea.getPositions().equals(updateArea.getPositions())) {
-                        updateMapView(mCurrentPositionArea, ECreationType.AREA);
-                        p.checkListViewArea(mCurrentPositionArea);
+                if (mCurrentPositionArea != -1) {
+                    // remove a path
+                    if (areaList.size() >= 0 && mCurrentPositionArea >= areaList.size()){
+                        Log.i(TAG, "SYNCHRO : remove an area");
+                        p.cancelAfterUpdate();
+                        // update path
                     } else {
-                        p.checkListViewArea(mCurrentPositionArea);
+                        Area oldArea = findAreaById(oldIntervention.getWatchArea().get(mCurrentPositionArea).getIdArea(), oldIntervention.getWatchArea());
+                        Area updateArea = findAreaById(oldIntervention.getWatchArea().get(mCurrentPositionArea).getIdArea(), newIntervention.getWatchArea());
+                        if (!oldArea.getPositions().equals(updateArea.getPositions())) {
+                            Log.i(TAG, "SYNCHRO : update an area");
+                            updateMapView(mCurrentPositionArea, ECreationType.AREA);
+                            p.checkListViewArea(mCurrentPositionArea);
+                        } else {
+                            Log.i(TAG, "SYNCHRO : create an area");
+                            p.checkListViewArea(mCurrentPositionArea);
+                        }
                     }
                 }
             }
