@@ -90,6 +90,7 @@ public class InterventionContainer {
         }
         intervention.setCreationDate(DateTime.now().getMillis());
         Intervention resultat = interventionDAO.create(intervention);
+        intervention.updateDate();
         interventionDAO.disconnect();
         mapInterventionById.put(resultat.getId(), resultat);
 
@@ -191,6 +192,7 @@ public class InterventionContainer {
                 resource.setStateDate(resource.getState());
                 intervention.getResources().remove(res);
                 intervention.getResources().add(resource);
+                intervention.updateDate();
                 return intervention;
             }
         }
