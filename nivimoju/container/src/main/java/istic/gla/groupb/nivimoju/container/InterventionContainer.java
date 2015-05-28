@@ -309,11 +309,12 @@ public class InterventionContainer {
      * @return
      */
     public Intervention deleteWatchArea(Long idintervention, Area area) {
+        logger.info("deleting area " + area + " for inter " + idintervention);
         Intervention intervention = getInterventionById(idintervention);
         Long id = Long.valueOf(0);
         for(Area oldarea : intervention.getWatchArea()) {
             if(oldarea.getIdArea() == area.getIdArea()) {
-                intervention.getWatchPath().remove(oldarea);
+                intervention.getWatchArea().remove(oldarea);
                 intervention.updateDate();
                 return intervention;
             }
